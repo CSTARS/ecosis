@@ -50,7 +50,20 @@ ESIS.chart = (function(){
 	  		legend : {position:"none"}
         }
         
+        _createExportBtn(item.Name, item["X Units"], item["Y Units"], arr);
+        
         _redraw();
+	}
+	
+	// TODO: need to test in more browsers
+	function _createExportBtn(name, xName, yName, arr) {
+		var url = "data:application/csv;charset=utf-8,";
+		var data = xName+","+yName+"\n";
+		for( var i = 0; i < arr.length; i++ ) {
+			data += arr[i][0]+","+arr[i][1]+"\n";
+		}
+		$("#result-export").html("<a class='btn' download='"+name+".csv' href='"+url+encodeURIComponent(data)+"'>Download CSV</a>");
+		
 	}
 	
 	function _redraw() {
