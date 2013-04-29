@@ -1,0 +1,122 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	
+	<title>ESIS</title>
+	
+	
+	<link href="css/bootstrap.min.css" rel="stylesheet" />
+	<link href="css/bootstrap-responsive.min.css" rel="stylesheet" />
+	<link href="css/style.css" rel="stylesheet">
+	
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="jslib/bootstrap.min.js"></script>
+	<script type="text/javascript" src="jslib/handlebars.js"></script>
+	<script type="text/javascript" src="js/app.js"></script>
+	<script type="text/javascript" src="mqe/mqe.js"></script>
+	<script type="text/javascript" src="js/search.js"></script>
+	<script type="text/javascript" src="js/home.js"></script>
+	<script type="text/javascript" src="js/result.js"></script>
+	<script type="text/javascript" src="js/chart.js"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript">
+      google.load('visualization', '1', {packages: ['corechart']});
+      google.setOnLoadCallback(initchart);
+    </script>
+	
+	<script type="text/javascript">
+		$(window).ready(function(){
+			
+			$("#accordion2").collapse();
+			$("#accordion2").height("auto");
+		});
+	</script>
+
+</head>
+<body style="padding:2% 6%">
+
+<div id="home" style="display:none">
+	<div class="well" style="text-align:center">
+		<h2>ESIS Directory</h2>
+	</div>
+	<div style="text-align:center;margin-bottom:25px">Welcome to the ESIS Directory, a useful tool for finding spectral data</div>
+	
+	<div class="page-header" style="text-align:center;"><a href="/#search" class="btn btn-primary btn-large"><i class="icon-search icon-white"></i> Start Search</a></div>
+	
+</div>
+
+<div id="search" style="display:none">
+	<div class="page-header" style="margin:0px">
+		<div class="row-fluid">
+			<div class="span9">
+				<h4>ESIS Directory</h4>
+			</div>
+			<div class="span3">
+				<a class='btn btn-primary pull-right' href="/#home" style="margin:5px"><i class="icon-home icon-white"></i> Home</a>
+			</div>
+		</div>
+	</div>
+	
+	<div class="row-fluid">
+		<div class="span12">
+			<div class="well form-search">
+				<div class="row-fluid">
+					<div class="span5" >
+						<input id="search-text" type="text" class="input-medium search-query" style="height:30px;width:220px;margin:0 10px 5px 0" >
+						<a id="search-btn" class="btn"><i class="icon-search"></i> Search</a>
+					</div>
+					<div class="span6" id="active-filters"></div>
+				</div>
+      		</div>
+		</div>
+	</div>
+	
+	<div class="row-fluid">
+		<div class="span3">
+			<div class="well">
+				<ul class="nav nav-list" id="filter-nav"></ul>
+			</div>
+		</div>
+		<div class="span9">
+			<div class="page-header" style="margin:10px 0 0 0">
+					<div class="row-fluid">
+						<div class="span6">
+							<h4 id="results-title">Search Results</h4>
+						</div>
+						<div class="span6">
+							<div id="search-paging" class="pagination pagination-right" style="margin:0px">
+						        <ul id="search-paging-btns"></ul>
+							</div>
+						</div>
+					</div>
+			</div>
+			<div id="results-panel"></div>
+		</div>
+	</div>
+
+</div>
+
+<div id="result" style="display:none">
+
+</div>
+
+<div id="all" style="display:none">
+	<div class="page-header" style="margin:0px">
+		<div class="row-fluid">
+			<div class="span9">
+				<h4>ESIS Directory</h4>
+			</div>
+			<div class="span3">
+				<a class='btn btn-primary pull-right' href="/#home" style="margin:5px"><i class="icon-home icon-white"></i> Home</a>
+				<a class='btn btn-primary pull-right' href="/#search" style="margin:5px"><i class="icon-search icon-white"></i> Search</a>
+			</div>
+		</div>
+	</div>
+	<div id='all-nav' class="pagination"><ul></ul></div>
+	
+</div>
+
+<div id="edit" style="display:none"></div>
+
+</body>
+</html>

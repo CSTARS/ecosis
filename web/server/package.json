@@ -1,0 +1,15 @@
+{
+  "name": "ca-coastal-commission",
+  "version": "0.0.1",
+  "author": "Justin Merz <jrmerz@gmail.com>",
+  "description": "Creeks to Ocean resource directory",
+  "dependencies" : {
+    "express"           : "*",
+    "mongodb"           : "*",
+    "csv"               : "*",
+    "passport"          : "*",
+    "passport-google"   : "*",
+    "passport-facebook" : "*",
+    "passport-twitter"  : "*"
+  }
+}

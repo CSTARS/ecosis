@@ -1,0 +1,35 @@
+<script id="result-template" type="text/x-handlebars-template">
+  <div>
+	<div class="page-header">
+		<div class="row-fluid">
+			<div class="span9">
+				<h2>{{Name}}</h2>
+			</div>
+			<div class="span3" style="height:40px;padding-top:10px;">
+				<a class='btn btn-primary pull-right' href="/#home" style="margin:5px"><i class="icon-home icon-white"></i> Home</a>
+				<a id="result-back-btn" class="btn btn-primary pull-right" style="margin:5px"><i class="icon-search icon-white"></i> Search</a>
+			</div>
+		</div>
+	</div>
+	
+	{{#if Description}}
+		<h4>Description</h4>
+		<div class="Description" style='margin-bottom:15px'>{{Description}}</div>
+	{{/if}}
+	
+	<div class="row-fluid" style='margin-bottom:15px'>
+		<div class="span6">
+			<div id="result-left-panel"></div>
+		</div>
+		<div class="span6">
+			<div id="result-right-panel"></div>
+		</div>
+	</div>
+	
+	<div class="well">
+		<div id="result-chart-panel"></div>
+	</div>
+
+	
+  </div>
+</script>
