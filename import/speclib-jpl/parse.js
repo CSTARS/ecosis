@@ -1,10 +1,9 @@
-var csv = require('csv');
 var fs = require('fs');
 
 // simple metadata key mapping
 var metamap = {
-	rocks : "rock",
-	soils : "soil"
+	Rocks : "Rock",
+	Soils : "Soil"
 }
 
 exports.getData = function() {
