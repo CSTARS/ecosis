@@ -37,7 +37,9 @@ ESIS.chart = (function(){
         
         var arr = [];
         for( var i = 0; i < item.spectra[0].length; i++ ) {
-        	arr.push([item.spectra[0][i]*1, item.spectra[1][i]*1]);
+        	var x = item.spectra[0][i]*1;
+        	var y = item.spectra[1][i]*1;
+        	if( x || y) arr.push([item.spectra[0][i]*1, item.spectra[1][i]*1]);
         }
         data.addRows(arr);
         
