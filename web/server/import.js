@@ -43,3 +43,11 @@ function updateRecord(collection, record, callback) {
 	});
 }
 
+MongoClient.connect("mongodb://localhost:27017/esis", function(err, database) {
+	if( err ) return console.log(err);
+
+	exports.importData(database, function(){
+		console.log("done");
+	});
+
+});

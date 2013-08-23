@@ -30,8 +30,9 @@ exports.db = {
 	                   "First Column", "Second Column", "X Units", "Y Units", "First X Value", 
 	                   "Last X Value", "Number of X Values", "Additional Information"],
 	
+	                   
 	// local script to be fired when update is called via admin api call
-	importScript    : "/Users/jrmerz/dev/cstars/ESIS/web/server/import.js",
+	importScript    : "/home/jrmerz/dev/cstars/esis/web/server/import.js",
 		
 }
 
@@ -39,7 +40,14 @@ exports.db = {
 exports.server = {
 	host : "localhost",
 	
-	port : 3000,
+	// port outside world goes to.  most likely 80
+	remoteport : 80,
 	
-	script : "/Users/jrmerz/dev/cstars/ESIS/web/server/server.js"
+	// local port on machine
+	localport : 3003,
+	
+	// remote hosts that are allowed to access this sites mqe
+	allowedDomains : ["testnode.com","localhost","192.168.1.113"],
+	
+	script : "/home/jrmerz/dev/cstars/esis/web/server/server.js"
 }
