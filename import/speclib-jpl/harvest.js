@@ -19,14 +19,14 @@ function post(type) {
 	request.post(
 	    'http://speclib.jpl.nasa.gov/search-1/resultsdisplay3',
 	    { form: 
-		{ searchtype: type,
-		  mname : '',
-		  classsel: 'All',
-		  subclass: 'All',
-		  xstart : '',
-		  xstop : '',
-		  maxhits : 2000 
-		} 
+			{ searchtype: type,
+			  mname : '',
+			  classsel: 'All',
+			  subclass: 'All',
+			  xstart : '',
+			  xstop : '',
+			  maxhits : 2000 
+			} 
 	    },
 	    function (error, response, body) {
 	        if (!error && response.statusCode == 200) {

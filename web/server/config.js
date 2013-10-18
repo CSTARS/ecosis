@@ -39,7 +39,7 @@ exports.db = {
 exports.server = {
 	host : "localhost",
 	
-	port : 3000,
+	localport : 3000,
 	
 	script : "/Users/jrmerz/dev/cstars/ESIS/web/server/server.js"
 }

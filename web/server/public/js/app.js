@@ -17,7 +17,7 @@ ESIS.app = (function() {
 			_updatePageContent(hash);
 		});
 		
-		CERES.mqe.init(DEFAULT_PAGE);
+		CERES.mqe.init({defaultPage:DEFAULT_PAGE});
 		ESIS.home.init();
 		ESIS.search.init();
 		ESIS.result.init();
