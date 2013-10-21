@@ -1,2 +1,0 @@
-recursive-include ckanext/esis/templates                                           *
-recursive-include ckanext/esis/public                                              *
