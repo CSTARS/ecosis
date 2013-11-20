@@ -23,7 +23,7 @@ exports.getData = function() {
 function readfile(file) {
 	var content = fs.readFileSync(__dirname+file, 'utf8').split("\n");
 	
-	var obj = {spectra:[[],[]], file:file.replace(/\/files\//,'')};
+	var obj = {spectra:[[],[]], file: file.replace(/\/files\//,'')};
 	var cData = ""; // current metadata value
 	var cType = ""; // current metadata key
 	

@@ -1,8 +1,8 @@
 {
-  "name": "ca-coastal-commission",
+  "name": "esis",
   "version": "0.0.1",
   "author": "Justin Merz <jrmerz@gmail.com>",
-  "description": "Creeks to Ocean resource directory",
+  "description": "Ecosis Search (mqe)",
   "dependencies" : {
     "express"           : "*",
     "mongodb"           : "*",
