@@ -20,18 +20,27 @@ exports.db = {
 	indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
 	
 	// currently MQE only allows one sort option, place the attribute you wish to sort on here
-	sortBy          : "organization",
+	sortBy          : "title",
 	
 	// currently Mongo only allows the creation of text search on one attribute.  MQE will
 	// combine all filters listed below into a single attribute that will be used for
 	// the text search index
 	textIndexes     : ["Name", "Type", "Class", "Subclass", "Particle Size", "description", 
-	                   "title"],
-	
-	                   
-	// local script to be fired when update is called via admin api call
-	importScript    : "/Users/jrmerz/dev/cstars/esis/search/server/import.js",
-		
+	                   "title"]
+}
+
+exports.import = {
+	// js module to run
+	module : "/Users/jrmerz/dev/cstars/ckan-mqe-importer/ckan-importer.js",
+
+	// in milliseconds
+	interval : 1000 * 60 * 60,
+
+	// if you want to store the import stats in collection
+	statsCollection : "spectral_update_stats",
+
+	// directory file parsers are stored
+	parsers : "/Users/jrmerz/dev/cstars/esis/search/server/parsers"
 }
 
 
@@ -53,6 +62,5 @@ exports.server = {
 exports.ckan = {
 	server : "http://esis.casil.ucdavis.edu",
 
-	// fields that trigger item has been updated (for logging purposes)
-	updateFields : ["title"]
+	
 }
