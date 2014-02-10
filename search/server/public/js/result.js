@@ -69,6 +69,8 @@ ESIS.result = (function() {
 			Name : result.Name,
 			Description : result.Description
 		};
+
+		result.isChecked = ESIS.compare.selected(result._id);
 		
 		return resultTemplate(result);
 		

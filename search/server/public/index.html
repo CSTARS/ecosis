@@ -18,6 +18,7 @@
 	<script type="text/javascript" src="js/home.js"></script>
 	<script type="text/javascript" src="js/result.js"></script>
 	<script type="text/javascript" src="js/chart.js"></script>
+	<script type="text/javascript" src="js/compare.js"></script>
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 	<script type="text/javascript">
       google.load('visualization', '1', {packages: ['corechart']});
@@ -76,6 +77,9 @@
 			<div class="well">
 				<ul class="nav nav-list" id="filter-nav"></ul>
 			</div>
+			<div class="well" style="display:none">
+				<ul class="nav nav-list" id="compare-list"></ul>
+			</div>
 		</div>
 		<div class="span9">
 			<div class="page-header" style="margin:10px 0 0 0">
@@ -116,7 +120,18 @@
 	
 </div>
 
-<div id="edit" style="display:none"></div>
-
+<div id="compare" style="display:none">
+	<div class="row-fluid">
+		<div class="span9">
+			<h2>Compare</h2>
+		</div>
+		<div class="span3" style="height:40px;padding-top:10px;">
+			<a class='btn btn-primary pull-right' href="/#home" style="margin:5px"><i class="icon-home icon-white"></i> Home</a>
+			<a id="compare-back-btn" class="btn btn-primary pull-right" style="margin:5px"><i class="icon-search icon-white"></i> Back to Search</a>
+		</div>
+	</div>
+	<div id="compare-chart"></div>
+	<div id="compare-list-btns"></div>
+</div>
 </body>
 </html>

@@ -1,4 +1,5 @@
 import/speclib-jpl/files/*
+import/specchio/files/*
 node_modules*
 *node_modules*
 *DS_STORE

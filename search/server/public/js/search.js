@@ -6,7 +6,12 @@ ESIS.search = (function() {
 	
 	// handle bar template layouts
 	var RESULT_TEMPLATE = [
-	    "<div class='search-result-row'>",
+	    '<div class="search-result-row">',
+	    	"<div class='checkbox pull-right'>",
+				"<label>",
+				    "<input type='checkbox' {{#if isChecked}}checked{{/if}} onclick='ESIS.compare.toggle(this);' class='select-{{_id}}' itemid='{{_id}}' itemname='{{title}}' /> Compare",
+				    "</label>",
+				"</div>",
 	    	"<h4><a href='#result/{{_id}}'>{{title}}</a></h4>",
 	    	"<div class='row-fluid'>",
 	    		"<div class='span7' style='padding-bottom:10px'>{{snippet}}</div>",
@@ -236,7 +241,8 @@ ESIS.search = (function() {
 				_id     : item._id,
 				title   : item.Name,
 				snippet : snippet,
-				info    : info
+				info    : info,
+				isChecked : ESIS.compare.selected(item._id)
 			}));
 		}
 	}

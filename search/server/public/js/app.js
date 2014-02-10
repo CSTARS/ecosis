@@ -5,7 +5,7 @@ var ESIS = {
 ESIS.app = (function() {
 	
 	var DEFAULT_PAGE = "home";
-	var validPages = [DEFAULT_PAGE, "search", "result", "all", "edit"];
+	var validPages = [DEFAULT_PAGE, "search", "result", "all", "edit", "compare"];
 	
 	var cPage = "";
 	
@@ -21,7 +21,7 @@ ESIS.app = (function() {
 		ESIS.home.init();
 		ESIS.search.init();
 		ESIS.result.init();
-		
+		ESIS.compare.init();
 	});
 	
 	function _updatePage(page) {
@@ -42,6 +42,8 @@ ESIS.app = (function() {
 			ESIS.all.init();
 		} else if ( cPage == "edit" ) {
 			ESIS.edit.init();
+		} else if ( cPage == "compare" ) {
+			ESIS.compare.show();
 		}
 	}
 	

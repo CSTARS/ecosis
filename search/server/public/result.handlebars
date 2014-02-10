@@ -11,6 +11,12 @@
 			</div>
 		</div>
 	</div>
+
+	<div class='checkbox pull-right'>
+		<label>
+			<input type='checkbox' {{#if isChecked}}checked{{/if}} onclick='ESIS.compare.toggle(this);' class='select-{{_id}}' itemid='{{_id}}' itemname='{{title}}' /> Compare
+		</label>
+	</div>
 	
 	{{#if Description}}
 		<h4>Description</h4>

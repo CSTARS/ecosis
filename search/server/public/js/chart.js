@@ -11,25 +11,94 @@ ESIS.chart = (function(){
 	var options = null;
 	
 	function init() {
+		chartsReady = true;
+
 		if( pendingChart != null ) {
-			draw(pendingChart);
+			if( pendingChart instanceof Array ) {
+				drawCompare(pendingChart);
+			} else {
+				draw(pendingChart);
+			}
+			
 		}
 		
 		$(window).resize(function(){
 			_redraw();
 		});
+	}
+
+	function drawCompare(items, panel) {
+		if( panel ) cPanel = panel
 		
-		chartsReady = true;
+		// TODO
+		if( !chartsReady ) {
+			pendingChart = items;
+			return;
+		}
+		cPanel.html("");
+		
+		data = new google.visualization.DataTable();
+
+        data.addColumn('number', items[0]["X Units"]);
+        
+
+        var hash = {};
+        var hashArray = [];
+        for( var i = 0; i < items.length; i++ ) {
+        	hashArray.push({});
+        	data.addColumn('number', items[i].Name);
+        	for( var j = 0; j < items[i].data.spectra[0].length; j++ ) {
+        		var x = items[i].data.spectra[0][j]*1;
+        		var y = items[i].data.spectra[1][j]*1;
+        		if( !hash[x] ) hash[x] = [x];
+        		hashArray[i][x] = [y];
+        	}
+        }
+
+
+        for( var i = 0; i < items.length; i++ ) {
+        	for( var key in hash ) {
+        		if( hashArray[i][key] ) {
+        			hash[key].push(hashArray[i][key]*1)
+        		} else {
+        			hash[key].push(null);
+        		}
+        	}
+        }
+       
+       var arr = [];
+       for( var key in hash ) {
+       		arr.push(hash[key]);
+       }
+
+       arr.sort(function(a, b){
+       		if( a[0] > b[0] ) return 1;
+       		if( a[0] < b[0] ) return -1;
+       		return 0;
+       });
+
+       data.addRows(arr);
+        
+        options = {
+        	explorer : {},
+        	title : '',
+        	interpolateNulls : true,
+        	vAxis: {title: items[0]["Y Units"]},
+	  		hAxis: {title: items[0]["X Units"]},
+	  		legend : {position:'top'}
+        }
+                
+        _redraw();
 	}
 	
 	function draw(item, panel) {
-		panel.html("");
-		cPanel = panel
+		if( panel ) cPanel = panel
 		
 		if( !chartsReady ) {
 			pendingChart = item;
 			return;
 		}
+		cPanel.html("");
 		
 		data = new google.visualization.DataTable();
         data.addColumn('number', item["X Units"]);
@@ -64,18 +133,17 @@ ESIS.chart = (function(){
 		}
 		$("#result-export").html("<a class='btn' target='_blank' download='"+name+".csv' href='"+url+encodeURIComponent(data)+"'>Download CSV</a>");
 		*/
-		$("#result-export").html("<a class='btn' target='_blank' href='"+url+"'>Download</a>");
+		$("#result-export").html("<a class='btn btn-default' target='_blank' href='"+url+"'><i class='icon-download-alt'></i> Download</a>");
 	}
 	
 	function _redraw() {
-		if( !window.location.hash.match(/#result.*/) ) return;
+		var hash = window.location.hash;
+		if( !hash.match(/#result.*/) && !hash.match(/#compare.*/) ) return;
 		
 		cPanel.html("");
-		
-		
         
         var h = cPanel.width() / 2;
-        if( h > 400 ) h = 400;
+        //if( h > 400 ) h = 400;
         if( h < 200 ) h = 200;
         
         cPanel.height(h);
@@ -86,6 +154,7 @@ ESIS.chart = (function(){
 	
 	return {
 		init : init,
-		draw : draw
+		draw : draw,
+		drawCompare: drawCompare
 	}
 })();
