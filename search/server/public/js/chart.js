@@ -48,8 +48,8 @@ ESIS.chart = (function(){
         	hashArray.push({});
         	data.addColumn('number', items[i].Name);
         	for( var j = 0; j < items[i].spectra[0].length; j++ ) {
-        		var x = parseFloat(items[i].spectra[0][j])*1;
-        		var y = parseFloat(items[i].spectra[1][j])*1;
+        		var x = parseFloat(items[i].spectra[j][0])*1;
+        		var y = parseFloat(items[i].spectra[j][1])*1;
         	//for( var j = 0; j < items[i].data.spectra[0].length; j++ ) {
         	//	var x = items[i].data.spectra[0][j]*1;
         	//	var y = items[i].data.spectra[1][j]*1;
