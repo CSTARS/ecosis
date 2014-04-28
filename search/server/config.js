@@ -2,6 +2,8 @@
 exports.debug = true;
 
 exports.db = {
+	initd           : "mongod",
+
 	// connection string for the database, includes database name
 	url             : "mongodb://localhost:27017/esis",
 	
@@ -17,19 +19,22 @@ exports.db = {
 	
 	// Filters yours site uses, these will be returned in the results
 	// MQE will also use this list to make sure indexes are built on these items
-	indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
+	//indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
+	indexedFilters : ['type', 'form', 'usdanrcs_common_name'],
 	
 	// currently MQE only allows one sort option, place the attribute you wish to sort on here
-	sortBy          : "title",
+	//sortBy          : "title",
+	sortBy            : 'usdanrcs_common_name',
 	
 	// currently Mongo only allows the creation of text search on one attribute.  MQE will
 	// combine all filters listed below into a single attribute that will be used for
 	// the text search index
-	textIndexes     : ["Name", "Type", "Class", "Subclass", "Particle Size", "description", 
-	                   "title"]
+	//textIndexes     : ["Name", "Type", "Class", "Subclass", "Particle Size", "description", 
+	//                  "title"]
+	textIndexes       : ['type', 'form', 'usdanrcs_common_name', 'phenophase_grassessedgerush', 'project']
 }
 
-exports.import = {
+/*exports.import = {
 	// js module to run
 	module : "/Users/jrmerz/dev/cstars/ckan-mqe-importer/ckan-importer.js",
 
@@ -41,7 +46,7 @@ exports.import = {
 
 	// directory file parsers are stored
 	parsers : "/Users/jrmerz/dev/cstars/esis/search/server/parsers"
-}
+}*/
 
 
 exports.server = {
@@ -60,7 +65,7 @@ exports.server = {
 }
 
 exports.ckan = {
-	server : "http://esis.casil.ucdavis.edu",
+	server : "http://192.168.1.109:5000",
 
-	
+	keyFile : '/etc/node-ckan/ckan-local.json'	
 }

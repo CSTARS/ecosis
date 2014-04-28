@@ -46,10 +46,10 @@ ESIS.result = (function() {
 		var leftList = "<ul>";
 		var rightList = "<ul>";
 		var count = 0;
-		for( var key in result.data ) {
-			if( ignoreAttrs.indexOf(key) == -1 && result.data[key] ) {
-				if( count % 2 == 0 ) leftList += "<li><b>"+key+": </b>"+result.data[key]+"</li>";
-				else rightList += "<li><b>"+key+": </b>"+result.data[key]+"</li>";
+		for( var key in result ) {
+			if( ignoreAttrs.indexOf(key) == -1 && result[key] ) {
+				if( count % 2 == 0 ) leftList += "<li><b>"+key+": </b>"+result[key]+"</li>";
+				else rightList += "<li><b>"+key+": </b>"+result[key]+"</li>";
 				count++;
 			}
 		}

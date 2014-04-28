@@ -24,6 +24,8 @@ ESIS.search = (function() {
 	var rowTemplate;
 	var titleTemplate;
 	
+	var titleAttr = 'usdanrcs_common_name';
+
 	var openFilters = [];
 	
 	function init() {
@@ -239,7 +241,7 @@ ESIS.search = (function() {
 			
 			panel.append(rowTemplate({
 				_id     : item._id,
-				title   : item.Name,
+				title   : item[titleAttr] ? item[titleAttr] : item.field0,
 				snippet : snippet,
 				info    : info,
 				isChecked : ESIS.compare.selected(item._id)
@@ -251,7 +253,7 @@ ESIS.search = (function() {
 		var info = "<ul>";
 		
 		//var tmpQuery = CERES.mqe.getCurrentQuery();
-		if( item.Type ) {
+		/*if( item.Type ) {
 			if( _hasFilter(item,"Type") ) info += "<li><b>Type: </b>"+item.Type+"</li>";
 			else info += "<li><b>Type: </b><a href='"+_createFilterUrl(item,"Type")+"'>"+item.Type+"</a></li>";
 		}
@@ -266,7 +268,17 @@ ESIS.search = (function() {
 		if( item["Particle Size"] ) {
 			if( _hasFilter(item,"Particle Size") ) info += "<li><b>Particle Size: </b>"+item["Particle Size"]+"</li>";
 			else info += "<li><b>Particle Size: </b><a href='"+_createFilterUrl(item,"Particle Size")+"'>"+item["Particle Size"]+"</a></li>";
+		}*/
+
+		var types = ['type', 'form', 'usdanrcs_common_name'];
+
+		for( var i = 0; i < types.length; i++ ) {
+			if( item[types[i]] ) {
+				if( _hasFilter(item,types[i]) ) info += "<li><b>Type: </b>"+item[types[i]]+"</li>";
+				else info += "<li><b>"+types[i]+": </b><a href='"+_createFilterUrl(item,types[i])+"'>"+item[types[i]]+"</a></li>";
+			}
 		}
+		
 		
 		
 		info += "</ul>";
