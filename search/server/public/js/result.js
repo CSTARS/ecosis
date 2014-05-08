@@ -6,7 +6,7 @@ ESIS.result = (function() {
 	var waiting = null;
 	
 	var loadHandlers = [];
-	var ignoreAttrs = ["Name", "Description", "_id", "file", "spectra", "Additional Information"];
+	var ignoreAttrs = ["Name", "Description", "_id", "file", "spectra", "Additional Information", 'metadata','pkg_id','spectra_id'];
 	
 	function init() {
 		$('#result').load('/result.handlebars', function() {
@@ -53,8 +53,21 @@ ESIS.result = (function() {
 				count++;
 			}
 		}
-		resultPanel.find("#result-left-panel").html(leftList);
-		resultPanel.find("#result-right-panel").html(rightList);
+		resultPanel.find("#result-main-left-panel").html(leftList);
+		resultPanel.find("#result-main-right-panel").html(rightList);
+
+		leftList = "<ul>";
+		rightList = "<ul>";
+		count = 0;
+		for( var key in result.metadata ) {
+			if( ignoreAttrs.indexOf(key) == -1 && result.metadata[key] ) {
+				if( count % 2 == 0 ) leftList += "<li><b>"+key+": </b>"+result.metadata[key]+"</li>";
+				else rightList += "<li><b>"+key+": </b>"+result.metadata[key]+"</li>";
+				count++;
+			}
+		}
+		resultPanel.find("#result-secondary-left-panel").html(leftList);
+		resultPanel.find("#result-secondary-right-panel").html(rightList);
 		
 		ESIS.chart.draw(result, $("#result-chart-panel"));
 		

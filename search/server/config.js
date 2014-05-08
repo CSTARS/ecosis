@@ -1,8 +1,10 @@
 
 exports.debug = true;
 
+exports.node = 'node';
+
 exports.db = {
-	initd           : "mongod",
+	initd           : "mongod --port 27017",
 
 	// connection string for the database, includes database name
 	url             : "mongodb://localhost:27017/esis",
@@ -20,7 +22,7 @@ exports.db = {
 	// Filters yours site uses, these will be returned in the results
 	// MQE will also use this list to make sure indexes are built on these items
 	//indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
-	indexedFilters : ['type', 'form', 'usdanrcs_common_name'],
+	indexedFilters : ['type', 'form', 'usdanrcs_common_name', 'pkg_title'],
 	
 	// currently MQE only allows one sort option, place the attribute you wish to sort on here
 	//sortBy          : "title",
@@ -31,22 +33,24 @@ exports.db = {
 	// the text search index
 	//textIndexes     : ["Name", "Type", "Class", "Subclass", "Particle Size", "description", 
 	//                  "title"]
-	textIndexes       : ['type', 'form', 'usdanrcs_common_name', 'phenophase_grassessedgerush', 'project']
+	textIndexes       : ['type', 'form', 'usdanrcs_common_name', 'phenophase_grassessedgerush', 'project', 'pkg_title']
 }
 
-/*exports.import = {
+exports.import = {
 	// js module to run
-	module : "/Users/jrmerz/dev/cstars/ckan-mqe-importer/ckan-importer.js",
+	module : "/Users/jrmerz/dev/cstars/esis/search/server/importV2.js",
 
 	// in milliseconds
 	interval : 1000 * 60 * 60,
 
-	// if you want to store the import stats in collection
-	statsCollection : "spectral_update_stats",
+	host: 'http://esis.casil.ucdavis.edu',
 
-	// directory file parsers are stored
-	parsers : "/Users/jrmerz/dev/cstars/esis/search/server/parsers"
-}*/
+	// if you want to store the import stats in collection
+	statsCollection : 'spectral_update_stats',
+
+	// metadata attributes from item.metadata that should be promoted to first class attributes
+	firstClassMetadata : ['type', 'form', 'usdanrcs_common_name']
+}
 
 
 exports.server = {

@@ -241,7 +241,7 @@ ESIS.search = (function() {
 			
 			panel.append(rowTemplate({
 				_id     : item._id,
-				title   : item[titleAttr] ? item[titleAttr] : item.field0,
+				title   : item[titleAttr] ? item[titleAttr] : 'No Title',
 				snippet : snippet,
 				info    : info,
 				isChecked : ESIS.compare.selected(item._id)
