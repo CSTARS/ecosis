@@ -69,6 +69,9 @@ ESIS.result = (function() {
 		resultPanel.find("#result-secondary-left-panel").html(leftList);
 		resultPanel.find("#result-secondary-right-panel").html(rightList);
 		
+		resultPanel.find("#resources-link").html('<a class="btn btn-primary" style="margin-bottom:15px" target="_blank" href="http://esis.casil.ucdavis.edu/dataset/'+
+			result.pkg_name+'">More Resources</a>');
+
 		ESIS.chart.draw(result, $("#result-chart-panel"));
 		
 		$("#result-back-btn").on('click', function(){
