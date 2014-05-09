@@ -91,6 +91,15 @@ function addUpdateSpectra(pkgSpectra, callback) {
 				spectra_id : item.spectra_id ? item.spectra_id : md5(JSON.stringify(item.spectra))
 			};
 
+			// clean all keys in metadata, mongo doesn't like '.'
+			for( var key in item.metadata ) {
+				if( key.indexOf('.') != -1 ) {
+					var value = item.metadata[key];
+					delete item.metadata[key];
+					item.metadata[key.replace(/\./g,'')] = value;
+				}
+			}
+
 			// promote metadata attributes to first class attributes
 			for( var i = 0; i < config.import.firstClassMetadata.length; i++ ) {
 				var attr = config.import.firstClassMetadata[i];

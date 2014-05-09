@@ -128,23 +128,10 @@ ESIS.chart = (function(){
 	  		legend : {position:"none"}
         }
         
-        _createExportBtn(item.url);
         
         _redraw();
 	}
-	
-	// TODO: need to test in more browsers
-	function _createExportBtn(url) {
-		/*var url = "data:application/csv;charset=UTF-8,";
-		var data = xName+","+yName+"\n";
-		for( var i = 0; i < arr.length; i++ ) {
-			data += arr[i][0]+","+arr[i][1]+"\n";
-		}
-		$("#result-export").html("<a class='btn' target='_blank' download='"+name+".csv' href='"+url+encodeURIComponent(data)+"'>Download CSV</a>");
-		*/
-		$("#result-export").html("<a class='btn btn-default' target='_blank' href='"+url+"'><i class='icon-download-alt'></i> Download</a>");
-	}
-	
+
 	function _redraw() {
 		var hash = window.location.hash;
 		if( !hash.match(/#result.*/) && !hash.match(/#compare.*/) ) return;

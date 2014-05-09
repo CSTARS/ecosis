@@ -26,6 +26,8 @@ ESIS.result = (function() {
 		$(window).bind('result-update-event', function(e, result){
 			updateResult(result);
 		});
+
+		
 	}
 	
 	// fires when template is loaded
@@ -76,6 +78,13 @@ ESIS.result = (function() {
 		
 		$("#result-back-btn").on('click', function(){
 			$(window).trigger("back-to-search-event");
+		});
+
+		$('#export-go').on('click', function(){
+			window.open('/rest/download?_id='+window.location.hash.split('/')[1]+
+				'&format='+$('#export-type').val()+
+				'&raw='+($('#export-metadata').is(':checked') ? 'false' : 'true')
+				,'Download'); 
 		});
 	}
 	
