@@ -9,6 +9,8 @@ ESIS.chart = (function(){
 	var chartsReady = false;
 	var data = null;
 	var options = null;
+
+    var chart = null;
 	
 	function init() {
 		chartsReady = true;
@@ -40,7 +42,6 @@ ESIS.chart = (function(){
 		data = new google.visualization.DataTable();
 
         data.addColumn('number', items[0]["X Units"]);
-        
 
         var hash = {};
         var hashArray = [];
@@ -127,6 +128,10 @@ ESIS.chart = (function(){
 	  		hAxis: {title: item["X Units"]},
 	  		legend : {position:"none"}
         }
+
+        $('#print-chart').on('click', function(){
+            window.open(chart.getImageURI());
+        });
         
         
         _redraw();
@@ -144,7 +149,7 @@ ESIS.chart = (function(){
         
         cPanel.height(h);
         	
-        var chart = new google.visualization.LineChart(cPanel[0]);
+        chart = new google.visualization.LineChart(cPanel[0]);
         chart.draw(data, options);
 	}
 	
