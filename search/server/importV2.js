@@ -85,6 +85,8 @@ function addUpdateSpectra(pkgSpectra, callback) {
 	var list = pkgSpectra.data;
 	if( !Array.isArray(pkgSpectra.data) ) list = list.data;
 
+	if( !list ) return callback();
+
 	async.eachSeries(
 		list,
 		function(item, next) {
@@ -95,21 +97,18 @@ function addUpdateSpectra(pkgSpectra, callback) {
 			};
 
 			// clean all keys in metadata, mongo doesn't like '.'
-			for( var key in item.metadata ) {
-				if( key.indexOf('.') != -1 ) {
-					var value = item.metadata[key];
-					delete item.metadata[key];
-					item.metadata[key.replace(/\./g,'')] = value;
-				}
-			}
+			clean(item.metadata);
+			clean(item.ecosis);
 
 			// promote metadata attributes to first class attributes
-			for( var i = 0; i < config.import.firstClassMetadata.length; i++ ) {
-				var attr = config.import.firstClassMetadata[i];
-				if( item.metadata && item.metadata[attr] ) {
-					item[attr] = item.metadata[attr];
+			if( item.ecosis ) {
+				for( var key in item.ecosis ) {
+					if( key == '_id' ) continue;
+					item[key] = item.ecosis[key];
 				}
+				delete item.ecosis;
 			}
+			
 
 			// add extras
 			item.pkg_id = search.pkg_id;
@@ -134,6 +133,16 @@ function addUpdateSpectra(pkgSpectra, callback) {
 			callback();
 		}
 	);
+}
+
+function clean(metadata) {
+	for( var key in metadata ) {
+		if( key.indexOf('.') != -1 ) {
+			var value = metadata[key];
+			delete metadata[key];
+			metadata[key.replace(/\./g,'')] = value;
+		}
+	}
 }
 
 function update(newItem, oldItem, next) {
