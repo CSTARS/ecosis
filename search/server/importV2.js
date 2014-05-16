@@ -82,8 +82,11 @@ function download(resources, callback) {
 function addUpdateSpectra(pkgSpectra, callback) {
 	var search, spectra_id;
 
+	var list = pkgSpectra.data;
+	if( !Array.isArray(pkgSpectra.data) ) list = list.data;
+
 	async.eachSeries(
-		pkgSpectra.data,
+		list,
 		function(item, next) {
 			count.found++;
 			search = {
