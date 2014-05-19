@@ -22,18 +22,19 @@ exports.db = {
 	// Filters yours site uses, these will be returned in the results
 	// MQE will also use this list to make sure indexes are built on these items
 	//indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
-	indexedFilters : ['type', 'form', 'usdanrcs_common_name', 'pkg_title'],
-	
-	// currently MQE only allows one sort option, place the attribute you wish to sort on here
-	//sortBy          : "title",
-	sortBy            : 'usdanrcs_common_name',
-	
-	// currently Mongo only allows the creation of text search on one attribute.  MQE will
-	// combine all filters listed below into a single attribute that will be used for
-	// the text search index
-	//textIndexes     : ["Name", "Type", "Class", "Subclass", "Particle Size", "description", 
-	//                  "title"]
-	textIndexes       : ['type', 'form', 'usdanrcs_common_name', 'phenophase_grassessedgerush', 'project', 'pkg_title']
+	//indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
+    indexedFilters : ['type', 'form', 'usdanrcs_common_name', 'pkg_title','Type','Class'],  
+
+    // currently MQE only allows one sort option, place the attribute you wish to sort on here
+    //sortBy          : "title",
+    sortBy            : 'usdanrcs_common_name',
+    
+    // currently Mongo only allows the creation of text search on one attribute.  MQE will
+    // combine all filters listed below into a single attribute that will be used for
+    // the text search index
+    //textIndexes     : ["Name", "Type", "Class", "Subclass", "Particle Size", "description", 
+    //                  "title"]
+    textIndexes       : ['type', 'form', 'usdanrcs_common_name', 'phenophase_grassessedgerush', 'project', 'pkg_title','Common','Type','Class','Subclass']
 }
 
 exports.import = {

@@ -24,7 +24,7 @@ ESIS.search = (function() {
 	var rowTemplate;
 	var titleTemplate;
 	
-	var titleAttr = 'usdanrcs_common_name';
+	var titleAttr = 'Spectrum Number';
 
 	var openFilters = [];
 	
@@ -108,6 +108,8 @@ ESIS.search = (function() {
 		
 		var numFilters = CERES.mqe.getCurrentQuery().filters.length;
 
+		console.log(results);
+
 		// add filter blocks
 		var c = 0;
 		for( var key in results.filters ) {
@@ -141,8 +143,11 @@ ESIS.search = (function() {
 		
 		if( c == 0 ) {
 			panel.append($("<div>No filters available for this search</div>"));
+			if( results.total > 0 ) panel.append(_createCustomFilter());
 			return;
 		}
+
+		panel.append(_createCustomFilter());
 		
 		// add hide/show handlers for the blocks
 		$(".search-block-title").on('click', function(e){
@@ -157,8 +162,36 @@ ESIS.search = (function() {
 				openFilters.splice(openFilters.indexOf(id),1);
 			}
 		});
+	}
+
+	function _createCustomFilter() {
+		var title = $("<li><a id='filter-block-title-custom' class='search-block-title'>Custom Filter</a></li>");
+			
+		var block = $("<ul id='filter-block-custom' class='filter-block' style='list-style:none'></ul>");
 		
-		
+		block.append($('<li>Attribute: <input type="text" style="height:34px" id="custom-attr-input" /></li>'));
+		block.append($('<li>Value: <input type="text" style="height:34px" id="custom-value-input" /></li>'));
+		block.append($('<li><input type="checkbox" id="custom-value-cb" /> Is Custom Attribute</li>'));
+
+		var li = $('<li></li>');
+		var btn = $('<a class="btn btn-primary" style="margin-top:15px">Apply</a>').on('click', function(){
+			var key = $('#custom-attr-input').val();
+			var value = $('#custom-value-input').val();
+			
+			var query = CERES.mqe.getCurrentQuery();
+			var filter = {};
+			filter[($('#custom-value-cb').is(':checked') ? 'metadata.' : '')+key] = value;
+			query.filters.push(filter);
+			
+			window.location = CERES.mqe.queryToUrlString(query);
+		});
+		li.append(btn);
+		block.append(btn);
+
+
+		title.append(block);
+
+		return title;
 	}
 	
 	function _updatePaging(results) {
