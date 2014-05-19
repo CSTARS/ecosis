@@ -169,8 +169,8 @@ ESIS.search = (function() {
 			
 		var block = $("<ul id='filter-block-custom' class='filter-block' style='list-style:none'></ul>");
 		
-		block.append($('<li>Attribute: <input type="text" style="height:34px" id="custom-attr-input" /></li>'));
-		block.append($('<li>Value: <input type="text" style="height:34px" id="custom-value-input" /></li>'));
+		block.append($('<li>Attribute: <input type="text" style="height:34px;width:150px" id="custom-attr-input" /></li>'));
+		block.append($('<li>Value: <input type="text" style="height:34px;width:150px" id="custom-value-input" /></li>'));
 		block.append($('<li><input type="checkbox" id="custom-value-cb" /> Is Custom Attribute</li>'));
 
 		var li = $('<li></li>');
