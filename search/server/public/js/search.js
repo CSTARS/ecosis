@@ -274,12 +274,22 @@ ESIS.search = (function() {
 			
 			panel.append(rowTemplate({
 				_id     : item._id,
-				title   : item[titleAttr] ? item[titleAttr] : 'No Title',
+				title   : _getTitle(item),
 				snippet : snippet,
 				info    : info,
 				isChecked : ESIS.compare.selected(item._id)
 			}));
 		}
+	}
+
+	function _getTitle(item) {
+		if( item['Spectrum Number'] || item.Common ) {
+			var title = '';
+			title += item.Common ? item.Common : 'No Name';
+			if( item['Spectrum Number'] ) title += ' - '+item['Spectrum Number'];
+			return title;
+		}
+		return 'No Title';
 	}
 	
 	function _getInfo(item) {
