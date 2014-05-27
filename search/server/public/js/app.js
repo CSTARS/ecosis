@@ -53,8 +53,5 @@ ESIS.app = (function() {
 
 ESIS.labels = {};
 ESIS.labels.filters = {
-	"topics"           : "Topics",
-	"eduResources"    : "Educational Resources",
-	"counties"         : "County Active in",
-	"audiences"    : "Target Audience"
+	"pkg_title" : "Data Package"
 };

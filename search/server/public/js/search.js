@@ -285,7 +285,7 @@ ESIS.search = (function() {
 	function _getTitle(item) {
 		if( item['Spectrum Number'] || item.Common ) {
 			var title = '';
-			title += item.Common ? item.Common : 'No Name';
+			title += item['Common Name'] ? item['Common Name'] : 'No Name';
 			if( item['Spectrum Number'] ) title += ' - '+item['Spectrum Number'];
 			return title;
 		}
@@ -313,11 +313,11 @@ ESIS.search = (function() {
 			else info += "<li><b>Particle Size: </b><a href='"+_createFilterUrl(item,"Particle Size")+"'>"+item["Particle Size"]+"</a></li>";
 		}*/
 
-		var types = ['type', 'form', 'usdanrcs_common_name'];
+		var types = ['Type', 'Family', 'Category', 'Common Name'];
 
 		for( var i = 0; i < types.length; i++ ) {
 			if( item[types[i]] ) {
-				if( _hasFilter(item,types[i]) ) info += "<li><b>Type: </b>"+item[types[i]]+"</li>";
+				if( _hasFilter(item,types[i]) ) info += "<li><b>"+types[i]+": </b>"+item[types[i]]+"</li>";
 				else info += "<li><b>"+types[i]+": </b><a href='"+_createFilterUrl(item,types[i])+"'>"+item[types[i]]+"</a></li>";
 			}
 		}

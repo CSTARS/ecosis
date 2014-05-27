@@ -6,7 +6,7 @@ ESIS.result = (function() {
 	var waiting = null;
 	
 	var loadHandlers = [];
-	var ignoreAttrs = ["Name", "Description", "_id", "file", "spectra", "Additional Information", 'metadata','pkg_id','spectra_id'];
+	var ignoreAttrs = ["lastRun","lastUpdate","pkg_name","Name", "Description", "_id", "file", "spectra", "Additional Information", 'metadata','pkg_id','spectra_id'];
 	
 	function init() {
 		$('#result').load('/result.handlebars', function() {
@@ -50,8 +50,10 @@ ESIS.result = (function() {
 		var count = 0;
 		for( var key in result ) {
 			if( ignoreAttrs.indexOf(key) == -1 && result[key] ) {
-				if( count % 2 == 0 ) leftList += "<li><b>"+key+": </b>"+result[key]+"</li>";
-				else rightList += "<li><b>"+key+": </b>"+result[key]+"</li>";
+				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
+
+				if( count % 2 == 0 ) leftList += "<li><b>"+label+": </b>"+wrapFilterLink(key, result[key])+"</li>";
+				else rightList += "<li><b>"+label+": </b>"+wrapFilterLink(key, result[key])+"</li>";
 				count++;
 			}
 		}
@@ -63,16 +65,18 @@ ESIS.result = (function() {
 		count = 0;
 		for( var key in result.metadata ) {
 			if( ignoreAttrs.indexOf(key) == -1 && result.metadata[key] ) {
-				if( count % 2 == 0 ) leftList += "<li><b>"+key+": </b>"+result.metadata[key]+"</li>";
-				else rightList += "<li><b>"+key+": </b>"+result.metadata[key]+"</li>";
+				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
+
+				if( count % 2 == 0 ) leftList += "<li><b>"+label+": </b>"+wrapFilterLink(key, result.metadata[key], true)+"</li>";
+				else rightList += "<li><b>"+label+": </b>"+wrapFilterLink(key, result.metadata[key], true)+"</li>";
 				count++;
 			}
 		}
 		resultPanel.find("#result-secondary-left-panel").html(leftList);
 		resultPanel.find("#result-secondary-right-panel").html(rightList);
 		
-		resultPanel.find("#resources-link").html('<a class="btn btn-primary" style="margin-bottom:15px" target="_blank" href="http://esis.casil.ucdavis.edu/dataset/'+
-			result.pkg_name+'">More Resources</a>');
+		resultPanel.find("#resources-link").html('<div style="text-align:center;padding:15px"><a class="btn btn-primary btn-large" style="margin-bottom:15px" target="_blank" href="http://esis.casil.ucdavis.edu/dataset/'+
+			result.pkg_name+'"><i class="icon-folder-close icon-white"></i> Dataset Resources</a></div>');
 
 		ESIS.chart.draw(result, $("#result-chart-panel"));
 		
@@ -86,6 +90,17 @@ ESIS.result = (function() {
 				'&raw='+($('#export-metadata').is(':checked') ? 'false' : 'true')
 				,'Download'); 
 		});
+	}
+
+	function wrapFilterLink(key, value, metadata) {
+		if( value.length > 30 ) return value;
+
+		var q = CERES.mqe.getCurrentQuery();
+		q.text = '';
+		var f = {};
+		f[(metadata ? 'metadata.'+key : key)] = value;
+		q.filters = [f];
+		return '<a href="'+CERES.mqe.queryToUrlString(q)+'">'+value+'</a>';
 	}
 	
 	function getResultHtml(result) {

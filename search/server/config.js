@@ -11,10 +11,8 @@ exports.db = {
 	
 	// collection where the queryable items are stored
 	mainCollection  : "spectral",
-	
-	// collection that is used as a cache.  YOU SHOULD NOT TOUCH THIS
-	// MQE has rights to delete at any time
-	cacheCollection : "spectral_cache",
+
+	blobs           : ['spectra'],
 	
 	// collection that is used to store edits to a record.
 	//editCollection : 'spectral_edits',
@@ -23,18 +21,18 @@ exports.db = {
 	// MQE will also use this list to make sure indexes are built on these items
 	//indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
 	//indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
-    indexedFilters : ['type', 'form', 'usdanrcs_common_name', 'pkg_title','Type','Class'],  
+    indexedFilters : ['pkg_title','Type','Class','Family'],  
 
     // currently MQE only allows one sort option, place the attribute you wish to sort on here
     //sortBy          : "title",
-    sortBy            : 'usdanrcs_common_name',
+    sortBy            : 'Common Name',
     
     // currently Mongo only allows the creation of text search on one attribute.  MQE will
     // combine all filters listed below into a single attribute that will be used for
     // the text search index
     //textIndexes     : ["Name", "Type", "Class", "Subclass", "Particle Size", "description", 
     //                  "title"]
-    textIndexes       : ['type', 'form', 'usdanrcs_common_name', 'phenophase_grassessedgerush', 'project', 'pkg_title','Common','Type','Class','Subclass']
+    textIndexes       : ['pkg_title','Common Name','Type','Class','Subclass','Genus','Category','Family']
 }
 
 exports.import = {

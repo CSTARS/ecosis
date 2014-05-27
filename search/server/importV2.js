@@ -57,15 +57,17 @@ function getSpectra() {
 }
 
 function download(resources, callback) {
-
 	async.eachSeries(
 		resources, 
 		function(r, next){
 			//console.log('Requesting: '+config.import.host+'/spectra/get?id='+r.id);
 			request(config.import.host+'/spectra/get?id='+r.id, function (error, response, body) {
 			  	if (!error && response.statusCode == 200) {
-			  		addUpdateSpectra(JSON.parse(body), function(){
-			  			next();
+			  		var data = JSON.parse(body);
+			  		getCommonNames(data, function(){
+			  			addUpdateSpectra(data, function(){
+				  			next();
+				  		});
 			  		});
 			  	} else {
 			  		next();
@@ -77,6 +79,63 @@ function download(resources, callback) {
 			callback();
 		}
 	);
+}
+
+function getCommonNames(pkgSpectra, callback) {
+	var list = pkgSpectra.data;
+	if( !Array.isArray(pkgSpectra.data) ) list = list.data;
+
+	if( !list ) return callback();
+
+	async.eachSeries(
+		list,
+		function(item, next) {
+			if( !item.ecosis.Common ) {
+				next();
+				return;
+			}
+			getCommonName(item, next);
+		},
+		function(err) {
+			callback();
+		}
+	);
+}
+
+var commonCache = {};
+function getCommonName(item, next) {
+	if( commonCache[item.ecosis.Common.toLowerCase()] != null ) {
+		setCommonName(item, commonCache[item.ecosis.Common.toLowerCase()]);
+		next();
+		return;
+	}
+
+	request.get('http://plants.usda.gov/java/AdvancedSearchServlet?symbol='+item.ecosis.Common+'&dsp_vernacular=on&dsp_category=on&dsp_genus=on&dsp_family=on&Synonyms=all&viewby=sciname&download=on', 
+		function(error, response, body){
+
+			if (!error && response.statusCode == 200 && body.match(/^".*/) ) {
+				commonCache[item.ecosis.Common.toLowerCase()] = body;
+				setCommonName(item, body);
+			} else {
+				commonCache[item.ecosis.Common.toLowerCase()] = '';
+			}
+			next();
+		}
+	);
+}
+
+function setCommonName(item, str) {
+	if( str.length == 0 ) return;
+	
+	var parts = str.split('\r\n');
+	if( parts.length < 2 ) return;
+
+	var attrs = parts[0].replace(/"/g, '').split(',');
+	var values = parts[1].replace(/"/g, '').split(',');
+
+	for( var i = 0; i < attrs.length; i++ ) {
+		item[attrs[i]] = values[i];
+	}
 }
 
 function addUpdateSpectra(pkgSpectra, callback) {
@@ -108,7 +167,18 @@ function addUpdateSpectra(pkgSpectra, callback) {
 				}
 				delete item.ecosis;
 			}
-			
+
+			// turn the spectra into a blob
+			if( item.spectra ) {
+				item.spectra = JSON.stringify(item.spectra);
+			}
+
+			// HACK
+			// change Common to 'Common Name'
+			if( item.Common && !item['Common Name'] ) {
+				item['Common Name'] = item.Common;
+				delete item.Common;
+			}
 
 			// add extras
 			item.pkg_id = search.pkg_id;
@@ -118,6 +188,7 @@ function addUpdateSpectra(pkgSpectra, callback) {
 
 			collection.find(search).toArray(function(err, items) {
 				if( err ) {
+					count.error++;
 					console.log(err);
 					return next();
 				}
@@ -155,7 +226,9 @@ function update(newItem, oldItem, next) {
 	}
 	newItem.lastRun = lastRun.toLocaleString();
 
-	collection.update({_id: oldItem._id}, newItem, function(err, result) {
+	newItem._id = oldItem._id;
+	collection.save(newItem, function(err, result) {
+
 		if( err ) {
 			count.error++;
 			console.log(err);
@@ -189,7 +262,7 @@ function itemChanged(item1, item2) {
 		if( ignoreList.indexOf(key) > -1 ) continue;
 
 		if( item2[key] == null ) {
-		//	console.log('new item has new key: '+key);
+			//console.log('new item has new key: '+key);
 			return true;
 		}
 
@@ -197,14 +270,14 @@ function itemChanged(item1, item2) {
 		tmp2 = (typeof item2[key] == 'object') ? JSON.stringify(item2[key]) : item2[key];
 		
 		if( tmp1 != tmp2 ) {
-		//	console.log('value mismatch: '+tmp1+' '+tmp2);
+			//console.log('value mismatch ['+key+']: '+tmp1+' '+tmp2);
 			return true;
 		}
 	}
 	for( key in item2 ) {
 		if( ignoreList.indexOf(key) > -1 ) continue;
 		if( item1[key] == null ) {
-		//	console.log('new item does not have key: '+key);
+			//console.log('new item does not have key: '+key);
 			return true;
 		}
 	}
@@ -212,23 +285,12 @@ function itemChanged(item1, item2) {
 }
 
 function removeOldSpectra() {
-	collection.find({lastRun : { $ne : lastRun.toLocaleString() }}).toArray(function(err, items){
-		if( err ) {
-			console.log('failed to fetch records to remove');
-			console.log(err);
-			return writeLog();
-		}
-		
-		if( items.length == 0 ) {
-			writeLog();
-		} else {
-			count.remove = items.length;
-			collection.remove({lastRun : { $ne : lastRun.toLocaleString() }},function(err, removed){
-				if( err ) console.log(err);
-				writeLog();
-		    });
-		}
-	});
+	collection.remove({lastRun : { $ne : lastRun.toLocaleString() }},function(err, removed){
+		if( err ) console.log(err);
+
+		count.remove = removed;
+		writeLog();
+    });
 }
 
 function writeLog() {
