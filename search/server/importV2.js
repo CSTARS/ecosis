@@ -64,6 +64,8 @@ function download(resources, callback) {
 			request(config.import.host+'/spectra/get?id='+r.id, function (error, response, body) {
 			  	if (!error && response.statusCode == 200) {
 			  		var data = JSON.parse(body);
+			  		if( !data ) return next();
+
 			  		getCommonNames(data, function(){
 			  			addUpdateSpectra(data, function(){
 				  			next();
@@ -82,11 +84,11 @@ function download(resources, callback) {
 }
 
 function getCommonNames(pkgSpectra, callback) {
-	var list = pkgSpectra.data;
-	if( !Array.isArray(pkgSpectra.data) ) list = list.data;
+	if( !pkgSpectra ) return callback();
+	if( !pkgSpectra.dataset ) return callback();
+	if( !pkgSpectra.dataset.data ) return callback();
 
-	if( !list ) return callback();
-
+	var list = pkgSpectra.dataset.data;
 	async.eachSeries(
 		list,
 		function(item, next) {
@@ -141,10 +143,7 @@ function setCommonName(item, str) {
 function addUpdateSpectra(pkgSpectra, callback) {
 	var search, spectra_id;
 
-	var list = pkgSpectra.data;
-	if( !Array.isArray(pkgSpectra.data) ) list = list.data;
-
-	if( !list ) return callback();
+	var list = pkgSpectra.dataset.data;
 
 	async.eachSeries(
 		list,
