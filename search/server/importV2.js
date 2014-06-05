@@ -61,16 +61,21 @@ function download(resources, callback) {
 		resources, 
 		function(r, next){
 			//console.log('Requesting: '+config.import.host+'/spectra/get?id='+r.id);
-			request(config.import.host+'/spectra/get?id='+r.id, function (error, response, body) {
+			request(config.import.host+'/spectra/get?compressed=false&id='+r.id, function (error, response, body) {
 			  	if (!error && response.statusCode == 200) {
 			  		var data = JSON.parse(body);
+
 			  		if( !data ) return next();
 
-			  		getCommonNames(data, function(){
-			  			addUpdateSpectra(data, function(){
-				  			next();
+			  		getPackageInfo(r.id, function(d){
+			  			d.dataset = data;
+			  			getCommonNames(d, function(){
+				  			addUpdateSpectra(d, function(){
+					  			next();
+					  		});
 				  		});
-			  		});
+			  		})
+			  		
 			  	} else {
 			  		next();
 			  	}
@@ -81,6 +86,16 @@ function download(resources, callback) {
 			callback();
 		}
 	);
+}
+
+function getPackageInfo(id, callback) {
+	request(config.import.host+'/spectra/info?id='+id, function (error, response, body) {
+		if (!error && response.statusCode == 200) {
+			callback(JSON.parse(body));
+		} else {
+			callback({});
+		}
+	});
 }
 
 function getCommonNames(pkgSpectra, callback) {

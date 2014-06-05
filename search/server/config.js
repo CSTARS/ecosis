@@ -42,7 +42,8 @@ exports.import = {
 	// in milliseconds
 	interval : 1000 * 60 * 60,
 
-	host: 'http://esis.casil.ucdavis.edu',
+	host: 'http://192.168.1.109:5000',
+	//host: 'http://esis.casil.ucdavis.edu',
 
 	// if you want to store the import stats in collection
 	statsCollection : 'spectral_update_stats',
