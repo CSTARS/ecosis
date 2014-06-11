@@ -194,6 +194,9 @@ function addUpdateSpectra(pkgSpectra, callback) {
 				delete item.Common;
 			}
 
+			// add grouping information
+			if( pkgSpectra.group_by ) item.group_by = pkgSpectra.group_by;
+
 			// add extras
 			item.pkg_id = search.pkg_id;
 			item.spectra_id = search.spectra_id;

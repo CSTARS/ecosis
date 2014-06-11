@@ -6,7 +6,7 @@ ESIS.result = (function() {
 	var waiting = null;
 	
 	var loadHandlers = [];
-	var ignoreAttrs = ["lastRun","lastUpdate","pkg_name","Name", "Description", "_id", "file", "spectra", "Additional Information", 'metadata','pkg_id','spectra_id'];
+	var ignoreAttrs = ["group_by", "resource_id", "lastRun","lastUpdate","pkg_name","Name", "Description", "_id", "file", "spectra", "Additional Information", 'metadata','pkg_id','spectra_id'];
 	
 	function init() {
 		$('#result').load('/result.handlebars', function() {
