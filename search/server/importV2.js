@@ -195,7 +195,7 @@ function addUpdateSpectra(pkgSpectra, callback) {
 			}
 
 			// add grouping information
-			if( pkgSpectra.group_by ) item.group_by = pkgSpectra.group_by;
+			if( pkgSpectra.dataset.group_by ) item.group_by = pkgSpectra.dataset.group_by;
 
 			// add extras
 			item.pkg_id = search.pkg_id;
