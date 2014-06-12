@@ -27,6 +27,7 @@ ESIS.search = (function() {
 	var titleAttr = 'Spectrum Number';
 
 	var openFilters = [];
+	var staticFilters = {};
 	
 	function init() {
 		
@@ -86,6 +87,8 @@ ESIS.search = (function() {
 						f = staticFilters[j].label;
 						// also, make sure to check it's check box
 						$("#static-filter-"+j).prop('checked', true);
+					} else {
+						f = j+': '+JSON.stringify(query.filters[i][j]);
 					}
 				} else {
 					f = query.filters[i][j]; 

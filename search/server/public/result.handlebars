@@ -1,16 +1,17 @@
 <script id="result-template" type="text/x-handlebars-template">
   <div>
-	<div class="page-header">
-		<div class="row-fluid">
-			<div class="span9">
-				<h2>{{Name}}</h2>
-			</div>
-			<div class="span3" style="height:40px;padding-top:10px;">
-				<a class='btn btn-primary pull-right' href="/#home" style="margin:5px"><i class="icon-home icon-white"></i> Home</a>
-				<a id="result-back-btn" class="btn btn-primary pull-right" style="margin:5px"><i class="icon-search icon-white"></i> Search</a>
-			</div>
-		</div>
+  	<div class="subnav subnav-fixed">
+		<ul class="nav nav-pills">
+			<li><a goto="metadata">Metadata</a></li>
+			<li><a goto="customMetadata">Custom Metadata</a></li>
+			<li><a goto="package">Data Package</a></li>
+			<li><a goto="chart">Chart</a></li>
+			<li><a goto="download">Download</a></li>
+			<li><a id="result-back-btn" ><i class="icon-search icon-white"></i> Back to Search</a></li>
+		</ul>
 	</div>
+
+	<h2>{{Name}}</h2>
 
 	<div class='checkbox pull-right'>
 		<label>
@@ -23,7 +24,7 @@
 		<div class="Description" style='margin-bottom:15px'>{{Description}}</div>
 	{{/if}}
 	
-	<h4>Ecosis Metadata</h4>
+	<h4 id="metadata">Ecosis Metadata</h4>
 	<div class="row-fluid">
 		<div class="span6">
 			<div id="result-main-left-panel"></div>
@@ -33,7 +34,7 @@
 		</div>
 	</div>
 
-	<h4>Custom Data Package Metadata</h4>
+	<h4 id="customMetadata">Custom Data Package Metadata</h4>
 	<div class="help-block">
 		This metadata is specific to this dataset.  You can still filter on it's values, though you will probably filter out all other datasets as most will not have these attributes.
 	</div>
@@ -46,15 +47,16 @@
 		</div>
 	</div>
 
+	<h4 id="package">Data Package</h4>
 	<div id="resources-link"></div>
 
-	<h4>Spectra</h4>
+	<h4 id="chart">Spectra</h4>
 	<div class="well">
 		<div id="result-chart-panel"></div>
 		<a class="btn btn-default" id="print-chart" style="margin-top:10px"><i class="icon-print"></i> Printable Version</a>
 	</div>
 	
-	<h4>Download</h4>
+	<h4 id="download">Download</h4>
 	<div id="result-export">
 		<div class="form-inline" role="form">
 		  <div class="form-group">

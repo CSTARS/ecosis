@@ -26,8 +26,6 @@ ESIS.result = (function() {
 		$(window).bind('result-update-event', function(e, result){
 			updateResult(result);
 		});
-
-		
 	}
 	
 	// fires when template is loaded
@@ -75,8 +73,29 @@ ESIS.result = (function() {
 		resultPanel.find("#result-secondary-left-panel").html(leftList);
 		resultPanel.find("#result-secondary-right-panel").html(rightList);
 		
-		resultPanel.find("#resources-link").html('<div style="text-align:center;padding:15px"><a class="btn btn-primary btn-large" style="margin-bottom:15px" target="_blank" href="http://esis.casil.ucdavis.edu/dataset/'+
-			result.pkg_name+'"><i class="icon-folder-close icon-white"></i> Dataset Resources</a></div>');
+		var q = CERES.mqe.getCurrentQuery();
+		var resourceList = '<ul>'+
+				'<li><a target="_blank" href="http://esis.casil.ucdavis.edu/dataset/'+
+						result.pkg_name+'">All Dataset Resources</a></li>';
+		if( result.group_by ) {
+			var parts = result.group_by.attribute.split('.');
+			var q = CERES.mqe.getCurrentQuery();
+			q.text = '';
+			q.filters = [{pkg_title : result.pkg_title}];
+				
+			var f = {};
+			if( parts[0] == 'ecosis' ) {
+				f[parts[1]] = result[parts[1]];
+			} else {
+				f['metadata.'+parts[1]] = result.metadata[parts[1]];
+			}
+			q.filters.push(f);
+
+			resourceList += '<li><a href="'+CERES.mqe.queryToUrlString(q)+'">'+result.group_by.description+'</a></li>';
+		}
+		resourceList += '</ul>';
+
+		resultPanel.find("#resources-link").html(resourceList);
 
 		ESIS.chart.draw(result, $("#result-chart-panel"));
 		
@@ -89,6 +108,14 @@ ESIS.result = (function() {
 				'&format='+$('#export-type').val()+
 				'&raw='+($('#export-metadata').is(':checked') ? 'false' : 'true')
 				,'Download'); 
+		});
+
+		// set nav handler
+		$('.subnav a').on('click', function(){
+			var heading = $(this).attr('goto');
+			if( !heading || heading == '' ) return;
+
+			$('body,html').animate({scrollTop: $('#'+heading).offset().top-50}, 500);
 		});
 	}
 
