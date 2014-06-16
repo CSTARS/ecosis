@@ -74,9 +74,12 @@ ESIS.result = (function() {
 		resultPanel.find("#result-secondary-right-panel").html(rightList);
 		
 		var q = CERES.mqe.getCurrentQuery();
-		var resourceList = '<ul>'+
-				'<li><a target="_blank" href="http://esis.casil.ucdavis.edu/dataset/'+
-						result.pkg_name+'">All Dataset Resources</a></li>';
+		var resourceList = '<table class="table">'+
+				'<tr><td style="white-space:nowrap">Package Name</td><td style="color:#888">'+result.pkg_title+'</td></tr>'+
+				'<tr><td style="white-space:nowrap"><a target="_blank" href="http://esis.casil.ucdavis.edu/dataset/'+
+						result.pkg_name+'"><i class="icon-share-alt"></i> All Resources</a></td><td style="color:#888">Go to a list of resources for the dataset this spectra came from.'+
+						'  This resource list is dataset depent including everything from original spectra files to auxiliary files'+
+						' such as pdf\'s, images, and readme\'s</td></tr>';
 		if( result.group_by ) {
 			var parts = result.group_by.attribute.split('.');
 			var q = CERES.mqe.getCurrentQuery();
@@ -91,9 +94,9 @@ ESIS.result = (function() {
 			}
 			q.filters.push(f);
 
-			resourceList += '<li><a href="'+CERES.mqe.queryToUrlString(q)+'">'+result.group_by.description+'</a></li>';
+			resourceList += '<tr><td style="white-space:nowrap"><a href="'+CERES.mqe.queryToUrlString(q)+'"><i class="icon-search"></i> Custom Dataset Search</a></td><td style="color:#888">'+result.group_by.description+'</td></tr>';
 		}
-		resourceList += '</ul>';
+		resourceList += '</table>';
 
 		resultPanel.find("#resources-link").html(resourceList);
 
@@ -111,11 +114,11 @@ ESIS.result = (function() {
 		});
 
 		// set nav handler
-		$('.subnav a').on('click', function(){
+		$('.nav.nav-btns a').on('click', function(){
 			var heading = $(this).attr('goto');
 			if( !heading || heading == '' ) return;
 
-			$('body,html').animate({scrollTop: $('#'+heading).offset().top-50}, 500);
+			$('body,html').animate({scrollTop: $('#'+heading).offset().top-70}, 500);
 		});
 	}
 
@@ -139,6 +142,7 @@ ESIS.result = (function() {
 
 		result.isChecked = ESIS.compare.selected(result._id);
 		
+		result.Common_Name = result['Common Name']+' '+result['Spectrum Number'];
 		return resultTemplate(result);
 		
 	}

@@ -1,17 +1,41 @@
 <script id="result-template" type="text/x-handlebars-template">
-  <div>
-  	<div class="subnav subnav-fixed">
-		<ul class="nav nav-pills">
-			<li><a goto="metadata">Metadata</a></li>
-			<li><a goto="customMetadata">Custom Metadata</a></li>
-			<li><a goto="package">Data Package</a></li>
-			<li><a goto="chart">Chart</a></li>
-			<li><a goto="download">Download</a></li>
-			<li><a id="result-back-btn" ><i class="icon-search icon-white"></i> Back to Search</a></li>
-		</ul>
+
+
+	<div class="navbar navbar-fixed-top">
+	  <div class="navbar-inner">
+	    <div class="container">
+	 
+	      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+	      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </a>
+	 
+	      
+	 
+	      <!-- Everything you want hidden at 940px or less, place within here -->
+	      <div class="nav-collapse collapse">
+	        <ul class="nav nav-btns">
+				<li><a goto="metadata">Metadata</a></li>
+				<li><a goto="customMetadata">Custom Metadata</a></li>
+				<li><a goto="package">Data Package</a></li>
+				<li><a goto="chart">Chart</a></li>
+				<li><a goto="download">Download</a></li>
+			</ul>
+			<ul class="nav pull-right">
+				<li><a id="result-back-btn" ><i class="icon-search icon-white"></i> Back to Search</a></li>
+			</ul>
+
+	      </div>
+	 
+	    </div>
+	  </div>
 	</div>
 
-	<h2>{{Name}}</h2>
+	<div style="padding:2% 6%;margin-top:55px">
+
+	<h2>{{Common_Name}}</h2>
 
 	<div class='checkbox pull-right'>
 		<label>
@@ -24,7 +48,7 @@
 		<div class="Description" style='margin-bottom:15px'>{{Description}}</div>
 	{{/if}}
 	
-	<h4 id="metadata">Ecosis Metadata</h4>
+	<h3 class="page-header" id="metadata" style="margin: 50px 0 10px 0">Ecosis Metadata</h3>
 	<div class="row-fluid">
 		<div class="span6">
 			<div id="result-main-left-panel"></div>
@@ -34,7 +58,7 @@
 		</div>
 	</div>
 
-	<h4 id="customMetadata">Custom Data Package Metadata</h4>
+	<h3 class="page-header" id="customMetadata" style="margin: 50px 0 10px 0">Custom Data Package Metadata</h3>
 	<div class="help-block">
 		This metadata is specific to this dataset.  You can still filter on it's values, though you will probably filter out all other datasets as most will not have these attributes.
 	</div>
@@ -47,33 +71,33 @@
 		</div>
 	</div>
 
-	<h4 id="package">Data Package</h4>
+	<h3 class="page-header" id="package" style="margin: 50px 0 10px 0;border-bottom: none">Data Package</h3>
 	<div id="resources-link"></div>
 
-	<h4 id="chart">Spectra</h4>
-	<div class="well">
-		<div id="result-chart-panel"></div>
-		<a class="btn btn-default" id="print-chart" style="margin-top:10px"><i class="icon-print"></i> Printable Version</a>
-	</div>
+	<h3 class="page-header" id="chart" style="margin: 50px 0 10px 0">Spectra</h3>
+	<div id="result-chart-panel"></div>
+	<a class="btn btn-default" id="print-chart" style="margin-top:10px"><i class="icon-print"></i> Printable Version</a>
 	
-	<h4 id="download">Download</h4>
+	<h3 class="page-header" id="download" style="margin: 50px 0 10px 0;border-bottom: none">Download</h3>
 	<div id="result-export">
-		<div class="form-inline" role="form">
-		  <div class="form-group">
-		    <label for="export-type">Separator</label>
-			<select id="export-type" class="form-control">
-				<option value="tab">Tab</option>
-				<option value="comma">Comma</option>
-				<option value="spaces">Spaces</option>
-			</select>
-		  </div>
-		  <div class="checkbox">
-		    <label>
-		      <input type="checkbox" id="export-metadata" checked="checked" > Include Metadata
-		    </label>
-		  </div>
-		  <a id="export-go" class="btn btn-primary"><i class='icon-download-alt'></i> Download</a>
-		</div>
+		<table class="table">
+			<tr>
+				<td>
+					<label for="export-type" style="display:inline-block">Separator</label>
+					<select id="export-type" class="form-control" style="display:inline-block">
+						<option value="tab">Tab</option>
+						<option value="comma">Comma</option>
+						<option value="spaces">Spaces</option>
+					</select>
+				</td>
+				<td>
+					<input type="checkbox" id="export-metadata" checked="checked" > Include Metadata
+				</td>
+				<td>
+					<a id="export-go" class="btn btn-primary"><i class='icon-download-alt'></i> Download</a>
+				</td>
+			</tr>
+		</table>
 	</div>
 
 	
