@@ -199,7 +199,8 @@ ESIS.chart = (function(){
             title : item.Name,
             vAxis: {title: item["Y Units"]},
             hAxis: {title: item["X Units"]},
-            legend : {position:"none"}
+            legend : {position:"none"},
+            backgroundColor: { fill:'transparent' }
         }
 
         searchCharts.push({

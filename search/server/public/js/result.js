@@ -87,14 +87,19 @@ ESIS.result = (function() {
 			q.filters = [{pkg_title : result.pkg_title}];
 				
 			var f = {};
+			var name = '';
 			if( parts[0] == 'ecosis' ) {
 				f[parts[1]] = result[parts[1]];
+				name = result[parts[1]];
 			} else {
 				f['metadata.'+parts[1]] = result.metadata[parts[1]];
+				name = result.metadata[parts[1]];
 			}
 			q.filters.push(f);
 
-			resourceList += '<tr><td style="white-space:nowrap"><a href="'+CERES.mqe.queryToUrlString(q)+'"><i class="icon-search"></i> Custom Dataset Search</a></td><td style="color:#888">'+result.group_by.description+'</td></tr>';
+			resourceList += '<tr><td style="white-space:nowrap"><a href="'+CERES.mqe.queryToUrlString(q)+'"><i class="icon-search"></i> '+
+				'Custom Dataset Search</a></td><td style="color:#888">'+result.group_by.description+' - <br />'+
+				'<span style="color:#333">'+parts[1]+':</span> '+name+'</td></tr>';
 		}
 		resourceList += '</table>';
 
