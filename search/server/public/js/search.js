@@ -6,7 +6,7 @@ ESIS.search = (function() {
 	
 	// handle bar template layouts
 	var RESULT_TEMPLATE = [
-	    '<div class="search-result-row">',
+	    '<div class="search-result-row animated fadeIn">',
 	    	"<div class='checkbox pull-right'>",
 				"<label>",
 				    "<input type='checkbox' {{#if isChecked}}checked{{/if}} onclick='ESIS.compare.toggle(this);' class='select-{{_id}}' itemid='{{_id}}' itemname='{{title}}' /> Compare",
@@ -14,7 +14,7 @@ ESIS.search = (function() {
 				"</div>",
 	    	"<h4><a href='#result/{{_id}}'>{{title}}</a></h4>",
 	    	"<div class='row-fluid'>",
-	    		"<div class='span7' style='padding-bottom:10px'>{{snippet}}</div>",
+	    		"<div class='span7' style='padding-bottom:10px;'><div id='{{_id}}-chart' style='height:150px'></div></div>",
 	    		"<div class='span5'>{{info}}</div>",
 	    "</div>"
 	].join('');
@@ -40,6 +40,7 @@ ESIS.search = (function() {
 			_updateFilters(results); // this should always be before adding active filters
 			_updateActiveFilters(results);
 			_updatePaging(results);
+			_updateRestLink();
 		});
 		
 		// set search handlers
@@ -70,7 +71,6 @@ ESIS.search = (function() {
 		
 		panel.append("<h6 style='margin-top:0px'>You are currently searching for:</h6>");
 		
-		
 		for( var i = 0; i < query.filters.length; i++ ) {
 			// get query copy and splice array
 			var tmpQuery = CERES.mqe.getCurrentQuery();
@@ -92,8 +92,7 @@ ESIS.search = (function() {
 					}
 				} else {
 					f = query.filters[i][j]; 
-				}
-				
+				}	
 			}
 			
 			panel.append($("<a href='"+CERES.mqe.queryToUrlString(tmpQuery)+"' style='margin:0 5px 5px 0' class='btn btn-primary btn-small'><i class='icon-remove icon-white'></i> "+f+"</a>"))
@@ -110,8 +109,6 @@ ESIS.search = (function() {
 		panel.append($('<li class="divider"></li>'));
 		
 		var numFilters = CERES.mqe.getCurrentQuery().filters.length;
-
-		console.log(results);
 
 		// add filter blocks
 		var c = 0;
@@ -149,8 +146,6 @@ ESIS.search = (function() {
 			if( results.total > 0 ) panel.append(_createCustomFilter());
 			return;
 		}
-
-		panel.append(_createCustomFilter());
 		
 		// add hide/show handlers for the blocks
 		$(".search-block-title").on('click', function(e){
@@ -165,36 +160,6 @@ ESIS.search = (function() {
 				openFilters.splice(openFilters.indexOf(id),1);
 			}
 		});
-	}
-
-	function _createCustomFilter() {
-		var title = $("<li><a id='filter-block-title-custom' class='search-block-title'>Custom Filter</a></li>");
-			
-		var block = $("<ul id='filter-block-custom' class='filter-block' style='list-style:none'></ul>");
-		
-		block.append($('<li>Attribute: <input type="text" style="height:34px;width:150px" id="custom-attr-input" /></li>'));
-		block.append($('<li>Value: <input type="text" style="height:34px;width:150px" id="custom-value-input" /></li>'));
-		block.append($('<li><input type="checkbox" id="custom-value-cb" /> Is Custom Attribute</li>'));
-
-		var li = $('<li></li>');
-		var btn = $('<a class="btn btn-primary" style="margin-top:15px">Apply</a>').on('click', function(){
-			var key = $('#custom-attr-input').val();
-			var value = $('#custom-value-input').val();
-			
-			var query = CERES.mqe.getCurrentQuery();
-			var filter = {};
-			filter[($('#custom-value-cb').is(':checked') ? 'metadata.' : '')+key] = value;
-			query.filters.push(filter);
-			
-			window.location = CERES.mqe.queryToUrlString(query);
-		});
-		li.append(btn);
-		block.append(btn);
-
-
-		title.append(block);
-
-		return title;
 	}
 	
 	function _updatePaging(results) {
@@ -266,23 +231,21 @@ ESIS.search = (function() {
 			return;
 		}
 		
+		ESIS.chart.clearSearchCharts();
 		for( var i = 0; i < results.items.length; i++ ) {
 			var item = results.items[i];
-			
-			var snippet = item.Description ? item.Description : "";
-			if( snippet.length > 200 ) snippet = snippet.substr(0,200)+"... ";
-			if( snippet == "" || snippet == "None." ) snippet = "No description provided."
-			
 			var info = _getInfo(item);
 			
 			panel.append(rowTemplate({
 				_id     : item._id,
 				title   : _getTitle(item),
-				snippet : snippet,
 				info    : info,
 				isChecked : ESIS.compare.selected(item._id)
 			}));
+			ESIS.chart.addSearchChart(item, $('#'+item._id+'-chart'));
+			
 		}
+		ESIS.chart.redrawSearchCharts(true);
 	}
 
 	function _getTitle(item) {
@@ -329,6 +292,18 @@ ESIS.search = (function() {
 		
 		info += "</ul>";
 		return info;
+	}
+
+	function _updateRestLink() {
+		var link = CERES.mqe.getRestLink();
+		if( !link.match(/$http.*/) ) {
+			link = window.location.protocol+'//'+window.location.host+link;
+		}
+
+		$('#current-search-rest-link').html(
+			'<a href="'+link+'" target="_blank">REST Link</a>'+
+			'<br /> <span style="color:#888;font-size:11px;font-style:italic">'+ decodeURIComponent(link)+'</span>'
+			);
 	}
 	
 	function _hasFilter(item, key) {

@@ -11,6 +11,8 @@ ESIS.chart = (function(){
 	var options = null;
 
     var chart = null;
+    var searchCharts = [];
+    var pendingSearchChart = [];
 	
 	function init() {
 		chartsReady = true;
@@ -21,8 +23,13 @@ ESIS.chart = (function(){
 			} else {
 				draw(pendingChart);
 			}
-			
 		}
+
+        for( var i = 0; i < pendingSearchChart.length; i++ ) {
+            var c = pendingSearchChart[i];
+            addSearchChart(c.item, c.panel);
+        }
+        pendingSearchChart = [];
 		
 		$(window).resize(function(){
 			_redraw();
@@ -110,11 +117,6 @@ ESIS.chart = (function(){
         data.addColumn('number', item["Y Units"]);
         
         var arr = [];
-        /*for( var i = 0; i < item.data.spectra[0].length; i++ ) {
-        	var x = item.data.spectra[0][i]*1;
-        	var y = item.data.spectra[1][i]*1;
-        	if( x || y) arr.push([item.data.spectra[0][i]*1, item.data.spectra[1][i]*1]);
-        }*/
         for( var i = 0; i < item.spectra.length; i++ ) {
         	var x = parseFloat(item.spectra[i][0])*1;
         	var y = parseFloat(item.spectra[i][1])*1;
@@ -139,12 +141,28 @@ ESIS.chart = (function(){
 
 	function _redraw() {
 		var hash = window.location.hash;
+
+        // update search charts size
+        if( hash.match(/#search.*/) ) {
+            for( var i = 0; i < searchCharts.length; i++ ) {
+                var c = searchCharts[i];
+                c.panel.html("");
+        
+                var h = c.panel.width() / 3;
+                if( h < 150 ) h = 150;
+                c.panel.height(h);
+                    
+                var chart = new google.visualization.LineChart(c.panel[0]);
+                chart.draw(c.data, c.options);
+            }
+            return;
+        }
+
 		if( !hash.match(/#result.*/) && !hash.match(/#compare.*/) ) return;
 		
 		cPanel.html("");
         
         var h = cPanel.width() / 2;
-        //if( h > 400 ) h = 400;
         if( h < 200 ) h = 200;
         
         cPanel.height(h);
@@ -152,10 +170,55 @@ ESIS.chart = (function(){
         chart = new google.visualization.LineChart(cPanel[0]);
         chart.draw(data, options);
 	}
+
+    function clearSearchCharts() {
+        searchCharts = [];
+    }
+
+    function addSearchChart(item, panel) {
+        if( !chartsReady ) {
+            pendingSearchChart.push({item:item, panel:panel});
+            return;
+        }
+
+        panel.html("");
+        
+        data = new google.visualization.DataTable();
+        data.addColumn('number', item["X Units"]);
+        data.addColumn('number', item["Y Units"]);
+        
+        var arr = [];
+        for( var i = 0; i < item.spectra.length; i += 10 ) {
+            var x = parseFloat(item.spectra[i][0])*1;
+            var y = parseFloat(item.spectra[i][1])*1;
+            if( x || y) arr.push([parseFloat(item.spectra[i][0])*1, parseFloat(item.spectra[i][1])*1]);
+        }
+        data.addRows(arr);
+        
+        options = {
+            title : item.Name,
+            vAxis: {title: item["Y Units"]},
+            hAxis: {title: item["X Units"]},
+            legend : {position:"none"}
+        }
+
+        searchCharts.push({
+            panel : panel,
+            data : data,
+            options : options
+        })
+    }
+
+    function redrawSearchCharts(first) {
+        _redraw(first);
+    }
 	
 	return {
 		init : init,
 		draw : draw,
-		drawCompare: drawCompare
+		drawCompare: drawCompare,
+        clearSearchCharts : clearSearchCharts,
+        addSearchChart : addSearchChart,
+        redrawSearchCharts : redrawSearchCharts
 	}
 })();

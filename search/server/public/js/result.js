@@ -127,6 +127,7 @@ ESIS.result = (function() {
 
 		var q = CERES.mqe.getCurrentQuery();
 		q.text = '';
+		q.page = 0;
 		var f = {};
 		f[(metadata ? 'metadata.'+key : key)] = value;
 		q.filters = [f];

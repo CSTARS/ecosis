@@ -21,7 +21,7 @@ exports.db = {
 	// MQE will also use this list to make sure indexes are built on these items
 	//indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
 	//indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
-    indexedFilters : ['pkg_title','Type','Class','Family'],  
+    indexedFilters : ['pkg_title','Type','Class','Family','Category'],  
 
     // currently MQE only allows one sort option, place the attribute you wish to sort on here
     //sortBy          : "title",
