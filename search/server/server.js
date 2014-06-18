@@ -69,6 +69,35 @@ exports.bootstrap = function(server) {
 		});
 	});
 
+	server.app.get('/rest/group/getInfo', function(req, resp){
+		getGroupInfo(req, resp);
+	});
+
 	server.app.use("/", server.express.static(__dirname+"/public"));
-	
 };
+
+
+function getGroupInfo(req, resp) {
+	var filters = JSON.parse(req.query.filters);
+
+	var sort = req.query.sort;
+	if( !sort ) sort = '';
+	sort = sort.replace(/^ecosis\./,'');
+
+	var query = {};
+	var options = {
+		sort : sort
+	};
+	var attributes = {
+		_id : true
+	}
+
+	if( sort != '' ) attributes[sort] = true;
+	if( filters.length > 0 ) query["$and"] = filters;
+
+
+	collection.find(query, attributes, options).limit(1000).toArray(function(err, items) {
+		if( err ) return resp.send({error: true, message: err});
+		resp.send(items);
+	});
+}

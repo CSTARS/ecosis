@@ -19,6 +19,7 @@
 	<script type="text/javascript" src="js/result.js"></script>
 	<script type="text/javascript" src="js/chart.js"></script>
 	<script type="text/javascript" src="js/compare.js"></script>
+	<script type="text/javascript" src="js/group.js"></script>
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 	<script type="text/javascript">
       google.load('visualization', '1', {packages: ['corechart']});
@@ -120,5 +121,25 @@
 	<div id="compare-chart"></div>
 	<div id="compare-list-btns"></div>
 </div>
+
+<div id="group" style="display:none; padding:2% 6%">
+	<h2 id="group-header" class="page-header"></h2>
+	<div style="height: 40px">
+		<div class="pull-right">
+			<a class="btn btn-primary" id="group-back-search">Back to Search</a>
+			<a class="btn btn-primary" id="group-back-spectra">Back to Spectra</a>
+		</div>
+	</div>
+	<div id="group-chart"></div>
+	<div id="group-link" style="text-align:center;margin-bottom:15px"></div>
+	<div id="group-controls" style="text-align:center">
+		<a id="group-prev" class="btn btn-primary">Previous</a>
+		<select id="group-select" style="margin-bottom:0px;width:auto"></select>
+		<a id="group-next" class="btn btn-primary">Next</a>
+
+		<div id="group-loading">Loading...</div>
+	</div>
+</div>
+
 </body>
 </html>

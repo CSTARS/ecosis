@@ -100,6 +100,9 @@ ESIS.result = (function() {
 			resourceList += '<tr><td style="white-space:nowrap"><a href="'+CERES.mqe.queryToUrlString(q)+'"><i class="icon-search"></i> '+
 				'Custom Dataset Search</a></td><td style="color:#888">'+result.group_by.description+' - <br />'+
 				'<span style="color:#333">'+parts[1]+':</span> '+name+'</td></tr>';
+
+			resourceList += '<tr><td style="white-space:nowrap"><a href="#group/'+encodeURIComponent(JSON.stringify(q.filters))+
+				'/'+encodeURIComponent(result.group_by.sort)+'/'+result._id+'">Custom Dataset Interact</a></td><td>Inspect the dataset</td></tr>';
 		}
 		resourceList += '</table>';
 

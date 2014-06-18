@@ -143,7 +143,6 @@ ESIS.search = (function() {
 		
 		if( c == 0 ) {
 			panel.append($("<div>No filters available for this search</div>"));
-			if( results.total > 0 ) panel.append(_createCustomFilter());
 			return;
 		}
 		
