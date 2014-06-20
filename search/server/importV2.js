@@ -111,7 +111,7 @@ function getCommonNames(pkgSpectra, callback) {
 				next();
 				return;
 			}
-			getCommonName(item, next);
+			getUSDANames(item, next);
 		},
 		function(err) {
 			callback();
@@ -120,28 +120,28 @@ function getCommonNames(pkgSpectra, callback) {
 }
 
 var commonCache = {};
-function getCommonName(item, next) {
-	if( commonCache[item.ecosis.Common.toLowerCase()] != null ) {
-		setCommonName(item, commonCache[item.ecosis.Common.toLowerCase()]);
+function getUSDANames(item, next) {
+	if( commonCache[item.ecosis['USDA Code'].toLowerCase()] != null ) {
+		getUSDAName(item, commonCache[item.ecosis['USDA Code'].toLowerCase()]);
 		next();
 		return;
 	}
 
-	request.get('http://plants.usda.gov/java/AdvancedSearchServlet?symbol='+item.ecosis.Common+'&dsp_vernacular=on&dsp_category=on&dsp_genus=on&dsp_family=on&Synonyms=all&viewby=sciname&download=on', 
+	request.get('http://plants.usda.gov/java/AdvancedSearchServlet?symbol='+item.ecosis['USDA Code']+'&dsp_vernacular=on&dsp_category=on&dsp_genus=on&dsp_family=on&Synonyms=all&viewby=sciname&download=on', 
 		function(error, response, body){
 
 			if (!error && response.statusCode == 200 && body.match(/^".*/) ) {
-				commonCache[item.ecosis.Common.toLowerCase()] = body;
-				setCommonName(item, body);
+				commonCache[item.ecosis['USDA Code'].toLowerCase()] = body;
+				getUSDAName(item, body);
 			} else {
-				commonCache[item.ecosis.Common.toLowerCase()] = '';
+				commonCache[item.ecosis['USDA Code'].toLowerCase()] = '';
 			}
 			next();
 		}
 	);
 }
 
-function setCommonName(item, str) {
+function getUSDAName(item, str) {
 	if( str.length == 0 ) return;
 	
 	var parts = str.split('\r\n');

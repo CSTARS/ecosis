@@ -25,6 +25,7 @@ ESIS.search = (function() {
 	var titleTemplate;
 	
 	var titleAttr = 'Spectrum Number';
+	var infoAttrs = ['Category', 'Family', 'Genus', 'Scientific Name', 'Common Name', 'pkg_title'];
 
 	var openFilters = [];
 	var staticFilters = {};
@@ -259,31 +260,14 @@ ESIS.search = (function() {
 	
 	function _getInfo(item) {
 		var info = "<ul>";
-		
-		//var tmpQuery = CERES.mqe.getCurrentQuery();
-		/*if( item.Type ) {
-			if( _hasFilter(item,"Type") ) info += "<li><b>Type: </b>"+item.Type+"</li>";
-			else info += "<li><b>Type: </b><a href='"+_createFilterUrl(item,"Type")+"'>"+item.Type+"</a></li>";
-		}
-		if( item.Class ) {
-			if( _hasFilter(item,"Class") ) info += "<li><b>Class: </b>"+item.Class+"</li>";
-			else info += "<li><b>Class: </b><a href='"+_createFilterUrl(item,"Class")+"'>"+item.Class+"</a></li>";
-		}
-		if( item.Subclass ) {
-			if( _hasFilter(item,"Subclass") ) info += "<li><b>Subclass: </b>"+item.Subclass+"</li>";
-			else info += "<li><b>Subclass: </b><a href='"+_createFilterUrl(item,"Subclass")+"'>"+item.Subclass+"</a></li>";
-		}
-		if( item["Particle Size"] ) {
-			if( _hasFilter(item,"Particle Size") ) info += "<li><b>Particle Size: </b>"+item["Particle Size"]+"</li>";
-			else info += "<li><b>Particle Size: </b><a href='"+_createFilterUrl(item,"Particle Size")+"'>"+item["Particle Size"]+"</a></li>";
-		}*/
 
-		var types = ['Type', 'Family', 'Category', 'Common Name'];
+		for( var i = 0; i < infoAttrs.length; i++ ) {
+			if( item[infoAttrs[i]] ) {
+				var key = infoAttrs[i];
+				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
 
-		for( var i = 0; i < types.length; i++ ) {
-			if( item[types[i]] ) {
-				if( _hasFilter(item,types[i]) ) info += "<li><b>"+types[i]+": </b>"+item[types[i]]+"</li>";
-				else info += "<li><b>"+types[i]+": </b><a href='"+_createFilterUrl(item,types[i])+"'>"+item[types[i]]+"</a></li>";
+				if( _hasFilter(item,infoAttrs[i]) ) info += "<li><b>"+label+": </b>"+item[infoAttrs[i]]+"</li>";
+				else info += "<li><b>"+label+": </b><a href='"+_createFilterUrl(item,infoAttrs[i])+"'>"+item[infoAttrs[i]]+"</a></li>";
 			}
 		}
 		

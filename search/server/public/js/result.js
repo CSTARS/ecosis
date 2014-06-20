@@ -75,7 +75,7 @@ ESIS.result = (function() {
 		
 		var q = CERES.mqe.getCurrentQuery();
 		var resourceList = '<table class="table">'+
-				'<tr><td style="white-space:nowrap">Package Name</td><td style="color:#888">'+result.pkg_title+'</td></tr>'+
+				'<tr><td style="white-space:nowrap">Dataset Name</td><td style="color:#888">'+result.pkg_title+'</td></tr>'+
 				'<tr><td style="white-space:nowrap"><a target="_blank" href="http://esis.casil.ucdavis.edu/dataset/'+
 						result.pkg_name+'"><i class="icon-share-alt"></i> All Resources</a></td><td style="color:#888">Go to a list of resources for the dataset this spectra came from.'+
 						'  This resource list is dataset depent including everything from original spectra files to auxiliary files'+
@@ -102,7 +102,7 @@ ESIS.result = (function() {
 				'<span style="color:#333">'+parts[1]+':</span> '+name+'</td></tr>';
 
 			resourceList += '<tr><td style="white-space:nowrap"><a href="#group/'+encodeURIComponent(JSON.stringify(q.filters))+
-				'/'+encodeURIComponent(result.group_by.sort)+'/'+result._id+'">Custom Dataset Interact</a></td><td>Inspect the dataset</td></tr>';
+				'/'+encodeURIComponent(result.group_by.sort)+'/'+result._id+'">Interact</a></td><td>Inspect and interact with the dataset</td></tr>';
 		}
 		resourceList += '</table>';
 
