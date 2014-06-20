@@ -80,7 +80,7 @@ ESIS.result = (function() {
 						result.pkg_name+'"><i class="icon-share-alt"></i> All Resources</a></td><td style="color:#888">Go to a list of resources for the dataset this spectra came from.'+
 						'  This resource list is dataset depent including everything from original spectra files to auxiliary files'+
 						' such as pdf\'s, images, and readme\'s</td></tr>';
-		if( result.group_by ) {
+		if( result.group_by && result.group_by.attribute != '' ) {
 			var parts = result.group_by.attribute.split('.');
 			var q = CERES.mqe.getCurrentQuery();
 			q.text = '';
