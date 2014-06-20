@@ -107,7 +107,7 @@ function getCommonNames(pkgSpectra, callback) {
 	async.eachSeries(
 		list,
 		function(item, next) {
-			if( !item.ecosis.Common ) {
+			if( !item.ecosis['USDA Code'] ) {
 				next();
 				return;
 			}
