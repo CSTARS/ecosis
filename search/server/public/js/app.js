@@ -56,5 +56,6 @@ ESIS.app = (function() {
 
 ESIS.labels = {};
 ESIS.labels.filters = {
-	"pkg_title" : "Dataset"
+	"pkg_title" : "Dataset",
+	"pkg_groups" : "Group"
 };

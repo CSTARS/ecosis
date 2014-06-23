@@ -160,6 +160,14 @@ function addUpdateSpectra(pkgSpectra, callback) {
 
 	var list = pkgSpectra.dataset.data;
 
+	// make group list
+	var groups = [];
+	if( pkgSpectra.groups ) {
+		for( var i = 0; i < pkgSpectra.groups.length; i++ ) {
+			groups.push(pkgSpectra.groups[i].display_name);
+		}
+	}
+
 	async.eachSeries(
 		list,
 		function(item, next) {
@@ -201,6 +209,7 @@ function addUpdateSpectra(pkgSpectra, callback) {
 			item.pkg_id = search.pkg_id;
 			item.spectra_id = search.spectra_id;
 			item.pkg_name = pkgSpectra.pkg_name;
+			item.pkg_groups = groups;
 			item.pkg_title = pkgSpectra.pkg_title;
 
 			collection.find(search).toArray(function(err, items) {

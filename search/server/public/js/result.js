@@ -6,7 +6,7 @@ ESIS.result = (function() {
 	var waiting = null;
 	
 	var loadHandlers = [];
-	var ignoreAttrs = ["group_by", "resource_id", "lastRun","lastUpdate","pkg_name","Name", "Description", "_id", "file", "spectra", "Additional Information", 'metadata','pkg_id','spectra_id'];
+	var ignoreAttrs = ["Common_Name","pkg_groups","group_by", "resource_id", "lastRun","lastUpdate","pkg_name","Name", "Description", "_id", "file", "spectra", "Additional Information", 'metadata','pkg_id','spectra_id'];
 	
 	function init() {
 		$('#result').load('/result.handlebars', function() {
@@ -84,6 +84,7 @@ ESIS.result = (function() {
 			var parts = result.group_by.attribute.split('.');
 			var q = CERES.mqe.getCurrentQuery();
 			q.text = '';
+			q.page = 0;
 			q.filters = [{pkg_title : result.pkg_title}];
 				
 			var f = {};
@@ -104,6 +105,19 @@ ESIS.result = (function() {
 			resourceList += '<tr><td style="white-space:nowrap"><a href="#group/'+encodeURIComponent(JSON.stringify(q.filters))+
 				'/'+encodeURIComponent(result.group_by.sort)+'/'+result._id+'">Interact</a></td><td>Inspect and interact with the dataset</td></tr>';
 		}
+		if( result.pkg_groups && result.pkg_groups.length > 0 ) {
+			resourceList += '<tr><td>Dataset Group(s)</td><td>';
+			var q = CERES.mqe.getCurrentQuery();
+			q.text = '';
+			q.page = 0;
+
+			for( var i = 0; i < result.pkg_groups.length; i++ ) {
+				q.filters = [{pkg_groups : result.pkg_groups[i]}];
+				resourceList += '<a href="'+CERES.mqe.queryToUrlString(q)+'">'+result.pkg_groups[i]+'</a><br />';
+			}
+			resourceList += '</td></tr>';
+		}
+
 		resourceList += '</table>';
 
 		resultPanel.find("#resources-link").html(resourceList);
