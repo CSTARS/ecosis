@@ -35,7 +35,12 @@ ESIS.search = (function() {
 		rowTemplate = Handlebars.compile(RESULT_TEMPLATE);
 		titleTemplate = Handlebars.compile(TITLE_TEMPLATE);
 		
+		$(window).bind("search-start-event", function(e, results){
+			_loading(true);
+		});
+
 		$(window).bind("search-update-event", function(e, results){
+			_loading(false);
 			_updateResultsTitle(results);
 			_updateResults(results);
 			_updateFilters(results); // this should always be before adding active filters
@@ -306,6 +311,21 @@ ESIS.search = (function() {
 		tmpQuery.page = 0;
 		tmpQuery.filters.push(filter);
 		return CERES.mqe.queryToUrlString(tmpQuery);
+	}
+
+	var loadingTimer = -1;
+	function _loading(loading) {
+		if( loadingTimer != -1 ) clearTimeout(loadingTimer);
+
+		if( loading ) {	
+			loadingTimer = setTimeout(function(){
+				loadingTimer = -1;
+				$('#loading').show();
+			}, 150);
+		} else if( loadingTimer != -1 ) {
+			loadingTimer = -1;
+			$('#loading').hide();
+		}
 	}
 
 	

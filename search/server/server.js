@@ -19,8 +19,6 @@ var ignoreList = ['_id','lastUpdate','lastRun', 'metadata', 'spectra'];
 exports.bootstrap = function(server) {
 	var db = server.mqe.getDatabase();
 	
-
-	
 	db.collection(config.db.mainCollection, function(err, coll) { 
 		if( err ) return console.log(err);
 
@@ -71,6 +69,12 @@ exports.bootstrap = function(server) {
 
 	server.app.get('/rest/group/getInfo', function(req, resp){
 		getGroupInfo(req, resp);
+	});
+
+	server.app.get('/rest/import', function(req, resp){
+		server.runImport(function(obj){
+			resp.send(obj);
+		});
 	});
 
 	server.app.use("/", server.express.static(__dirname+"/public"));

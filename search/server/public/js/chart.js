@@ -152,8 +152,8 @@ ESIS.chart = (function(){
                 if( h < 150 ) h = 150;
                 c.panel.height(h);
                     
-                var chart = new google.visualization.LineChart(c.panel[0]);
-                chart.draw(c.data, c.options);
+                var sc = new google.visualization.LineChart(c.panel[0]);
+                sc.draw(c.data, c.options);
             }
             return;
         }

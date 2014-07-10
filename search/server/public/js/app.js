@@ -1,5 +1,6 @@
 var ESIS = {
-	widgets : {}	
+	widgets : {},
+	ckanHost : 'http://data.ecospectra.org'
 };
 
 ESIS.app = (function() {
