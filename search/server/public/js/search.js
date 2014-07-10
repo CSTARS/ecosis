@@ -322,7 +322,7 @@ ESIS.search = (function() {
 				loadingTimer = -1;
 				$('#loading').show();
 			}, 150);
-		} else if( loadingTimer != -1 ) {
+		} else {
 			loadingTimer = -1;
 			$('#loading').hide();
 		}
