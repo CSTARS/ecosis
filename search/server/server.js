@@ -73,6 +73,7 @@ exports.bootstrap = function(server) {
 
 	server.app.get('/rest/import', function(req, resp){
 		server.runImport(function(obj){
+			server.mqe.clearCache();
 			resp.send(obj);
 		});
 	});
