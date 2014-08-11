@@ -61,7 +61,7 @@ function getSpectra() {
 
 function download(packages, callback) {
 	async.eachSeries(
-		resources, 
+		packages, 
 		function(pkgid, next){
 			request(config.import.host+'/spectra/get?id='+pkgid, function (error, response, body) {
 			  	if (!error && response.statusCode == 200) {
