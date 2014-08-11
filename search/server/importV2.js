@@ -53,18 +53,17 @@ function getSpectra() {
 		if( response.statusCode != 200) return console.log('Server responded with status '+response.statusCode);
 
 		var data = JSON.parse(body);
-		download(data.results, function(){
+		download(data, function(){
 			removeOldSpectra();
 		});
 	});
 }
 
-function download(resources, callback) {
+function download(packages, callback) {
 	async.eachSeries(
 		resources, 
-		function(r, next){
-			//console.log('Requesting: '+config.import.host+'/spectra/get?id='+r.id);
-			request(config.import.host+'/spectra/get?compressed=false&id='+r.id, function (error, response, body) {
+		function(pkgid, next){
+			request(config.import.host+'/spectra/get?id='+pkgid, function (error, response, body) {
 			  	if (!error && response.statusCode == 200) {
 			  		var data = JSON.parse(body);
 
