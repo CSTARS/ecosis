@@ -3,14 +3,16 @@
   "version": "0.0.1",
   "author": "Justin Merz <jrmerz@gmail.com>",
   "description": "Ecosis Search (mqe)",
-  "dependencies" : {
-    "express"           : "*",
-    "mongodb"           : "*",
-    "csv"               : "*",
-    "passport"          : "*",
-    "passport-google"   : "*",
-    "passport-facebook" : "*",
-    "passport-twitter"  : "*",
-    "MD5"               : "*"
+  "dependencies": {
+    "express": "*",
+    "mongodb": "*",
+    "csv": "*",
+    "passport": "*",
+    "passport-google": "*",
+    "passport-facebook": "*",
+    "passport-twitter": "*",
+    "MD5": "*",
+    "async": "~0.9.0",
+    "request": "~2.40.0"
   }
 }

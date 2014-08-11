@@ -77,8 +77,8 @@ exports.bootstrap = function(server) {
 			resp.send(obj);
 		});
 	});
-
 	server.app.use("/", server.express.static(__dirname+"/public"));
+	console.log('using: '+__dirname+"/public");
 };
 
 
