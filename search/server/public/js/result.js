@@ -80,8 +80,10 @@ ESIS.result = (function() {
 						result.pkg_name+'"><i class="icon-share-alt"></i> All Resources</a></td><td style="color:#888">Go to a list of resources for the dataset this spectra came from.'+
 						'  This resource list is dataset depent including everything from original spectra files to auxiliary files'+
 						' such as pdf\'s, images, and readme\'s</td></tr>';
-		if( result.group_by && result.group_by.attribute != '' ) {
-			var parts = result.group_by.attribute.split('.');
+		if( result.group_by && result.group_by.by != '' ) {
+			var parts = result.group_by.by.split('.');
+			var sortParts = result.group_by.sort_on.split('.');
+
 			var q = CERES.mqe.getCurrentQuery();
 			q.text = '';
 			q.page = 0;
@@ -98,11 +100,20 @@ ESIS.result = (function() {
 			}
 			q.filters.push(f);
 
+			var sort = '';
+			if( sortParts.length > 1 ) {
+				if( sortParts[0] == 'ecosis' ) {
+					sort = sortParts[1];
+				} else {
+					sort = 'metadata.'+sortParts[1];
+				}
+			}
+
 			resourceList += '<tr><td style="white-space:nowrap"><a href="'+CERES.mqe.queryToUrlString(q)+'"><i class="icon-search"></i> '+
 				'Dataset Grouped By</a></td><td>'+parts[1]+' = '+name+'</td></tr>';
 
 			resourceList += '<tr><td style="white-space:nowrap"><a href="#group/'+encodeURIComponent(JSON.stringify(q.filters))+
-				'/'+encodeURIComponent(result.group_by.sort)+'/'+result._id+'">Interact</a></td><td>Inspect by '+result.group_by.sort+'</td></tr>';
+				'/'+encodeURIComponent(result.group_by.sort_on)+'/'+result._id+'">Interact</a></td><td>Inspect by '+result.group_by.sort_on+'</td></tr>';
 		}
 		if( result.pkg_groups && result.pkg_groups.length > 0 ) {
 			resourceList += '<tr><td>Dataset Group(s)</td><td>';

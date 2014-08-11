@@ -6,6 +6,7 @@ var importLog, lastRun, config, count;
 
 // Order to join metadata in
 var joinOrder = ['file','joined','spectra'];
+var stdMetadata = {};
 
 function run() {
 	lastRun = new Date();
@@ -42,18 +43,31 @@ function connect() {
 
 			console.log('found main collection: '+config.db.mainCollection+"\nInserting items into mongo");
 					
-			getSpectra();
+			request(config.import.host+'/metadata.js', function (error, response, body) {
+					if (!error && response.statusCode == 200) {
+						stdMetadata = JSON.parse(body);
+					}
+
+				getSpectra();
+			});
 		});
 	});
 }
 
 function getSpectra() {
 	request(config.import.host+'/spectra/all', function (error, response, body) {
-		if( error ) return console.log(error);
-		if( response.statusCode != 200) return console.log('Server responded with status '+response.statusCode);
 
-		var data = JSON.parse(body);
-		download(data, function(){
+		if( error ) {
+			writeLog();
+			return console.error(error);
+		}
+		if( response.statusCode != 200) {
+			writeLog();
+			return console.log('Server responded with status '+response.statusCode);
+		}
+
+		var pkgs = JSON.parse(body);
+		download(pkgs, function(){
 			removeOldSpectra();
 		});
 	});
@@ -69,11 +83,10 @@ function download(packages, callback) {
 
 			  		if( !data ) return next();
 
-		  			mapStandardMetadata(data, function(){
-			  			getCommonNames(data, function(){
-				  			addUpdateSpectra(data, function(){
-					  			next();
-					  		});
+		  			mapStandardMetadata(data);
+		  			getCommonNames(data, function(){
+			  			addUpdateSpectra(data, function(){
+				  			next();
 				  		});
 			  		});
 			  		
@@ -93,35 +106,28 @@ function mapStandardMetadata(pkgSpectra, callback) {
 	if( !pkgSpectra ) return callback();
 	if( !pkgSpectra.data ) return callback();
 
-	request(config.import.host+'/metadata.js', function (error, response, body) {
-		var stdMetadata = {};
-		if (!error && response.statusCode == 200) {
-			stdMetadata = JSON.parse(body);
-		}
+	var metadata, sp;
+	for( var i = 0; i < pkgSpectra.data.length; i++ ) {
+		sp = pkgSpectra.data[i];
+		if( !sp.metadata ) continue;
 
-		var metadata, sp;
-		for( var i = 0; i < pkgSpectra.data.length; i++ ) {
-			sp = pkgSpectra.data[i];
-			if( !sp.metadata ) continue;
+		metadata = {};
+		sp.ecosis = {};
+		for( var j = 0; j < joinOrder.length; j++ ) {
+			for( var key in sp.metadata[joinOrder[j]] ) {
 
-			metadata = {};
-			sp.ecosis = {};
-			for( var j = 0; j < joinOrder.length; j++ ) {
-				for( var key in sp.metadata[joinOrder[j]] ) {
-
-					if( stdMetadata[key] == null && pkgSpectra.map[key] == null ) {
-						metadata[key] = sp.metadata[joinOrder[j]][key];
-					} else if( stdMetadata[key] != null ) {
-						sp.ecosis[key] = sp.metadata[joinOrder[j]][key];
-					} else {
-						metadata[key] = sp.metadata[joinOrder[j]][key];
-						sp.ecosis[key] = sp.metadata[joinOrder[j]][key];
-					}
+				if( stdMetadata[key] == null && pkgSpectra.map[key] == null ) {
+					metadata[key] = sp.metadata[joinOrder[j]][key];
+				} else if( stdMetadata[key] != null ) {
+					sp.ecosis[key] = sp.metadata[joinOrder[j]][key];
+				} else if( pkgSpectra.map[key] != null ) {
+					metadata[key] = sp.metadata[joinOrder[j]][key];
+					sp.ecosis[pkgSpectra.map[key]] = sp.metadata[joinOrder[j]][key];
 				}
 			}
-			sp.metadata = metadata;
 		}
-	});
+		sp.metadata = metadata;
+	}
 }
 
 /*
@@ -221,7 +227,7 @@ function addUpdateSpectra(pkgSpectra, callback) {
 			// promote metadata attributes to first class attributes
 			if( item.ecosis ) {
 				for( var key in item.ecosis ) {
-					if( key == '_id' ) continue;
+					if( key == '_id' || item[key] ) continue;
 					item[key] = item.ecosis[key];
 				}
 				delete item.ecosis;
@@ -240,7 +246,13 @@ function addUpdateSpectra(pkgSpectra, callback) {
 			}
 
 			// add grouping information
-			if( pkgSpectra.group_by ) item.group_by = pkgSpectra.group_by;
+			item.group_by = {};
+			if( pkgSpectra.group_by ) {
+				for( key in pkgSpectra.group_by ) item.group_by[key] = pkgSpectra.group_by[key];
+
+				item.group_by.by = (stdMetadata[item.group_by.by] ? 'ecosis.' : 'metadata.')+item.group_by.by; 
+				item.group_by.sort_on = (stdMetadata[item.group_by.sort_on] ? 'ecosis.' : 'metadata.')+item.group_by.sort_on; 
+			}
 
 			// add extras
 			item.pkg_id = search.pkg_id;
