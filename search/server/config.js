@@ -32,7 +32,7 @@ exports.db = {
     // the text search index
     //textIndexes     : ["Name", "Type", "Class", "Subclass", "Particle Size", "description", 
     //                  "title"]
-    textIndexes       : ['package_title','Common Name','Type','Class','Subclass','Genus','Category','Family']
+    textIndexes       : ['pkg_title','Common Name','Type','Class','Subclass','Genus','Category','Family']
 }
 
 exports.import = {
