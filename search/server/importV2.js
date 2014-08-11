@@ -4,6 +4,9 @@ var md5 = require('MD5');
 var MongoClient = require('mongodb').MongoClient, db, collection;
 var importLog, lastRun, config, count;
 
+// Order to join metadata in
+var joinOrder = ['file','joined','spectra'];
+
 function run() {
 	lastRun = new Date();
 	count = {
@@ -67,14 +70,13 @@ function download(resources, callback) {
 
 			  		if( !data ) return next();
 
-			  		getPackageInfo(r.id, function(d){
-			  			d.dataset = data;
-			  			getCommonNames(d, function(){
-				  			addUpdateSpectra(d, function(){
+		  			mapStandardMetadata(data, function(){
+			  			getCommonNames(data, function(){
+				  			addUpdateSpectra(data, function(){
 					  			next();
 					  		});
 				  		});
-			  		})
+			  		});
 			  		
 			  	} else {
 			  		next();
@@ -88,6 +90,42 @@ function download(resources, callback) {
 	);
 }
 
+function mapStandardMetadata(pkgSpectra, callback) {
+	if( !pkgSpectra ) return callback();
+	if( !pkgSpectra.data ) return callback();
+
+	request(config.import.host+'/metadata.js', function (error, response, body) {
+		var stdMetadata = {};
+		if (!error && response.statusCode == 200) {
+			stdMetadata = JSON.parse(body);
+		}
+
+		var metadata, sp;
+		for( var i = 0; i < pkgSpectra.data.length; i++ ) {
+			sp = pkgSpectra.data[i];
+			if( !sp.metadata ) continue;
+
+			metadata = {};
+			sp.ecosis = {};
+			for( var j = 0; j < joinOrder.length; j++ ) {
+				for( var key in sp.metadata[joinOrder[j]] ) {
+
+					if( stdMetadata[key] == null && pkgSpectra.map[key] == null ) {
+						metadata[key] = sp.metadata[joinOrder[j]][key];
+					} else if( stdMetadata[key] != null ) {
+						sp.ecosis[key] = sp.metadata[joinOrder[j]][key];
+					} else {
+						metadata[key] = sp.metadata[joinOrder[j]][key];
+						sp.ecosis[key] = sp.metadata[joinOrder[j]][key];
+					}
+				}
+			}
+			sp.metadata = metadata;
+		}
+	});
+}
+
+/*
 function getPackageInfo(id, callback) {
 	request(config.import.host+'/spectra/info?id='+id, function (error, response, body) {
 		if (!error && response.statusCode == 200) {
@@ -97,13 +135,13 @@ function getPackageInfo(id, callback) {
 		}
 	});
 }
+*/
 
 function getCommonNames(pkgSpectra, callback) {
 	if( !pkgSpectra ) return callback();
-	if( !pkgSpectra.dataset ) return callback();
-	if( !pkgSpectra.dataset.data ) return callback();
+	if( !pkgSpectra.data ) return callback();
 
-	var list = pkgSpectra.dataset.data;
+	var list = pkgSpectra.data;
 	async.eachSeries(
 		list,
 		function(item, next) {
@@ -158,7 +196,7 @@ function getUSDAName(item, str) {
 function addUpdateSpectra(pkgSpectra, callback) {
 	var search, spectra_id;
 
-	var list = pkgSpectra.dataset.data;
+	var list = pkgSpectra.data;
 
 	// make group list
 	var groups = [];
@@ -173,7 +211,7 @@ function addUpdateSpectra(pkgSpectra, callback) {
 		function(item, next) {
 			count.found++;
 			search = {
-				pkg_id     : pkgSpectra.pkg_id,
+				pkg_id     : pkgSpectra.package_id,
 				spectra_id : item.spectra_id ? item.spectra_id : md5(JSON.stringify(item.spectra))
 			};
 
@@ -203,14 +241,14 @@ function addUpdateSpectra(pkgSpectra, callback) {
 			}
 
 			// add grouping information
-			if( pkgSpectra.dataset.group_by ) item.group_by = pkgSpectra.dataset.group_by;
+			if( pkgSpectra.group_by ) item.group_by = pkgSpectra.group_by;
 
 			// add extras
 			item.pkg_id = search.pkg_id;
 			item.spectra_id = search.spectra_id;
-			item.pkg_name = pkgSpectra.pkg_name;
+			item.pkg_name = pkgSpectra.package_name;
 			item.pkg_groups = groups;
-			item.pkg_title = pkgSpectra.pkg_title;
+			item.pkg_title = pkgSpectra.package_title;
 
 			collection.find(search).toArray(function(err, items) {
 				if( err ) {
