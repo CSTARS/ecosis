@@ -1,12 +1,25 @@
+'use strict'
+
 var async = require('async');
 var request = require('request');
 var md5 = require('MD5');
+var ObjectID = require('mongodb').ObjectID;
 var MongoClient = require('mongodb').MongoClient, db, collection;
 var importLog, lastRun, config, count;
 
 // Order to join metadata in
 var joinOrder = ['file','joined','spectra'];
 var stdMetadata = {};
+
+var verbose = false;
+
+// item it's w/ no changes
+var noChanges = [];
+
+
+function log(msg) {
+    if( verbose ) console.log(' --import: '+msg);
+}
 
 function run() {
 	lastRun = new Date();
@@ -43,18 +56,24 @@ function connect() {
 
 			console.log('found main collection: '+config.db.mainCollection+"\nInserting items into mongo");
 					
+            log('downloading metadata.js');
 			request(config.import.host+'/metadata.js', function (error, response, body) {
-					if (!error && response.statusCode == 200) {
-						stdMetadata = JSON.parse(body);
-					}
+				if (!error && response.statusCode == 200) {
+					stdMetadata = JSON.parse(body);
+					getSpectra();
+                    return;
+				}
 
-				getSpectra();
+                console.log('Error access CKAN server: '+config.import.host+'/metadata.js for metadata definitions');
+				process.exit(-1);
 			});
 		});
 	});
 }
 
 function getSpectra() {
+    log('find spectra packages... '+config.import.host+'/spectra/all');
+
 	request(config.import.host+'/spectra/all', function (error, response, body) {
 
 		if( error ) {
@@ -68,7 +87,7 @@ function getSpectra() {
 
 		var pkgs = JSON.parse(body);
 		download(pkgs, function(){
-			removeOldSpectra();
+            removeOldSpectra();
 		});
 	});
 }
@@ -77,6 +96,8 @@ function download(packages, callback) {
 	async.eachSeries(
 		packages, 
 		function(pkgid, next){
+            log('downloading spectra package: '+pkgid);
+
 			request(config.import.host+'/spectra/get?id='+pkgid, function (error, response, body) {
 			  	if (!error && response.statusCode == 200) {
 			  		var data = JSON.parse(body);
@@ -85,8 +106,14 @@ function download(packages, callback) {
 
 		  			mapStandardMetadata(data);
 		  			getCommonNames(data, function(){
+
+                        // actually add or update spectra
 			  			addUpdateSpectra(data, function(){
-				  			next();
+
+                            // actually go through an mark spectra that had no changes from package
+                            updateNoChangeList(function(){
+                                next();
+                            });
 				  		});
 			  		});
 			  		
@@ -145,6 +172,8 @@ function getPackageInfo(id, callback) {
 function getCommonNames(pkgSpectra, callback) {
 	if( !pkgSpectra ) return callback();
 	if( !pkgSpectra.data ) return callback();
+
+    log('accessing spectra common name data...');
 
 	var list = pkgSpectra.data;
 	async.eachSeries(
@@ -261,15 +290,16 @@ function addUpdateSpectra(pkgSpectra, callback) {
 			item.pkg_groups = groups;
 			item.pkg_title = pkgSpectra.package_title;
 
-			collection.find(search).toArray(function(err, items) {
+            log('checking spectra :'+JSON.stringify(search));
+			collection.findOne(search, function(err, doc) {
 				if( err ) {
 					count.error++;
 					console.log(err);
 					return next();
 				}
 
-				if( items.length > 0 ) { // update
-					update(item, items[0], next);
+				if( doc ) { // update
+					update(item, doc, next);
 				} else { // insert
 					add(item, next);
 				}
@@ -292,29 +322,33 @@ function clean(metadata) {
 }
 
 function update(newItem, oldItem, next) {
-	var changed = false;
 	if( itemChanged(newItem, oldItem) ) {
-		changed = true;
+        log('updating spectra :'+oldItem._id);
+
 		newItem.lastUpdate = lastRun.toLocaleString();
-	} else {
-		newItem.lastUpdate = oldItem.lastUpdate;
+        newItem.lastRun = lastRun.toLocaleString();
+        newItem._id = oldItem._id;
+
+        collection.save(newItem, function(err, result) {
+
+            if( err ) {
+                count.error++;
+                console.log(err);
+            } else {
+                count.update++;
+            }
+            next();
+        });
+	} else { // just set lastRun value
+        log('no changes:'+oldItem._id);
+        noChanges.push(oldItem._id);
+        next();
 	}
-	newItem.lastRun = lastRun.toLocaleString();
-
-	newItem._id = oldItem._id;
-	collection.save(newItem, function(err, result) {
-
-		if( err ) {
-			count.error++;
-			console.log(err);
-		} else if( changed ) {
-			count.update++;
-		}
-		next();
-	});
 }
 
 function add(item, next) {
+    log('adding new spectra...');
+
 	item.lastRun = lastRun.toLocaleString();
 	item.lastUpdate = lastRun.toLocaleString();
 
@@ -357,6 +391,27 @@ function itemChanged(item1, item2) {
 		}
 	}
 	return false;
+}
+
+function updateNoChangeList(callback) {
+    log('setting lastRun on spectra with no changes');
+
+
+    collection.update(
+        {'_id': { '$in' : noChanges }}, 
+        {'$set': {'lastRun': lastRun.toLocaleString()}},
+        {multi: true},
+        function(err, result){
+            // NOTE: errors here will force removal of spectra later on
+            if( err ) {
+                count.error++;
+                console.log(err);
+            }
+
+            noChanges = [];
+            callback();
+        }
+    );
 }
 
 function removeOldSpectra() {

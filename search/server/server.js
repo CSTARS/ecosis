@@ -67,6 +67,64 @@ exports.bootstrap = function(server) {
 		});
 	});
 
+	server.app.get('/rest/downloadQueryData', function(req, res){
+		var q = req.query.q;
+		if( typeof q == 'string' ) q = JSON.parse(q);
+		if( !q ) q = {};
+
+		var result = {};
+		var c = 0;
+		var keys = [];
+		var docs = [''];
+
+		var cursor = collection.find(q,{spectra_id:1,spectra:1});
+
+		var t = new Date().getTime();
+
+		cursor.each(function(err, doc) {
+			console.log(c);
+			if( doc == null ) {
+				var sorted = Object.keys(result);
+				for( var i = 0; i < sorted.length; i++ ) {
+					sorted[i] = parseFloat(sorted[i]);
+				}
+
+				sorted.sort(function(a, b){
+					if( a > b ) return 1;
+					if( a < b ) return -1;
+					return 0;
+				});
+
+				var csv = docs.join(',')+'\n';
+				for( var i = 0; i < sorted.length; i++ ) {
+					csv += sorted[i]+','+result[sorted[i]]+'\n';
+					delete result[sorted[i]];
+				}
+
+				res.send(csv);
+				console.log((new Date().getTime()-t)+'ms');
+				return;
+			}
+
+			keys = [];
+			docs.push(doc.spectra_id);
+
+			doc.spectra = JSON.parse(doc.spectra);
+			for( var i = 0; i < doc.spectra.length; i++ ) {
+				_addDownloadRow(result, c, doc.spectra[i]);
+				keys.push(doc.spectra[i][0]);
+			}
+
+			for( var key in result ) {
+				if( keys.indexOf(key) == -1 ) {
+					result[key] += ',';
+				}
+			}
+
+			c++;
+		});
+	});
+
 	server.app.get('/rest/group/getInfo', function(req, resp){
 		getGroupInfo(req, resp);
 	});
@@ -80,6 +138,18 @@ exports.bootstrap = function(server) {
 	server.app.use("/", server.express.static(__dirname+"/public"));
 	console.log('using: '+__dirname+"/public");
 };
+
+
+function _addDownloadRow(result, c, row) {
+	if( result[row[0]] ) {
+		result[row[0]] += ','+row[1];
+	} else if( c == 0 ) {
+		result[row[0]] = row[1];
+	} else {
+		for( var i = 0; i < c; i++ ) result[row[0]] += ',';
+		result[row[0]] += row[1];
+	}
+}
 
 
 function getGroupInfo(req, resp) {
