@@ -12,7 +12,7 @@ exports.db = {
 	// collection where the queryable items are stored
 	mainCollection  : "spectral",
 
-	blobs           : ['spectra'],
+	//blobs           : ['spectra'],
 	
 	// collection that is used to store edits to a record.
 	//editCollection : 'spectral_edits',

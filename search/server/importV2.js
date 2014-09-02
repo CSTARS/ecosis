@@ -262,9 +262,15 @@ function addUpdateSpectra(pkgSpectra, callback) {
 				delete item.ecosis;
 			}
 
-			// turn the spectra into a blob
+			// turn the spectra index friendly form
 			if( item.spectra ) {
-				item.spectra = JSON.stringify(item.spectra);
+				var spectra = [];
+				for( var i = 0; i < item.spectra.length; i++ ) {
+					spectra.push({
+						wavelength : item.spectra.splice(0,1),
+						values : item.spectra
+					})
+				}
 			}
 
 			// HACK

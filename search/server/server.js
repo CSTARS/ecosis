@@ -125,6 +125,54 @@ exports.bootstrap = function(server) {
 		});
 	});
 
+
+	server.app.get('/rest/test', function(req, resp) {
+		var cursor = collection.aggregate(
+			[
+				{
+					$limit : 10000
+				},
+	        	{ 
+	        		$project : { 
+	        		 	_id : 0, 
+	        		 	spectra : 1
+	        		} 
+	        	},
+        		{ $unwind: "$spectra" },
+        		{ 
+        			$group: { 
+            			_id: "$spectra.wavelength", 
+            			values : { 
+            				$push : "$spectra.values"
+            			} 
+            		}
+            	},
+            	{
+            		$sort : { _id : 1 } 
+            	}
+        	], 
+	    	{
+	      		allowDiskUse: true, 
+	      		cursor: { batchSize: 0 }
+	    	}
+	    );
+
+	    // Use cursor as stream
+	    cursor.on('data', function(data) {
+	    	var row = data._id+' '+data.values.length;
+	    	//for( var i = 0; i < data.values.length; i++ ) {
+	    	//	row += ','+data.values[i].join(',');
+	    	//}
+	        resp.write(row+'\n');
+	    });
+
+	    cursor.on('end', function() {
+	    	resp.end('');
+	        console.log('done');
+	        //db.close();
+	    });
+	});
+
 	server.app.get('/rest/group/getInfo', function(req, resp){
 		getGroupInfo(req, resp);
 	});
