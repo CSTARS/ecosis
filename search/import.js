@@ -267,9 +267,9 @@ function addUpdateSpectra(pkgSpectra, callback) {
 				var spectra = [];
 				for( var i = 0; i < item.spectra.length; i++ ) {
 					spectra.push({
-						wavelength : item.spectra[i].splice(0,1),
+						wavelength : item.spectra[i].splice(0,1)[0],
 						values : item.spectra[i]
-					})
+					});
 				}
 				item.spectra = spectra;
 			}
