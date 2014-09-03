@@ -8,6 +8,7 @@
 var config = require(process.argv[2]);
 
 var ObjectId = require('mongodb').ObjectID;
+var CursorStream = require('mongodb').CursorStream;
 var async = require('async');
 
 var collection;
@@ -127,15 +128,16 @@ exports.bootstrap = function(server) {
 
 
 	server.app.get('/rest/downloadQueryData', function(req, resp) {
-		var q = req.query.q;
-		if( typeof q == 'string' ) q = JSON.parse(q);
-		if( !q ) q = {};
+		var q = server.mqe.requestToQuery(req);
+
+		resp.set('Content-Disposition', 'attachment; filename="query-data.csv"');
+		resp.set('Content-Type', 'text/csv');
 
 		var first = true, row;
 		var cursor = collection.aggregate(
 			[
 				{
-					$match : q
+					$match : q.options
 				},
 				{
 					$limit : 10000
@@ -152,7 +154,7 @@ exports.bootstrap = function(server) {
             			_id: "$spectra.wavelength", 
             			values : { 
             				$push : "$spectra.values"
-            			}
+            			},
             			ids : {
             				$push : "$_id"
             			}
@@ -185,6 +187,7 @@ exports.bootstrap = function(server) {
 	    				row += ','+data.ids[0];
 	    			}
 	    		}
+	    		row += '\n';
 	    	}
 
 	    	row += data._id;
@@ -197,6 +200,66 @@ exports.bootstrap = function(server) {
 	    cursor.on('end', function() {
 	    	resp.end('');
 	    });
+	});
+
+	server.app.get('/rest/downloadQueryMetadata', function(req, resp) {
+		var q = server.mqe.requestToQuery(req);
+
+		resp.set('Content-Disposition', 'attachment; filename="query-metadata.csv"');
+		resp.set('Content-Type', 'text/csv');
+
+		function reduce(doc, prev) {
+	        for( var key in doc ) {
+	            if( prev.keys.indexOf(key) == -1 && typeof doc[key] == 'string' ) {
+	                prev.keys.push(key);
+	            }
+	        }
+	        for( var key in doc.metadata ) {
+	            if( prev.keys.indexOf('metadata.'+key) == -1 ) {
+	                prev.keys.push('metadata.'+key);
+	            }   
+	        }  
+	    }
+
+
+		collection.group([], q.options, {'keys':[]}, reduce, function(err, results) {
+			if( err ) {
+				resp.end(JSON.stringify(err));
+				return;
+			} else if ( results.length == 0 ) {
+				resp.end('Error generating metadata csv :(');
+				return;
+			}
+
+			var keys = results[0].keys;
+			keys.splice(0,1,'_id');
+
+			var returnOptions = {};
+			for( var i = 0; i < keys.length; i++ ) {
+				returnOptions[keys[i]] = 1;
+			}
+
+			resp.write(keys.join(',').replace(/\n/g,' ').replace(/,metadata\./g,',')+'\n');
+
+			var cursor = collection.find(q.options, returnOptions).limit(10000).stream();
+			cursor.on('data', function(data) {
+				var row = '';
+
+				for( var i = 0; i < keys.length; i++ ) {
+					if( keys[i].indexOf('metadata.') == 0 ) {
+						row += data.metadata[keys[i].split('.')[1]];
+					} else {
+						row += data[keys[i]];
+					}
+					if( i < keys.length ) row += ',';
+				}
+				resp.write(row.replace(/null/g,'')+'\n');
+			});
+			cursor.on('end', function() {
+				resp.end('');
+			});
+		});
+
 	});
 
 	server.app.get('/rest/group/getInfo', function(req, resp){

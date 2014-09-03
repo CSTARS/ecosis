@@ -57,8 +57,8 @@ ESIS.chart = (function(){
         	data.addColumn('number', items[i].Name);
 
         	for( var j = 0; j < items[i].spectra.length; j++ ) {
-        		var x = parseFloat(items[i].spectra[j][0])*1;
-        		var y = parseFloat(items[i].spectra[j][1])*1;
+        		var x = parseFloat(items[i].spectra[j].wavelength)*1;
+        		var y = parseFloat(items[i].spectra[j].values[0])*1;
         	//for( var j = 0; j < items[i].data.spectra[0].length; j++ ) {
         	//	var x = items[i].data.spectra[0][j]*1;
         	//	var y = items[i].data.spectra[1][j]*1;
@@ -118,9 +118,9 @@ ESIS.chart = (function(){
         
         var arr = [];
         for( var i = 0; i < item.spectra.length; i++ ) {
-        	var x = parseFloat(item.spectra[i][0])*1;
-        	var y = parseFloat(item.spectra[i][1])*1;
-        	if( x || y) arr.push([parseFloat(item.spectra[i][0])*1, parseFloat(item.spectra[i][1])*1]);
+        	var x = parseFloat(item.spectra[i].wavelength)*1;
+        	var y = parseFloat(item.spectra[i].values[0])*1;
+        	if( x || y ) arr.push([x, y]);
         }
         data.addRows(arr);
         
@@ -189,9 +189,9 @@ ESIS.chart = (function(){
         
         var arr = [];
         for( var i = 0; i < item.spectra.length; i += 10 ) {
-            var x = parseFloat(item.spectra[i][0])*1;
-            var y = parseFloat(item.spectra[i][1])*1;
-            if( x || y) arr.push([parseFloat(item.spectra[i][0])*1, parseFloat(item.spectra[i][1])*1]);
+            var x = parseFloat(item.spectra[i].wavelength)*1;
+            var y = parseFloat(item.spectra[i].values[0])*1;
+            if( x || y) arr.push([x, y]);
         }
         data.addRows(arr);
         

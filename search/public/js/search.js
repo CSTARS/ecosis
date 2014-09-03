@@ -47,6 +47,7 @@ ESIS.search = (function() {
 			_updateActiveFilters(results);
 			_updatePaging(results);
 			_updateRestLink();
+			_updateDownloadLinks();
 		});
 		
 		// set search handlers
@@ -291,7 +292,22 @@ ESIS.search = (function() {
 		$('#current-search-rest-link').html(
 			'<a href="'+link+'" target="_blank">REST Link</a>'+
 			'<br /> <span style="color:#888;font-size:11px;font-style:italic">'+ decodeURIComponent(link)+'</span>'
-			);
+		);
+	}
+
+	function _updateDownloadLinks() {
+		var q = CERES.mqe.getCurrentQuery();
+		var filters = encodeURIComponent(JSON.stringify(q.filters));
+
+		var link = '/rest/downloadQueryData?text='+q.text+'&filters='+filters;
+		$('#current-download-data-link').html(
+			'<a href="'+link+'" class="btn btn-link" target="_blank"><i class="icon-download"></i> Download Query Data</a>'
+		);
+
+		link = '/rest/downloadQueryMetadata?text='+q.text+'&filters='+filters;
+		$('#current-download-metadata-link').html(
+			'<a href="'+link+'" class="btn btn-link" target="_blank"><i class="icon-download"></i> Download Query Metadata</a>'
+		);
 	}
 	
 	function _hasFilter(item, key) {
