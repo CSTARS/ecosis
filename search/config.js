@@ -37,7 +37,7 @@ exports.db = {
 
 exports.import = {
 	// js module to run
-	module : "/Users/jrmerz/dev/cstars/esis/search/server/importV2.js",
+	module : "/Users/jrmerz/dev/cstars/esis/search/import.js",
 
 	// in milliseconds
 	interval : 1000 * 60 * 60,
@@ -65,7 +65,7 @@ exports.server = {
 	// remote hosts that are allowed to access this sites mqe
 	allowedDomains : ["testnode.com","localhost","192.168.1.113"],
 	
-	script : "/Users/jrmerz/dev/cstars/esis/search/server/server.js"
+	script : "/Users/jrmerz/dev/cstars/esis/search/server.js"
 }
 
 exports.ckan = {

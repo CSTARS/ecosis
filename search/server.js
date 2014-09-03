@@ -67,7 +67,7 @@ exports.bootstrap = function(server) {
 		});
 	});
 
-	server.app.get('/rest/downloadQueryData', function(req, res){
+	/*server.app.get('/rest/downloadQueryData', function(req, res){
 		var q = req.query.q;
 		if( typeof q == 'string' ) q = JSON.parse(q);
 		if( !q ) q = {};
@@ -123,18 +123,26 @@ exports.bootstrap = function(server) {
 
 			c++;
 		});
-	});
+	});*/
 
 
-	server.app.get('/rest/test', function(req, resp) {
+	server.app.get('/rest/downloadQueryData', function(req, resp) {
+		var q = req.query.q;
+		if( typeof q == 'string' ) q = JSON.parse(q);
+		if( !q ) q = {};
+
+		var first = true, row;
 		var cursor = collection.aggregate(
 			[
+				{
+					$match : q
+				},
 				{
 					$limit : 10000
 				},
 	        	{ 
 	        		$project : { 
-	        		 	_id : 0, 
+	        		 	_id : 1, 
 	        		 	spectra : 1
 	        		} 
 	        	},
@@ -144,7 +152,10 @@ exports.bootstrap = function(server) {
             			_id: "$spectra.wavelength", 
             			values : { 
             				$push : "$spectra.values"
-            			} 
+            			}
+            			ids : {
+            				$push : "$_id"
+            			}
             		}
             	},
             	{
@@ -159,17 +170,32 @@ exports.bootstrap = function(server) {
 
 	    // Use cursor as stream
 	    cursor.on('data', function(data) {
-	    	var row = data._id+' '+data.values.length;
-	    	//for( var i = 0; i < data.values.length; i++ ) {
-	    	//	row += ','+data.values[i].join(',');
-	    	//}
+	    	row = '';
+
+	    	if( first ) {
+	    		first = false;
+	    		
+	    		row = 'wavelength';
+	    		for( var i = 0; i < data.ids.length; i++ ) {
+	    			if( data.values[i] && data.values[i].length > 1 ) {
+	    				for( var j = 0; j < data.values[i].length; j++ ) {
+	    					row += ','+data.ids[i]+'-'+j;
+	    				}
+	    			} else {
+	    				row += ','+data.ids[0];
+	    			}
+	    		}
+	    	}
+
+	    	row += data._id;
+	    	for( var i = 0; i < data.values.length; i++ ) {
+	    		row += ','+data.values[i].join(',').replace(/null/g, '');
+	    	}
 	        resp.write(row+'\n');
 	    });
 
 	    cursor.on('end', function() {
 	    	resp.end('');
-	        console.log('done');
-	        //db.close();
 	    });
 	});
 
