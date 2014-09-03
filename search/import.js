@@ -271,6 +271,7 @@ function addUpdateSpectra(pkgSpectra, callback) {
 						values : item.spectra
 					})
 				}
+				item.spectra = spectra;
 			}
 
 			// HACK
