@@ -234,7 +234,7 @@ function getQueryIdsAndCounts(options, callback) {
 
 function fillArray(arr, len) {
     var row = arr.join(',');
-    for( var i = arr.length; i < len; i++ ) {
+    for( var i = arr.length+1; i < len; i++ ) {
         row += ',';
     }
     return row;
