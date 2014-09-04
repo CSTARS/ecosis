@@ -14,302 +14,298 @@ var async = require('async');
 var collection;
 var cacheCollection;
 
+var heapdump = require('heapdump');
+
 var ignoreList = ['_id','lastUpdate','lastRun', 'metadata', 'spectra'];
 
 // express app
 exports.bootstrap = function(server) {
-	var db = server.mqe.getDatabase();
-	
-	db.collection(config.db.mainCollection, function(err, coll) { 
-		if( err ) return console.log(err);
+    var db = server.mqe.getDatabase();
+    
+    db.collection(config.db.mainCollection, function(err, coll) { 
+        if( err ) return console.log(err);
 
-		collection = coll;
-	});
+        collection = coll;
+    });
 
-	// takes params format and raw
-	server.app.get('/rest/download', function(req, res){
-		var format = '\t';
-		var includeMetadata = true;
+    // takes params format and raw
+    server.app.get('/rest/download', function(req, res){
+        var format = '\t';
+        var includeMetadata = true;
 
-		if( req.query.format ) {
-			if( req.query.format == 'spaces' ) format = '    ';
-			if( req.query.format == 'comma' ) format = ',';
-			delete req.query.format;
-		}
+        if( req.query.format ) {
+            if( req.query.format == 'spaces' ) format = '    ';
+            if( req.query.format == 'comma' ) format = ',';
+            delete req.query.format;
+        }
 
-		if( req.query.raw ) {
-			if( req.query.raw == 'true' ) includeMetadata = false;
-			delete req.query.raw;
-		}
+        if( req.query.raw ) {
+            if( req.query.raw == 'true' ) includeMetadata = false;
+            delete req.query.raw;
+        }
 
-		server.mqe.getItem(req, function(err, item){
-			if( err ) return res.send(err);
+        server.mqe.getItem(req, function(err, item){
+            if( err ) return res.send(err);
 
-			var txt = '';
+            var txt = '';
 
-			if( includeMetadata ) {
-				for( var key in item ) {
-					if( ignoreList.indexOf(key) > -1 ) continue;
-					txt += key+format+item[key]+'\n';
-				}
-				for( var key in item.metadata ) {
-					txt += key+format+item.metadata[key]+'\n';
-				}
-				txt += '\n';
-			}
-			
+            if( includeMetadata ) {
+                for( var key in item ) {
+                    if( ignoreList.indexOf(key) > -1 ) continue;
+                    txt += key+format+item[key]+'\n';
+                }
+                for( var key in item.metadata ) {
+                    txt += key+format+item.metadata[key]+'\n';
+                }
+                txt += '\n';
+            }
+            
 
-			for( var i = 0; i < item.spectra.length; i++ ) {
-				txt += item.spectra[i][0]+format+item.spectra[i][1]+'\n';
-			}
+            for( var i = 0; i < item.spectra.length; i++ ) {
+                txt += item.spectra[i][0]+format+item.spectra[i][1]+'\n';
+            }
 
-			res.set('Content-Disposition', 'attachment; filename="'+item._id+'.txt"');
-			res.send(txt);
-		});
-	});
+            res.set('Content-Disposition', 'attachment; filename="'+item._id+'.txt"');
+            res.send(txt);
+        });
+    });
 
-	/*server.app.get('/rest/downloadQueryData', function(req, res){
-		var q = req.query.q;
-		if( typeof q == 'string' ) q = JSON.parse(q);
-		if( !q ) q = {};
+    
 
-		var result = {};
-		var c = 0;
-		var keys = [];
-		var docs = [''];
+    server.app.get('/rest/downloadQueryData', function(req, resp) {
+        var q = server.mqe.requestToQuery(req);
 
-		var cursor = collection.find(q,{spectra_id:1,spectra:1});
+        resp.set('Content-Disposition', 'attachment; filename="query-data.csv"');
+        resp.set('Content-Type', 'text/csv');
 
-		var t = new Date().getTime();
+        getQueryIdsAndCounts(q.options, function(ids){
+            resp.write('wavelength');
+            for( var id in ids ) {
+                if( ids[id] == 1 ) {
+                    resp.write(','+id);
+                } else {
+                    var c = ids[i];
+                    for( var i = 0; i < c; i++ ) {
+                        resp.write(','+id+'-'+i);
+                    }
+                }
+            }
+            resp.write('\n');
 
-		cursor.each(function(err, doc) {
-			console.log(c);
-			if( doc == null ) {
-				var sorted = Object.keys(result);
-				for( var i = 0; i < sorted.length; i++ ) {
-					sorted[i] = parseFloat(sorted[i]);
-				}
+            var cursor = collection.aggregate(
+                [
+                    {
+                        $match : q.options
+                    },
+                    {
+                        $limit : 10000
+                    },
+                    { 
+                        $project : { 
+                            _id : 1, 
+                            spectra : 1
+                        } 
+                    },
+                    { $unwind: "$spectra" },
+                    { 
+                        $group: { 
+                            _id: "$spectra.wavelength", 
+                            values : { 
+                                $push : "$spectra.values"
+                            },
+                            ids : {
+                                $push : "$_id"
+                            }
+                        }
+                    },
+                    {
+                        $sort : { _id : 1 } 
+                    }
+                ], 
+                {
+                    allowDiskUse: true, 
+                    cursor: { batchSize: 0 }
+                }
+            );
 
-				sorted.sort(function(a, b){
-					if( a > b ) return 1;
-					if( a < b ) return -1;
-					return 0;
-				});
+            // Use cursor as stream
+            cursor.on('data', function(data) {
+                var row = createQueryDataRow(ids, data);
 
-				var csv = docs.join(',')+'\n';
-				for( var i = 0; i < sorted.length; i++ ) {
-					csv += sorted[i]+','+result[sorted[i]]+'\n';
-					delete result[sorted[i]];
-				}
+                var out = data._id;
+                for( var id in row ) {
+                    out += ','+row[id];
+                }
+                resp.write(out+'\n');
 
-				res.send(csv);
-				console.log((new Date().getTime()-t)+'ms');
-				return;
-			}
+            });
 
-			keys = [];
-			docs.push(doc.spectra_id);
+            cursor.on('end', function() {
+                resp.end('');
+            });
+        });
+    });
 
-			doc.spectra = JSON.parse(doc.spectra);
-			for( var i = 0; i < doc.spectra.length; i++ ) {
-				_addDownloadRow(result, c, doc.spectra[i]);
-				keys.push(doc.spectra[i][0]);
-			}
+    server.app.get('/rest/downloadQueryMetadata', function(req, resp) {
+        var q = server.mqe.requestToQuery(req);
 
-			for( var key in result ) {
-				if( keys.indexOf(key) == -1 ) {
-					result[key] += ',';
-				}
-			}
+        resp.set('Content-Disposition', 'attachment; filename="query-metadata.csv"');
+        resp.set('Content-Type', 'text/csv');
 
-			c++;
-		});
-	});*/
-
-
-	server.app.get('/rest/downloadQueryData', function(req, resp) {
-		var q = server.mqe.requestToQuery(req);
-
-		resp.set('Content-Disposition', 'attachment; filename="query-data.csv"');
-		resp.set('Content-Type', 'text/csv');
-
-		var first = true, row;
-		var cursor = collection.aggregate(
-			[
-				{
-					$match : q.options
-				},
-				{
-					$limit : 10000
-				},
-	        	{ 
-	        		$project : { 
-	        		 	_id : 1, 
-	        		 	spectra : 1
-	        		} 
-	        	},
-        		{ $unwind: "$spectra" },
-        		{ 
-        			$group: { 
-            			_id: "$spectra.wavelength", 
-            			values : { 
-            				$push : "$spectra.values"
-            			},
-            			ids : {
-            				$push : "$_id"
-            			}
-            		}
-            	},
-            	{
-            		$sort : { _id : 1 } 
-            	}
-        	], 
-	    	{
-	      		allowDiskUse: true, 
-	      		cursor: { batchSize: 0 }
-	    	}
-	    );
-
-	    // Use cursor as stream
-	    cursor.on('data', function(data) {
-	    	row = '';
-
-	    	if( first ) {
-	    		first = false;
-	    		
-	    		row = 'wavelength';
-	    		for( var i = 0; i < data.ids.length; i++ ) {
-	    			if( data.values[i] && data.values[i].length > 1 ) {
-	    				for( var j = 0; j < data.values[i].length; j++ ) {
-	    					row += ','+data.ids[i]+'-'+j;
-	    				}
-	    			} else {
-	    				row += ','+data.ids[0];
-	    			}
-	    		}
-	    		row += '\n';
-	    	}
-
-	    	row += data._id;
-	    	for( var i = 0; i < data.values.length; i++ ) {
-	    		row += ','+data.values[i].join(',').replace(/null/g, '');
-	    	}
-	        resp.write(row+'\n');
-	    });
-
-	    cursor.on('end', function() {
-	    	resp.end('');
-	    });
-	});
-
-	server.app.get('/rest/downloadQueryMetadata', function(req, resp) {
-		var q = server.mqe.requestToQuery(req);
-
-		resp.set('Content-Disposition', 'attachment; filename="query-metadata.csv"');
-		resp.set('Content-Type', 'text/csv');
-
-		function reduce(doc, prev) {
-	        for( var key in doc ) {
-	            if( prev.keys.indexOf(key) == -1 && typeof doc[key] == 'string' ) {
-	                prev.keys.push(key);
-	            }
-	        }
-	        for( var key in doc.metadata ) {
-	            if( prev.keys.indexOf('metadata.'+key) == -1 ) {
-	                prev.keys.push('metadata.'+key);
-	            }   
-	        }  
-	    }
+        function reduce(doc, prev) {
+            for( var key in doc ) {
+                if( prev.keys.indexOf(key) == -1 && typeof doc[key] == 'string' ) {
+                    prev.keys.push(key);
+                }
+            }
+            for( var key in doc.metadata ) {
+                if( prev.keys.indexOf('metadata.'+key) == -1 ) {
+                    prev.keys.push('metadata.'+key);
+                }   
+            }  
+        }
 
 
-		collection.group([], q.options, {'keys':[]}, reduce, function(err, results) {
-			if( err ) {
-				resp.end(JSON.stringify(err));
-				return;
-			} else if ( results.length == 0 ) {
-				resp.end('Error generating metadata csv :(');
-				return;
-			}
+        collection.group([], q.options, {'keys':[]}, reduce, function(err, results) {
+            if( err ) {
+                resp.end(JSON.stringify(err));
+                return;
+            } else if ( results.length == 0 ) {
+                resp.end('Error generating metadata csv :(');
+                return;
+            }
 
-			var keys = results[0].keys;
-			keys.splice(0,1,'_id');
+            var keys = results[0].keys;
+            keys.splice(0,1,'_id');
 
-			var returnOptions = {};
-			for( var i = 0; i < keys.length; i++ ) {
-				returnOptions[keys[i]] = 1;
-			}
+            var returnOptions = {};
+            for( var i = 0; i < keys.length; i++ ) {
+                returnOptions[keys[i]] = 1;
+            }
 
-			resp.write(keys.join(',').replace(/\n/g,' ').replace(/,metadata\./g,',')+'\n');
+            resp.write(keys.join(',').replace(/\n/g,' ').replace(/,metadata\./g,',')+'\n');
 
-			var cursor = collection.find(q.options, returnOptions).limit(10000).stream();
-			cursor.on('data', function(data) {
-				var row = '';
+            var cursor = collection.find(q.options, returnOptions).limit(10000).stream();
+            cursor.on('data', function(data) {
+                var row = '';
 
-				for( var i = 0; i < keys.length; i++ ) {
-					if( keys[i].indexOf('metadata.') == 0 ) {
-						row += data.metadata[keys[i].split('.')[1]];
-					} else {
-						row += data[keys[i]];
-					}
-					if( i < keys.length ) row += ',';
-				}
-				resp.write(row.replace(/null/g,'')+'\n');
-			});
-			cursor.on('end', function() {
-				resp.end('');
-			});
-		});
+                for( var i = 0; i < keys.length; i++ ) {
+                    if( keys[i].indexOf('metadata.') == 0 ) {
+                        row += data.metadata[keys[i].split('.')[1]];
+                    } else {
+                        row += data[keys[i]];
+                    }
+                    if( i < keys.length ) row += ',';
+                }
+                resp.write(row.replace(/null/g,'')+'\n');
+            });
+            cursor.on('end', function() {
+                resp.end('');
+            });
+        });
 
-	});
+    });
 
-	server.app.get('/rest/group/getInfo', function(req, resp){
-		getGroupInfo(req, resp);
-	});
+    server.app.get('/rest/group/getInfo', function(req, resp){
+        getGroupInfo(req, resp);
+    });
 
-	server.app.get('/rest/import', function(req, resp){
-		server.runImport(function(obj){
-			server.mqe.clearCache();
-			resp.send(obj);
-		});
-	});
-	server.app.use("/", server.express.static(__dirname+"/public"));
-	console.log('using: '+__dirname+"/public");
+    server.app.get('/rest/import', function(req, resp){
+        server.runImport(function(obj){
+            server.mqe.clearCache();
+            resp.send(obj);
+        });
+    });
+    server.app.use("/", server.express.static(__dirname+"/public"));
+    console.log('using: '+__dirname+"/public");
 };
 
 
+function getQueryIdsAndCounts(options, callback) {
+    collection.find(options, {_id : 1, 'spectra' : {$slice : 1} }).limit(10000).toArray(function(err, result){
+        if( err ) return resp.send('Error processing request :(');
+        
+        var ids = {};
+        for( var i = 0; i < result.length; i++ ) {
+            ids[result[i]._id.toString()] = result[i].spectra[0].values.length;
+        }
+
+        callback(ids);
+    });
+}
+
+function fillArray(arr, len) {
+    var row = arr.join(',');
+    for( var i = arr.length; i < len; i++ ) {
+        row += ',';
+    }
+    return row;
+}
+
+function createQueryDataRow(idCounts, data) {
+    var row = {}, c, id;
+
+    for( id in idCounts ) {
+        row[id] = null;
+    }
+
+    for( var i = 0; i < data.ids.length; i++ ) {
+        id = data.ids[i].toString();
+        // expected number of wavelengths based on initial query's first row
+        c = idCounts[id];
+
+        if( c == data.values[i].length ) {
+            row[id] = data.values[i].join(',');
+        } else { // this is a badness check
+            if( c < data.values[i].length)  {
+                row[id] = fillArray(data.values[i], c);
+            } else {
+                row[id] = data.values[i].splice(0, c).join(',');
+            }
+        }
+    }
+
+    for( var id in row ) {
+        if( !row[id] ) row[id] = fillArray([], idCounts[id]);
+    }
+
+    return row;
+}
+
+
 function _addDownloadRow(result, c, row) {
-	if( result[row[0]] ) {
-		result[row[0]] += ','+row[1];
-	} else if( c == 0 ) {
-		result[row[0]] = row[1];
-	} else {
-		for( var i = 0; i < c; i++ ) result[row[0]] += ',';
-		result[row[0]] += row[1];
-	}
+    if( result[row[0]] ) {
+        result[row[0]] += ','+row[1];
+    } else if( c == 0 ) {
+        result[row[0]] = row[1];
+    } else {
+        for( var i = 0; i < c; i++ ) result[row[0]] += ',';
+        result[row[0]] += row[1];
+    }
 }
 
 
 function getGroupInfo(req, resp) {
-	var filters = JSON.parse(req.query.filters);
+    var filters = JSON.parse(req.query.filters);
 
-	var sort = req.query.sort;
-	if( !sort ) sort = '';
-	sort = sort.replace(/^ecosis\./,'');
+    var sort = req.query.sort;
+    if( !sort ) sort = '';
+    sort = sort.replace(/^ecosis\./,'');
 
-	var query = {};
-	var options = {
-		sort : sort
-	};
-	var attributes = {
-		_id : true
-	}
+    var query = {};
+    var options = {
+        sort : sort
+    };
+    var attributes = {
+        _id : true
+    }
 
-	if( sort != '' ) attributes[sort] = true;
-	if( filters.length > 0 ) query["$and"] = filters;
+    if( sort != '' ) attributes[sort] = true;
+    if( filters.length > 0 ) query["$and"] = filters;
 
 
-	collection.find(query, attributes, options).limit(1000).toArray(function(err, items) {
-		if( err ) return resp.send({error: true, message: err});
-		resp.send(items);
-	});
+    collection.find(query, attributes, options).limit(1000).toArray(function(err, items) {
+        if( err ) return resp.send({error: true, message: err});
+        resp.send(items);
+    });
 }

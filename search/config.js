@@ -42,8 +42,8 @@ exports.import = {
 	// in milliseconds
 	interval : 1000 * 60 * 60,
 
-	host: 'http://192.168.1.4:5000',
-	//host: 'http://data.ecospectra.org',
+	//host: 'http://192.168.1.4:5000',
+	host: 'http://data.ecospectra.org',
 
 	// if you want to store the import stats in collection
 	statsCollection : 'spectral_update_stats',
