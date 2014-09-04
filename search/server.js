@@ -14,8 +14,6 @@ var async = require('async');
 var collection;
 var cacheCollection;
 
-var heapdump = require('heapdump');
-
 var ignoreList = ['_id','lastUpdate','lastRun', 'metadata', 'spectra'];
 
 // express app
