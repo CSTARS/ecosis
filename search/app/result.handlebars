@@ -1,0 +1,135 @@
+<script id="result-template" type="text/x-handlebars-template">
+
+
+	<div class="navbar navbar-default navbar-fixed-top">
+	  <div class="container-fluid">
+	 	<div class="navbar-header" style="width:100%;margin:0px">
+
+	 		<div style="display:inline-block" class="hidden-xs">
+		 		<a class="btn btn-link navbar-btn" goto="metadata">Metadata</a>
+		 		<a class="btn btn-link navbar-btn" goto="customMetadata">Custom Metadata</a>
+		 		<a class="btn btn-link navbar-btn" goto="package">Dataset Information</a>
+		 		<a class="btn btn-link navbar-btn" goto="chart">Chart</a>
+		 		<a class="btn btn-link navbar-btn" goto="download">Download</a>
+	 		</div>
+
+	 		<div style="display:inline-block" >
+	 			<!-- Single button -->
+				<div class="btn-group visible-xs">
+				  <button type="button" class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
+				    Go To <span class="caret"></span>
+				  </button>
+				  <ul class="dropdown-menu" role="menu" style="margin-top:50px">
+				    <li><a goto="metadata">Metadata</a></li>
+				    <li><a goto="customMetadata">Custom Metadata</a></li>
+				    <li><a goto="package">Dataset Information</a></li>
+				    <li><a goto="chart">Chart</a></li>
+				    <li><a goto="download">Download</a></li>
+				  </ul>
+				</div>
+	 		</div>
+
+	 		<a id="result-back-btn" class="btn btn-link navbar-btn pull-right" >
+	 			<i class="fa fa-search"></i> Back to Search
+	 		</a>
+	    	
+			
+	    </div>
+
+	  </div>
+	</div>
+
+	<div class="result-padding" style="margin-top:105px">
+
+	<div class="result-header">
+		<div style="padding: 0 10px">
+			
+			<table style="width:100%">
+				<tr>
+					<td>
+						<h3 style="margin-top:10px">{{Common_Name}}</h3>
+					</td><td align="right">
+						<div class='checkbox' style='margin-top: 15px'>
+							<label style="color:#333">
+								<input type='checkbox' {{#if isChecked}}checked{{/if}} onclick='ESIS.compare.toggle(this);' class='select-{{_id}}' itemid='{{_id}}' itemname='{{title}}' /> Compare
+							</label>
+						</div>
+					</td>
+				</tr>
+			</table>
+			
+
+			
+		</div>
+	</div>
+	
+	{{#if Description}}
+		<h4>Description</h4>
+		<div class="Description" style='margin-bottom:15px'>{{Description}}</div>
+	{{/if}}
+	
+	<div class="card">
+		<h3 class="page-header" id="metadata" >Metadata</h3>
+		<div class="row">
+			<div class="col-md-6">
+				<div id="result-main-left-panel"></div>
+			</div>
+			<div class="col-md-6">
+				<div id="result-main-right-panel"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<h3 class="page-header" id="customMetadata" >Custom Dataset Metadata</h3>
+		<div class="help-block">
+			This metadata is specific to this dataset.  You can still filter on it's values, though you will probably filter out all other datasets as most will not have these attributes.
+		</div>
+		<div class="row" style='margin-bottom:15px'>
+			<div class="col-md-6">
+				<div id="result-secondary-left-panel"></div>
+			</div>
+			<div class="col-md-6">
+				<div id="result-secondary-right-panel"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<h3 class="page-header" id="package" style="border-bottom: none">Dataset</h3>
+		<div id="resources-link"></div>
+	</div>
+
+	<div class="card">
+		<h3 class="page-header" id="chart">Spectra</h3>
+		<div id="result-chart-panel"></div>
+		<a class="btn btn-default" id="print-chart" style="margin-top:10px"><i class="fa fa-print"></i> Printable Version</a>
+	</div>
+
+	<div class="card">
+		<h3 class="page-header" id="download" style="border-bottom: none">Download</h3>
+		<div id="result-export">
+			<table class="table">
+				<tr>
+					<td>
+						<label for="export-type" style="display:inline-block">Separator</label>
+						<select id="export-type" class="form-control" style="display:inline-block">
+							<option value="tab">Tab</option>
+							<option value="comma">Comma</option>
+							<option value="spaces">Spaces</option>
+						</select>
+					</td>
+					<td>
+						<input type="checkbox" id="export-metadata" checked="checked" > Include Metadata
+					</td>
+					<td>
+						<a id="export-go" class="btn btn-primary"><i class='fa fa-download-alt'></i> Download</a>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	
+  </div>
+</script>

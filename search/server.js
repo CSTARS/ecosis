@@ -214,8 +214,15 @@ exports.bootstrap = function(server) {
             resp.send(obj);
         });
     });
-    server.app.use("/", server.express.static(__dirname+"/public"));
-    console.log('using: '+__dirname+"/public");
+
+    if( config.dev ) {
+        server.app.use("/", server.express.static(__dirname+"/app"));
+        console.log('using: '+__dirname+"/app");
+    } else {
+        server.app.use("/", server.express.static(__dirname+"/dist"));
+        console.log('using: '+__dirname+"/dist");
+    }
+    
 };
 
 
