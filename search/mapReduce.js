@@ -1,63 +1,58 @@
 // map reduce function for mongodb
-db.spectral.mapReduce(
+// look in the ckanext-esis repo, the controller.py class reads in map.js and reduce.js
+// this is where this code is actually used.  
+db.spectra.mapReduce(
     function(){
-        var key = this.pkg_id;
+        var key = this.ecosis.package_id;
 
-        if( this.group_by && this.group_by.by ) {
-            var parts = this.group_by.by.split('.');
-            if( parts.length == 1 ) {
-                key += '::'+this[parts[0]];
-            } else {
-                key += '::'+this.metadata[parts[1]];
-            }
+        if( this.ecosis.group_by && this.ecosis.group_by != '' ) {
+            key += '-'+this[this.ecosis.group_by];
         }
         emit(key, this);
     },
-    function(key, values){
+    function(key, spectra){
         var searchObj = {
-            ids : [],
+            ecosis : {}
         };
         
-        var ignoreList = ['_id','spectra_id','resource_id','lastUpdate','lastRun','pkg_title','pkg_name','pkg_id'];
+        var ignoreList = ['_id','datapoints', 'ecosis'];
 
-        values.forEach(function(value) {
-            searchObj.ids.push(value._id);
-            
-            for( var key in value ) {
-                if( typeof value[key] != 'string' && key != 'metadata' ) continue;
+        // create unique lists of our attributes
+        function addOrAppendUnique(obj, key, value) {
+            if( obj[key] ) {
+                if( obj[key].indexOf(value) == -1 ) {
+                    obj[key].push(value);
+                }
+            } else {
+                obj[key] = [value];
+            }
+        }
+
+        spectra.forEach(function(measurement) {            
+            for( var key in measurement ) {
                 if( ignoreList.indexOf(key) != -1 ) continue;
                 
-                if( key == 'metadata' ) {
-                    searchObj.metadata = {};
-                    for( var mkey in value.metadata ) {
-                        if( searchObj.metadata[mkey] && searchObj.metadata[mkey].indexOf(value.metadata[mkey]) == -1 ) {
-                            searchObj.metadata[mkey].push(value.metadata[mkey]);
-                        } else {
-                            searchObj.metadata[mkey] = [value.metadata[mkey]];
-                        }
-                    }
-                } else {
-                     if( searchObj[key] && searchObj[key].indexOf(value[key]) == -1 ) {
-                          searchObj[key].push(value[key]);
-                     } else {
-                          searchObj[key] = [value[key]];
-                     }
-                }
+                // is this new or are we pushing to an array?
+                addOrAppendUnique(searchObj, key, measurement[key]);
             }
         });
 
-        if( values.length > 0 ) {
-            searchObj.groups = values[0].groups;
-            searchObj.group_by = values[0].group_by;
-            searchObj.pkg_title = values[0].pkg_title;
-            searchObj.pkg_name = values[0].pkg_name;
-            searchObj.pkg_id = values[0].pkg_id;
+        if( spectra.length > 0 ) {
+            searchObj.ecosis.groups = spectra[0].ecosis.groups;
+            searchObj.ecosis.group_by = spectra[0].ecosis.group_by;
+            searchObj.ecosis.sort_on = spectra[0].ecosis.sort_on;
+            searchObj.ecosis.location = spectra[0].ecosis.location;
+            searchObj.ecosis.package_id = spectra[0].ecosis.package_id;
+            searchObj.ecosis.package_name = spectra[0].ecosis.package_name;
+            searchObj.ecosis.package_title = spectra[0].ecosis.package_title;
+            searchObj.ecosis.created = spectra[0].ecosis.created;
+            searchObj.ecosis.modified = spectra[0].ecosis.modified;
         }
 
         return searchObj;
 
     },
     {
-        out: "esis_search_collection"
+        out: "search"
     }
 )
