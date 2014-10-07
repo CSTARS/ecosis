@@ -1,6 +1,7 @@
 var ESIS = {
 	widgets : {},
-	ckanHost : 'http://data.ecospectra.org'
+	//ckanHost : 'http://data.ecospectra.org'
+	ckanHost : 'http://192.168.1.6:5000'
 };
 
 ESIS.app = (function() {
@@ -56,7 +57,16 @@ ESIS.app = (function() {
 
 
 ESIS.labels = {};
+
 ESIS.labels.filters = {
-	"pkg_title" : "Dataset",
-	"pkg_groups" : "Group"
+	"groups" : "Group",
+	"package_title" : "Dataset",
+	"keywords" : "Keywords",
+	"organization_name" : "Organization"
 };
+ESIS.filters = {
+	"groups" : "ecosis.groups",
+	"package_title" : "ecosis.package_title",
+	"keywords" : "ecosis.keywords",
+	"organization_name" : "ecosis.organization_name"
+}

@@ -50,8 +50,8 @@ ESIS.result = (function() {
 			if( ignoreAttrs.indexOf(key) == -1 && result[key] ) {
 				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
 
-				if( count % 2 == 0 ) leftList += "<li><b>"+label+": </b>"+wrapFilterLink(key, result[key])+"</li>";
-				else rightList += "<li><b>"+label+": </b>"+wrapFilterLink(key, result[key])+"</li>";
+				if( count % 2 == 0 ) leftList += "<li><b>"+label+": </b>"+wrapFilterLinks(key, result[key])+"</li>";
+				else rightList += "<li><b>"+label+": </b>"+wrapFilterLinks(key, result[key])+"</li>";
 				count++;
 			}
 		}
@@ -65,8 +65,8 @@ ESIS.result = (function() {
 			if( ignoreAttrs.indexOf(key) == -1 && result.metadata[key] ) {
 				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
 
-				if( count % 2 == 0 ) leftList += "<li><b>"+label+": </b>"+wrapFilterLink(key, result.metadata[key], true)+"</li>";
-				else rightList += "<li><b>"+label+": </b>"+wrapFilterLink(key, result.metadata[key], true)+"</li>";
+				if( count % 2 == 0 ) leftList += "<li><b>"+label+": </b>"+wrapFilterLinks(key, result.metadata[key], true)+"</li>";
+				else rightList += "<li><b>"+label+": </b>"+wrapFilterLinks(key, result.metadata[key], true)+"</li>";
 				count++;
 			}
 		}
@@ -154,14 +154,25 @@ ESIS.result = (function() {
 		});
 	}
 
-	function wrapFilterLink(key, value, metadata) {
+
+	function wrapFilterLinks(key, values) {
+		debugger;
+		var links = '';
+		for( var i = 0; i < values.length; i++ ) {
+			links += wrapFilterLink(key, values[i]);
+			if( i < values.length-1 ) links += ',';
+		}
+		return links;
+	}
+
+	function wrapFilterLink(key, value) {
 		if( value.length > 30 ) return value;
 
 		var q = CERES.mqe.getCurrentQuery();
 		q.text = '';
 		q.page = 0;
 		var f = {};
-		f[(metadata ? 'metadata.'+key : key)] = value;
+		f[key] = value;
 		q.filters = [f];
 		return '<a href="'+CERES.mqe.queryToUrlString(q)+'">'+value+'</a>';
 	}

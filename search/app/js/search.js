@@ -1,6 +1,9 @@
 Handlebars.registerHelper('info', function() {
   return new Handlebars.SafeString(this.info);
 });
+Handlebars.registerHelper('organization', function() {
+  return new Handlebars.SafeString(this.organization);
+});
 
 ESIS.search = (function() {
 	
@@ -13,8 +16,9 @@ ESIS.search = (function() {
 				    "</label>",
 				"</div>",
 	    	"<h4><a href='#result/{{_id}}'>{{title}}</a></h4>",
+	    	"<div style='margin-left:15px'>{{organization}}</div>",
 	    	"<div class='row'>",
-	    		"<div class='col-md-7' style='padding-bottom:10px;'><div id='{{_id}}-chart' style='height:150px'></div></div>",
+	    		"<div class='col-md-7' style='padding-bottom:10px;'>{{description}}</div>",
 	    		"<div class='col-md-5'>{{info}}</div>",
 	    "</div>"
 	].join('');
@@ -120,7 +124,7 @@ ESIS.search = (function() {
 		// add filter blocks
 		var c = 0;
 		for( var key in results.filters ) {
-			if( (key == "Particle Size" || key == "Subclass") && numFilters == 0 ) continue;
+			if( results.filters[key].length == 0 ) continue;
 			
 			
 			var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
@@ -137,7 +141,7 @@ ESIS.search = (function() {
 				query.page = 0;
 				
 				var filter = {};
-				filter[key] = item.filter;
+				filter[ESIS.filters[key] ? ESIS.filters[key] : key] = item.filter;
 				query.filters.push(filter);
 				
 				block.append($('<li><a href="'+CERES.mqe.queryToUrlString(query).replace(/"/g,'\\"')+'">'+item.filter+' ('+item.count+')</a></li>'));
@@ -237,7 +241,7 @@ ESIS.search = (function() {
 			return;
 		}
 		
-		ESIS.chart.clearSearchCharts();
+		//ESIS.chart.clearSearchCharts();
 		for( var i = 0; i < results.items.length; i++ ) {
 			var item = results.items[i];
 			var info = _getInfo(item);
@@ -245,23 +249,39 @@ ESIS.search = (function() {
 			panel.append(rowTemplate({
 				_id     : item._id,
 				title   : _getTitle(item),
+				organization   : _getOrganization(item),
+				description : _getDescription(item),
 				info    : info,
 				isChecked : ESIS.compare.selected(item._id)
 			}));
-			ESIS.chart.addSearchChart(item, $('#'+item._id+'-chart'));
+		//	ESIS.chart.addSearchChart(item, $('#'+item._id+'-chart'));
 			
 		}
-		ESIS.chart.redrawSearchCharts(true);
+		//ESIS.chart.redrawSearchCharts(true);
 	}
 
 	function _getTitle(item) {
-		if( item['Spectrum Number'] || item.Common ) {
-			var title = '';
-			title += item['Common Name'] ? item['Common Name'] : 'No Name';
-			if( item['Spectrum Number'] ) title += ' - '+item['Spectrum Number'];
-			return title;
-		}
+		if( item.ecosis.package_title ) return item.ecosis.package_title;
+		if( item.ecosis.package_name ) return item.ecosis.package_name;
 		return 'No Title';
+	}
+
+	function _getDescription(item) {
+		if( item.ecosis.description ) return item.ecosis.description;
+		return 'No description provided';
+	}
+
+	function _getOrganization(item) {
+		if( !item.ecosis.organization_name ) return '';
+		if( item.ecosis.organization_name == '' ) return '';
+	
+		var link = '<a href="'+_createFilterUrl('organization_name', item.ecosis.organization_name)+'">';
+		if( item.ecosis.organization_image_url ) {
+			link += '<img src="'+ESIS.ckanHost+item.ecosis.organization_image_url+'" border=0  style="width:28px;height:28px" /> ';
+		}
+		link += item.ecosis.organization_name+'</a>';
+
+		return link;
 	}
 	
 	function _getInfo(item) {
@@ -269,11 +289,24 @@ ESIS.search = (function() {
 
 		for( var i = 0; i < infoAttrs.length; i++ ) {
 			if( item[infoAttrs[i]] ) {
+
+				var arr = item[infoAttrs[i]];
 				var key = infoAttrs[i];
 				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
 
-				if( _hasFilter(item,infoAttrs[i]) ) info += "<li><b>"+label+": </b>"+item[infoAttrs[i]]+"</li>";
-				else info += '<li><b>'+label+': </b><a href="'+_createFilterUrl(item,infoAttrs[i])+'">'+item[infoAttrs[i]]+'</a></li>';
+				info += "<li><b>"+label+": </b>";
+				for( var j = 0; j < arr.length; j++ ) {
+					if( _hasFilter(item,arr[j]) ) info += arr[j];
+					else info += '<a href="'+_createFilterUrl(key, arr[j])+'">'+arr[j]+'</a>';
+					
+					if( j == 5 && j != arr.length - 1 ) {
+						info += ' ...';
+						break;
+					}
+					if( j < arr.length-1 ) info += ', ';
+
+				}
+				info += '</li>';
 			}
 		}
 		
@@ -320,10 +353,10 @@ ESIS.search = (function() {
 		return false;
 	}
 	
-	function _createFilterUrl(item, key) {
+	function _createFilterUrl(key, value) {
 		var tmpQuery = CERES.mqe.getCurrentQuery();
 		var filter = {};
-		filter[key] = item[key];
+		filter[ESIS.filters[key] ? ESIS.filters[key] : key] = value;
 		tmpQuery.page = 0;
 		tmpQuery.filters.push(filter);
 		return CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"');

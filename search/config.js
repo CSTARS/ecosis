@@ -3,40 +3,33 @@ exports.debug = true;
 
 exports.node = 'node';
 
-//exports.dev = true;
+exports.dev = true;
 
 exports.db = {
-	initd           : "mongod --port 27017",
+	//initd           : "mongod --port 27017",
 
 	// connection string for the database, includes database name
-	url             : "mongodb://localhost:27017/esis",
+	//url             : "mongodb://localhost:27017/esis",
+	url             : "mongodb://192.168.1.6:27018/esis",
 	
 	// collection where the queryable items are stored
-	mainCollection  : "spectral",
+	mainCollection  : "search",
 
-	//blobs           : ['spectra'],
-	
-	// collection that is used to store edits to a record.
-	//editCollection : 'spectral_edits',
-	
-	// Filters yours site uses, these will be returned in the results
-	// MQE will also use this list to make sure indexes are built on these items
-	//indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
-	//indexedFilters  : ["Type","Class", "Subclass","Particle Size","keywords","groups","format"],
-    indexedFilters : ['pkg_groups','pkg_title','Family','Category'],  
+	isMapReduce     : true,
+
+
+    indexedFilters : ['ecosis.organization_name','ecosis.keywords','Family','Category'],  
 
     // currently MQE only allows one sort option, place the attribute you wish to sort on here
-    //sortBy          : "title",
     sortBy            : 'Common Name',
     
     // currently Mongo only allows the creation of text search on one attribute.  MQE will
     // combine all filters listed below into a single attribute that will be used for
     // the text search index
-    //textIndexes     : ["Name", "Type", "Class", "Subclass", "Particle Size", "description", 
-    //                  "title"]
-    textIndexes       : ['pkg_title','Common Name','Type','Class','Subclass','Genus','Category','Family']
+    textIndexes       : ['ecosis.package_title','Common Name','Type','Class','Subclass','Genus','Category','Family']
 }
 
+/*
 exports.import = {
 	// js module to run
 	module : "/Users/jrmerz/dev/cstars/esis/search/import.js",
@@ -52,7 +45,7 @@ exports.import = {
 
 	// metadata attributes from item.metadata that should be promoted to first class attributes
 	firstClassMetadata : ['type', 'form', 'usdanrcs_common_name']
-}
+}*/
 
 
 exports.server = {
