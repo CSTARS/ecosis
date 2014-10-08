@@ -277,7 +277,7 @@ ESIS.search = (function() {
 	
 		var link = '<a href="'+_createFilterUrl('organization_name', item.ecosis.organization_name)+'">';
 		if( item.ecosis.organization_image_url ) {
-			link += '<img class="img-circle" src="'+ESIS.ckanHost+item.ecosis.organization_image_url+'" border=0  style="width:32px;height:32px" /> ';
+			link += '<img class="img-thumbnail" src="'+ESIS.ckanHost+item.ecosis.organization_image_url+'" border=0  style="width:32px" /> ';
 		}
 		link += item.ecosis.organization_name+'</a>';
 
