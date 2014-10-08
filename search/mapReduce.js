@@ -8,14 +8,15 @@ db.spectra.mapReduce(
         if( this.ecosis.group_by && this.ecosis.group_by != '' ) {
             key += '-'+this[this.ecosis.group_by];
         }
-        this.count = 1;
+        this.ecosis.spectra_count = 1;
 
         emit(key, this);
     },
     function(key, spectra){
         var searchObj = {
-            count : 0,
-            ecosis : {}
+            ecosis : {
+                spectra_count : 0
+            }
         };
         
         var ignoreList = ['_id','datapoints', 'ecosis', 'count'];
@@ -38,7 +39,7 @@ db.spectra.mapReduce(
         var i, measurement, key, arr;
         for( i = 0; i < spectra.length; i++ ) {
             measurement = spectra[i];
-            searchObj.count += measurement.count;
+            searchObj.ecosis.spectra_count += measurement.ecosis.spectra_count;
 
             for( key in measurement ) {
                 if( ignoreList.indexOf(key) != -1 ) continue;
@@ -75,7 +76,7 @@ db.spectra.mapReduce(
         out: "search",
         finalize : function(key, item) {
             for( var key in item ) {
-                if( Array.isArray(item[key]) && item[key].length == item.count && item.count > 50) {
+                if( Array.isArray(item[key]) && item[key].length == item.ecosis.spectra_count && item.ecosis.spectra_count > 50) {
                     delete item[key];
                 }
             }

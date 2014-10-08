@@ -6,9 +6,10 @@
 	 	<div class="navbar-header" style="width:100%;margin:0px">
 
 	 		<div style="display:inline-block" class="hidden-xs">
+	 			<a class="btn btn-link navbar-btn" goto="package">Dataset Information</a>
 		 		<a class="btn btn-link navbar-btn" goto="metadata">Metadata</a>
-		 		<a class="btn btn-link navbar-btn" goto="customMetadata">Custom Metadata</a>
-		 		<a class="btn btn-link navbar-btn" goto="package">Dataset Information</a>
+		 		<!--<a class="btn btn-link navbar-btn" goto="customMetadata">Custom Metadata</a>-->
+		
 		 		<a class="btn btn-link navbar-btn" goto="chart">Chart</a>
 		 		<a class="btn btn-link navbar-btn" goto="download">Download</a>
 	 		</div>
@@ -47,13 +48,13 @@
 			<table style="width:100%">
 				<tr>
 					<td>
-						<h3 style="margin-top:10px">{{Common_Name}}</h3>
+						<h3 style="margin-top:10px">{{ecosis.package_title}}</h3>
 					</td><td align="right">
-						<div class='checkbox' style='margin-top: 15px'>
+						<!--<div class='checkbox' style='margin-top: 15px'>
 							<label style="color:#333">
 								<input type='checkbox' {{#if isChecked}}checked{{/if}} onclick='ESIS.compare.toggle(this);' class='select-{{_id}}' itemid='{{_id}}' itemname='{{title}}' /> Compare
 							</label>
-						</div>
+						</div>-->
 					</td>
 				</tr>
 			</table>
@@ -63,10 +64,15 @@
 		</div>
 	</div>
 	
-	{{#if Description}}
+	{{#if ecosis.description}}
 		<h4>Description</h4>
-		<div class="Description" style='margin-bottom:15px'>{{Description}}</div>
+		<div class="Description" style='margin-bottom:15px'>{{ecosis.description}}</div>
 	{{/if}}
+
+	<div class="card">
+		<h3 class="page-header" id="package" style="border-bottom: none">Dataset</h3>
+		<div id="resources-link"></div>
+	</div>
 	
 	<div class="card">
 		<h3 class="page-header" id="metadata" >Metadata</h3>
@@ -80,6 +86,7 @@
 		</div>
 	</div>
 
+	<!--
 	<div class="card">
 		<h3 class="page-header" id="customMetadata" >Custom Dataset Metadata</h3>
 		<div class="help-block">
@@ -94,11 +101,7 @@
 			</div>
 		</div>
 	</div>
-
-	<div class="card">
-		<h3 class="page-header" id="package" style="border-bottom: none">Dataset</h3>
-		<div id="resources-link"></div>
-	</div>
+	-->
 
 	<div class="card">
 		<h3 class="page-header" id="chart">Spectra</h3>

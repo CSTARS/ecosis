@@ -10,13 +10,13 @@ ESIS.search = (function() {
 	// handle bar template layouts
 	var RESULT_TEMPLATE = [
 	    '<div class="search-result-row animated fadeIn">',
-	    	"<div class='checkbox pull-right'>",
+	    	"<!--<div class='checkbox pull-right'>",
 				"<label>",
 				    "<input type='checkbox' {{#if isChecked}}checked{{/if}} onclick='ESIS.compare.toggle(this);' class='select-{{_id}}' itemid='{{_id}}' itemname='{{title}}' /> Compare",
 				    "</label>",
-				"</div>",
+			"</div>-->",
 	    	"<h4><a href='#result/{{_id}}'>{{title}}</a></h4>",
-	    	"<div style='margin-left:15px'>{{organization}}</div>",
+	    	"<div style='margin-left:5px'>{{organization}}</div>",
 	    	"<div class='row'>",
 	    		"<div class='col-md-7' style='padding-bottom:10px;'>{{description}}</div>",
 	    		"<div class='col-md-5'>{{info}}</div>",
@@ -277,7 +277,7 @@ ESIS.search = (function() {
 	
 		var link = '<a href="'+_createFilterUrl('organization_name', item.ecosis.organization_name)+'">';
 		if( item.ecosis.organization_image_url ) {
-			link += '<img src="'+ESIS.ckanHost+item.ecosis.organization_image_url+'" border=0  style="width:28px;height:28px" /> ';
+			link += '<img class="img-circle" src="'+ESIS.ckanHost+item.ecosis.organization_image_url+'" border=0  style="width:32px;height:32px" /> ';
 		}
 		link += item.ecosis.organization_name+'</a>';
 
