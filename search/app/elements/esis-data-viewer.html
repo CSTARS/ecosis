@@ -1,0 +1,72 @@
+<polymer-element name="esis-data-viewer" attributes="package spectra_count">
+    <template>
+        <div hidden?="{{types.length > 0}}">
+            This dataset has no data to visualize.
+        </div>
+
+        <div hidden?="{{types.length == 0}}">
+            Inspect: 
+            <select value="{{selectedType}}">
+                <template repeat="{{type in types}}">
+                    <option value="{{type}}">{{type}}</option>
+                </template>
+            </select>
+
+            <template bind if="{{selectedType == 'Spectra'}}">
+                <esis-spectra-viewer
+                    package="{{package}}"
+                    spectra_count="{{spectra_count}}">
+                </esis-spectra-viewer>
+            </template>
+             <template bind if="{{selectedType != 'Spectra'}}">
+                <esis-derived-data-viewer
+                    package="{{package}}"
+                    attribute="{{selectedType}}">
+                </esis-derived-data-viewer>
+            </template>
+        </div>
+
+
+
+
+    </template>
+    <script>
+        Polymer('esis-data-viewer', {
+            types : [],
+            selectedType : '',
+            package : null,
+
+            observe : {
+                package : '_update'
+            },
+
+            _update : function() {
+                this.types = [];
+                this.selectedType = '';
+
+                if( this.package.ecosis.attributes.wavelengths.length > 0 ) {
+                    this.types = ['Spectra'];
+                }
+
+                var attr, type;
+                for( var i = 0 ; i < this.package.ecosis.attributes.types.length; i++ ) {
+                    attr = this.package.ecosis.attributes.types[i];
+                    type = this._getAttrType(attr);
+                    if( type == 'data' && attr.name != 'Spectra' ) this.types.push(attr.name);
+                }
+
+                if( this.types.length > 0 ) {
+                    this.selectedType = this.types[0];
+                }
+            },
+
+            _getAttrType : function(attr) {
+                if( this.package.ecosis.attributes.modifications[attr.name] ) {
+                    return this.package.ecosis.attributes.modifications[attr.name];
+                }
+                return attr.type;
+            }
+
+        });
+    </script>   
+</polymer-element>

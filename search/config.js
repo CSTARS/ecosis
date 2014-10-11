@@ -14,6 +14,8 @@ exports.db = {
 	
 	// collection where the queryable items are stored
 	mainCollection  : "search",
+	spectraCollection : "spectra",
+	packageCollection : "package",
 
 	isMapReduce     : true,
 

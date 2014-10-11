@@ -32,7 +32,7 @@ ESIS.chart = (function(){
         pendingSearchChart = [];
 		
 		$(window).resize(function(){
-			_redraw();
+			//_redraw();
 		});
 	}
 

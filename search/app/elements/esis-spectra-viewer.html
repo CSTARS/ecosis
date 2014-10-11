@@ -1,0 +1,144 @@
+<polymer-element name="esis-spectra-viewer" attributes="package spectra_count">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+        <div id="root" style="height: 450px"></div>
+
+        Spectra #
+        <select value="{{selectedIndex}}" on-change="{{_updateDataTable}}">
+            <template repeat="{{index in indexes}}">
+                <option value="{{index}}">{{index}}</option>
+            </template>
+        </select>
+
+        <span style="padding:15px" hidden?="{{!loading}}">
+            Loading...
+        </span>
+
+        <div><a on-tap="{{print}}">Printable Version</a></div>
+        <div>Rest Link: <a href="{{rest}}" target="_blank">{{rest}}</a></div>
+
+    </template>
+    <script>
+        Polymer('esis-spectra-viewer', {
+            dt : null,
+            chart : null,
+
+            rest : '',
+
+            ptRegex1 : /^-?\d+\.?\d*$/,
+            ptRegex2 : /^-?\d*\.\d+$/,
+
+            selectedIndex : 0,
+            indexes : [],
+
+            onLoadHandlerSet : false,
+
+            observe : {
+                package : '_update'
+            },
+
+            ready : function() {
+                $(window).on('resize', function(){
+                    this.redraw();
+                }.bind(this));
+            },
+
+            setOnloadHandler : function() {
+                if( this.onLoadHandlerSet ) return;
+
+                console.log('callback set');
+
+                // put in global scope by cwn-datastore
+                chartLoadHandlers.push(function(){
+                    this._update();
+                }.bind(this));
+            },
+            
+            print : function() {
+                window.open(this.chart.getImageURI());
+            },
+
+            _update : function() {
+                if( !window.google.visualization ) return this.setOnloadHandler();
+                if( !window.google.visualization.LineChart ) return this.setOnloadHandler();
+
+                if( !this.chart ) {
+                    this.chart = new google.visualization.LineChart(this.$.root);
+                }
+
+                this.indexes = [];
+                this.selectedIndex = 0;
+
+                for( var i = 0; i < this.spectra_count; i++ ) this.indexes.push(i);
+                this._updateDataTable();
+            },
+
+            _updateDataTable : function() {
+                this.loading = true;
+
+                $.ajax({
+                    url : '/rest/getSpectra?package_id='+this.package.id+'&index='+this.selectedIndex,
+                    success : function(resp) {
+
+                        var arr = [], pt;
+                        for( var i = 0; i < resp.datapoints.length; i++ ) {
+                            pt = resp.datapoints[i];
+                            if( this.ptRegex1.exec(pt.key) || this.ptRegex2.exec(pt.key) ) {
+                                arr.push([parseFloat(pt.key), parseFloat(pt.value)]);
+                            }
+                        }
+
+                        arr.sort(function(a, b){
+                            if( a[0] < b[0] ) return 1;
+                            if( a[0] > b[0] ) return -1;
+                            return 0;
+                        });
+                        for( var i = 0; i < arr.length; i++ ) arr[i][0] = arr[i][0]+'';
+
+                        arr.splice(0,0,['Wavelength','Reflectance']);
+
+                        this.dt = google.visualization.arrayToDataTable(arr);
+                        this.redraw();
+                        this.loading = false;
+                    }.bind(this)
+                });
+
+                this.rest = window.location.origin+'/rest/getSpectra?package_id='+this.package.id+'&index='+this.selectedIndex;
+            },
+
+            redraw : function() {
+                if( !this.chart || !this.dt ) return;
+
+                var options = {
+                    legend : {
+                        position : 'none'
+                    },
+                    vAxis : {},
+                    hAxis : {}
+                };
+
+                if( this.label && this.label != '' ) {
+                    options.title = this.label;
+                }
+                if( this.xlabel && this.xlabel != '' ) {
+                    options.hAxis.title = this.xlabel;
+                }
+                if( this.ylabel && this.ylabel != '' ) {
+                    options.vAxis.title = this.ylabel;
+                }
+
+                 options.animation = {
+                        duration : 750,
+                        easing : 'out'
+                    }
+
+                this.chart.draw(this.dt, options);
+            }
+
+        });
+    </script>
+</polymer-element>

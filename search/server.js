@@ -11,8 +11,11 @@ var ObjectId = require('mongodb').ObjectID;
 var CursorStream = require('mongodb').CursorStream;
 var async = require('async');
 
+var data = require('./lib/data.js');
+
 var collection;
-var cacheCollection;
+var spectraCollection;
+var packageCollection;
 
 var ignoreList = ['_id','lastUpdate','lastRun', 'metadata', 'spectra'];
 
@@ -26,7 +29,32 @@ exports.bootstrap = function(server) {
         collection = coll;
     });
 
+    db.collection(config.db.spectraCollection, function(err, coll) { 
+        if( err ) return console.log(err);
+
+        spectraCollection = coll;
+    });
+
+    db.collection(config.db.packageCollection, function(err, coll) { 
+        if( err ) return console.log(err);
+
+        packageCollection = coll;
+    });
+
+    server.app.get('/rest/getSpectra', function(req, res){
+        data.getSpectra({search: collection, spectra: spectraCollection}, req, res);
+    });
+
+    server.app.get('/rest/getDerivedData', function(req, res){
+        data.getDerivedData({search: collection, spectra: spectraCollection}, req, res);
+    });
+
+    server.app.get('/rest/download', function(req, res){
+        data.download({package: packageCollection, spectra: spectraCollection}, req, res);
+    });
+
     // takes params format and raw
+    /*
     server.app.get('/rest/download', function(req, res){
         var format = '\t';
         var includeMetadata = true;
@@ -67,7 +95,7 @@ exports.bootstrap = function(server) {
             res.send(txt);
         });
     });
-
+    */
     
 
     server.app.get('/rest/downloadQueryData', function(req, resp) {

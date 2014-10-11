@@ -10,6 +10,7 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-manifest');
     grunt.loadNpmTasks('grunt-shell');
+    grunt.loadNpmTasks('grunt-vulcanize');
 
     // Define the configuration for all the tasks
     grunt.initConfig({
@@ -106,7 +107,19 @@ module.exports = function (grunt) {
                 },
                 command: 'rm -rf <%= yeoman.dist %>/components/*'
             }
-        }
+        },
+
+        vulcanize: {
+            default : {
+                options: {
+                    csp : true,
+                    inline : true
+                },
+                files : {
+                    '<%= yeoman.dist %>/elements.html': ['<%= yeoman.app %>/elements.html']
+                }
+            }
+        },
 
     });
 
@@ -119,6 +132,7 @@ module.exports = function (grunt) {
         'uglify:generated',
         'rev',
         'usemin',
+        'vulcanize',
         'shell:clear-bower-components'
     ]);
 

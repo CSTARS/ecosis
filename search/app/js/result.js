@@ -43,21 +43,18 @@ ESIS.result = (function() {
 		var resultPanel = $("#result");
 		resultPanel.html(getResultHtml(result));
 		
-		var leftList = "<ul>";
-		var rightList = "<ul>";
-		var count = 0;
+
+		var metadata = '<table class="table">';
 		for( var key in result ) {
-			if( key == 'Common_Name' ) debugger;
 			if( ignoreAttrs.indexOf(key) == -1 && result[key] ) {
 				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
 
-				if( count % 2 == 0 ) leftList += "<li><b>"+label+": </b>"+wrapFilterLinks(key, result[key])+"</li>";
-				else rightList += "<li><b>"+label+": </b>"+wrapFilterLinks(key, result[key])+"</li>";
-				count++;
+				metadata += "<tr><td>"+label+"</td><td><div style='max-height:100px;overflow:auto'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";
 			}
 		}
-		resultPanel.find("#result-main-left-panel").html(leftList);
-		resultPanel.find("#result-main-right-panel").html(rightList);
+		metadata += '</table>';
+
+		resultPanel.find("#result-metadata").html(metadata);
 
 		/*
 		leftList = "<ul>";
@@ -86,7 +83,7 @@ ESIS.result = (function() {
 
 
 
-		if( result.group_by && result.group_by.by != '' ) {
+		/*if( result.group_by && result.group_by.by != '' ) {
 			var parts = result.group_by.by.split('.');
 			var sortParts = result.group_by.sort_on.split('.');
 
@@ -136,7 +133,45 @@ ESIS.result = (function() {
 
 		resourceList += '</table>';
 
-		resultPanel.find("#resources-link").html(resourceList);
+		resultPanel.find("#resources-link").html(resourceList);*/
+
+		$.ajax({
+			url : ESIS.ckanHost+"/spectra/getPackage?id="+result._id,
+			success : function(resp) {
+				console.log(resp);
+
+				var table = '<table class="table">';
+
+				// set keywords
+				table += '<tr><td>Description</td><td>'+result.ecosis.description+'</td></tr>';
+
+				// set keywords
+				table += '<tr><td>Keywords</td><td>';
+				for( var i = 0; i < resp.tags.length; i++ ) {
+					table += wrapFilterLink('ecosis.keywords', resp.tags[i].display_name);
+					if( i < resp.tags.length -1 ) table += ', ';
+				}
+				table += '</td></tr>';
+
+				// set resources
+				table += '<tr><td>Resources</td><td>';
+				for( var i = 0; i < resp.resources.length; i++ ) {
+					table += '<a href="'+resp.resources[i].url.replace(/:\/\//,ESIS.ckanHost) + 
+								'" target="_blank">'+resp.resources[i].name+'</a>';
+					if( i < resp.resources.length -1 ) table += '<br />';
+				}
+				table += '</td></tr>';
+
+				table += '</table>'
+
+				$('#dataset-content').html(table);
+
+
+				// set package info for data viewer
+				document.querySelector('esis-data-viewer').package = resp;
+				document.querySelector('esis-data-viewer').spectra_count = result.ecosis.spectra_count;
+			}
+		});
 
 		//ESIS.chart.draw(result, $("#result-chart-panel"));
 		
@@ -145,9 +180,8 @@ ESIS.result = (function() {
 		});
 
 		$('#export-go').on('click', function(){
-			window.open('/rest/download?_id='+window.location.hash.split('/')[1]+
-				'&format='+$('#export-type').val()+
-				'&raw='+($('#export-metadata').is(':checked') ? 'false' : 'true')
+			window.open('/rest/download?package_id='+result._id+
+				'&metadata='+($('#export-metadata').is(':checked') ? 'true' : 'false')
 				,'Download'); 
 		});
 
@@ -183,15 +217,9 @@ ESIS.result = (function() {
 	}
 	
 	function getResultHtml(result) {
-		
-		/*var options = {
-			Name : result.Name,
-			Description : result.Description
-		};*/
 
 		result.isChecked = ESIS.compare.selected(result._id);
-		
-		//result.Common_Name = result['Common Name']+' '+result['Spectrum Number'];
+
 		return resultTemplate(result);
 		
 	}

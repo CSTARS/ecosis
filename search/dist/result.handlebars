@@ -63,27 +63,15 @@
 			
 		</div>
 	</div>
-	
-	{{#if ecosis.description}}
-		<h4>Description</h4>
-		<div class="Description" style='margin-bottom:15px'>{{ecosis.description}}</div>
-	{{/if}}
 
 	<div class="card">
 		<h3 class="page-header" id="package" style="border-bottom: none">Dataset</h3>
-		<div id="resources-link"></div>
+		<div id="dataset-content">Loading...</div>
 	</div>
 	
 	<div class="card">
 		<h3 class="page-header" id="metadata" >Metadata</h3>
-		<div class="row">
-			<div class="col-md-6">
-				<div id="result-main-left-panel"></div>
-			</div>
-			<div class="col-md-6">
-				<div id="result-main-right-panel"></div>
-			</div>
-		</div>
+		<div id="result-metadata"></div>
 	</div>
 
 	<!--
@@ -105,8 +93,7 @@
 
 	<div class="card">
 		<h3 class="page-header" id="chart">Spectra</h3>
-		<div id="result-chart-panel"></div>
-		<a class="btn btn-default" id="print-chart" style="margin-top:10px"><i class="fa fa-print"></i> Printable Version</a>
+		<esis-data-viewer></esis-data-viewer>
 	</div>
 
 	<div class="card">
@@ -114,14 +101,6 @@
 		<div id="result-export">
 			<table class="table">
 				<tr>
-					<td>
-						<label for="export-type" style="display:inline-block">Separator</label>
-						<select id="export-type" class="form-control" style="display:inline-block">
-							<option value="tab">Tab</option>
-							<option value="comma">Comma</option>
-							<option value="spaces">Spaces</option>
-						</select>
-					</td>
 					<td>
 						<input type="checkbox" id="export-metadata" checked="checked" > Include Metadata
 					</td>
