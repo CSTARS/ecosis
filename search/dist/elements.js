@@ -84,8 +84,8 @@ return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:
                         }
 
                         arr.sort(function(a, b){
-                            if( a[0] < b[0] ) return 1;
-                            if( a[0] > b[0] ) return -1;
+                            if( a[0] < b[0] ) return -1;
+                            if( a[0] > b[0] ) return 1;
                             return 0;
                         });
                         for( var i = 0; i < arr.length; i++ ) arr[i][0] = arr[i][0]+'';
