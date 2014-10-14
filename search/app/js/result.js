@@ -197,7 +197,7 @@ ESIS.result = (function() {
 		});
 
 		$('#export-go').on('click', function(){
-			window.open('/rest/download?package_id='+result._id+
+			window.open('/rest/download?package_id='+result.ecosis.package_id+
 				'&metadata='+($('#export-metadata').is(':checked') ? 'true' : 'false')
 				,'Download'); 
 		});

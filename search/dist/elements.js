@@ -17,6 +17,7 @@ return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:
         Polymer('esis-spectra-viewer', {
             dt : null,
             chart : null,
+            loading: false,
 
             rest : '',
 

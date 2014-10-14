@@ -346,8 +346,11 @@ html /deep/ [segment], html /deep/ segment {
 </polymer-element></div>
 <div hidden><polymer-element name="esis-data-viewer" attributes="package item spectra_count" assetpath="../app/elements/">
     <template>
-        <div hidden?="{{types.length &gt; 0}}">
+        <div hidden?="{{types.length &gt; 0 || package == null}}">
             This dataset has no data to visualize.
+        </div>
+        <div hidden?="{{package != null}}">
+            Loading...
         </div>
 
         <div hidden?="{{types.length == 0}}">
@@ -367,9 +370,6 @@ html /deep/ [segment], html /deep/ segment {
                 </esis-derived-data-viewer>
             </template>
         </div>
-
-
-
 
     </template>
        
