@@ -1,4 +1,4 @@
-<polymer-element name="esis-data-viewer" attributes="package spectra_count">
+<polymer-element name="esis-data-viewer" attributes="package item spectra_count">
     <template>
         <div hidden?="{{types.length > 0}}">
             This dataset has no data to visualize.
@@ -15,13 +15,15 @@
             <template bind if="{{selectedType == 'Spectra'}}">
                 <esis-spectra-viewer
                     package="{{package}}"
-                    spectra_count="{{spectra_count}}">
+                    spectra_count="{{spectra_count}}"
+                    item="{{item}}">
                 </esis-spectra-viewer>
             </template>
              <template bind if="{{selectedType != 'Spectra'}}">
                 <esis-derived-data-viewer
                     package="{{package}}"
-                    attribute="{{selectedType}}">
+                    attribute="{{selectedType}}"
+                    item="{{item}}">
                 </esis-derived-data-viewer>
             </template>
         </div>

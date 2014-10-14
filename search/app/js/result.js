@@ -33,6 +33,19 @@ ESIS.result = (function() {
 		if( resultTemplate == null ) loadHandlers.push(handler);
 		else handler();
 	}
+
+	function getTitle(item) {
+		var group_by = '';
+		if( item.ecosis.group_by && item.ecosis.group_by != '' ) {
+			if( item[item.ecosis.group_by] && item[item.ecosis.group_by].length > 0 ) {
+				group_by = ' ('+item.ecosis.group_by+': '+item[item.ecosis.group_by][0]+')';
+			}
+		}
+
+		if( item.ecosis.package_title ) return item.ecosis.package_title+group_by;
+		if( item.ecosis.package_name ) return item.ecosis.package_name+group_by;
+		return 'No Title';
+	}
 	
 	function updateResult(result) {
 		if( !loaded ) {
@@ -41,6 +54,9 @@ ESIS.result = (function() {
 		}
 		
 		var resultPanel = $("#result");
+
+		result._title = getTitle(result);
+
 		resultPanel.html(getResultHtml(result));
 		
 
@@ -136,7 +152,7 @@ ESIS.result = (function() {
 		resultPanel.find("#resources-link").html(resourceList);*/
 
 		$.ajax({
-			url : ESIS.ckanHost+"/spectra/getPackage?id="+result._id,
+			url : ESIS.ckanHost+"/spectra/getPackage?id="+result.ecosis.package_id,
 			success : function(resp) {
 				console.log(resp);
 
@@ -169,6 +185,7 @@ ESIS.result = (function() {
 
 				// set package info for data viewer
 				document.querySelector('esis-data-viewer').package = resp;
+				document.querySelector('esis-data-viewer').item = result;
 				document.querySelector('esis-data-viewer').spectra_count = result.ecosis.spectra_count;
 			}
 		});

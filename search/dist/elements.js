@@ -71,8 +71,16 @@ return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:
             _updateDataTable : function() {
                 this.loading = true;
 
+                var groupBy = '';
+                var gbAttr = this.package.ecosis.attributes.dataset.group_by;
+                if(  gbAttr && gbAttr != '' && this.item[gbAttr] && this.item[gbAttr] != '' ) { 
+                    groupBy = '&group_by='+this.item[gbAttr];
+                }
+
+                var url = '/rest/getSpectra?package_id='+this.package.id+groupBy+'&index='+this.selectedIndex;
+
                 $.ajax({
-                    url : '/rest/getSpectra?package_id='+this.package.id+'&index='+this.selectedIndex,
+                    url : url,
                     success : function(resp) {
 
                         var arr = [], pt;
@@ -98,7 +106,7 @@ return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:
                     }.bind(this)
                 });
 
-                this.rest = window.location.origin+'/rest/getSpectra?package_id='+this.package.id+'&index='+this.selectedIndex;
+                this.rest = window.location.origin+url;
             },
 
             redraw : function() {
@@ -192,8 +200,16 @@ return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:
                 if( !this.package || !this.attribute ) return;
                 this.loading = true;
 
+                var groupBy = '';
+                var gbAttr = this.package.ecosis.attributes.dataset.group_by;
+                if(  gbAttr && gbAttr != '' && this.item[gbAttr] && this.item[gbAttr] != '' ) { 
+                    groupBy = '&group_by='+this.item[gbAttr];
+                }
+
+                var url = '/rest/getDerivedData?package_id='+this.package.id+groupBy+'&attribute='+this.attribute;
+
                 $.ajax({
-                    url : '/rest/getDerivedData?package_id='+this.package.id+'&attribute='+this.attribute,
+                    url : url,
                     success : function(resp) {
 
                         var arr = [[resp.sort || '', resp.attribute]], pt;
@@ -211,7 +227,7 @@ return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:
                     }.bind(this)
                 });
 
-                this.rest = window.location.origin+'/rest/getDerivedData?package_id='+this.package.id+'&attribute='+this.attribute;
+                this.rest = window.location.origin+url;
             },
 
             _getValue : function(val) {

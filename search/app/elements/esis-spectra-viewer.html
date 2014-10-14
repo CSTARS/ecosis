@@ -1,4 +1,4 @@
-<polymer-element name="esis-spectra-viewer" attributes="package spectra_count">
+<polymer-element name="esis-spectra-viewer" attributes="package item spectra_count">
     <template>
         <style>
             :host {
@@ -80,8 +80,16 @@
             _updateDataTable : function() {
                 this.loading = true;
 
+                var groupBy = '';
+                var gbAttr = this.package.ecosis.attributes.dataset.group_by;
+                if(  gbAttr && gbAttr != '' && this.item[gbAttr] && this.item[gbAttr] != '' ) { 
+                    groupBy = '&group_by='+this.item[gbAttr];
+                }
+
+                var url = '/rest/getSpectra?package_id='+this.package.id+groupBy+'&index='+this.selectedIndex;
+
                 $.ajax({
-                    url : '/rest/getSpectra?package_id='+this.package.id+'&index='+this.selectedIndex,
+                    url : url,
                     success : function(resp) {
 
                         var arr = [], pt;
@@ -107,7 +115,7 @@
                     }.bind(this)
                 });
 
-                this.rest = window.location.origin+'/rest/getSpectra?package_id='+this.package.id+'&index='+this.selectedIndex;
+                this.rest = window.location.origin+url;
             },
 
             redraw : function() {

@@ -51,7 +51,7 @@ ESIS.search = (function() {
 			_updateActiveFilters(results);
 			_updatePaging(results);
 			_updateRestLink();
-			_updateDownloadLinks();
+			//_updateDownloadLinks();
 		});
 		
 		// set search handlers
@@ -261,8 +261,15 @@ ESIS.search = (function() {
 	}
 
 	function _getTitle(item) {
-		if( item.ecosis.package_title ) return item.ecosis.package_title;
-		if( item.ecosis.package_name ) return item.ecosis.package_name;
+		var group_by = '';
+		if( item.ecosis.group_by && item.ecosis.group_by != '' ) {
+			if( item[item.ecosis.group_by] && item[item.ecosis.group_by].length > 0 ) {
+				group_by = ' ('+item.ecosis.group_by+': '+item[item.ecosis.group_by][0]+')';
+			}
+		}
+
+		if( item.ecosis.package_title ) return item.ecosis.package_title+group_by;
+		if( item.ecosis.package_name ) return item.ecosis.package_name+group_by;
 		return 'No Title';
 	}
 
@@ -276,10 +283,10 @@ ESIS.search = (function() {
 		if( item.ecosis.organization_name == '' ) return '';
 	
 		var link = '<a href="'+_createFilterUrl('organization_name', item.ecosis.organization_name)+'">';
-		if( item.ecosis.organization_image_url ) {
+		/*if( item.ecosis.organization_image_url ) {
 			link += '<img class="img-thumbnail" src="'+ESIS.ckanHost+item.ecosis.organization_image_url+'" border=0  style="width:32px" /> ';
-		}
-		link += item.ecosis.organization_name+'</a>';
+		}*/
+		link += item.ecosis.organization_name+'</a><br /><br />';
 
 		return link;
 	}
@@ -328,6 +335,7 @@ ESIS.search = (function() {
 		);
 	}
 
+/*
 	function _updateDownloadLinks() {
 		var q = CERES.mqe.getCurrentQuery();
 		var filters = encodeURIComponent(JSON.stringify(q.filters));
@@ -342,7 +350,7 @@ ESIS.search = (function() {
 			'<a href="'+link+'" class="btn btn-link" target="_blank"><i class="fa fa-download"></i> Download Query Metadata</a>'
 		);
 	}
-	
+*/
 	function _hasFilter(item, key) {
 		var filter = {};
 		var tmpQuery = CERES.mqe.getCurrentQuery();

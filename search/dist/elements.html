@@ -297,7 +297,7 @@ html /deep/ [segment], html /deep/ segment {
 
 <!--<link rel="import" href="../polymer-dev/polymer.html">--> </div>
 
-<div hidden><polymer-element name="esis-spectra-viewer" attributes="package spectra_count" assetpath="../app/elements/">
+<div hidden><polymer-element name="esis-spectra-viewer" attributes="package item spectra_count" assetpath="../app/elements/">
     <template>
         <style>
             :host {
@@ -323,7 +323,7 @@ html /deep/ [segment], html /deep/ segment {
     </template>
     
 </polymer-element></div>
-<div hidden><polymer-element name="esis-derived-data-viewer" attributes="package attribute" assetpath="../app/elements/">
+<div hidden><polymer-element name="esis-derived-data-viewer" attributes="package item attribute" assetpath="../app/elements/">
     <template>
         <style>
             :host {
@@ -344,7 +344,7 @@ html /deep/ [segment], html /deep/ segment {
     </template>
     
 </polymer-element></div>
-<div hidden><polymer-element name="esis-data-viewer" attributes="package spectra_count" assetpath="../app/elements/">
+<div hidden><polymer-element name="esis-data-viewer" attributes="package item spectra_count" assetpath="../app/elements/">
     <template>
         <div hidden?="{{types.length &gt; 0}}">
             This dataset has no data to visualize.
@@ -359,11 +359,11 @@ html /deep/ [segment], html /deep/ segment {
             </select>
 
             <template bind="" if="{{selectedType == &apos;Spectra&apos;}}">
-                <esis-spectra-viewer package="{{package}}" spectra_count="{{spectra_count}}">
+                <esis-spectra-viewer package="{{package}}" spectra_count="{{spectra_count}}" item="{{item}}">
                 </esis-spectra-viewer>
             </template>
              <template bind="" if="{{selectedType != &apos;Spectra&apos;}}">
-                <esis-derived-data-viewer package="{{package}}" attribute="{{selectedType}}">
+                <esis-derived-data-viewer package="{{package}}" attribute="{{selectedType}}" item="{{item}}">
                 </esis-derived-data-viewer>
             </template>
         </div>

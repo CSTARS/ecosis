@@ -106,6 +106,7 @@ function getPoint(key, pts) {
 // if the package is ordered, this order will be applied
 exports.getSpectra = function(collections, req, res) {
     var pkgid = req.query.package_id;
+    var groupBy = req.query.group_by;
     var index = req.query.index;
 
     if( pkgid == null || index == null ) {
@@ -118,15 +119,32 @@ exports.getSpectra = function(collections, req, res) {
         return sendError(res, e);
     }
 
-    collections.search.find({'_id': pkgid}).toArray(function(err, resp){
+    collections.package.find({'package_id': pkgid}).toArray(function(err, resp){
         if( err ) return sendError(res, err);
         if( resp.length == 0 ) return sendError(res, 'package not found');
 
         var pkg = resp[0];
-        var sort = pkg.value.ecosis.sort_on;
+        if( !pkg.attributes ) {
+            return sendError(res, 'package has no schema defined');
+        } else if( !pkg.attributes.dataset ) {
+            return sendError(res, 'package has no schema defined');
+        }
+
+        
+        
+        var sort = pkg.attributes.dataset.sort_on;
         if( sort == '' ) sort = null;
 
-        var cur = collections.spectra.find({'ecosis.package_id': pkgid});
+        var query = {'ecosis.package_id': pkgid};
+
+        if( groupBy && groupBy != null ) {
+            var attr = pkg.attributes.dataset.group_by;
+            if( attr ) {
+                query[attr] = groupBy;
+            }
+        }
+
+        var cur = collections.spectra.find(query);
         if( sort ) {
             cur.sort([['ecosis.sort', 1]]);
         }
@@ -146,19 +164,34 @@ exports.getSpectra = function(collections, req, res) {
 
 exports.getDerivedData = function(collections, req, res) {
     var pkgid = req.query.package_id;
+    var groupBy = req.query.group_by;
     var attribute = req.query.attribute;
 
     if( pkgid == null || attribute == null ) {
         return sendError(res, 'package_id and attribute are required');
     }
 
-    collections.search.find({'_id': pkgid}).toArray(function(err, resp){
+    collections.package.find({'package_id': pkgid}).toArray(function(err, resp){
         if( err ) return sendError(res, err);
         if( resp.length == 0 ) return sendError(res, 'package not found');
 
         var pkg = resp[0];
-        var sort = pkg.value.ecosis.sort_on;
+        if( !pkg.attributes ) {
+            return sendError(res, 'package has no schema defined');
+        } else if( !pkg.attributes.dataset ) {
+            return sendError(res, 'package has no schema defined');
+        }
+        
+        var sort = pkg.attributes.dataset.sort_on;
         if( sort == '' ) sort = null;
+
+        var query = {'ecosis.package_id': pkgid};
+        if( groupBy && groupBy != null ) {
+            var attr = pkg.attributes.dataset.group_by;
+            if( attr ) {
+                query[attr] = groupBy;
+            }
+        }
 
         var options = {
             'ecosis.sort' : 1,
@@ -172,7 +205,7 @@ exports.getDerivedData = function(collections, req, res) {
             options[sort] = 1;
         }
 
-        var cur = collections.spectra.find({'ecosis.package_id': pkgid}, options);
+        var cur = collections.spectra.find(query, options);
         if( sort ) {
             cur.sort([['ecosis.sort', 1]]);
         }

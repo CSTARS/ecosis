@@ -42,11 +42,11 @@ exports.bootstrap = function(server) {
     });
 
     server.app.get('/rest/getSpectra', function(req, res){
-        data.getSpectra({search: collection, spectra: spectraCollection}, req, res);
+        data.getSpectra({package: packageCollection, spectra: spectraCollection}, req, res);
     });
 
     server.app.get('/rest/getDerivedData', function(req, res){
-        data.getDerivedData({search: collection, spectra: spectraCollection}, req, res);
+        data.getDerivedData({package: packageCollection, spectra: spectraCollection}, req, res);
     });
 
     server.app.get('/rest/download', function(req, res){
