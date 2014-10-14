@@ -55,7 +55,7 @@ ESIS.result = (function() {
 		
 		var resultPanel = $("#result");
 
-		result._title = getTitle(result);
+		result.ecosis._title = getTitle(result);
 
 		resultPanel.html(getResultHtml(result));
 		
