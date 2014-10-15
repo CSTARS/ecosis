@@ -26,6 +26,9 @@ return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:
 
             selectedIndex : 0,
             indexes : [],
+            metadata : [],
+
+            ignoreList : ['_id', 'datapoints', 'ecosis'],
 
             onLoadHandlerSet : false,
 
@@ -79,16 +82,27 @@ return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:
                 }
 
                 var url = '/rest/getSpectra?package_id='+this.package.id+groupBy+'&index='+this.selectedIndex;
+                this.metadata = [];
 
                 $.ajax({
                     url : url,
                     success : function(resp) {
-
                         var arr = [], pt;
                         for( var i = 0; i < resp.datapoints.length; i++ ) {
                             pt = resp.datapoints[i];
                             if( this.ptRegex1.exec(pt.key) || this.ptRegex2.exec(pt.key) ) {
                                 arr.push([parseFloat(pt.key), parseFloat(pt.value)]);
+                            } else {
+                                metadata.push(pt);
+                            }
+                        }
+
+                        for( var key in resp ) {
+                            if( this.ignoreList.indexOf(key) == -1 && typeof resp[key] == 'string' ) {
+                                this.metadata.push({
+                                    key : key,
+                                    value : resp[key]
+                                })
                             }
                         }
 

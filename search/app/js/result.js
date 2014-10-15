@@ -24,6 +24,7 @@ ESIS.result = (function() {
 		});
 		
 		$(window).bind('result-update-event', function(e, result){
+			console.log(result);
 			updateResult(result);
 		});
 	}
@@ -72,85 +73,6 @@ ESIS.result = (function() {
 
 		resultPanel.find("#result-metadata").html(metadata);
 
-		/*
-		leftList = "<ul>";
-		rightList = "<ul>";
-		count = 0;
-		for( var key in result.metadata ) {
-			if( ignoreAttrs.indexOf(key) == -1 && result.metadata[key] ) {
-				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
-
-				if( count % 2 == 0 ) leftList += "<li><b>"+label+": </b>"+wrapFilterLinks(key, result.metadata[key], true)+"</li>";
-				else rightList += "<li><b>"+label+": </b>"+wrapFilterLinks(key, result.metadata[key], true)+"</li>";
-				count++;
-			}
-		}
-		resultPanel.find("#result-secondary-left-panel").html(leftList);
-		resultPanel.find("#result-secondary-right-panel").html(rightList);
-		*/
-		
-		var q = CERES.mqe.getCurrentQuery();
-		var resourceList = '<table class="table">'+
-				'<tr><td style="white-space:nowrap">Dataset Name</td><td style="color:#888">'+result.pkg_title+'</td></tr>'+
-				'<tr><td style="white-space:nowrap"><a target="_blank" href="'+ESIS.ckanHost+'/dataset/'+
-						result.pkg_name+'"><i class="icon-share-alt"></i> All Resources</a></td><td style="color:#888">Go to a list of resources for the dataset this spectra came from.'+
-						'  This resource list is dataset depent including everything from original spectra files to auxiliary files'+
-						' such as pdf\'s, images, and readme\'s</td></tr>';
-
-
-
-		/*if( result.group_by && result.group_by.by != '' ) {
-			var parts = result.group_by.by.split('.');
-			var sortParts = result.group_by.sort_on.split('.');
-
-			var q = CERES.mqe.getCurrentQuery();
-			q.text = '';
-			q.page = 0;
-			q.filters = [{pkg_title : result.pkg_title}];
-				
-			var f = {};
-			var name = '';
-			if( parts[0] == 'ecosis' ) {
-				f[parts[1]] = result[parts[1]];
-				name = result[parts[1]];
-			} else {
-				f['metadata.'+parts[1]] = result.metadata[parts[1]];
-				name = result.metadata[parts[1]];
-			}
-			q.filters.push(f);
-
-			var sort = '';
-			if( sortParts.length > 1 ) {
-				if( sortParts[0] == 'ecosis' ) {
-					sort = sortParts[1];
-				} else {
-					sort = 'metadata.'+sortParts[1];
-				}
-			}
-
-			resourceList += '<tr><td style="white-space:nowrap"><a href="'+CERES.mqe.queryToUrlString(q)+'"><i class="icon-search"></i> '+
-				'Dataset Grouped By</a></td><td>'+parts[1]+' = '+name+'</td></tr>';
-
-			resourceList += '<tr><td style="white-space:nowrap"><a href="#group/'+encodeURIComponent(JSON.stringify(q.filters))+
-				'/'+encodeURIComponent(result.group_by.sort_on)+'/'+result._id+'">Interact</a></td><td>Inspect by '+result.group_by.sort_on+'</td></tr>';
-		}
-		if( result.pkg_groups && result.pkg_groups.length > 0 ) {
-			resourceList += '<tr><td>Dataset Group(s)</td><td>';
-			var q = CERES.mqe.getCurrentQuery();
-			q.text = '';
-			q.page = 0;
-
-			for( var i = 0; i < result.pkg_groups.length; i++ ) {
-				q.filters = [{pkg_groups : result.pkg_groups[i]}];
-				resourceList += '<a href="'+CERES.mqe.queryToUrlString(q)+'">'+result.pkg_groups[i]+'</a><br />';
-			}
-			resourceList += '</td></tr>';
-		}
-
-		resourceList += '</table>';
-
-		resultPanel.find("#resources-link").html(resourceList);*/
-
 		$.ajax({
 			url : ESIS.ckanHost+"/spectra/getPackage?id="+result.ecosis.package_id,
 			success : function(resp) {
@@ -164,7 +86,7 @@ ESIS.result = (function() {
 				// set keywords
 				table += '<tr><td>Keywords</td><td>';
 				for( var i = 0; i < resp.tags.length; i++ ) {
-					table += wrapFilterLink('ecosis.keywords', resp.tags[i].display_name);
+					table += wrapFilterLink('ecosis.keywords', resp.tags[i].display_name, true);
 					if( i < resp.tags.length -1 ) table += ', ';
 				}
 				table += '</td></tr>';
@@ -173,7 +95,7 @@ ESIS.result = (function() {
 				table += '<tr><td>Resources</td><td>';
 				for( var i = 0; i < resp.resources.length; i++ ) {
 					table += '<a href="'+resp.resources[i].url.replace(/:\/\//,ESIS.ckanHost) + 
-								'" target="_blank">'+resp.resources[i].name+'</a>';
+								'" target="_blank"><i class="fa fa-download"></i> '+resp.resources[i].name+'</a>';
 					if( i < resp.resources.length -1 ) table += '<br />';
 				}
 				table += '</td></tr>';
@@ -190,7 +112,6 @@ ESIS.result = (function() {
 			}
 		});
 
-		//ESIS.chart.draw(result, $("#result-chart-panel"));
 		
 		$("#result-back-btn").on('click', function(){
 			$(window).trigger("back-to-search-event");
@@ -221,7 +142,7 @@ ESIS.result = (function() {
 		return links;
 	}
 
-	function wrapFilterLink(key, value) {
+	function wrapFilterLink(key, value, icon) {
 		if( value.length > 30 ) return value;
 
 		var q = CERES.mqe.getCurrentQuery();
@@ -230,7 +151,8 @@ ESIS.result = (function() {
 		var f = {};
 		f[key] = value;
 		q.filters = [f];
-		return '<a href="'+CERES.mqe.queryToUrlString(q)+'">'+value+'</a>';
+		return '<a href="'+CERES.mqe.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'">'+
+					(icon ? '<i class="fa fa-filter"></i> ' : '')+value+'</a>';
 	}
 	
 	function getResultHtml(result) {

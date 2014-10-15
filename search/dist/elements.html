@@ -303,22 +303,50 @@ html /deep/ [segment], html /deep/ segment {
             :host {
                 display: block;
             }
+            .metadata {
+                max-height: 250px;
+                overflow: auto;
+                margin-left: 50px;
+            }
+
+            .metadata div {
+                margin: 7px;
+                padding: 10px;
+                box-shadow: 0 0 5px #888; 
+                display: inline-block;
+            }
         </style>
         <div id="root" style="height: 450px"></div>
 
-        Spectra #
-        <select value="{{selectedIndex}}" on-change="{{_updateDataTable}}">
-            <template repeat="{{index in indexes}}">
-                <option value="{{index}}">{{index}}</option>
-            </template>
-        </select>
+        <div layout="" horizontal="">
+            <div>
+                <div style="margin-bottom: 15px">
+                    Spectra #
+                    <select value="{{selectedIndex}}" on-change="{{_updateDataTable}}">
+                        <template repeat="{{index in indexes}}">
+                            <option value="{{index}}">{{index}}</option>
+                        </template>
+                    </select>
 
-        <span style="padding:15px" hidden?="{{!loading}}">
-            Loading...
-        </span>
-
-        <div><a on-tap="{{print}}">Printable Version</a></div>
-        <div>Rest Link: <a href="{{rest}}" target="_blank">{{rest}}</a></div>
+                    <span style="padding:15px" hidden?="{{!loading}}">
+                        Loading...
+                    </span>
+                </div>
+                <div style="margin-bottom: 15px">
+                    <button on-tap="{{print}}">Printable Version</button>
+                </div>
+                <div>
+                    <a href="{{rest}}" target="_blank">Rest Link</a>
+                </div>
+            </div>
+            <div flex="">
+                <div class="metadata" hidden?="{{metadata.length == 0 }}">
+                    <template repeat="{{m in metadata}}">
+                        <div><span style="color:#888">{{m.key}}:</span> <b>{{m.value}}</b></div>
+                    </template>
+                </div>
+            </div>
+        </div>
 
     </template>
     

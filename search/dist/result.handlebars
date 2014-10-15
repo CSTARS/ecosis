@@ -7,8 +7,7 @@
 
 	 		<div style="display:inline-block" class="hidden-xs">
 	 			<a class="btn btn-link navbar-btn" goto="package">Dataset Information</a>
-		 		<a class="btn btn-link navbar-btn" goto="metadata">Metadata</a>
-		 		<!--<a class="btn btn-link navbar-btn" goto="customMetadata">Custom Metadata</a>-->
+		 		<a class="btn btn-link navbar-btn" goto="metadata">Filters</a>
 		
 		 		<a class="btn btn-link navbar-btn" goto="chart">Chart</a>
 		 		<a class="btn btn-link navbar-btn" goto="download">Download</a>
@@ -21,8 +20,7 @@
 				    Go To <span class="caret"></span>
 				  </button>
 				  <ul class="dropdown-menu" role="menu" style="margin-top:50px">
-				    <li><a goto="metadata">Metadata</a></li>
-				    <li><a goto="customMetadata">Custom Metadata</a></li>
+				    <li><a goto="metadata">Filters</a></li>
 				    <li><a goto="package">Dataset Information</a></li>
 				    <li><a goto="chart">Chart</a></li>
 				    <li><a goto="download">Download</a></li>
@@ -65,12 +63,12 @@
 	</div>
 
 	<div class="card">
-		<h3 class="page-header" id="package" style="border-bottom: none">Dataset</h3>
+		<h3 id="package" >Dataset</h3>
 		<div id="dataset-content">Loading...</div>
 	</div>
 	
 	<div class="card">
-		<h3 class="page-header" id="metadata" >Metadata</h3>
+		<h3 id="metadata" >Filters</h3>
 		<div id="result-metadata"></div>
 	</div>
 

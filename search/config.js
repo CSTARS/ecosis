@@ -23,7 +23,7 @@ exports.db = {
     indexedFilters : ['ecosis.organization_name','ecosis.keywords','Family','Category'],  
 
     // currently MQE only allows one sort option, place the attribute you wish to sort on here
-    sortBy            : 'Common Name',
+    sortBy            : 'ecosis.package_title',
     
     // currently Mongo only allows the creation of text search on one attribute.  MQE will
     // combine all filters listed below into a single attribute that will be used for
