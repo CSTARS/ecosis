@@ -140,10 +140,10 @@ exports.getSpectra = function(collections, req, res) {
         if( filters ) query['$and'] = filters;
 
         collections.spectra.count(query, function(err, count){
-            if( err ) return sendError(resp, err);
+            if( err ) return sendError(res, err);
 
             if( count == 0 ) {
-                resp.send({
+                res.send({
                     item : {},
                     total : 0,
                     message : 'No spectra found for this filter'
