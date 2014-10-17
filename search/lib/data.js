@@ -106,7 +106,7 @@ function getPoint(key, pts) {
 // if the package is ordered, this order will be applied
 exports.getSpectra = function(collections, req, res) {
     var pkgid = req.query.package_id;
-    var groupBy = req.query.group_by;
+    var filters = req.query.filters;
     var index = req.query.index;
 
     if( pkgid == null || index == null ) {
@@ -115,9 +115,11 @@ exports.getSpectra = function(collections, req, res) {
 
     try {
         index = parseInt(index);
+        if( filters ) filters = JSON.parse(filters);
     } catch(e) {
         return sendError(res, e);
     }
+
 
     collections.package.find({'package_id': pkgid}).toArray(function(err, resp){
         if( err ) return sendError(res, err);
@@ -130,34 +132,48 @@ exports.getSpectra = function(collections, req, res) {
             return sendError(res, 'package has no schema defined');
         }
 
-        
-        
         var sort = pkg.attributes.dataset.sort_on;
         if( sort == '' ) sort = null;
 
         var query = {'ecosis.package_id': pkgid};
 
-        if( groupBy && groupBy != null ) {
-            var attr = pkg.attributes.dataset.group_by;
-            if( attr ) {
-                query[attr] = groupBy;
+        if( filters ) query['$and'] = filters;
+
+        collections.spectra.count(query, function(err, count){
+            if( err ) return sendError(resp, err);
+
+            if( count == 0 ) {
+                resp.send({
+                    item : {},
+                    total : 0,
+                    message : 'No spectra found for this filter'
+                });
+                return;
             }
-        }
 
-        var cur = collections.spectra.find(query);
-        if( sort ) {
-            cur.sort([['ecosis.sort', 1]]);
-        }
-        cur.skip(index).limit(1);
+            var cur = collections.spectra.find(query);
+            if( sort ) {
+                cur.sort([['ecosis.sort', 1]]);
+            }
+            cur.skip(index).limit(1);
 
-        cur.toArray(function(err, resp){
-            if( err ) return sendError(res, err);
-            if( resp.length == 0 ) return sendError(res, 'no spectra found at index: '+index);
+            cur.toArray(function(err, resp){
+                if( err ) return sendError(res, err);
+                var respObj = {
+                    total : count,
+                    item : {}
+                }
 
-            res.send(resp[0]);
+                if( resp.length == 0 ) {
+                    respObj.message = 'no spectra found at index: '+index;
+                } else {
+                    respObj.item = resp[0];
+                }
+
+                res.send(respObj);
+            });
+
         });
-
-
     });
 }
 

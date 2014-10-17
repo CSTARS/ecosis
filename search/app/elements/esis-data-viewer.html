@@ -8,12 +8,20 @@
         </div>
 
         <div hidden?="{{types.length == 0}}">
-            Inspect: 
-            <select value="{{selectedType}}">
-                <template repeat="{{type in types}}">
-                    <option value="{{type}}">{{type}}</option>
+            <h3 class="page-header" style="margin-top: 0px">
+                Inspect: 
+
+                <div hidden?="{{types.length <= 1}}">
+                    <select value="{{selectedType}}">
+                        <template repeat="{{type in types}}">
+                            <option value="{{type}}">{{type}}</option>
+                        </template>
+                    </select>
+                </div>
+                <template bind if="{{types.length == 1}}">
+                    <small>{{types[0]}}</small>
                 </template>
-            </select>
+            </h3>
 
             <template bind if="{{selectedType == 'Spectra'}}">
                 <esis-spectra-viewer

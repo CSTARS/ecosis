@@ -1,16 +1,13 @@
+<!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	
-	<title>ESIS</title>
+	<title>Ecosis - Spectral Library</title>
 
-	<!-- build:css css/build.css -->
-	<link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
-	<link href="bower_components/animate-css/animate.css" rel="stylesheet" />
-	<link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet" />
-	<link href="css/style.css" rel="stylesheet">
-	<!-- endbuild -->
-	
+
 	<!-- build:js scripts/build.js -->
 	<script src="bower_components/platform/platform.js"></script>
 	<script src="bower_components/jquery/dist/jquery.js"></script>
@@ -26,6 +23,14 @@
 	<script type="text/javascript" src="js/group.js"></script>
 	<!-- endbuild -->
 
+	<link href="css/deep.css" rel="stylesheet" shim-shadowdom />
+
+	<!-- build:css css/build.css -->
+	<link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet" />
+	<link href="css/style.css" rel="stylesheet">
+	<!-- endbuild -->
+
+
 	<script type="text/javascript" src="mqe/mqe.js"></script>
 
 	<link rel="import" href="elements.html">
@@ -36,6 +41,7 @@
       google.setOnLoadCallback(initchart);
     </script>
 	
+	<!--
 	<script type="text/javascript">
 		$(window).ready(function(){
 			
@@ -43,6 +49,7 @@
 			$("#accordion2").height("auto");
 		});
 	</script>
+	-->
 
 </head>
 <body>

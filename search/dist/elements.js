@@ -14,26 +14,2026 @@ var b=z(a,a.delegate_&&a.delegate_.prepareBinding);w(a,b,a.model_)}),a.setModelF
 return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:a.localName;return h[b]||(h[b]={})}return a._scopeStyles=a._scopeStyles||{}}},h={};a.api.instance.styles=g}(Polymer),function(a){function b(a,b){if("string"!=typeof a){var c=b||document._currentScript;if(b=a,a=c&&c.parentNode&&c.parentNode.getAttribute?c.parentNode.getAttribute("name"):"",!a)throw"Element name could not be inferred."}if(f(a))throw"Already registered (Polymer) prototype for element "+a;e(a,b),d(a)}function c(a,b){i[a]=b}function d(a){i[a]&&(i[a].registerWhenReady(),delete i[a])}function e(a,b){return j[a]=b||{}}function f(a){return j[a]}function g(a,b){if("string"!=typeof b)return!1;var c=HTMLElement.getPrototypeForTag(b),d=c&&c.constructor;return d?CustomElements.instanceof?CustomElements.instanceof(a,d):a instanceof d:!1}var h=a.extend,i=(a.api,{}),j={};a.getRegisteredPrototype=f,a.waitingForPrototype=c,a.instanceOfType=g,window.Polymer=b,h(Polymer,a),Platform.consumeDeclarations&&Platform.consumeDeclarations(function(a){if(a)for(var c,d=0,e=a.length;e>d&&(c=a[d]);d++)b.apply(null,c)})}(Polymer),function(a){var b={resolveElementPaths:function(a){Polymer.urlResolver.resolveDom(a)},addResolvePathApi:function(){var a=this.getAttribute("assetpath")||"",b=new URL(a,this.ownerDocument.baseURI);this.prototype.resolvePath=function(a,c){var d=new URL(a,c||b);return d.href}}};a.api.declaration.path=b}(Polymer),function(a){function b(a,b){var c=new URL(a.getAttribute("href"),b).href;return"@import '"+c+"';"}function c(a,b){if(a){b===document&&(b=document.head),i&&(b=document.head);var c=d(a.textContent),e=a.getAttribute(h);e&&c.setAttribute(h,e);var f=b.firstElementChild;if(b===document.head){var g="style["+h+"]",j=document.head.querySelectorAll(g);j.length&&(f=j[j.length-1].nextElementSibling)}b.insertBefore(c,f)}}function d(a,b){b=b||document,b=b.createElement?b:b.ownerDocument;var c=b.createElement("style");return c.textContent=a,c}function e(a){return a&&a.__resource||""}function f(a,b){return q?q.call(a,b):void 0}var g=(window.logFlags||{},a.api.instance.styles),h=g.STYLE_SCOPE_ATTRIBUTE,i=window.ShadowDOMPolyfill,j="style",k="@import",l="link[rel=stylesheet]",m="global",n="polymer-scope",o={loadStyles:function(a){var b=this.fetchTemplate(),c=b&&this.templateContent();if(c){this.convertSheetsToStyles(c);var d=this.findLoadableStyles(c);if(d.length){var e=b.ownerDocument.baseURI;return Polymer.styleResolver.loadStyles(d,e,a)}}a&&a()},convertSheetsToStyles:function(a){for(var c,e,f=a.querySelectorAll(l),g=0,h=f.length;h>g&&(c=f[g]);g++)e=d(b(c,this.ownerDocument.baseURI),this.ownerDocument),this.copySheetAttributes(e,c),c.parentNode.replaceChild(e,c)},copySheetAttributes:function(a,b){for(var c,d=0,e=b.attributes,f=e.length;(c=e[d])&&f>d;d++)"rel"!==c.name&&"href"!==c.name&&a.setAttribute(c.name,c.value)},findLoadableStyles:function(a){var b=[];if(a)for(var c,d=a.querySelectorAll(j),e=0,f=d.length;f>e&&(c=d[e]);e++)c.textContent.match(k)&&b.push(c);return b},installSheets:function(){this.cacheSheets(),this.cacheStyles(),this.installLocalSheets(),this.installGlobalStyles()},cacheSheets:function(){this.sheets=this.findNodes(l),this.sheets.forEach(function(a){a.parentNode&&a.parentNode.removeChild(a)})},cacheStyles:function(){this.styles=this.findNodes(j+"["+n+"]"),this.styles.forEach(function(a){a.parentNode&&a.parentNode.removeChild(a)})},installLocalSheets:function(){var a=this.sheets.filter(function(a){return!a.hasAttribute(n)}),b=this.templateContent();if(b){var c="";if(a.forEach(function(a){c+=e(a)+"\n"}),c){var f=d(c,this.ownerDocument);b.insertBefore(f,b.firstChild)}}},findNodes:function(a,b){var c=this.querySelectorAll(a).array(),d=this.templateContent();if(d){var e=d.querySelectorAll(a).array();c=c.concat(e)}return b?c.filter(b):c},installGlobalStyles:function(){var a=this.styleForScope(m);c(a,document.head)},cssTextForScope:function(a){var b="",c="["+n+"="+a+"]",d=function(a){return f(a,c)},g=this.sheets.filter(d);g.forEach(function(a){b+=e(a)+"\n\n"});var h=this.styles.filter(d);return h.forEach(function(a){b+=a.textContent+"\n\n"}),b},styleForScope:function(a){var b=this.cssTextForScope(a);return this.cssTextToScopeStyle(b,a)},cssTextToScopeStyle:function(a,b){if(a){var c=d(a);return c.setAttribute(h,this.getAttribute("name")+"-"+b),c}}},p=HTMLElement.prototype,q=p.matches||p.matchesSelector||p.webkitMatchesSelector||p.mozMatchesSelector;a.api.declaration.styles=o,a.applyStyleToScope=c}(Polymer),function(a){var b=(window.logFlags||{},a.api.instance.events),c=b.EVENT_PREFIX,d={};["webkitAnimationStart","webkitAnimationEnd","webkitTransitionEnd","DOMFocusOut","DOMFocusIn","DOMMouseScroll"].forEach(function(a){d[a.toLowerCase()]=a});var e={parseHostEvents:function(){var a=this.prototype.eventDelegates;this.addAttributeDelegates(a)},addAttributeDelegates:function(a){for(var b,c=0;b=this.attributes[c];c++)this.hasEventPrefix(b.name)&&(a[this.removeEventPrefix(b.name)]=b.value.replace("{{","").replace("}}","").trim())},hasEventPrefix:function(a){return a&&"o"===a[0]&&"n"===a[1]&&"-"===a[2]},removeEventPrefix:function(a){return a.slice(f)},findController:function(a){for(;a.parentNode;){if(a.eventController)return a.eventController;a=a.parentNode}return a.host},getEventHandler:function(a,b,c){var d=this;return function(e){a&&a.PolymerBase||(a=d.findController(b));var f=[e,e.detail,e.currentTarget];a.dispatchMethod(a,c,f)}},prepareEventBinding:function(a,b){if(this.hasEventPrefix(b)){var c=this.removeEventPrefix(b);c=d[c]||c;var e=this;return function(b,d,f){function g(){return"{{ "+a+" }}"}var h=e.getEventHandler(void 0,d,a);return PolymerGestures.addEventListener(d,c,h),f?void 0:{open:g,discardChanges:g,close:function(){PolymerGestures.removeEventListener(d,c,h)}}}}}},f=c.length;a.api.declaration.events=e}(Polymer),function(a){var b={inferObservers:function(a){var b,c=a.observe;for(var d in a)"Changed"===d.slice(-7)&&(c||(c=a.observe={}),b=d.slice(0,-7),c[b]=c[b]||d)},explodeObservers:function(a){var b=a.observe;if(b){var c={};for(var d in b)for(var e,f=d.split(" "),g=0;e=f[g];g++)c[e]=b[d];a.observe=c}},optimizePropertyMaps:function(a){if(a.observe){var b=a._observeNames=[];for(var c in a.observe)for(var d,e=c.split(" "),f=0;d=e[f];f++)b.push(d)}if(a.publish){var b=a._publishNames=[];for(var c in a.publish)b.push(c)}if(a.computed){var b=a._computedNames=[];for(var c in a.computed)b.push(c)}},publishProperties:function(a,b){var c=a.publish;c&&(this.requireProperties(c,a,b),a._publishLC=this.lowerCaseMap(c))},requireProperties:function(a,b){b.reflect=b.reflect||{};for(var c in a){var d=a[c];d&&void 0!==d.reflect&&(b.reflect[c]=Boolean(d.reflect),d=d.value),void 0!==d&&(b[c]=d)}},lowerCaseMap:function(a){var b={};for(var c in a)b[c.toLowerCase()]=c;return b},createPropertyAccessor:function(a,b){var c=this.prototype,d=a+"_",e=a+"Observable_";c[d]=c[a],Object.defineProperty(c,a,{get:function(){var a=this[e];return a&&a.deliver(),this[d]},set:function(c){if(b)return this[d];var f=this[e];if(f)return void f.setValue(c);var g=this[d];return this[d]=c,this.emitPropertyChangeRecord(a,c,g),c},configurable:!0})},createPropertyAccessors:function(a){var b=a._computedNames;if(b&&b.length)for(var c,d=0,e=b.length;e>d&&(c=b[d]);d++)this.createPropertyAccessor(c,!0);var b=a._publishNames;if(b&&b.length)for(var c,d=0,e=b.length;e>d&&(c=b[d]);d++)a.computed&&a.computed[c]||this.createPropertyAccessor(c)}};a.api.declaration.properties=b}(Polymer),function(a){var b="attributes",c=/\s|,/,d={inheritAttributesObjects:function(a){this.inheritObject(a,"publishLC"),this.inheritObject(a,"_instanceAttributes")},publishAttributes:function(a){var d=this.getAttribute(b);if(d)for(var e,f=a.publish||(a.publish={}),g=d.split(c),h=0,i=g.length;i>h;h++)e=g[h].trim(),e&&void 0===f[e]&&(f[e]=void 0)},accumulateInstanceAttributes:function(){for(var a,b=this.prototype._instanceAttributes,c=this.attributes,d=0,e=c.length;e>d&&(a=c[d]);d++)this.isInstanceAttribute(a.name)&&(b[a.name]=a.value)},isInstanceAttribute:function(a){return!this.blackList[a]&&"on-"!==a.slice(0,3)},blackList:{name:1,"extends":1,constructor:1,noscript:1,assetpath:1,"cache-csstext":1}};d.blackList[b]=1,a.api.declaration.attributes=d}(Polymer),function(a){var b=a.api.declaration.events,c=new PolymerExpressions,d=c.prepareBinding;c.prepareBinding=function(a,e,f){return b.prepareEventBinding(a,e,f)||d.call(c,a,e,f)};var e={syntax:c,fetchTemplate:function(){return this.querySelector("template")},templateContent:function(){var a=this.fetchTemplate();return a&&a.content},installBindingDelegate:function(a){a&&(a.bindingDelegate=this.syntax)}};a.api.declaration.mdv=e}(Polymer),function(a){function b(a){if(!Object.__proto__){var b=Object.getPrototypeOf(a);a.__proto__=b,d(b)&&(b.__proto__=Object.getPrototypeOf(b))}}var c=a.api,d=a.isBase,e=a.extend,f=window.ShadowDOMPolyfill,g={register:function(a,b){this.buildPrototype(a,b),this.registerPrototype(a,b),this.publishConstructor()},buildPrototype:function(b,c){var d=a.getRegisteredPrototype(b),e=this.generateBasePrototype(c);this.desugarBeforeChaining(d,e),this.prototype=this.chainPrototypes(d,e),this.desugarAfterChaining(b,c)},desugarBeforeChaining:function(a,b){a.element=this,this.publishAttributes(a,b),this.publishProperties(a,b),this.inferObservers(a),this.explodeObservers(a)},chainPrototypes:function(a,c){this.inheritMetaData(a,c);var d=this.chainObject(a,c);return b(d),d},inheritMetaData:function(a,b){this.inheritObject("observe",a,b),this.inheritObject("publish",a,b),this.inheritObject("reflect",a,b),this.inheritObject("_publishLC",a,b),this.inheritObject("_instanceAttributes",a,b),this.inheritObject("eventDelegates",a,b)},desugarAfterChaining:function(a,b){this.optimizePropertyMaps(this.prototype),this.createPropertyAccessors(this.prototype),this.installBindingDelegate(this.fetchTemplate()),this.installSheets(),this.resolveElementPaths(this),this.accumulateInstanceAttributes(),this.parseHostEvents(),this.addResolvePathApi(),f&&Platform.ShadowCSS.shimStyling(this.templateContent(),a,b),this.prototype.registerCallback&&this.prototype.registerCallback(this)},publishConstructor:function(){var a=this.getAttribute("constructor");a&&(window[a]=this.ctor)},generateBasePrototype:function(a){var b=this.findBasePrototype(a);if(!b){var b=HTMLElement.getPrototypeForTag(a);b=this.ensureBaseApi(b),h[a]=b}return b},findBasePrototype:function(a){return h[a]},ensureBaseApi:function(a){if(a.PolymerBase)return a;var b=Object.create(a);return c.publish(c.instance,b),this.mixinMethod(b,a,c.instance.mdv,"bind"),b},mixinMethod:function(a,b,c,d){var e=function(a){return b[d].apply(this,a)};a[d]=function(){return this.mixinSuper=e,c[d].apply(this,arguments)}},inheritObject:function(a,b,c){var d=b[a]||{};b[a]=this.chainObject(d,c[a])},registerPrototype:function(a,b){var c={prototype:this.prototype},d=this.findTypeExtension(b);d&&(c.extends=d),HTMLElement.register(a,this.prototype),this.ctor=document.registerElement(a,c)},findTypeExtension:function(a){if(a&&a.indexOf("-")<0)return a;var b=this.findBasePrototype(a);return b.element?this.findTypeExtension(b.element.extends):void 0}},h={};g.chainObject=Object.__proto__?function(a,b){return a&&b&&a!==b&&(a.__proto__=b),a}:function(a,b){if(a&&b&&a!==b){var c=Object.create(b);a=e(c,a)}return a},c.declaration.prototype=g}(Polymer),function(a){function b(a){return document.contains(a)?j:i}function c(){return i.length?i[0]:j[0]}function d(a){f.waitToReady=!0,Platform.endOfMicrotask(function(){HTMLImports.whenReady(function(){f.addReadyCallback(a),f.waitToReady=!1,f.check()})})}function e(a){if(void 0===a)return void f.ready();var b=setTimeout(function(){f.ready()},a);Polymer.whenReady(function(){clearTimeout(b)})}var f={wait:function(a){a.__queue||(a.__queue={},g.push(a))},enqueue:function(a,c,d){var e=a.__queue&&!a.__queue.check;return e&&(b(a).push(a),a.__queue.check=c,a.__queue.go=d),0!==this.indexOf(a)},indexOf:function(a){var c=b(a).indexOf(a);return c>=0&&document.contains(a)&&(c+=HTMLImports.useNative||HTMLImports.ready?i.length:1e9),c},go:function(a){var b=this.remove(a);b&&(a.__queue.flushable=!0,this.addToFlushQueue(b),this.check())},remove:function(a){var c=this.indexOf(a);if(0===c)return b(a).shift()},check:function(){var a=this.nextElement();return a&&a.__queue.check.call(a),this.canReady()?(this.ready(),!0):void 0},nextElement:function(){return c()},canReady:function(){return!this.waitToReady&&this.isEmpty()},isEmpty:function(){for(var a,b=0,c=g.length;c>b&&(a=g[b]);b++)if(a.__queue&&!a.__queue.flushable)return;return!0},addToFlushQueue:function(a){h.push(a)},flush:function(){if(!this.flushing){this.flushing=!0;for(var a;h.length;)a=h.shift(),a.__queue.go.call(a),a.__queue=null;this.flushing=!1}},ready:function(){var a=CustomElements.ready;CustomElements.ready=!1,this.flush(),CustomElements.useNative||CustomElements.upgradeDocumentTree(document),CustomElements.ready=a,Platform.flush(),requestAnimationFrame(this.flushReadyCallbacks)},addReadyCallback:function(a){a&&k.push(a)},flushReadyCallbacks:function(){if(k)for(var a;k.length;)(a=k.shift())()},waitingFor:function(){for(var a,b=[],c=0,d=g.length;d>c&&(a=g[c]);c++)a.__queue&&!a.__queue.flushable&&b.push(a);return b},waitToReady:!0},g=[],h=[],i=[],j=[],k=[];a.elements=g,a.waitingFor=f.waitingFor.bind(f),a.forceReady=e,a.queue=f,a.whenReady=a.whenPolymerReady=d}(Polymer),function(a){function b(a){return Boolean(HTMLElement.getPrototypeForTag(a))}function c(a){return a&&a.indexOf("-")>=0}var d=a.extend,e=a.api,f=a.queue,g=a.whenReady,h=a.getRegisteredPrototype,i=a.waitingForPrototype,j=d(Object.create(HTMLElement.prototype),{createdCallback:function(){this.getAttribute("name")&&this.init()},init:function(){this.name=this.getAttribute("name"),this.extends=this.getAttribute("extends"),f.wait(this),this.loadResources(),this.registerWhenReady()},registerWhenReady:function(){this.registered||this.waitingForPrototype(this.name)||this.waitingForQueue()||this.waitingForResources()||f.go(this)},_register:function(){c(this.extends)&&!b(this.extends)&&console.warn("%s is attempting to extend %s, an unregistered element or one that was not registered with Polymer.",this.name,this.extends),this.register(this.name,this.extends),this.registered=!0},waitingForPrototype:function(a){return h(a)?void 0:(i(a,this),this.handleNoScript(a),!0)},handleNoScript:function(a){this.hasAttribute("noscript")&&!this.noscript&&(this.noscript=!0,Polymer(a))},waitingForResources:function(){return this._needsResources},waitingForQueue:function(){return f.enqueue(this,this.registerWhenReady,this._register)},loadResources:function(){this._needsResources=!0,this.loadStyles(function(){this._needsResources=!1,this.registerWhenReady()}.bind(this))}});e.publish(e.declaration,j),g(function(){document.body.removeAttribute("unresolved"),document.dispatchEvent(new CustomEvent("polymer-ready",{bubbles:!0}))}),document.registerElement("polymer-element",{prototype:j})}(Polymer),function(a){function b(a,b){a?(document.head.appendChild(a),d(b)):b&&b()}function c(a,c){if(a&&a.length){for(var d,e,f=document.createDocumentFragment(),g=0,h=a.length;h>g&&(d=a[g]);g++)e=document.createElement("link"),e.rel="import",e.href=d,f.appendChild(e);b(f,c)}else c&&c()}var d=a.whenPolymerReady;a.import=c,a.importElements=b}(Polymer),function(){var a=document.createElement("polymer-element");a.setAttribute("name","auto-binding"),a.setAttribute("extends","template"),a.init(),Polymer("auto-binding",{createdCallback:function(){this.syntax=this.bindingDelegate=this.makeSyntax(),Polymer.whenPolymerReady(function(){this.model=this,this.setAttribute("bind",""),this.async(function(){this.marshalNodeReferences(this.parentNode),this.fire("template-bound")})}.bind(this))},makeSyntax:function(){var a=Object.create(Polymer.api.declaration.events),b=this;a.findController=function(){return b.model};var c=new PolymerExpressions,d=c.prepareBinding;return c.prepareBinding=function(b,e,f){return a.prepareEventBinding(b,e,f)||d.call(c,b,e,f)},c}})}();
 //# sourceMappingURL=polymer.js.map;
 
+  (function() {
+    /*
+     * Chrome uses an older version of DOM Level 3 Keyboard Events
+     *
+     * Most keys are labeled as text, but some are Unicode codepoints.
+     * Values taken from: http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221/keyset.html#KeySet-Set
+     */
+    var KEY_IDENTIFIER = {
+      'U+0009': 'tab',
+      'U+001B': 'esc',
+      'U+0020': 'space',
+      'U+002A': '*',
+      'U+0030': '0',
+      'U+0031': '1',
+      'U+0032': '2',
+      'U+0033': '3',
+      'U+0034': '4',
+      'U+0035': '5',
+      'U+0036': '6',
+      'U+0037': '7',
+      'U+0038': '8',
+      'U+0039': '9',
+      'U+0041': 'a',
+      'U+0042': 'b',
+      'U+0043': 'c',
+      'U+0044': 'd',
+      'U+0045': 'e',
+      'U+0046': 'f',
+      'U+0047': 'g',
+      'U+0048': 'h',
+      'U+0049': 'i',
+      'U+004A': 'j',
+      'U+004B': 'k',
+      'U+004C': 'l',
+      'U+004D': 'm',
+      'U+004E': 'n',
+      'U+004F': 'o',
+      'U+0050': 'p',
+      'U+0051': 'q',
+      'U+0052': 'r',
+      'U+0053': 's',
+      'U+0054': 't',
+      'U+0055': 'u',
+      'U+0056': 'v',
+      'U+0057': 'w',
+      'U+0058': 'x',
+      'U+0059': 'y',
+      'U+005A': 'z',
+      'U+007F': 'del'
+    };
+
+    /*
+     * Special table for KeyboardEvent.keyCode.
+     * KeyboardEvent.keyIdentifier is better, and KeyBoardEvent.key is even better than that
+     *
+     * Values from: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.keyCode#Value_of_keyCode
+     */
+    var KEY_CODE = {
+      13: 'enter',
+      27: 'esc',
+      33: 'pageup',
+      34: 'pagedown',
+      35: 'end',
+      36: 'home',
+      32: 'space',
+      37: 'left',
+      38: 'up',
+      39: 'right',
+      40: 'down',
+      46: 'del',
+      106: '*'
+    };
+
+    /*
+     * KeyboardEvent.key is mostly represented by printable character made by the keyboard, with unprintable keys labeled
+     * nicely.
+     *
+     * However, on OS X, Alt+char can make a Unicode character that follows an Apple-specific mapping. In this case, we
+     * fall back to .keyCode.
+     */
+    var KEY_CHAR = /[a-z0-9*]/;
+
+    function transformKey(key) {
+      var validKey = '';
+      if (key) {
+        var lKey = key.toLowerCase();
+        if (lKey.length == 1) {
+          if (KEY_CHAR.test(lKey)) {
+            validKey = lKey;
+          }
+        } else if (lKey == 'multiply') {
+          // numpad '*' can map to Multiply on IE/Windows
+          validKey = '*';
+        } else {
+          validKey = lKey;
+        }
+      }
+      return validKey;
+    }
+
+    var IDENT_CHAR = /U\+/;
+    function transformKeyIdentifier(keyIdent) {
+      var validKey = '';
+      if (keyIdent) {
+        if (IDENT_CHAR.test(keyIdent)) {
+          validKey = KEY_IDENTIFIER[keyIdent];
+        } else {
+          validKey = keyIdent.toLowerCase();
+        }
+      }
+      return validKey;
+    }
+
+    function transformKeyCode(keyCode) {
+      var validKey = '';
+      if (Number(keyCode)) {
+        if (keyCode >= 65 && keyCode <= 90) {
+          // ascii a-z
+          // lowercase is 32 offset from uppercase
+          validKey = String.fromCharCode(32 + keyCode);
+        } else if (keyCode >= 112 && keyCode <= 123) {
+          // function keys f1-f12
+          validKey = 'f' + (keyCode - 112);
+        } else if (keyCode >= 48 && keyCode <= 57) {
+          // top 0-9 keys
+          validKey = String(48 - keyCode);
+        } else if (keyCode >= 96 && keyCode <= 105) {
+          // num pad 0-9
+          validKey = String(96 - keyCode);
+        } else {
+          validKey = KEY_CODE[keyCode];
+        }
+      }
+      return validKey;
+    }
+
+    function keyboardEventToKey(ev) {
+      // fall back from .key, to .keyIdentifier, and then to .keyCode
+      var normalizedKey = transformKey(ev.key) || transformKeyIdentifier(ev.keyIdentifier) || transformKeyCode(ev.keyCode) || '';
+      return {
+        shift: ev.shiftKey,
+        ctrl: ev.ctrlKey,
+        meta: ev.metaKey,
+        alt: ev.altKey,
+        key: normalizedKey
+      };
+    }
+
+    /*
+     * Input: ctrl+shift+f7 => {ctrl: true, shift: true, key: 'f7'}
+     * ctrl/space => {ctrl: true} || {key: space}
+     */
+    function stringToKey(keyCombo) {
+      var keys = keyCombo.split('+');
+      var keyObj = Object.create(null);
+      keys.forEach(function(key) {
+        if (key == 'shift') {
+          keyObj.shift = true;
+        } else if (key == 'ctrl') {
+          keyObj.ctrl = true;
+        } else if (key == 'alt') {
+          keyObj.alt = true;
+        } else {
+          keyObj.key = key;
+        }
+      });
+      return keyObj;
+    }
+
+    function keyMatches(a, b) {
+      return Boolean(a.alt) == Boolean(b.alt) && Boolean(a.ctrl) == Boolean(b.ctrl) && Boolean(a.shift) == Boolean(b.shift) && a.key === b.key;
+    }
+
+    /**
+     * Fired when a keycombo in `keys` is pressed.
+     *
+     * @event keys-pressed
+     */
+    function processKeys(ev) {
+      var current = keyboardEventToKey(ev);
+      for (var i = 0, dk; i < this._desiredKeys.length; i++) {
+        dk = this._desiredKeys[i];
+        if (keyMatches(dk, current)) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          this.fire('keys-pressed', current, this, false);
+          break;
+        }
+      }
+    }
+
+    function listen(node, handler) {
+      if (node && node.addEventListener) {
+        node.addEventListener('keydown', handler);
+      }
+    }
+
+    function unlisten(node, handler) {
+      if (node && node.removeEventListener) {
+        node.removeEventListener('keydown', handler);
+      }
+    }
+
+    Polymer('core-a11y-keys', {
+      created: function() {
+        this._keyHandler = processKeys.bind(this);
+      },
+      attached: function() {
+        listen(this.target, this._keyHandler);
+      },
+      detached: function() {
+        unlisten(this.target, this._keyHandler);
+      },
+      publish: {
+        /**
+         * The set of key combinations to listen for.
+         *
+         * @attribute keys
+         * @type string (keys syntax)
+         * @default ''
+         */
+        keys: '',
+        /**
+         * The node that will fire keyboard events.
+         *
+         * @attribute target
+         * @type Node
+         * @default null
+         */
+        target: null
+      },
+      keysChanged: function() {
+        // * can have multiple mappings: shift+8, * on numpad or Multiply on numpad
+        var normalized = this.keys.replace('*', '* shift+*');
+        this._desiredKeys = normalized.toLowerCase().split(' ').map(stringToKey);
+      },
+      targetChanged: function(oldTarget) {
+        unlisten(oldTarget, this._keyHandler);
+        listen(this.target, this._keyHandler);
+      }
+    });
+  })();
+;
+
+
+  Polymer('core-range', {
+    
+    /**
+     * The number that represents the current value.
+     *
+     * @attribute value
+     * @type number
+     * @default 0
+     */
+    value: 0,
+    
+    /**
+     * The number that indicates the minimum value of the range.
+     *
+     * @attribute min
+     * @type number
+     * @default 0
+     */
+    min: 0,
+    
+    /**
+     * The number that indicates the maximum value of the range.
+     *
+     * @attribute max
+     * @type number
+     * @default 100
+     */
+    max: 100,
+    
+    /**
+     * Specifies the value granularity of the range's value.
+     *
+     * @attribute step
+     * @type number
+     * @default 1
+     */
+    step: 1,
+    
+    /**
+     * Returns the ratio of the value.
+     *
+     * @attribute ratio
+     * @type number
+     * @default 0
+     */
+    ratio: 0,
+    
+    observe: {
+      'value min max step': 'update'
+    },
+    
+    calcRatio: function(value) {
+      return (this.clampValue(value) - this.min) / (this.max - this.min);
+    },
+    
+    clampValue: function(value) {
+      return Math.min(this.max, Math.max(this.min, this.calcStep(value)));
+    },
+    
+    calcStep: function(value) {
+      return this.step ? (Math.round(value / this.step) / (1 / this.step)) : value;
+    },
+    
+    validateValue: function() {
+      var v = this.clampValue(this.value);
+      this.value = this.oldValue = isNaN(v) ? this.oldValue : v;
+      return this.value !== v;
+    },
+    
+    update: function() {
+      this.validateValue();
+      this.ratio = this.calcRatio(this.value) * 100;
+    }
+    
+  });
+  
+;
+
+  
+    Polymer('paper-progress', {
+      
+      /**
+       * The number that represents the current secondary progress.
+       *
+       * @attribute secondaryProgress
+       * @type number
+       * @default 0
+       */
+      secondaryProgress: 0,
+      
+      step: 0,
+      
+      observe: {
+        'value secondaryProgress min max': 'update'
+      },
+      
+      update: function() {
+        this.super();
+        this.secondaryProgress = this.clampValue(this.secondaryProgress);
+        this.secondaryRatio = this.calcRatio(this.secondaryProgress) * 100;
+      }
+      
+    });
+    
+  ;
+
+
+  (function() {
+    
+    var SKIP_ID = 'meta';
+    var metaData = {}, metaArray = {};
+
+    Polymer('core-meta', {
+      
+      /**
+       * The type of meta-data.  All meta-data with the same type with be
+       * stored together.
+       * 
+       * @attribute type
+       * @type string
+       * @default 'default'
+       */
+      type: 'default',
+      
+      alwaysPrepare: true,
+      
+      ready: function() {
+        this.register(this.id);
+      },
+      
+      get metaArray() {
+        var t = this.type;
+        if (!metaArray[t]) {
+          metaArray[t] = [];
+        }
+        return metaArray[t];
+      },
+      
+      get metaData() {
+        var t = this.type;
+        if (!metaData[t]) {
+          metaData[t] = {};
+        }
+        return metaData[t];
+      },
+      
+      register: function(id, old) {
+        if (id && id !== SKIP_ID) {
+          this.unregister(this, old);
+          this.metaData[id] = this;
+          this.metaArray.push(this);
+        }
+      },
+      
+      unregister: function(meta, id) {
+        delete this.metaData[id || meta.id];
+        var i = this.metaArray.indexOf(meta);
+        if (i >= 0) {
+          this.metaArray.splice(i, 1);
+        }
+      },
+      
+      /**
+       * Returns a list of all meta-data elements with the same type.
+       * 
+       * @property list
+       * @type array
+       * @default []
+       */
+      get list() {
+        return this.metaArray;
+      },
+      
+      /**
+       * Retrieves meta-data by ID.
+       *
+       * @method byId
+       * @param {String} id The ID of the meta-data to be returned.
+       * @returns Returns meta-data.
+       */
+      byId: function(id) {
+        return this.metaData[id];
+      }
+      
+    });
+    
+  })();
+  
+;
+
+  
+    Polymer('core-iconset', {
+  
+      /**
+       * The URL of the iconset image.
+       *
+       * @attribute src
+       * @type string
+       * @default ''
+       */
+      src: '',
+
+      /**
+       * The width of the iconset image. This must only be specified if the
+       * icons are arranged into separate rows inside the image.
+       *
+       * @attribute width
+       * @type number
+       * @default 0
+       */
+      width: 0,
+
+      /**
+       * A space separated list of names corresponding to icons in the iconset
+       * image file. This list must be ordered the same as the icon images
+       * in the image file.
+       *
+       * @attribute icons
+       * @type string
+       * @default ''
+       */
+      icons: '',
+
+      /**
+       * The size of an individual icon. Note that icons must be square.
+       *
+       * @attribute iconSize
+       * @type number
+       * @default 24
+       */
+      iconSize: 24,
+
+      /**
+       * The horizontal offset of the icon images in the inconset src image.
+       * This is typically used if the image resource contains additional images
+       * beside those intended for the iconset.
+       *
+       * @attribute offsetX
+       * @type number
+       * @default 0
+       */
+      offsetX: 0,
+      /**
+       * The vertical offset of the icon images in the inconset src image.
+       * This is typically used if the image resource contains additional images
+       * beside those intended for the iconset.
+       *
+       * @attribute offsetY
+       * @type number
+       * @default 0
+       */
+      offsetY: 0,
+      type: 'iconset',
+
+      created: function() {
+        this.iconMap = {};
+        this.iconNames = [];
+        this.themes = {};
+      },
+  
+      ready: function() {
+        // TODO(sorvell): ensure iconset's src is always relative to the main
+        // document
+        if (this.src && (this.ownerDocument !== document)) {
+          this.src = this.resolvePath(this.src, this.ownerDocument.baseURI);
+        }
+        this.super();
+        this.updateThemes();
+      },
+
+      iconsChanged: function() {
+        var ox = this.offsetX;
+        var oy = this.offsetY;
+        this.icons && this.icons.split(/\s+/g).forEach(function(name, i) {
+          this.iconNames.push(name);
+          this.iconMap[name] = {
+            offsetX: ox,
+            offsetY: oy
+          }
+          if (ox + this.iconSize < this.width) {
+            ox += this.iconSize;
+          } else {
+            ox = this.offsetX;
+            oy += this.iconSize;
+          }
+        }, this);
+      },
+
+      updateThemes: function() {
+        var ts = this.querySelectorAll('property[theme]');
+        ts && ts.array().forEach(function(t) {
+          this.themes[t.getAttribute('theme')] = {
+            offsetX: parseInt(t.getAttribute('offsetX')) || 0,
+            offsetY: parseInt(t.getAttribute('offsetY')) || 0
+          };
+        }, this);
+      },
+
+      // TODO(ffu): support retrived by index e.g. getOffset(10);
+      /**
+       * Returns an object containing `offsetX` and `offsetY` properties which
+       * specify the pixel locaion in the iconset's src file for the given
+       * `icon` and `theme`. It's uncommon to call this method. It is useful,
+       * for example, to manually position a css backgroundImage to the proper
+       * offset. It's more common to use the `applyIcon` method.
+       *
+       * @method getOffset
+       * @param {String|Number} icon The name of the icon or the index of the
+       * icon within in the icon image.
+       * @param {String} theme The name of the theme.
+       * @returns {Object} An object specifying the offset of the given icon 
+       * within the icon resource file; `offsetX` is the horizontal offset and
+       * `offsetY` is the vertical offset. Both values are in pixel units.
+       */
+      getOffset: function(icon, theme) {
+        var i = this.iconMap[icon];
+        if (!i) {
+          var n = this.iconNames[Number(icon)];
+          i = this.iconMap[n];
+        }
+        var t = this.themes[theme];
+        if (i && t) {
+          return {
+            offsetX: i.offsetX + t.offsetX,
+            offsetY: i.offsetY + t.offsetY
+          }
+        }
+        return i;
+      },
+
+      /**
+       * Applies an icon to the given element as a css background image. This
+       * method does not size the element, and it's often necessary to set 
+       * the element's height and width so that the background image is visible.
+       *
+       * @method applyIcon
+       * @param {Element} element The element to which the background is
+       * applied.
+       * @param {String|Number} icon The name or index of the icon to apply.
+       * @param {Number} scale (optional, defaults to 1) A scaling factor 
+       * with which the icon can be magnified.
+       * @return {Element} The icon element.
+       */
+      applyIcon: function(element, icon, scale) {
+        var offset = this.getOffset(icon);
+        scale = scale || 1;
+        if (element && offset) {
+          var icon = element._icon || document.createElement('div');
+          var style = icon.style;
+          style.backgroundImage = 'url(' + this.src + ')';
+          style.backgroundPosition = (-offset.offsetX * scale + 'px') + 
+             ' ' + (-offset.offsetY * scale + 'px');
+          style.backgroundSize = scale === 1 ? 'auto' :
+             this.width * scale + 'px';
+          if (icon.parentNode !== element) {
+            element.appendChild(icon);
+          }
+          return icon;
+        }
+      }
+
+    });
+
+  ;
+
+(function() {
+  
+  // mono-state
+  var meta;
+  
+  Polymer('core-icon', {
+
+    /**
+     * The URL of an image for the icon. If the src property is specified,
+     * the icon property should not be.
+     *
+     * @attribute src
+     * @type string
+     * @default ''
+     */
+    src: '',
+
+    /**
+     * Specifies the icon name or index in the set of icons available in
+     * the icon's icon set. If the icon property is specified,
+     * the src property should not be.
+     *
+     * @attribute icon
+     * @type string
+     * @default ''
+     */
+    icon: '',
+
+    /**
+     * Alternative text content for accessibility support.
+     * If alt is present and not empty, it will set the element's role to img and add an aria-label whose content matches alt.
+     * If alt is present and is an empty string, '', it will hide the element from the accessibility layer
+     * If alt is not present, it will set the element's role to img and the element will fallback to using the icon attribute for its aria-label.
+     * 
+     * @attribute alt
+     * @type string
+     * @default ''
+     */
+    alt: null,
+
+    observe: {
+      'icon': 'updateIcon',
+      'alt': 'updateAlt'
+    },
+
+    defaultIconset: 'icons',
+
+    ready: function() {
+      if (!meta) {
+        meta = document.createElement('core-iconset');
+      }
+
+      // Allow user-provided `aria-label` in preference to any other text alternative.
+      if (this.hasAttribute('aria-label')) {
+        // Set `role` if it has not been overridden.
+        if (!this.hasAttribute('role')) {
+          this.setAttribute('role', 'img');
+        }
+        return;
+      }
+      this.updateAlt();
+    },
+
+    srcChanged: function() {
+      var icon = this._icon || document.createElement('div');
+      icon.textContent = '';
+      icon.setAttribute('fit', '');
+      icon.style.backgroundImage = 'url(' + this.src + ')';
+      icon.style.backgroundPosition = 'center';
+      icon.style.backgroundSize = '100%';
+      if (!icon.parentNode) {
+        this.appendChild(icon);
+      }
+      this._icon = icon;
+    },
+
+    getIconset: function(name) {
+      return meta.byId(name || this.defaultIconset);
+    },
+
+    updateIcon: function(oldVal, newVal) {
+      if (!this.icon) {
+        this.updateAlt();
+        return;
+      }
+      var parts = String(this.icon).split(':');
+      var icon = parts.pop();
+      if (icon) {
+        var set = this.getIconset(parts.pop());
+        if (set) {
+          this._icon = set.applyIcon(this, icon);
+          if (this._icon) {
+            this._icon.setAttribute('fit', '');
+          }
+        }
+      }
+      // Check to see if we're using the old icon's name for our a11y fallback
+      if (oldVal) {
+        if (oldVal.split(':').pop() == this.getAttribute('aria-label')) {
+          this.updateAlt();
+        }
+      }
+    },
+
+    updateAlt: function() {
+      // Respect the user's decision to remove this element from
+      // the a11y tree
+      if (this.getAttribute('aria-hidden')) {
+        return;
+      }
+
+      // Remove element from a11y tree if `alt` is empty, otherwise
+      // use `alt` as `aria-label`.
+      if (this.alt === '') {
+        this.setAttribute('aria-hidden', 'true');
+        if (this.hasAttribute('role')) {
+          this.removeAttribute('role');
+        }
+        if (this.hasAttribute('aria-label')) {
+          this.removeAttribute('aria-label');
+        }
+      } else {
+        this.setAttribute('aria-label', this.alt ||
+                                        this.icon.split(':').pop());
+        if (!this.hasAttribute('role')) {
+          this.setAttribute('role', 'img');
+        }
+        if (this.hasAttribute('aria-hidden')) {
+          this.removeAttribute('aria-hidden');
+        }
+      }
+    }
+
+  });
+  
+})();
+;
+
+
+    Polymer('core-iconset-svg', {
+
+
+      /**
+       * The size of an individual icon. Note that icons must be square.
+       *
+       * @attribute iconSize
+       * @type number
+       * @default 24
+       */
+      iconSize: 24,
+      type: 'iconset',
+
+      created: function() {
+        this._icons = {};
+      },
+
+      ready: function() {
+        this.super();
+        this.updateIcons();
+      },
+
+      iconById: function(id) {
+        return this._icons[id] || (this._icons[id] = this.querySelector('#' + id));
+      },
+
+      cloneIcon: function(id) {
+        var icon = this.iconById(id);
+        if (icon) {
+          var content = icon.cloneNode(true);
+          content.removeAttribute('id');
+          var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('viewBox', '0 0 ' + this.iconSize + ' ' +
+              this.iconSize);
+          // NOTE(dfreedm): work around https://crbug.com/370136
+          svg.style.pointerEvents = 'none';
+          svg.appendChild(content);
+          return svg;
+        }
+      },
+
+      get iconNames() {
+        if (!this._iconNames) {
+          this._iconNames = this.findIconNames();
+        }
+        return this._iconNames;
+      },
+
+      findIconNames: function() {
+        var icons = this.querySelectorAll('[id]').array();
+        if (icons.length) {
+          return icons.map(function(n){ return n.id });
+        }
+      },
+
+      /**
+       * Applies an icon to the given element. The svg icon is added to the
+       * element's shadowRoot if one exists or directly to itself.
+       *
+       * @method applyIcon
+       * @param {Element} element The element to which the icon is
+       * applied.
+       * @param {String|Number} icon The name the icon to apply.
+       * @return {Element} The icon element
+       */
+      applyIcon: function(element, icon) {
+        var root = element;
+        // remove old
+        var old = root.querySelector('svg');
+        if (old) {
+          old.remove();
+        }
+        // install new
+        var svg = this.cloneIcon(icon);
+        if (!svg) {
+          return;
+        }
+        svg.setAttribute('height', '100%');
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.style.display = 'block';
+        root.insertBefore(svg, root.firstElementChild);
+        return svg;
+      },
+      
+      /**
+       * Tell users of the iconset, that the set has loaded.
+       * This finds all elements matching the selector argument and calls 
+       * the method argument on them.
+       * @method updateIcons
+       * @param selector {string} css selector to identify iconset users, 
+       * defaults to '[icon]'
+       * @param method {string} method to call on found elements, 
+       * defaults to 'updateIcon'
+       */
+      updateIcons: function(selector, method) {
+        selector = selector || '[icon]';
+        method = method || 'updateIcon';
+        var deep = window.ShadowDOMPolyfill ? '' : 'html /deep/ ';
+        var i$ = document.querySelectorAll(deep + selector);
+        for (var i=0, e; e=i$[i]; i++) {
+          if (e[method]) {
+            e[method].call(e);
+          }
+        }
+      }
+      
+
+    });
+
+  ;
+
+
+    Polymer('core-input', {
+      publish: {
+        /**
+         * Placeholder text that hints to the user what can be entered in
+         * the input.
+         *
+         * @attribute placeholder
+         * @type string
+         * @default ''
+         */
+        placeholder: '',
+  
+        /**
+         * If true, this input cannot be focused and the user cannot change
+         * its value.
+         *
+         * @attribute disabled
+         * @type boolean
+         * @default false
+         */
+        disabled: false,
+  
+        /**
+         * If true, the user cannot modify the value of the input.
+         *
+         * @attribute readonly
+         * @type boolean
+         * @default false
+         */
+        readonly: false,
+
+        /**
+         * If true, this input will automatically gain focus on page load.
+         *
+         * @attribute autofocus
+         * @type boolean
+         * @default false
+         */
+        autofocus: false,
+
+        /**
+         * If true, this input accepts multi-line input like a `<textarea>`
+         *
+         * @attribute multiline
+         * @type boolean
+         * @default false
+         */
+        multiline: false,
+  
+        /**
+         * (multiline only) The height of this text input in rows. The input
+         * will scroll internally if more input is entered beyond the size
+         * of the component. This property is meaningless if multiline is
+         * false. You can also set this property to "fit" and size the
+         * component with CSS to make the input fit the CSS size.
+         *
+         * @attribute rows
+         * @type number|'fit'
+         * @default 'fit'
+         */
+        rows: 'fit',
+  
+        /**
+         * The current value of this input. Changing inputValue programmatically
+         * will cause value to be out of sync. Instead, change value directly
+         * or call commit() after changing inputValue.
+         *
+         * @attribute inputValue
+         * @type string
+         * @default ''
+         */
+        inputValue: '',
+  
+        /**
+         * The value of the input committed by the user, either by changing the
+         * inputValue and blurring the input, or by hitting the `enter` key.
+         *
+         * @attribute value
+         * @type string
+         * @default ''
+         */
+        value: '',
+
+        /**
+         * Set the input type. Not supported for `multiline`.
+         *
+         * @attribute type
+         * @type string
+         * @default text
+         */
+        type: 'text',
+
+        /**
+         * If true, the input is invalid if its value is null.
+         *
+         * @attribute required
+         * @type boolean
+         * @default false
+         */
+        required: false,
+
+        /**
+         * A regular expression to validate the input value against. See
+         * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5/Constraint_validation#Validation-related_attributes
+         * for more info. Not supported if `multiline` is true.
+         *
+         * @attribute pattern
+         * @type string
+         * @default '.*'
+         */
+        // FIXME(yvonne): The default is set to .* because we can't bind to pattern such
+        // that the attribute is unset if pattern is null.
+        pattern: '.*',
+
+        /**
+         * If set, the input is invalid if the value is less than this property. See
+         * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5/Constraint_validation#Validation-related_attributes
+         * for more info. Not supported if `multiline` is true.
+         *
+         * @attribute min
+         */
+        min: null,
+
+        /**
+         * If set, the input is invalid if the value is greater than this property. See
+         * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5/Constraint_validation#Validation-related_attributes
+         * for more info. Not supported if `multiline` is true.
+         *
+         * @attribute max
+         */
+        max: null,
+
+        /**
+         * If set, the input is invalid if the value is not `min` plus an integral multiple
+         * of this property. See
+         * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5/Constraint_validation#Validation-related_attributes
+         * for more info. Not supported if `multiline` is true.
+         *
+         * @attribute step
+         */
+        step: null,
+
+        /**
+         * The maximum length of the input value.
+         *
+         * @attribute maxlength
+         * @type number
+         */
+        maxlength: null,
+  
+        /**
+         * If this property is true, the text input's inputValue failed validation.
+         *
+         * @attribute invalid
+         * @type boolean
+         * @default false
+         */
+        invalid: false,
+
+        /**
+         * If this property is true, validate the input as they are entered.
+         *
+         * @attribute validateImmediately
+         * @type boolean
+         * @default true
+         */
+        validateImmediately: true
+      },
+
+      ready: function() {
+        this.handleTabindex(this.getAttribute('tabindex'));
+      },
+
+      disabledChanged: function() {
+        if (this.disabled) {
+          this.setAttribute('aria-disabled', true);
+        } else {
+          this.removeAttribute('aria-disabled');
+        }
+      },
+
+      invalidChanged: function() {
+        this.classList.toggle('invalid', this.invalid);
+        this.fire('input-'+ (this.invalid ? 'invalid' : 'valid'), {value: this.inputValue});
+      },
+
+      inputValueChanged: function() {
+        if (this.validateImmediately) {
+          this.updateValidity_();
+        }
+      },
+
+      valueChanged: function() {
+        this.inputValue = this.value;
+      },
+
+      requiredChanged: function() {
+        if (this.validateImmediately) {
+          this.updateValidity_();
+        }
+      },
+
+      attributeChanged: function(attr, oldVal, curVal) {
+        if (attr === 'tabindex') {
+          this.handleTabindex(curVal);
+        }
+      },
+
+      handleTabindex: function(tabindex) {
+        if (tabindex > 0) {
+          this.$.input.setAttribute('tabindex', -1);
+        } else {
+          this.$.input.removeAttribute('tabindex');
+        }
+      },
+
+      /**
+       * Commits the inputValue to value.
+       *
+       * @method commit
+       */
+      commit: function() {
+         this.value = this.inputValue;
+      },
+
+      updateValidity_: function() {
+        if (this.$.input.willValidate) {
+          this.invalid = !this.$.input.validity.valid;
+        }
+      },
+
+      keypressAction: function(e) {
+        // disallow non-numeric input if type = number
+        if (this.type !== 'number') {
+          return;
+        }
+        var c = String.fromCharCode(e.charCode);
+        if (e.charCode !== 0 && !c.match(/[\d-\.e]/)) {
+          e.preventDefault();
+        }
+      },
+
+      inputChangeAction: function() {
+        this.commit();
+        if (!window.ShadowDOMPolyfill) {
+          // re-fire event that does not bubble across shadow roots
+          this.fire('change', null, this);
+        }
+      },
+
+      focusAction: function(e) {
+        if (this.getAttribute('tabindex') > 0) {
+          // Forward focus to the inner input if tabindex is set on the element
+          // This will not cause an infinite loop because focus will not fire on the <input>
+          // again if it's already focused.
+          this.$.input.focus();
+        }
+      },
+
+      inputFocusAction: function(e) {
+        if (window.ShadowDOMPolyfill) {
+          // re-fire non-bubbling event if polyfill
+          this.fire('focus', null, this, false);
+        }
+      },
+
+      inputBlurAction: function() {
+        if (window.ShadowDOMPolyfill) {
+          // re-fire non-bubbling event
+          this.fire('blur', null, this, false);
+        }
+      },
+
+      /**
+       * Forwards to the internal input / textarea element.
+       *
+       * @method blur
+       */
+      blur: function() {
+        this.$.input.blur();
+      },
+
+      /**
+       * Forwards to the internal input / textarea element.
+       *
+       * @method click
+       */
+      click: function() {
+        this.$.input.click();
+      },
+
+      /**
+       * Forwards to the internal input / textarea element.
+       *
+       * @method focus
+       */
+      focus: function() {
+        this.$.input.focus();
+      },
+
+      /**
+       * Forwards to the internal input / textarea element.
+       *
+       * @method select
+       */
+      select: function() {
+        this.$.input.select();
+      },
+
+      /**
+       * Forwards to the internal input / textarea element.
+       *
+       * @method setSelectionRange
+       * @param {number} selectionStart
+       * @param {number} selectionEnd
+       * @param {String} selectionDirection (optional)
+       */
+      setSelectionRange: function(selectionStart, selectionEnd, selectionDirection) {
+        this.$.input.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+      },
+
+      /**
+       * Forwards to the internal input element, not implemented for multiline.
+       *
+       * @method setRangeText
+       * @param {String} replacement
+       * @param {number} start (optional)
+       * @param {number} end (optional)
+       * @param {String} selectMode (optional)
+       */
+      setRangeText: function(replacement, start, end, selectMode) {
+        if (!this.multiline) {
+          this.$.input.setRangeText(replacement, start, end, selectMode);
+        }
+      },
+
+      /**
+       * Forwards to the internal input, not implemented for multiline.
+       *
+       * @method stepDown
+       * @param {number} n (optional)
+       */
+      stepDown: function(n) {
+        if (!this.multiline) {
+          this.$.input.stepDown(n);
+        }
+      },
+
+      /**
+       * Forwards to the internal input, not implemented for multiline.
+       *
+       * @method stepUp
+       * @param {number} n (optional)
+       */
+      stepUp: function(n) {
+        if (!this.multiline) {
+          this.$.input.stepUp(n);
+        }
+      },
+
+      get willValidate() {
+        return this.$.input.willValidate;
+      },
+
+      get validity() {
+        return this.$.input.validity;
+      },
+
+      get validationMessage() {
+        return this.$.input.validationMessage;
+      },
+
+      /**
+       * Forwards to the internal input / textarea element and updates state.
+       *
+       * @method checkValidity
+       * @return {boolean}
+       */
+      checkValidity: function() {
+        var r = this.$.input.checkValidity();
+        this.updateValidity_();
+        return r;
+      },
+
+      /**
+       * Forwards to the internal input / textarea element and updates state.
+       *
+       * @method setCustomValidity
+       * @param {String} message
+       */
+      setCustomValidity: function(message) {
+        this.$.input.setCustomValidity(message);
+        this.updateValidity_();
+      }
+
+    });
+  ;
+
+(function() {
+
+window.CoreStyle = window.CoreStyle || {
+  g: {},
+  list: {},
+  refMap: {}
+};
+
+Polymer('core-style', {
+  /**
+   * The `id` property should be set if the `core-style` is a producer
+   * of styles. In this case, the `core-style` should have text content
+   * that is cssText.
+   *
+   * @attribute id
+   * @type string
+   * @default ''
+   */
+
+
+  publish: {
+    /**
+     * The `ref` property should be set if the `core-style` element is a 
+     * consumer of styles. Set it to the `id` of the desired `core-style`
+     * element.
+     *
+     * @attribute ref
+     * @type string
+     * @default ''
+     */
+    ref: ''
+  },
+
+  // static
+  g: CoreStyle.g,
+  refMap: CoreStyle.refMap,
+
+  /**
+   * The `list` is a map of all `core-style` producers stored by `id`. It 
+   * should be considered readonly. It's useful for nesting one `core-style`
+   * inside another.
+   *
+   * @attribute list
+   * @type object (readonly)
+   * @default {map of all `core-style` producers}
+   */
+  list: CoreStyle.list,
+
+  // if we have an id, we provide style
+  // if we have a ref, we consume/require style
+  ready: function() {
+    if (this.id) {
+      this.provide();
+    } else {
+      this.registerRef(this.ref);
+      if (!window.ShadowDOMPolyfill) {
+        this.require();
+      }  
+    }
+  },
+
+  // can't shim until attached if using SD polyfill because need to find host
+  attached: function() {
+    if (!this.id && window.ShadowDOMPolyfill) {
+      this.require();
+    }
+  },
+
+  /****** producer stuff *******/
+
+  provide: function() {
+    this.register();
+    // we want to do this asap, especially so we can do so before definitions
+    // that use this core-style are registered.
+    if (this.textContent) {
+      this._completeProvide();
+    } else {
+      this.async(this._completeProvide);
+    }
+  },
+
+  register: function() {
+    var i = this.list[this.id];
+    if (i) {
+      if (!Array.isArray(i)) {
+        this.list[this.id] = [i];
+      }
+      this.list[this.id].push(this);
+    } else {
+      this.list[this.id] = this;  
+    }
+  },
+
+  // stamp into a shadowRoot so we can monitor dom of the bound output
+  _completeProvide: function() {
+    this.createShadowRoot();
+    this.domObserver = new MutationObserver(this.domModified.bind(this))
+        .observe(this.shadowRoot, {subtree: true, 
+        characterData: true, childList: true});
+    this.provideContent();
+  },
+
+  provideContent: function() {
+    this.ensureTemplate();
+    this.shadowRoot.textContent = '';
+    this.shadowRoot.appendChild(this.instanceTemplate(this.template));
+    this.cssText = this.shadowRoot.textContent;
+  },
+
+  ensureTemplate: function() {
+    if (!this.template) {
+      this.template = this.querySelector('template:not([repeat]):not([bind])');
+      // move content into the template
+      if (!this.template) {
+        this.template = document.createElement('template');
+        var n = this.firstChild;
+        while (n) {
+          this.template.content.appendChild(n.cloneNode(true));
+          n = n.nextSibling;
+        }
+      }
+    }
+  },
+
+  domModified: function() {
+    this.cssText = this.shadowRoot.textContent;
+    this.notify();
+  },
+
+  // notify instances that reference this element
+  notify: function() {
+    var s$ = this.refMap[this.id];
+    if (s$) {
+      for (var i=0, s; (s=s$[i]); i++) {
+        s.require();
+      }
+    }
+  },
+
+  /****** consumer stuff *******/
+
+  registerRef: function(ref) {
+    //console.log('register', ref);
+    this.refMap[this.ref] = this.refMap[this.ref] || [];
+    this.refMap[this.ref].push(this);
+  },
+
+  applyRef: function(ref) {
+    this.ref = ref;
+    this.registerRef(this.ref);
+    this.require();
+  },
+
+  require: function() {
+    var cssText = this.cssTextForRef(this.ref);
+    //console.log('require', this.ref, cssText);
+    if (cssText) {
+      this.ensureStyleElement();
+      // do nothing if cssText has not changed
+      if (this.styleElement._cssText === cssText) {
+        return;
+      }
+      this.styleElement._cssText = cssText;
+      if (window.ShadowDOMPolyfill) {
+        this.styleElement.textContent = cssText;
+        cssText = Platform.ShadowCSS.shimStyle(this.styleElement,
+            this.getScopeSelector());
+      }
+      this.styleElement.textContent = cssText;
+    }
+  },
+
+  cssTextForRef: function(ref) {
+    var s$ = this.byId(ref);
+    var cssText = '';
+    if (s$) {
+      if (Array.isArray(s$)) {
+        var p = [];
+        for (var i=0, l=s$.length, s; (i<l) && (s=s$[i]); i++) {
+          p.push(s.cssText);
+        }
+        cssText = p.join('\n\n');
+      } else {
+        cssText = s$.cssText;
+      }
+    }
+    if (s$ && !cssText) {
+      console.warn('No styles provided for ref:', ref);
+    }
+    return cssText;
+  },
+
+  byId: function(id) {
+    return this.list[id];
+  },
+
+  ensureStyleElement: function() {
+    if (!this.styleElement) {
+      this.styleElement = window.ShadowDOMPolyfill ? 
+          this.makeShimStyle() :
+          this.makeRootStyle();
+    }
+    if (!this.styleElement) {
+      console.warn(this.localName, 'could not setup style.');
+    }
+  },
+
+  makeRootStyle: function() {
+    var style = document.createElement('style');
+    this.appendChild(style);
+    return style;
+  },
+
+  makeShimStyle: function() {
+    var host = this.findHost(this);
+    if (host) {
+      var name = host.localName;
+      var style = document.querySelector('style[' + name + '=' + this.ref +']');
+      if (!style) {
+        style = document.createElement('style');
+        style.setAttribute(name, this.ref);
+        document.head.appendChild(style);
+      }
+      return style;
+    }
+  },
+
+  getScopeSelector: function() {
+    if (!this._scopeSelector) {
+      var selector = '', host = this.findHost(this);
+      if (host) {
+        var typeExtension = host.hasAttribute('is');
+        var name = typeExtension ? host.getAttribute('is') : host.localName;
+        selector = Platform.ShadowCSS.makeScopeSelector(name, 
+            typeExtension);
+      }
+      this._scopeSelector = selector;
+    }
+    return this._scopeSelector;
+  },
+
+  findHost: function(node) {
+    while (node.parentNode) {
+      node = node.parentNode;
+    }
+    return node.host || wrap(document.documentElement);
+  },
+
+  /* filters! */
+  // TODO(dfreedm): add more filters!
+
+  cycle: function(rgb, amount) {
+    if (rgb.match('#')) {
+      var o = this.hexToRgb(rgb);
+      if (!o) {
+        return rgb;
+      }
+      rgb = 'rgb(' + o.r + ',' + o.b + ',' + o.g + ')';
+    }
+
+    function cycleChannel(v) {
+      return Math.abs((Number(v) - amount) % 255);
+    }
+
+    return rgb.replace(/rgb\(([^,]*),([^,]*),([^,]*)\)/, function(m, a, b, c) {
+      return 'rgb(' + cycleChannel(a) + ',' + cycleChannel(b) + ', ' 
+          + cycleChannel(c) + ')';
+    });
+  },
+
+  hexToRgb: function(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+  }
+
+});
+
+
+})();
+;
+
+
+  (function() {
+
+    var paperInput = CoreStyle.g.paperInput = CoreStyle.g.paperInput || {};
+    paperInput.focusedColor = '#4059a9';
+    paperInput.invalidColor = '#d34336';
+
+    Polymer('paper-input', {
+
+      publish: {
+        /**
+         * The label for this input. It normally appears as grey text inside
+         * the text input and disappears once the user enters text.
+         *
+         * @attribute label
+         * @type string
+         * @default ''
+         */
+        label: '',
+
+        /**
+         * If true, the label will "float" above the text input once the
+         * user enters text instead of disappearing.
+         *
+         * @attribute floatingLabel
+         * @type boolean
+         * @default false
+         */
+        floatingLabel: false,
+
+        /**
+         * (multiline only) If set to a non-zero value, the height of this
+         * text input will grow with the value changes until it is maxRows
+         * rows tall. If the maximum size does not fit the value, the text
+         * input will scroll internally.
+         *
+         * @attribute maxRows
+         * @type number
+         * @default 0
+         */
+        maxRows: 0,
+
+        /**
+         * The message to display if the input value fails validation. If this
+         * is unset or the empty string, a default message is displayed depending
+         * on the type of validation error.
+         *
+         * @attribute error
+         * @type string
+         */
+        error: '',
+
+        focused: {value: false, reflect: true}
+
+      },
+
+      get inputValueForMirror() {
+        var tokens = this.inputValue ? String(this.inputValue).replace(/&/gm, '&amp;').replace(/"/gm, '&quot;').replace(/'/gm, '&#39;').replace(/</gm, '&lt;').replace(/>/gm, '&gt;').split('\n') : [''];
+
+        // Enforce the min and max heights for a multiline input here to
+        // avoid measurement
+        if (this.multiline) {
+          if (this.maxRows && tokens.length > this.maxRows) {
+            tokens = tokens.slice(0, this.maxRows);
+          }
+          while (this.rows && tokens.length < this.rows) {
+            tokens.push('');
+          }
+        }
+
+        return tokens.join('<br>') + '&nbsp;';
+      },
+
+      get inputHasValue() {
+        // if type = number, the input value is the empty string until a valid number
+        // is entered so we must do some hacks here
+        return this.inputValue || (this.type === 'number' && !this.validity.valid);
+      },
+
+      syncInputValueToMirror: function() {
+        this.$.mirror.innerHTML = this.inputValueForMirror;
+      },
+
+      ready: function() {
+        this.syncInputValueToMirror();
+      },
+
+      prepareLabelTransform: function() {
+        var toRect = this.$.floatedLabelText.getBoundingClientRect();
+        var fromRect = this.$.labelText.getBoundingClientRect();
+        if (toRect.width !== 0) {
+          var sy = toRect.height / fromRect.height;
+          this.$.labelText.cachedTransform =
+            'scale3d(' + (toRect.width / fromRect.width) + ',' + sy + ',1) ' +
+            'translate3d(0,' + (toRect.top - fromRect.top) / sy + 'px,0)';
+        }
+      },
+
+      animateFloatingLabel: function() {
+        if (!this.floatingLabel || this.labelAnimated) {
+          return;
+        }
+
+        if (!this.$.labelText.cachedTransform) {
+          this.prepareLabelTransform();
+        }
+
+        // If there's still no cached transform, the input is invisible so don't
+        // do the animation.
+        if (!this.$.labelText.cachedTransform) {
+          return;
+        }
+
+        this.labelAnimated = true;
+        // Handle interrupted animation
+        this.async(function() {
+          this.transitionEndAction();
+        }, null, 250);
+
+        if (this.inputHasValue) {
+          this.$.labelText.style.webkitTransform = this.$.labelText.cachedTransform;
+          this.$.labelText.style.transform = this.$.labelText.cachedTransform;
+        } else {
+          // Handle if the label started out floating
+          if (!this.$.labelText.style.webkitTransform && !this.$.labelText.style.transform) {
+            this.$.labelText.style.webkitTransform = this.$.labelText.cachedTransform;
+            this.$.labelText.style.transform = this.$.labelText.cachedTransform;
+            this.$.labelText.offsetTop;
+          }
+          this.$.labelText.style.webkitTransform = '';
+          this.$.labelText.style.transform = '';
+        }
+      },
+
+      inputValueChanged: function(old) {
+        this.super();
+
+        this.syncInputValueToMirror();
+        if (old && !this.inputValue || !old && this.inputValue) {
+          this.animateFloatingLabel();
+        }
+      },
+
+      placeholderChanged: function() {
+        this.label = this.placeholder;
+      },
+
+      inputFocusAction: function() {
+        this.super(arguments);
+        this.focused = true;
+      },
+
+      inputBlurAction: function(e) {
+        this.super(arguments);
+        this.focused = false;
+      },
+
+      downAction: function(e) {
+        if (this.disabled) {
+          return;
+        }
+
+        if (this.focused) {
+          return;
+        }
+
+        // The underline spills from the tap location
+        var rect = this.$.underline.getBoundingClientRect();
+        var right = e.x - rect.left;
+        this.$.focusedUnderline.style.mozTransformOrigin = right + 'px';
+        this.$.focusedUnderline.style.webkitTransformOrigin = right + 'px ';
+        this.$.focusedUnderline.style.transformOriginX = right + 'px';
+
+        // Animations only run when the user interacts with the input
+        this.underlineAnimated = true;
+
+        // Cursor animation only runs if the input is empty
+        if (!this.inputHasValue) {
+          this.cursorAnimated = true;
+        }
+        // Handle interrupted animation
+        this.async(function() {
+          this.transitionEndAction();
+        }, null, 250);
+      },
+
+      keydownAction: function() {
+        this.super();
+
+        // more type = number hacks. see core-input for more info
+        if (this.type === 'number') {
+          var valid = !this.inputValue && this.validity.valid;
+          this.async(function() {
+            if (valid !== (!this.inputValue && this.validity.valid)) {
+              this.animateFloatingLabel();
+            }
+          });
+        }
+      },
+
+      transitionEndAction: function() {
+        this.underlineAnimated = false;
+        this.cursorAnimated = false;
+        this.labelAnimated = false;
+      }
+
+    });
+
+  }());
+
+  ;
+
+
+  Polymer('paper-slider', {
+
+    /**
+     * Fired when the slider's value changes.
+     *
+     * @event core-change
+     */
+
+    /**
+     * Fired when the slider's value changes due to user interaction.
+     *
+     * Changes to the slider's value due to changes in an underlying
+     * bound variable will not trigger this event.
+     *
+     * @event change
+     */
+
+    /**
+     * If true, the slider thumb snaps to tick marks evenly spaced based
+     * on the `step` property value.
+     *
+     * @attribute snaps
+     * @type boolean
+     * @default false
+     */
+    snaps: false,
+
+    /**
+     * If true, a pin with numeric value label is shown when the slider thumb 
+     * is pressed.  Use for settings for which users need to know the exact 
+     * value of the setting.
+     *
+     * @attribute pin
+     * @type boolean
+     * @default false
+     */
+    pin: false,
+
+    /**
+     * If true, this slider is disabled.  A disabled slider cannot be tapped
+     * or dragged to change the slider value.
+     *
+     * @attribute disabled
+     * @type boolean
+     * @default false
+     */
+    disabled: false,
+
+    /**
+     * The number that represents the current secondary progress.
+     *
+     * @attribute secondaryProgress
+     * @type number
+     * @default 0
+     */
+    secondaryProgress: 0,
+
+    /**
+     * If true, an input is shown and user can use it to set the slider value.
+     *
+     * @attribute editable
+     * @type boolean
+     * @default false
+     */
+    editable: false,
+
+    /**
+     * The immediate value of the slider.  This value is updated while the user
+     * is dragging the slider.
+     *
+     * @attribute immediateValue
+     * @type number
+     * @default 0
+     */
+
+    observe: {
+      'step snaps': 'update'
+    },
+
+    ready: function() {
+      this.update();
+    },
+
+    update: function() {
+      this.positionKnob(this.calcRatio(this.value));
+      this.updateMarkers();
+    },
+
+    minChanged: function() {
+      this.update();
+      this.setAttribute('aria-valuemin', this.min);
+    },
+
+    maxChanged: function() {
+      this.update();
+      this.setAttribute('aria-valuemax', this.max);
+    },
+
+    valueChanged: function() {
+      this.update();
+      this.setAttribute('aria-valuenow', this.value);
+      this.fire('core-change');
+    },
+
+    disabledChanged: function() {
+      if (this.disabled) {
+        this.removeAttribute('tabindex');
+      } else {
+        this.tabIndex = 0;
+      }
+    },
+
+    immediateValueChanged: function() {
+      if (!this.dragging) {
+        this.value = this.immediateValue;
+      }
+    },
+
+    expandKnob: function() {
+      this.expand = true;
+    },
+
+    resetKnob: function() {
+      this.expandJob && this.expandJob.stop();
+      this.expand = false;
+    },
+
+    positionKnob: function(ratio) {
+      this.immediateValue = this.calcStep(this.calcKnobPosition(ratio)) || 0;
+      this._ratio = this.snaps ? this.calcRatio(this.immediateValue) : ratio;
+      this.$.sliderKnob.style.left = this._ratio * 100 + '%';
+    },
+
+    inputChange: function() {
+      this.value = this.$.input.value;
+      this.fire('change');
+    },
+
+    calcKnobPosition: function(ratio) {
+      return (this.max - this.min) * ratio + this.min;
+    },
+
+    trackStart: function(e) {
+      this._w = this.$.sliderBar.offsetWidth;
+      this._x = this._ratio * this._w;
+      this._startx = this._x || 0;
+      this._minx = - this._startx;
+      this._maxx = this._w - this._startx;
+      this.$.sliderKnob.classList.add('dragging');
+      this.dragging = true;
+      e.preventTap();
+    },
+
+    trackx: function(e) {
+      var x = Math.min(this._maxx, Math.max(this._minx, e.dx));
+      this._x = this._startx + x;
+      this.immediateValue = this.calcStep(
+          this.calcKnobPosition(this._x / this._w)) || 0;
+      var s =  this.$.sliderKnob.style;
+      s.transform = s.webkitTransform = 'translate3d(' + (this.snaps ? 
+          (this.calcRatio(this.immediateValue) * this._w) - this._startx : x) + 'px, 0, 0)';
+    },
+
+    trackEnd: function() {
+      var s =  this.$.sliderKnob.style;
+      s.transform = s.webkitTransform = '';
+      this.$.sliderKnob.classList.remove('dragging');
+      this.dragging = false;
+      this.resetKnob();
+      this.value = this.immediateValue;
+      this.fire('change');
+    },
+
+    bardown: function(e) {
+      this.transiting = true;
+      this._w = this.$.sliderBar.offsetWidth;
+      var rect = this.$.sliderBar.getBoundingClientRect();
+      var ratio = (e.x - rect.left) / this._w;
+      this.positionKnob(ratio);
+      this.expandJob = this.job(this.expandJob, this.expandKnob, 60);
+      this.fire('change');
+    },
+
+    knobTransitionEnd: function(e) {
+      if (e.target === this.$.sliderKnob) {
+        this.transiting = false;
+      }
+    },
+
+    updateMarkers: function() {
+      this.markers = [], l = (this.max - this.min) / this.step;
+      for (var i = 0; i < l; i++) {
+        this.markers.push('');
+      }
+    },
+
+    increment: function() {
+      this.value = this.clampValue(this.value + this.step);
+    },
+
+    decrement: function() {
+      this.value = this.clampValue(this.value - this.step);
+    },
+
+    incrementKey: function(ev, keys) {
+      if (keys.key === "end") {
+        this.value = this.max;
+      } else {
+        this.increment();
+      }
+      this.fire('change');
+    },
+
+    decrementKey: function(ev, keys) {
+      if (keys.key === "home") {
+        this.value = this.min;
+      } else {
+        this.decrement();
+      }
+      this.fire('change');
+    }
+
+  });
+
+;
+
         Polymer('esis-spectra-viewer', {
             dt : null,
+            dataArray : [],
             chart : null,
             loading: false,
+
+            showAdvanced : false,
 
             rest : '',
 
             ptRegex1 : /^-?\d+\.?\d*$/,
             ptRegex2 : /^-?\d*\.\d+$/,
 
+            dsFilter : '',
+            dsFilters : [],
+            dsFilterValue : '',
+            dsFilterValues : [],
+
             selectedIndex : 0,
+            totalSpectra : 0,
             indexes : [],
             metadata : [],
+
+            filters : [],
 
             ignoreList : ['_id', 'datapoints', 'ecosis'],
 
             onLoadHandlerSet : false,
 
+            wavelengths : [],
+            maxWavelength : 0,
+            minWavelength : 0,
+
             observe : {
-                package : '_update'
+                package : '_update',
+                dsFilter : '_updateFilterValues'
             },
 
             ready : function() {
@@ -67,61 +2067,162 @@ return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:
 
                 this.indexes = [];
                 this.selectedIndex = 0;
+                this.totalSpectra = this.spectra_count;
 
-                for( var i = 0; i < this.spectra_count; i++ ) this.indexes.push(i);
-                this._updateDataTable();
-            },
-
-            _updateDataTable : function() {
-                this.loading = true;
-
-                var groupBy = '';
-                var gbAttr = this.package.ecosis.attributes.dataset.group_by;
-                if(  gbAttr && gbAttr != '' && this.item[gbAttr] && this.item[gbAttr] != '' ) { 
-                    groupBy = '&group_by='+this.item[gbAttr];
+                this.dsFilters = [''];
+                for( var key in this.item ) {
+                    if( this.ignoreList.indexOf(key) > -1 ) continue;
+                    this.dsFilters.push(key);
                 }
 
-                var url = '/rest/getSpectra?package_id='+this.package.id+groupBy+'&index='+this.selectedIndex;
-                this.metadata = [];
+                // if there is a group_by attribute, set as default filter
+                this.filters = [];
+                if( this.item.ecosis.group_by && this.item.ecosis.group_by != '' ) {
+                    this._addFilter(this.item.ecosis.group_by, this.item[this.item.ecosis.group_by][0]);
+                }
+
+                this._updateDataTable(true);
+            },
+
+            _updateFilterValues : function() {
+                this.dsFilterValues = [''];
+                var attr = this.item[this.dsFilter];
+                if( !attr ) return;
+
+                for( var i = 0; i < attr.length; i++ ) {
+                    this.dsFilterValues.push(attr[i]);
+                }
+            },
+
+            addDsFilter : function() {
+                this.async(function(){
+                    if( this.dsFilterValue == '' ) return;
+
+                    this._addFilter(this.dsFilter, this.dsFilterValue, true);
+                    this.dsFilter = '';
+                });
+            },
+
+            _updateFromSelect : function() {
+                this._updateDataTable(false);
+            },
+
+            _updateDataTable : function(resetWavelengths) {
+                this.loading = true;
+
+                var filters = '';
+                var fArray = [];
+                for( var i = 0; i < this.filters.length; i++ ) {
+                    var obj = {};
+                    obj[this.filters[i].key] = this.filters[i].value;
+                    fArray.push(obj);
+                }
+                if( this.filters.length > 0 ) {
+                    filters = '&filters='+encodeURIComponent(JSON.stringify(fArray));
+                }
+
+                var url = '/rest/getSpectra?package_id='+this.package.id+filters+'&index='+this.selectedIndex;
 
                 $.ajax({
                     url : url,
                     success : function(resp) {
-                        var arr = [], pt;
+                        this.metadata = [];
+                        this.indexes = [];
+                        this.wavelengths = [];
+                        this.totalSpectra = resp.total;
+                        resp = resp.item;
+
+                        for( var i = 0; i < this.totalSpectra; i++ ) this.indexes.push(i);
+
+                        this.dataArray = [];
+                        var pt;
                         for( var i = 0; i < resp.datapoints.length; i++ ) {
                             pt = resp.datapoints[i];
                             if( this.ptRegex1.exec(pt.key) || this.ptRegex2.exec(pt.key) ) {
-                                arr.push([parseFloat(pt.key), parseFloat(pt.value)]);
+                                this.dataArray.push([parseFloat(pt.key), parseFloat(pt.value)]);
                             } else {
                                 metadata.push(pt);
                             }
                         }
 
+
                         for( var key in resp ) {
-                            if( this.ignoreList.indexOf(key) == -1 && typeof resp[key] == 'string' ) {
+                            if( this.ignoreList.indexOf(key) == -1 && typeof resp[key] == 'string' && resp[key] != '' ) {
                                 this.metadata.push({
                                     key : key,
-                                    value : resp[key]
+                                    value : resp[key],
+                                    class : this._getMetadataClass(key, resp[key])
                                 })
                             }
                         }
 
-                        arr.sort(function(a, b){
+                        this.dataArray.sort(function(a, b){
                             if( a[0] < b[0] ) return -1;
                             if( a[0] > b[0] ) return 1;
                             return 0;
                         });
-                        for( var i = 0; i < arr.length; i++ ) arr[i][0] = arr[i][0]+'';
+                        for( var i = 0; i < this.dataArray.length; i++ ) {
+                            this.wavelengths.push(this.dataArray[i][0]);
+                        }
 
-                        arr.splice(0,0,['Wavelength','Reflectance']);
+                        if( resetWavelengths ) {
+                            this.setWavelength('min', this.wavelengths[0]);
+                            this.setWavelength('max', this.wavelengths[this.wavelengths.length-1]);
+                        } else {
+                            if( this.minWavelength < this.wavelengths[0] ) {
+                                this.setWavelength('min', this.wavelengths[0]);
+                            }
+                            if( this.maxWavelength > this.wavelengths[this.wavelengths.length-1] ) {
+                                this.setWavelength('max', this.wavelengths[this.wavelengths.length-1]);
+                            }
+                        }
 
-                        this.dt = google.visualization.arrayToDataTable(arr);
-                        this.redraw();
+                        this.dataArray.splice(0,0,['Wavelength','Reflectance']);
+
+                        this.filterByWavelength();
                         this.loading = false;
                     }.bind(this)
                 });
 
                 this.rest = window.location.origin+url;
+            },
+
+            setWavelength : function(type, value) {
+                this.$[type+'Wavelength'].value = value;
+                this[type+'Wavelength'] = value;
+            },
+
+            setMinWavelength : function() {
+                this.minWavelength = parseFloat(this.$.minWavelength.value);
+                if( this.minWavelength < this.wavelengths[0] ) {
+                    this.setWavelength('min', this.wavelengths[0]);
+                } else if ( this.minWavelength > this.maxWavelength ) {
+                    this.setWavelength('min', this.maxWavelength);
+                }
+                this.filterByWavelength();
+            },
+
+            setMaxWavelength : function() {
+                this.maxWavelength = parseFloat(this.$.maxWavelength.value);
+                if( this.maxWavelength >= this.wavelengths[this.wavelengths.length-1] ) {
+                    this.setWavelength('max', this.wavelengths[this.wavelengths.length-1]);
+                } else if ( this.minWavelength > this.maxWavelength ) {
+                    this.setWavelength('max', this.minWavelength);
+                }
+                this.filterByWavelength();
+            },
+
+            filterByWavelength : function() {
+                var arr = [this.dataArray[0]];
+                for( var i = 1; i < this.dataArray.length; i++ ) {
+                    if( this.dataArray[i][0] >= this.minWavelength && 
+                        this.dataArray[i][0] <= this.maxWavelength ) {
+                        arr.push([this.dataArray[i][0]+'', this.dataArray[i][1]]);
+                    }
+                }
+
+                this.dt = google.visualization.arrayToDataTable(arr);
+                this.redraw();
             },
 
             redraw : function() {
@@ -151,6 +2252,69 @@ return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:
                     }
 
                 this.chart.draw(this.dt, options);
+            },
+
+            removeFilter : function(e) {
+                var index = parseInt(e.currentTarget.getAttribute('filterIndex'));
+                this._removeFilter(index, 1, true);
+            },
+
+            addFilterFromBtn : function(e) {
+                this._addFilter(e.currentTarget.getAttribute('filterKey'), e.currentTarget.getAttribute('filterValue'), true);
+            },
+
+            _getMetadataClass : function(key, value) {
+                for( var i = 0; i < this.filters.length; i++ ) {
+                    if( this.filters[i].key == key && this.filters[i].value == value ) {
+                        return 'selected';
+                    }
+                }
+                return '';
+            },
+
+            _removeFilter : function(index, update) {
+                var item = this.filters.splice(index, 1)[0];
+
+                for( var i = 0; i < this.metadata.length; i++ ) {
+                    if( this.metadata[i].key == item.key && this.metadata[i].value == item.value ) {
+                        this.metadata[i].class = '';
+                        break;
+                    }
+                }
+
+                if( update ) {
+                    this.selectedIndex = 0;
+                    this._updateDataTable();
+                }
+            },
+
+            _addFilter : function(key, value, update) {
+                for( var i = 0; i < this.filters.length; i++ ) {
+                    if( this.filters[i].key == key ) {
+                        _removeFilter(i);
+                        break;
+                    }
+                }
+
+                for( var i = 0; i < this.metadata.length; i++ ) {
+                    if( this.metadata[i].key == key && this.metadata[i].value == value ) {
+                        this.metadata[i].class = 'selected';
+                        break;
+                    }
+                }
+
+                this.filters.push({
+                    key : key,
+                    value : value
+                });
+                if( update ) {
+                    this.selectedIndex = 0;
+                    this._updateDataTable(false);
+                }
+            },
+
+            toggleAdvanced : function() {
+                this.showAdvanced = !this.showAdvanced;
             }
 
         });
