@@ -14,6 +14,104 @@ var b=z(a,a.delegate_&&a.delegate_.prepareBinding);w(a,b,a.model_)}),a.setModelF
 return c[b]},styleCacheForScope:function(a){if(d){var b=a.host?a.host.localName:a.localName;return h[b]||(h[b]={})}return a._scopeStyles=a._scopeStyles||{}}},h={};a.api.instance.styles=g}(Polymer),function(a){function b(a,b){if("string"!=typeof a){var c=b||document._currentScript;if(b=a,a=c&&c.parentNode&&c.parentNode.getAttribute?c.parentNode.getAttribute("name"):"",!a)throw"Element name could not be inferred."}if(f(a))throw"Already registered (Polymer) prototype for element "+a;e(a,b),d(a)}function c(a,b){i[a]=b}function d(a){i[a]&&(i[a].registerWhenReady(),delete i[a])}function e(a,b){return j[a]=b||{}}function f(a){return j[a]}function g(a,b){if("string"!=typeof b)return!1;var c=HTMLElement.getPrototypeForTag(b),d=c&&c.constructor;return d?CustomElements.instanceof?CustomElements.instanceof(a,d):a instanceof d:!1}var h=a.extend,i=(a.api,{}),j={};a.getRegisteredPrototype=f,a.waitingForPrototype=c,a.instanceOfType=g,window.Polymer=b,h(Polymer,a),Platform.consumeDeclarations&&Platform.consumeDeclarations(function(a){if(a)for(var c,d=0,e=a.length;e>d&&(c=a[d]);d++)b.apply(null,c)})}(Polymer),function(a){var b={resolveElementPaths:function(a){Polymer.urlResolver.resolveDom(a)},addResolvePathApi:function(){var a=this.getAttribute("assetpath")||"",b=new URL(a,this.ownerDocument.baseURI);this.prototype.resolvePath=function(a,c){var d=new URL(a,c||b);return d.href}}};a.api.declaration.path=b}(Polymer),function(a){function b(a,b){var c=new URL(a.getAttribute("href"),b).href;return"@import '"+c+"';"}function c(a,b){if(a){b===document&&(b=document.head),i&&(b=document.head);var c=d(a.textContent),e=a.getAttribute(h);e&&c.setAttribute(h,e);var f=b.firstElementChild;if(b===document.head){var g="style["+h+"]",j=document.head.querySelectorAll(g);j.length&&(f=j[j.length-1].nextElementSibling)}b.insertBefore(c,f)}}function d(a,b){b=b||document,b=b.createElement?b:b.ownerDocument;var c=b.createElement("style");return c.textContent=a,c}function e(a){return a&&a.__resource||""}function f(a,b){return q?q.call(a,b):void 0}var g=(window.logFlags||{},a.api.instance.styles),h=g.STYLE_SCOPE_ATTRIBUTE,i=window.ShadowDOMPolyfill,j="style",k="@import",l="link[rel=stylesheet]",m="global",n="polymer-scope",o={loadStyles:function(a){var b=this.fetchTemplate(),c=b&&this.templateContent();if(c){this.convertSheetsToStyles(c);var d=this.findLoadableStyles(c);if(d.length){var e=b.ownerDocument.baseURI;return Polymer.styleResolver.loadStyles(d,e,a)}}a&&a()},convertSheetsToStyles:function(a){for(var c,e,f=a.querySelectorAll(l),g=0,h=f.length;h>g&&(c=f[g]);g++)e=d(b(c,this.ownerDocument.baseURI),this.ownerDocument),this.copySheetAttributes(e,c),c.parentNode.replaceChild(e,c)},copySheetAttributes:function(a,b){for(var c,d=0,e=b.attributes,f=e.length;(c=e[d])&&f>d;d++)"rel"!==c.name&&"href"!==c.name&&a.setAttribute(c.name,c.value)},findLoadableStyles:function(a){var b=[];if(a)for(var c,d=a.querySelectorAll(j),e=0,f=d.length;f>e&&(c=d[e]);e++)c.textContent.match(k)&&b.push(c);return b},installSheets:function(){this.cacheSheets(),this.cacheStyles(),this.installLocalSheets(),this.installGlobalStyles()},cacheSheets:function(){this.sheets=this.findNodes(l),this.sheets.forEach(function(a){a.parentNode&&a.parentNode.removeChild(a)})},cacheStyles:function(){this.styles=this.findNodes(j+"["+n+"]"),this.styles.forEach(function(a){a.parentNode&&a.parentNode.removeChild(a)})},installLocalSheets:function(){var a=this.sheets.filter(function(a){return!a.hasAttribute(n)}),b=this.templateContent();if(b){var c="";if(a.forEach(function(a){c+=e(a)+"\n"}),c){var f=d(c,this.ownerDocument);b.insertBefore(f,b.firstChild)}}},findNodes:function(a,b){var c=this.querySelectorAll(a).array(),d=this.templateContent();if(d){var e=d.querySelectorAll(a).array();c=c.concat(e)}return b?c.filter(b):c},installGlobalStyles:function(){var a=this.styleForScope(m);c(a,document.head)},cssTextForScope:function(a){var b="",c="["+n+"="+a+"]",d=function(a){return f(a,c)},g=this.sheets.filter(d);g.forEach(function(a){b+=e(a)+"\n\n"});var h=this.styles.filter(d);return h.forEach(function(a){b+=a.textContent+"\n\n"}),b},styleForScope:function(a){var b=this.cssTextForScope(a);return this.cssTextToScopeStyle(b,a)},cssTextToScopeStyle:function(a,b){if(a){var c=d(a);return c.setAttribute(h,this.getAttribute("name")+"-"+b),c}}},p=HTMLElement.prototype,q=p.matches||p.matchesSelector||p.webkitMatchesSelector||p.mozMatchesSelector;a.api.declaration.styles=o,a.applyStyleToScope=c}(Polymer),function(a){var b=(window.logFlags||{},a.api.instance.events),c=b.EVENT_PREFIX,d={};["webkitAnimationStart","webkitAnimationEnd","webkitTransitionEnd","DOMFocusOut","DOMFocusIn","DOMMouseScroll"].forEach(function(a){d[a.toLowerCase()]=a});var e={parseHostEvents:function(){var a=this.prototype.eventDelegates;this.addAttributeDelegates(a)},addAttributeDelegates:function(a){for(var b,c=0;b=this.attributes[c];c++)this.hasEventPrefix(b.name)&&(a[this.removeEventPrefix(b.name)]=b.value.replace("{{","").replace("}}","").trim())},hasEventPrefix:function(a){return a&&"o"===a[0]&&"n"===a[1]&&"-"===a[2]},removeEventPrefix:function(a){return a.slice(f)},findController:function(a){for(;a.parentNode;){if(a.eventController)return a.eventController;a=a.parentNode}return a.host},getEventHandler:function(a,b,c){var d=this;return function(e){a&&a.PolymerBase||(a=d.findController(b));var f=[e,e.detail,e.currentTarget];a.dispatchMethod(a,c,f)}},prepareEventBinding:function(a,b){if(this.hasEventPrefix(b)){var c=this.removeEventPrefix(b);c=d[c]||c;var e=this;return function(b,d,f){function g(){return"{{ "+a+" }}"}var h=e.getEventHandler(void 0,d,a);return PolymerGestures.addEventListener(d,c,h),f?void 0:{open:g,discardChanges:g,close:function(){PolymerGestures.removeEventListener(d,c,h)}}}}}},f=c.length;a.api.declaration.events=e}(Polymer),function(a){var b={inferObservers:function(a){var b,c=a.observe;for(var d in a)"Changed"===d.slice(-7)&&(c||(c=a.observe={}),b=d.slice(0,-7),c[b]=c[b]||d)},explodeObservers:function(a){var b=a.observe;if(b){var c={};for(var d in b)for(var e,f=d.split(" "),g=0;e=f[g];g++)c[e]=b[d];a.observe=c}},optimizePropertyMaps:function(a){if(a.observe){var b=a._observeNames=[];for(var c in a.observe)for(var d,e=c.split(" "),f=0;d=e[f];f++)b.push(d)}if(a.publish){var b=a._publishNames=[];for(var c in a.publish)b.push(c)}if(a.computed){var b=a._computedNames=[];for(var c in a.computed)b.push(c)}},publishProperties:function(a,b){var c=a.publish;c&&(this.requireProperties(c,a,b),a._publishLC=this.lowerCaseMap(c))},requireProperties:function(a,b){b.reflect=b.reflect||{};for(var c in a){var d=a[c];d&&void 0!==d.reflect&&(b.reflect[c]=Boolean(d.reflect),d=d.value),void 0!==d&&(b[c]=d)}},lowerCaseMap:function(a){var b={};for(var c in a)b[c.toLowerCase()]=c;return b},createPropertyAccessor:function(a,b){var c=this.prototype,d=a+"_",e=a+"Observable_";c[d]=c[a],Object.defineProperty(c,a,{get:function(){var a=this[e];return a&&a.deliver(),this[d]},set:function(c){if(b)return this[d];var f=this[e];if(f)return void f.setValue(c);var g=this[d];return this[d]=c,this.emitPropertyChangeRecord(a,c,g),c},configurable:!0})},createPropertyAccessors:function(a){var b=a._computedNames;if(b&&b.length)for(var c,d=0,e=b.length;e>d&&(c=b[d]);d++)this.createPropertyAccessor(c,!0);var b=a._publishNames;if(b&&b.length)for(var c,d=0,e=b.length;e>d&&(c=b[d]);d++)a.computed&&a.computed[c]||this.createPropertyAccessor(c)}};a.api.declaration.properties=b}(Polymer),function(a){var b="attributes",c=/\s|,/,d={inheritAttributesObjects:function(a){this.inheritObject(a,"publishLC"),this.inheritObject(a,"_instanceAttributes")},publishAttributes:function(a){var d=this.getAttribute(b);if(d)for(var e,f=a.publish||(a.publish={}),g=d.split(c),h=0,i=g.length;i>h;h++)e=g[h].trim(),e&&void 0===f[e]&&(f[e]=void 0)},accumulateInstanceAttributes:function(){for(var a,b=this.prototype._instanceAttributes,c=this.attributes,d=0,e=c.length;e>d&&(a=c[d]);d++)this.isInstanceAttribute(a.name)&&(b[a.name]=a.value)},isInstanceAttribute:function(a){return!this.blackList[a]&&"on-"!==a.slice(0,3)},blackList:{name:1,"extends":1,constructor:1,noscript:1,assetpath:1,"cache-csstext":1}};d.blackList[b]=1,a.api.declaration.attributes=d}(Polymer),function(a){var b=a.api.declaration.events,c=new PolymerExpressions,d=c.prepareBinding;c.prepareBinding=function(a,e,f){return b.prepareEventBinding(a,e,f)||d.call(c,a,e,f)};var e={syntax:c,fetchTemplate:function(){return this.querySelector("template")},templateContent:function(){var a=this.fetchTemplate();return a&&a.content},installBindingDelegate:function(a){a&&(a.bindingDelegate=this.syntax)}};a.api.declaration.mdv=e}(Polymer),function(a){function b(a){if(!Object.__proto__){var b=Object.getPrototypeOf(a);a.__proto__=b,d(b)&&(b.__proto__=Object.getPrototypeOf(b))}}var c=a.api,d=a.isBase,e=a.extend,f=window.ShadowDOMPolyfill,g={register:function(a,b){this.buildPrototype(a,b),this.registerPrototype(a,b),this.publishConstructor()},buildPrototype:function(b,c){var d=a.getRegisteredPrototype(b),e=this.generateBasePrototype(c);this.desugarBeforeChaining(d,e),this.prototype=this.chainPrototypes(d,e),this.desugarAfterChaining(b,c)},desugarBeforeChaining:function(a,b){a.element=this,this.publishAttributes(a,b),this.publishProperties(a,b),this.inferObservers(a),this.explodeObservers(a)},chainPrototypes:function(a,c){this.inheritMetaData(a,c);var d=this.chainObject(a,c);return b(d),d},inheritMetaData:function(a,b){this.inheritObject("observe",a,b),this.inheritObject("publish",a,b),this.inheritObject("reflect",a,b),this.inheritObject("_publishLC",a,b),this.inheritObject("_instanceAttributes",a,b),this.inheritObject("eventDelegates",a,b)},desugarAfterChaining:function(a,b){this.optimizePropertyMaps(this.prototype),this.createPropertyAccessors(this.prototype),this.installBindingDelegate(this.fetchTemplate()),this.installSheets(),this.resolveElementPaths(this),this.accumulateInstanceAttributes(),this.parseHostEvents(),this.addResolvePathApi(),f&&Platform.ShadowCSS.shimStyling(this.templateContent(),a,b),this.prototype.registerCallback&&this.prototype.registerCallback(this)},publishConstructor:function(){var a=this.getAttribute("constructor");a&&(window[a]=this.ctor)},generateBasePrototype:function(a){var b=this.findBasePrototype(a);if(!b){var b=HTMLElement.getPrototypeForTag(a);b=this.ensureBaseApi(b),h[a]=b}return b},findBasePrototype:function(a){return h[a]},ensureBaseApi:function(a){if(a.PolymerBase)return a;var b=Object.create(a);return c.publish(c.instance,b),this.mixinMethod(b,a,c.instance.mdv,"bind"),b},mixinMethod:function(a,b,c,d){var e=function(a){return b[d].apply(this,a)};a[d]=function(){return this.mixinSuper=e,c[d].apply(this,arguments)}},inheritObject:function(a,b,c){var d=b[a]||{};b[a]=this.chainObject(d,c[a])},registerPrototype:function(a,b){var c={prototype:this.prototype},d=this.findTypeExtension(b);d&&(c.extends=d),HTMLElement.register(a,this.prototype),this.ctor=document.registerElement(a,c)},findTypeExtension:function(a){if(a&&a.indexOf("-")<0)return a;var b=this.findBasePrototype(a);return b.element?this.findTypeExtension(b.element.extends):void 0}},h={};g.chainObject=Object.__proto__?function(a,b){return a&&b&&a!==b&&(a.__proto__=b),a}:function(a,b){if(a&&b&&a!==b){var c=Object.create(b);a=e(c,a)}return a},c.declaration.prototype=g}(Polymer),function(a){function b(a){return document.contains(a)?j:i}function c(){return i.length?i[0]:j[0]}function d(a){f.waitToReady=!0,Platform.endOfMicrotask(function(){HTMLImports.whenReady(function(){f.addReadyCallback(a),f.waitToReady=!1,f.check()})})}function e(a){if(void 0===a)return void f.ready();var b=setTimeout(function(){f.ready()},a);Polymer.whenReady(function(){clearTimeout(b)})}var f={wait:function(a){a.__queue||(a.__queue={},g.push(a))},enqueue:function(a,c,d){var e=a.__queue&&!a.__queue.check;return e&&(b(a).push(a),a.__queue.check=c,a.__queue.go=d),0!==this.indexOf(a)},indexOf:function(a){var c=b(a).indexOf(a);return c>=0&&document.contains(a)&&(c+=HTMLImports.useNative||HTMLImports.ready?i.length:1e9),c},go:function(a){var b=this.remove(a);b&&(a.__queue.flushable=!0,this.addToFlushQueue(b),this.check())},remove:function(a){var c=this.indexOf(a);if(0===c)return b(a).shift()},check:function(){var a=this.nextElement();return a&&a.__queue.check.call(a),this.canReady()?(this.ready(),!0):void 0},nextElement:function(){return c()},canReady:function(){return!this.waitToReady&&this.isEmpty()},isEmpty:function(){for(var a,b=0,c=g.length;c>b&&(a=g[b]);b++)if(a.__queue&&!a.__queue.flushable)return;return!0},addToFlushQueue:function(a){h.push(a)},flush:function(){if(!this.flushing){this.flushing=!0;for(var a;h.length;)a=h.shift(),a.__queue.go.call(a),a.__queue=null;this.flushing=!1}},ready:function(){var a=CustomElements.ready;CustomElements.ready=!1,this.flush(),CustomElements.useNative||CustomElements.upgradeDocumentTree(document),CustomElements.ready=a,Platform.flush(),requestAnimationFrame(this.flushReadyCallbacks)},addReadyCallback:function(a){a&&k.push(a)},flushReadyCallbacks:function(){if(k)for(var a;k.length;)(a=k.shift())()},waitingFor:function(){for(var a,b=[],c=0,d=g.length;d>c&&(a=g[c]);c++)a.__queue&&!a.__queue.flushable&&b.push(a);return b},waitToReady:!0},g=[],h=[],i=[],j=[],k=[];a.elements=g,a.waitingFor=f.waitingFor.bind(f),a.forceReady=e,a.queue=f,a.whenReady=a.whenPolymerReady=d}(Polymer),function(a){function b(a){return Boolean(HTMLElement.getPrototypeForTag(a))}function c(a){return a&&a.indexOf("-")>=0}var d=a.extend,e=a.api,f=a.queue,g=a.whenReady,h=a.getRegisteredPrototype,i=a.waitingForPrototype,j=d(Object.create(HTMLElement.prototype),{createdCallback:function(){this.getAttribute("name")&&this.init()},init:function(){this.name=this.getAttribute("name"),this.extends=this.getAttribute("extends"),f.wait(this),this.loadResources(),this.registerWhenReady()},registerWhenReady:function(){this.registered||this.waitingForPrototype(this.name)||this.waitingForQueue()||this.waitingForResources()||f.go(this)},_register:function(){c(this.extends)&&!b(this.extends)&&console.warn("%s is attempting to extend %s, an unregistered element or one that was not registered with Polymer.",this.name,this.extends),this.register(this.name,this.extends),this.registered=!0},waitingForPrototype:function(a){return h(a)?void 0:(i(a,this),this.handleNoScript(a),!0)},handleNoScript:function(a){this.hasAttribute("noscript")&&!this.noscript&&(this.noscript=!0,Polymer(a))},waitingForResources:function(){return this._needsResources},waitingForQueue:function(){return f.enqueue(this,this.registerWhenReady,this._register)},loadResources:function(){this._needsResources=!0,this.loadStyles(function(){this._needsResources=!1,this.registerWhenReady()}.bind(this))}});e.publish(e.declaration,j),g(function(){document.body.removeAttribute("unresolved"),document.dispatchEvent(new CustomEvent("polymer-ready",{bubbles:!0}))}),document.registerElement("polymer-element",{prototype:j})}(Polymer),function(a){function b(a,b){a?(document.head.appendChild(a),d(b)):b&&b()}function c(a,c){if(a&&a.length){for(var d,e,f=document.createDocumentFragment(),g=0,h=a.length;h>g&&(d=a[g]);g++)e=document.createElement("link"),e.rel="import",e.href=d,f.appendChild(e);b(f,c)}else c&&c()}var d=a.whenPolymerReady;a.import=c,a.importElements=b}(Polymer),function(){var a=document.createElement("polymer-element");a.setAttribute("name","auto-binding"),a.setAttribute("extends","template"),a.init(),Polymer("auto-binding",{createdCallback:function(){this.syntax=this.bindingDelegate=this.makeSyntax(),Polymer.whenPolymerReady(function(){this.model=this,this.setAttribute("bind",""),this.async(function(){this.marshalNodeReferences(this.parentNode),this.fire("template-bound")})}.bind(this))},makeSyntax:function(){var a=Object.create(Polymer.api.declaration.events),b=this;a.findController=function(){return b.model};var c=new PolymerExpressions,d=c.prepareBinding;return c.prepareBinding=function(b,e,f){return a.prepareEventBinding(b,e,f)||d.call(c,b,e,f)},c}})}();
 //# sourceMappingURL=polymer.js.map;
 
+
+  Polymer('core-localstorage', {
+    
+    /**
+     * Fired when a value is loaded from localStorage.
+     * @event core-localstorage-load
+     */
+     
+    /**
+     * The key to the data stored in localStorage.
+     *
+     * @attribute name
+     * @type string
+     * @default null
+     */
+    name: '',
+    
+    /**
+     * The data associated with the specified name.
+     *
+     * @attribute value
+     * @type object
+     * @default null
+     */
+    value: null,
+    
+    /**
+     * If true, the value is stored and retrieved without JSON processing.
+     *
+     * @attribute useRaw
+     * @type boolean
+     * @default false
+     */
+    useRaw: false,
+    
+    /**
+     * If true, auto save is disabled.
+     *
+     * @attribute autoSaveDisabled
+     * @type boolean
+     * @default false
+     */
+    autoSaveDisabled: false,
+    
+    attached: function() {
+      // wait for bindings are all setup
+      this.async('load');
+    },
+    
+    valueChanged: function() {
+      if (this.loaded && !this.autoSaveDisabled) {
+        this.save();
+      }
+    },
+    
+    load: function() {
+      var v = localStorage.getItem(this.name);
+      if (this.useRaw) {
+        this.value = v;
+      } else {
+        // localStorage has a flaw that makes it difficult to determine
+        // if a key actually exists or not (getItem returns null if the
+        // key doesn't exist, which is not distinguishable from a stored
+        // null value)
+        // however, if not `useRaw`, an (unparsed) null value unambiguously
+        // signals that there is no value in storage (a stored null value would
+        // be escaped, i.e. "null")
+        // in this case we save any non-null current (default) value
+        if (v === null) {
+          if (this.value != null) {
+            this.save();
+          }
+        } else {
+          try {
+            v = JSON.parse(v);
+          } catch(x) {
+          }
+          this.value = v;
+        }
+      }
+      this.loaded = true;
+      this.asyncFire('core-localstorage-load');
+    },
+    
+    /** 
+     * Saves the value to localStorage.
+     *
+     * @method save
+     */
+    save: function() {
+      var v = this.useRaw ? this.value : JSON.stringify(this.value);
+      localStorage.setItem(this.name, v);
+    }
+    
+  });
+
+;
+
   (function() {
     /*
      * Chrome uses an older version of DOM Level 3 Keyboard Events
@@ -2046,6 +2144,11 @@ Polymer('esis-icon');;
             ptRegex1 : /^-?\d+\.?\d*$/,
             ptRegex2 : /^-?\d*\.\d+$/,
 
+            showCompare : false,
+            addingCompare : false,
+            compareLabel : false,
+            compareList : [],
+
             dsFilter : '',
             dsFilters : [],
             dsFilterValue : '',
@@ -2066,10 +2169,14 @@ Polymer('esis-icon');;
             maxWavelength : 0,
             minWavelength : 0,
 
+            resp : null,
+
             observe : {
                 filters : '_fireUpdate',
                 package : '_update',
-                dsFilter : '_updateFilterValues'
+                dsFilter : '_updateFilterValues',
+                compareList : '_compareUpdated',
+                showCompare : '_createTableArray'
             },
 
             ready : function() {
@@ -2147,6 +2254,12 @@ Polymer('esis-icon');;
                 this._updateDataTable(false);
             },
 
+            _compareUpdated : function() {
+                if( this.showCompare ) {
+                    this._updateDataTable(false);
+                }
+            },
+
             _updateDataTable : function(resetWavelengths) {
                 this.loading = true;
 
@@ -2166,65 +2279,128 @@ Polymer('esis-icon');;
                 $.ajax({
                     url : url,
                     success : function(resp) {
-                        this.metadata = [];
-                        this.indexes = [];
-                        this.wavelengths = [];
                         this.totalSpectra = resp.total;
-                        resp = resp.item;
-
-                        for( var i = 0; i < this.totalSpectra; i++ ) this.indexes.push(i);
-
-                        this.dataArray = [];
-                        var pt;
-                        for( var i = 0; i < resp.datapoints.length; i++ ) {
-                            pt = resp.datapoints[i];
-                            if( this.ptRegex1.exec(pt.key) || this.ptRegex2.exec(pt.key) ) {
-                                this.dataArray.push([parseFloat(pt.key), parseFloat(pt.value)]);
-                            } else {
-                                metadata.push(pt);
-                            }
-                        }
-
-
-                        for( var key in resp ) {
-                            if( this.ignoreList.indexOf(key) == -1 && typeof resp[key] == 'string' && resp[key] != '' ) {
-                                this.metadata.push({
-                                    key : key,
-                                    value : resp[key],
-                                    class : this._getMetadataClass(key, resp[key])
-                                })
-                            }
-                        }
-
-                        this.dataArray.sort(function(a, b){
-                            if( a[0] < b[0] ) return -1;
-                            if( a[0] > b[0] ) return 1;
-                            return 0;
-                        });
-                        for( var i = 0; i < this.dataArray.length; i++ ) {
-                            this.wavelengths.push(this.dataArray[i][0]);
-                        }
-
-                        if( resetWavelengths ) {
-                            this.setWavelength('min', this.wavelengths[0]);
-                            this.setWavelength('max', this.wavelengths[this.wavelengths.length-1]);
-                        } else {
-                            if( this.minWavelength < this.wavelengths[0] ) {
-                                this.setWavelength('min', this.wavelengths[0]);
-                            }
-                            if( this.maxWavelength > this.wavelengths[this.wavelengths.length-1] ) {
-                                this.setWavelength('max', this.wavelengths[this.wavelengths.length-1]);
-                            }
-                        }
-
-                        this.dataArray.splice(0,0,['Wavelength','Reflectance']);
-
-                        this.filterByWavelength();
-                        this.loading = false;
+                        this.resp = resp.item;
+                        this._createTableArray(resetWavelengths);
                     }.bind(this)
                 });
 
                 this.rest = window.location.origin+url;
+            },
+
+            _createTableArray : function(resetWavelengths) {
+                if( typeof resetWavelengths == 'object' ) resetWavelengths = false;
+
+                this.metadata = [];
+                this.indexes = [];
+                this.wavelengths = [];
+
+                for( var i = 0; i < this.totalSpectra; i++ ) this.indexes.push(i);
+
+                this.dataArray = [];
+                var wavelengthHash = {}, hasCurrent = false;
+                
+                if( this.showCompare ) {
+                    var i;
+                    for( i = 0; i < this.compareList.length; i++ ) {
+                        this._addToDataArray(this.compareList[i].spectra, wavelengthHash, i);
+                        if( this.compareList[i].spectra._id == this.resp._id ) hasCurrent = true;
+                    }
+                    if( !hasCurrent ) {
+                        this._addToDataArray(this.resp, wavelengthHash, i);
+                    }
+
+                    for( var key in wavelengthHash ) {
+                        this.dataArray.push( wavelengthHash[key] );
+                    }
+
+                } else {
+                    for( var i = 0; i < this.resp.datapoints.length; i++ ) {
+                        pt = this.resp.datapoints[i];
+                        if( this.ptRegex1.exec(pt.key) || this.ptRegex2.exec(pt.key) ) {
+                            this.dataArray.push([parseFloat(pt.key), parseFloat(pt.value)]);
+                        } else {
+                            metadata.push(pt);
+                        }
+                    }
+                }
+
+
+                for( var key in this.resp ) {
+                    if( this.ignoreList.indexOf(key) == -1 && typeof this.resp[key] == 'string' && this.resp[key] != '' ) {
+                        this.metadata.push({
+                            key : key,
+                            value : this.resp[key],
+                            class : this._getMetadataClass(key, this.resp[key])
+                        })
+                    }
+                }
+
+                this.dataArray.sort(function(a, b){
+                    if( a[0] < b[0] ) return -1;
+                    if( a[0] > b[0] ) return 1;
+                    return 0;
+                });
+                for( var i = 0; i < this.dataArray.length; i++ ) {
+                    this.wavelengths.push(this.dataArray[i][0]);
+                }
+
+                if( resetWavelengths ) {
+                    this.setWavelength('min', this.wavelengths[0]);
+                    this.setWavelength('max', this.wavelengths[this.wavelengths.length-1]);
+                } else {
+                    if( this.minWavelength < this.wavelengths[0] ) {
+                        this.setWavelength('min', this.wavelengths[0]);
+                    }
+                    if( this.maxWavelength > this.wavelengths[this.wavelengths.length-1] ) {
+                        this.setWavelength('max', this.wavelengths[this.wavelengths.length-1]);
+                    }
+                }
+
+                if( this.showCompare ) {
+                    var header = ['Wavelength'];
+                    for( var i = 0; i < this.compareList.length; i++ ) {
+                        if( this.compareList[i].spectra._id == this.resp._id ) {
+                            header.push(this.compareList[i].name+' (Current)');
+                        } else {
+                            header.push(this.compareList[i].name);
+                        }
+                    }
+                    if( !hasCurrent ) {
+                        header.push('Current');
+                    }
+                    this.dataArray.splice(0,0,header);
+                } else {
+                    this.dataArray.splice(0,0,['Wavelength','Reflectance']);
+                }
+                
+
+                this.filterByWavelength();
+                this.loading = false;
+            },
+
+            _addToDataArray : function(spectra, wavelengthHash, i) {
+                var cWaves = [], pt;
+                for( var j = 0; j < spectra.datapoints.length; j++ ) {
+                    pt = spectra.datapoints[j];
+
+                    if( this.ptRegex1.exec(pt.key) || this.ptRegex2.exec(pt.key) ) {
+                        if( wavelengthHash[pt.key] !== undefined ) {
+                            wavelengthHash[pt.key].push(parseFloat(pt.value));
+                        } else {
+                            wavelengthHash[pt.key] = [parseFloat(pt.key)];
+                            for( var z = 0; z < i; z++ ) wavelengthHash[pt.key].push(null);
+                            wavelengthHash[pt.key].push(parseFloat(pt.value));
+                        }
+                        cWaves.push(pt.key);
+                    }
+                }
+
+                // add any waves this one is missing
+                for( var key in wavelengthHash ) {
+                    if( cWaves.indexOf(key) > -1 ) continue;
+                    wavelengthHash[key].push(null);
+                }
             },
 
             setWavelength : function(type, value) {
@@ -2257,7 +2433,10 @@ Polymer('esis-icon');;
                 for( var i = 1; i < this.dataArray.length; i++ ) {
                     if( this.dataArray[i][0] >= this.minWavelength && 
                         this.dataArray[i][0] <= this.maxWavelength ) {
-                        arr.push([this.dataArray[i][0]+'', this.dataArray[i][1]]);
+
+                        var clone = this.dataArray[i].slice(0);
+                        clone[0] = clone[0]+'';
+                        arr.push(clone);
                     }
                 }
 
@@ -2355,6 +2534,50 @@ Polymer('esis-icon');;
 
             toggleAdvanced : function() {
                 this.showAdvanced = !this.showAdvanced;
+            },
+
+            startCompareAdd : function() {
+                if( this.compareList.length >= 10 ) {
+                    return alert('You can only compare up to 10 spectra a one time.  Please remove one spectra then retry.');
+                }
+
+                for( var i = 0; i < this.compareList.length; i++ ) {
+                    if( this.compareList[i].spectra._id == this.resp._id ) {
+                        return alert('This spectra is already in your compare list');
+                    }
+                }
+
+                this.addingCompare = true;
+                this.compareLabel = this._getLabel(this.item.ecosis.package_title, 0);
+            },
+
+            removeCompare : function(e) {
+                var index = parseInt(e.currentTarget.getAttribute('index'));
+                this.compareList.splice(index, 1);
+            },
+
+            cancelAddCompare : function() {
+                this.addingCompare = false;
+            },
+
+            addCompare : function() {
+                this.compareList.push({
+                    name : this.compareLabel,
+                    spectra : this.resp
+                });
+                this.addingCompare = false;
+                this.showCompare = true;
+            },
+
+            _getLabel : function(label, index) {
+                var l = (index == 0) ? label : label+' - '+index;
+                for( var i = 0; i < this.compareList.length; i++ ) {
+                    if( this.compareList[i].name == l ) {
+                        index++;
+                        return this._getLabel(label, index);
+                    } 
+                }
+                return l;
             }
 
         });

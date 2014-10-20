@@ -296,6 +296,38 @@ html /deep/ [segment], html /deep/ segment {
 
 
 <!--<link rel="import" href="../polymer-dev/polymer.html">--> </div>
+<div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+Element access to localStorage.  The "name" property
+is the key to the data ("value" property) stored in localStorage.
+
+`core-localstorage` automatically saves the value to localStorage when
+value is changed.  Note that if value is an object auto-save will be
+triggered only when value is a different instance.
+
+    <core-localstorage name="my-app-storage" value="{{value}}"></core-localstorage>
+
+@group Polymer Core Elements
+@element core-localstorage
+@blurb Element access to localStorage.
+@url github.io
+@categories Data
+-->
+
+
+
+<polymer-element name="core-localstorage" attributes="name value useRaw autoSaveDisabled" hidden assetpath="../app/bower_components/core-localstorage/">
+
+</polymer-element>
+</div>
 
 <div hidden><!--
 Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
@@ -3724,7 +3756,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             esis-icon {
                 color: #428bca;
             }
+            .addLabel {
+                padding: 5px;
+                margin: 2px;
+                background: #eee;
+                border-radius: 6px;
+            }
         </style>
+
+        <core-localstorage name="esis_compare" value="{{compareList}}"></core-localstorage>
 
         <div layout="" horizontal="">
             <div hidden?="{{filters.length == 0}}">
@@ -3749,8 +3789,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <a class="btn btn-link" on-tap="{{toggleAdvanced}}"><esis-icon icon="fa-cogs"></esis-icon> Advanced</a>
             </div>
             <div class="advanced" hidden?="{{!showAdvanced}}">
+                <h4>Compare Spectra</h4>
+                <table class="table">
+                    <tr>
+                        <td>
+                            <a class="btn btn-default" on-tap="{{startCompareAdd}}"><esis-icon icon="fa-plus"></esis-icon> Add to Compare List</a>
+                            <div hidden?="{{!addingCompare}}" class="addLabel">
+                                Specta Label: <input type="text" value="{{compareLabel}}">
+                                <a class="btn btn-default" on-tap="{{addCompare}}"><esis-icon icon="fa-plus"></esis-icon> Add</a>
+                                <a class="btn btn-default" on-tap="{{cancelAddCompare}}">Cancel</a>
+                            </div>
+                        </td>
+                        <td align="right">
+                            <input type="checkbox" checked="{{showCompare}}"> Show Compare Spectra
+                        </td>
+                    </tr>
+                    <tr hidden?="{{!showCompare}}">
+                        <td colspan="2">
+                            <h6>Comparing:</h6>
+                            <template repeat="{{spectra, i in compareList}}">
+                                <a class="btn btn-default" index="{{i}}" on-tap="{{removeCompare}}"><esis-icon icon="fa-remove"></esis-icon> {{spectra.name}}</a>
+                            </template>
+                        </td>
+                    </tr>
+                </table>
 
-                <h4>Set Wavelength Range</h4>
+
+
+                <h4 style="margin-top:40px">Set Wavelength Range</h4>
                 <table class="table">
                     <tr>
                         <td>Min Wavelength ({{wavelengths[0]}})</td>
@@ -3766,7 +3832,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </tr>
                 </table>
 
-                <h4>Add Filter from Dataset</h4>
+                <h4 style="margin-top:40px">Add Filter from Dataset</h4>
                 <table class="table">
                     <tr>
                         <td>Attribute</td>
