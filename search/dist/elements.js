@@ -1997,6 +1997,41 @@ Polymer('core-style', {
   });
 
 ;
+Polymer('esis-icon');;
+
+        Polymer('esis-data-downloader', {
+            fitlers : [],
+            includeMetadata : false,
+            linkUrl : '',
+            package_id : '',
+            filteredOnly : false,
+            allData : true,
+
+            observe : {
+                filters : '_update',
+                includeMetadata : '_update',
+                filteredOnly : '_update',
+                allData : '_update'
+            },
+
+            _update : function() {
+                var f = [];
+
+                if( this.filteredOnly ) {
+                    for( var i = 0; i < this.filters.length; i++ ) {
+                        var obj = {};
+                        obj[this.filters[i].key] = this.filters[i].value;
+                        f.push(obj);
+                    }
+                }
+                
+
+                this.linkUrl = '/rest/download?package_id='+this.package_id+
+                    (f.length > 0 ? '&filters='+encodeURIComponent(JSON.stringify(f)) : '')+
+                    '&metadata='+(this.includeMetadata ? 'true' : 'false');
+            }
+        });
+    ;
 
         Polymer('esis-spectra-viewer', {
             dt : null,
@@ -2032,6 +2067,7 @@ Polymer('core-style', {
             minWavelength : 0,
 
             observe : {
+                filters : '_fireUpdate',
                 package : '_update',
                 dsFilter : '_updateFilterValues'
             },
@@ -2055,6 +2091,10 @@ Polymer('core-style', {
             
             print : function() {
                 window.open(this.chart.getImageURI());
+            },
+
+            _fireUpdate : function() {
+                this.fire('filters-updated', this.filters);
             },
 
             _update : function() {

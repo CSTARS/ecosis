@@ -37,6 +37,9 @@
                 box-shadow: 0 0 5px #888 inset;
                 margin: 0px 10px 25px 20px;
             }
+            esis-icon {
+                color: #428bca;
+            }
         </style>
 
         <div layout horizontal>
@@ -45,7 +48,7 @@
             </div>
             <div flex>
                 <template repeat="{{filter, i in filters}}">
-                    <a class="btn btn-default" filterIndex="{{i}}" on-click="{{removeFilter}}"><span style="color:#888">{{filter.key}}:</span> <b>{{filter.value}}</b></a>
+                    <a class="btn btn-default" filterIndex="{{i}}" on-click="{{removeFilter}}" title="Remove Filter"><esis-icon icon="fa-remove"></esis-icon> <span style="color:#888">{{filter.key}}:</span> <b>{{filter.value}}</b></a>
                 </template>
             </div>
         </div>
@@ -59,7 +62,7 @@
 
         <div>
             <div>
-                <a class="btn btn-link" on-tap="{{toggleAdvanced}}">Advanced</a>
+                <a class="btn btn-link" on-tap="{{toggleAdvanced}}"><esis-icon icon="fa-cogs"></esis-icon> Advanced</a>
             </div>
             <div class="advanced" hidden?="{{!showAdvanced}}">
 
@@ -116,16 +119,17 @@
                     of {{totalSpectra}}
                 </div>
                 <div style="margin-bottom: 15px">
-                    <a class="btn btn-default" on-tap="{{print}}">Printable Version</a>
+                    <a class="btn btn-default" on-tap="{{print}}"><esis-icon icon="fa-print"></esis-icon> Printable Chart</a>
                 </div>
                 <div>
-                    <a class="btn btn-default" href="{{rest}}" target="_blank">Rest Link</a>
+                    <a class="btn btn-default" href="{{rest}}" target="_blank"><esis-icon icon="fa-link"></esis-icon> Developer Rest Link</a>
                 </div>
             </div>
             <div flex>
                 <div class="metadata" hidden?="{{metadata.length == 0 }}">
                     <template repeat="{{m in metadata}}">
-                        <div class="{{m.class}}" filterKey="{{m.key}}" filterValue="{{m.value}}" on-click="{{addFilterFromBtn}}">
+                        <div class="{{m.class}}" filterKey="{{m.key}}" filterValue="{{m.value}}" on-click="{{addFilterFromBtn}}" title="Add Filter">
+                            <esis-icon icon="fa-plus-circle" hidden?="{{m.class == 'selected'}}"></esis-icon>
                             <span style="color:#888">{{m.key}}:</span> <b>{{m.value}}</b>
                         </div>
                     </template>
@@ -169,6 +173,7 @@
             minWavelength : 0,
 
             observe : {
+                filters : '_fireUpdate',
                 package : '_update',
                 dsFilter : '_updateFilterValues'
             },
@@ -192,6 +197,10 @@
             
             print : function() {
                 window.open(this.chart.getImageURI());
+            },
+
+            _fireUpdate : function() {
+                this.fire('filters-updated', this.filters);
             },
 
             _update : function() {

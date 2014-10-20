@@ -3,7 +3,7 @@ exports.debug = true;
 
 exports.node = 'node';
 
-exports.dev = false;
+exports.dev = true;
 
 exports.db = {
 	//initd           : "mongod --port 27017",

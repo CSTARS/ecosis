@@ -1,0 +1,83 @@
+<polymer-element name="esis-data-downloader" attributes="filters">
+    <template>
+        <style>
+            .help {
+                font-size: 12px;
+                color: #888;
+                padding: 5px 5px 5px 15px;
+            }
+            .btn {
+                font-size: 28px !important;
+            }
+        </style>
+
+        <div layout horizontal>
+            <div>
+                <h4>Options</h4>
+                <div style="margin-left: 25px">
+                    <div>
+                        <input type="checkbox" checked="{{includeMetadata}}"> Include Metadata
+                        <div class="help">Include the metadata fields in the download.</div>
+                    </div>
+                    <div style="margin-top:5px;padding-top: 5px; border-top: 1px solid #eee">
+                        <div>
+                            <input type="radio" name="downloadType" checked="{{allData}}"> All Data
+                        </div>
+                        <div class="help">Download the entire dataset.</div>
+
+                        <div>
+                            <input type="radio" name="downloadType" checked="{{filteredOnly}}"> Filtered Data<br />
+                        </div>
+                        <div class="help">
+                            Download only the data matching the following filters:<br />
+                            <div style="padding-left:15px">
+                                <template repeat="{{filter in filters}}">
+                                    {{filter.key}}: {{filter.value}}<br />
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div flex style="position:relative">
+                <div horizontal layout center center-justified style="position: absolute;height:100%;width:100%">
+                    <a class="btn btn-primary" href="{{linkUrl}}" target="_blank"><esis-icon icon="fa-download"></esis-icon> Download</a>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        Polymer('esis-data-downloader', {
+            fitlers : [],
+            includeMetadata : false,
+            linkUrl : '',
+            package_id : '',
+            filteredOnly : false,
+            allData : true,
+
+            observe : {
+                filters : '_update',
+                includeMetadata : '_update',
+                filteredOnly : '_update',
+                allData : '_update'
+            },
+
+            _update : function() {
+                var f = [];
+
+                if( this.filteredOnly ) {
+                    for( var i = 0; i < this.filters.length; i++ ) {
+                        var obj = {};
+                        obj[this.filters[i].key] = this.filters[i].value;
+                        f.push(obj);
+                    }
+                }
+                
+
+                this.linkUrl = '/rest/download?package_id='+this.package_id+
+                    (f.length > 0 ? '&filters='+encodeURIComponent(JSON.stringify(f)) : '')+
+                    '&metadata='+(this.includeMetadata ? 'true' : 'false');
+            }
+        });
+    </script>
+</polymer-element>

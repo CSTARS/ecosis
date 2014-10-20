@@ -80,7 +80,14 @@ ESIS.result = (function() {
 
 				var table = '<table class="table">';
 
-				// set keywords
+				if( resp.organization ) {
+					table += '<tr><td>Organization</td><td>';
+					if( resp.organization.image_url && resp.organization.image_url != '' ) {
+						table += '<img style="max-width:300px" src="'+ESIS.ckanHost+'/uploads/group/'+resp.organization.image_url+'" /><br />';
+					}
+					table += wrapFilterLink('ecosis.organization', resp.organization.title, true);
+				}
+
 				table += '<tr><td>Description</td><td>'+result.ecosis.description+'</td></tr>';
 
 				// set keywords
@@ -100,15 +107,27 @@ ESIS.result = (function() {
 				}
 				table += '</td></tr>';
 
+				if( resp.metadata_created ) {
+					table += '<tr><td>Uploaded</td><td>'+(new Date(resp.metadata_created).toLocaleDateString())+'</td></tr>';
+				}
+				
+
 				table += '</table>'
 
 				$('#dataset-content').html(table);
 
 
 				// set package info for data viewer
-				document.querySelector('esis-data-viewer').package = resp;
-				document.querySelector('esis-data-viewer').item = result;
-				document.querySelector('esis-data-viewer').spectra_count = result.ecosis.spectra_count;
+				var viewer = document.querySelector('esis-data-viewer');
+				var downloader = document.querySelector('esis-data-downloader');
+				viewer.package = resp;
+				viewer.item = result;
+				viewer.spectra_count = result.ecosis.spectra_count;
+
+				downloader.package_id = resp.id;
+				viewer.addEventListener('filters-updated', function(e){
+					downloader.filters = e.detail;
+				});
 			}
 		});
 
@@ -117,11 +136,11 @@ ESIS.result = (function() {
 			$(window).trigger("back-to-search-event");
 		});
 
-		$('#export-go').on('click', function(){
+		/*$('#export-go').on('click', function(){
 			window.open('/rest/download?package_id='+result.ecosis.package_id+
 				'&metadata='+($('#export-metadata').is(':checked') ? 'true' : 'false')
 				,'Download'); 
-		});
+		});*/
 
 		// set nav handler
 		$('a[goto]').on('click', function(){

@@ -5,12 +5,19 @@
 
 exports.download = function(collections, req, res) {
     var pkgid = req.query.package_id;
+    var filters = req.query.filters;
     var includeMetadata = req.query.metadata == 'true';
 
     var ignoreList = ['_id', 'datapoints', 'ecosis'];
 
     if( pkgid == null ) {
         return sendError(res, 'package_id is required');
+    }
+
+    try {
+        if( filters ) filters = JSON.parse(filters);
+    } catch(e) {
+        return sendError(res, e);
     }
 
     collections.package.find({'package_id': pkgid}).toArray(function(err, resp){
@@ -60,7 +67,12 @@ exports.download = function(collections, req, res) {
             res.write(metadata.join(','));
         }
 
-        var cursor = collections.spectra.find({'ecosis.package_id': pkgid});
+        var query = {'ecosis.package_id': pkgid};
+        if( filters ) query['$and'] = filters;
+
+        console.log(filters);
+
+        var cursor = collections.spectra.find(query);
         if( sort ) {
             cursor.sort([['ecosis.sort', 1]]);
         }
@@ -77,7 +89,7 @@ exports.download = function(collections, req, res) {
                 line += ',';
                 len = metadata.length;
                 for( var i = 0; i < len; i++ ) {
-                    line += item[metadata[i]];
+                    line += item[metadata[i]] === undefined ? '' : item[metadata[i]];
                     if( i < len - 1 ) line += ','
                 }
             }
@@ -107,14 +119,16 @@ function getPoint(key, pts) {
 exports.getSpectra = function(collections, req, res) {
     var pkgid = req.query.package_id;
     var filters = req.query.filters;
-    var index = req.query.index;
+    var index = req.query.index || 0;
 
-    if( pkgid == null || index == null ) {
-        return sendError(res, 'package_id and index are required');
+    if( pkgid == null ) {
+        return sendError(res, 'package_id is required');
     }
 
     try {
         index = parseInt(index);
+        if( isNaN(index) ) index = 0;
+
         if( filters ) filters = JSON.parse(filters);
     } catch(e) {
         return sendError(res, e);
@@ -146,6 +160,7 @@ exports.getSpectra = function(collections, req, res) {
                 res.send({
                     item : {},
                     total : 0,
+                    index : index,
                     message : 'No spectra found for this filter'
                 });
                 return;
@@ -160,6 +175,7 @@ exports.getSpectra = function(collections, req, res) {
             cur.toArray(function(err, resp){
                 if( err ) return sendError(res, err);
                 var respObj = {
+                    index : index,
                     total : count,
                     item : {}
                 }
