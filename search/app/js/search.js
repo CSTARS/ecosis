@@ -261,15 +261,15 @@ ESIS.search = (function() {
 	}
 
 	function _getTitle(item) {
-		var group_by = '';
+		/*var group_by = '';
 		if( item.ecosis.group_by && item.ecosis.group_by != '' ) {
 			if( item[item.ecosis.group_by] && item[item.ecosis.group_by].length > 0 ) {
 				group_by = ' ('+item.ecosis.group_by+': '+item[item.ecosis.group_by][0]+')';
 			}
-		}
+		}*/
 
-		if( item.ecosis.package_title ) return item.ecosis.package_title+group_by;
-		if( item.ecosis.package_name ) return item.ecosis.package_name+group_by;
+		if( item.ecosis.package_title ) return item.ecosis.package_title;
+		if( item.ecosis.package_name ) return item.ecosis.package_name;
 		return 'No Title';
 	}
 

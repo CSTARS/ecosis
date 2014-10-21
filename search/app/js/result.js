@@ -36,15 +36,15 @@ ESIS.result = (function() {
 	}
 
 	function getTitle(item) {
-		var group_by = '';
+		/*var group_by = '';
 		if( item.ecosis.group_by && item.ecosis.group_by != '' ) {
 			if( item[item.ecosis.group_by] && item[item.ecosis.group_by].length > 0 ) {
 				group_by = ' ('+item.ecosis.group_by+': '+item[item.ecosis.group_by][0]+')';
 			}
-		}
+		}*/
 
-		if( item.ecosis.package_title ) return item.ecosis.package_title+group_by;
-		if( item.ecosis.package_name ) return item.ecosis.package_name+group_by;
+		if( item.ecosis.package_title ) return item.ecosis.package_title;
+		if( item.ecosis.package_name ) return item.ecosis.package_name;
 		return 'No Title';
 	}
 	
@@ -63,7 +63,7 @@ ESIS.result = (function() {
 
 		var metadata = '<table class="table">';
 		for( var key in result ) {
-			if( ignoreAttrs.indexOf(key) == -1 && result[key] ) {
+			if( ignoreAttrs.indexOf(key) == -1 && result[key] && (result[key].length / result.ecosis.spectra_count) < .05 ) {
 				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
 
 				metadata += "<tr><td>"+label+"</td><td><div style='max-height:100px;overflow:auto'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";

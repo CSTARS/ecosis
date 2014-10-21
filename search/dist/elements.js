@@ -2170,6 +2170,7 @@ Polymer('esis-icon');;
             minWavelength : 0,
 
             resp : null,
+            xhr : null,
 
             observe : {
                 filters : '_fireUpdate',
@@ -2276,9 +2277,13 @@ Polymer('esis-icon');;
 
                 var url = '/rest/getSpectra?package_id='+this.package.id+filters+'&index='+this.selectedIndex;
 
-                $.ajax({
+                if( this.xhr != null ) this.xhr.abort();
+
+                this.xhr = $.ajax({
                     url : url,
                     success : function(resp) {
+                        this.xhr = null;
+                        
                         this.totalSpectra = resp.total;
                         this.resp = resp.item;
                         this._createTableArray(resetWavelengths);
