@@ -13,6 +13,8 @@ var async = require('async');
 
 var data = require('./lib/data.js');
 
+var exec = require('child_process').exec;
+
 var collection;
 var spectraCollection;
 var packageCollection;
@@ -243,6 +245,12 @@ exports.bootstrap = function(server) {
         });
     });
 
+    server.app.get('/rest/gitInfo', function(req, resp){
+        gitInfo(function(txt){
+            resp.send(txt);
+        });
+    });
+
     if( config.dev ) {
         server.app.use("/", server.express.static(__dirname+"/app"));
         console.log('using: '+__dirname+"/app");
@@ -252,6 +260,32 @@ exports.bootstrap = function(server) {
     }
     
 };
+
+function gitInfo(callback) {
+    var c = 0;
+    var resp = {};
+    function onResp(key, text) {
+        resp[key] = text;
+        c++;
+        if( c == 3 ) callback(resp);
+    }
+
+    exec('git describe --tags', {cwd: __dirname},
+      function (error, stdout, stderr) {
+        onResp('tag', stdout);
+      }
+    );
+    exec('git branch | grep \'\\*\'', {cwd: __dirname},
+      function (error, stdout, stderr) {
+        onResp('branch', stdout ? stdout.replace(/\*/,'').replace(/\s/g,'') : '');
+      }
+    );
+    exec('git log  -1 | sed -n 1p', {cwd: __dirname},
+      function (error, stdout, stderr) {
+        onResp('commit', stdout ? stdout.replace(/commit\s/,'') : '');
+      }
+    );
+}
 
 
 function getQueryIdsAndCounts(options, callback) {

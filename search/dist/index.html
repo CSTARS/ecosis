@@ -150,5 +150,15 @@
 	<div class="alert alert-info" style="display:inline-block;box-shadow: 0 0 5px white">Loading...</div>
 </div>
 
+<div id="gitInfo" style="padding:30px; color: #888; font-size: 12px; font-style: italic"></div>
+<script>
+	$.get('/rest/gitInfo', function(resp){
+		var html = '';
+		if( resp && resp.branch == 'master' ) return;
+		for( var key in resp ) html += '<div><b>'+key+':</b> '+resp[key]+'</div>';
+		$('#gitInfo').html(html);
+	});
+</script>
+
 </body>
 </html>
