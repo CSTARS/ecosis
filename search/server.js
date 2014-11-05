@@ -270,19 +270,19 @@ function gitInfo(callback) {
         if( c == 3 ) callback(resp);
     }
 
-    exec('git describe --tags | sed -n 1p',
+    exec('git describe --tags', {cwd: __dirname},
       function (error, stdout, stderr) {
         onResp('tag', stdout);
       }
     );
-    exec('git branch | grep \'\\*\'',
+    exec('git branch | grep \'\\*\'', {cwd: __dirname},
       function (error, stdout, stderr) {
         onResp('branch', stdout ? stdout.replace(/\*/,'').replace(/\s/g,'') : '');
       }
     );
-    exec('git log  -1 | sed -n 1p',
+    exec('git log  -1 | sed -n 1p', {cwd: __dirname},
       function (error, stdout, stderr) {
-        onResp('commit', stdout);
+        onResp('commit', stdout ? stdout.replace(/commit\s/,'') : '');
       }
     );
 }
