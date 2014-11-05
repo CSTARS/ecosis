@@ -9,8 +9,8 @@ exports.db = {
 	//initd           : "mongod --port 27017",
 
 	// connection string for the database, includes database name
-	//url             : "mongodb://localhost:27017/esis",
-	url             : "mongodb://192.168.1.6:27018/esis",
+	url             : "mongodb://localhost:27017/esis",
+	//url             : "mongodb://192.168.1.6:27018/esis",
 	
 	// collection where the queryable items are stored
 	mainCollection  : "search",
