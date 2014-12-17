@@ -56,13 +56,13 @@
 
 <div id="home" style="display:none; padding:2% 6%">
 	<div class="jumbotron">
-	  <h1 style="text-shadow: 2px 2px 0px white"><i class="fa fa-leaf"></i> EcoSIS Spectral Library</h1>
+	  <h1 style="text-shadow: 2px 2px 0px white"><i class="fa fa-leaf"></i> EcoSIS Spectral Library <span class="sandbox">Sandbox</span></h1>
 	  <p>Welcome to the EcoSIS Spectral Library, a useful tool for finding spectral data</p>
 	  <p><a href="/#search" class="btn btn-primary btn-lg" role="button"><i class="fa fa-search"></i>  Find Spectra</a></p>
 	</div>
 
 	<div style="margin-top:30px; text-align:center">
-		Data maintainers, <a href="http://data.ecospectra.org">enter here</a>
+		Data maintainers, <a id="mainainerLink" href="http://data.ecospectra.org">Enter Here</a>
 	</div>
 	
 </div>
@@ -71,7 +71,7 @@
 	<div class="page-header" style="margin:0px">
 		<div class="row">
 			<div class="col-md-9">
-				<h4>EcoSIS Spectral Library</h4>
+				<h4>EcoSIS Spectral Library <span class="sandbox">Sandbox</span></h4>
 			</div>
 			<div class="col-md-3">
 				<a class='btn btn-primary pull-right' href="/#home" style="margin:5px">
@@ -175,6 +175,11 @@
 		for( var key in resp ) html += '<div><b>'+key+':</b> '+resp[key]+'</div>';
 		$('#gitInfo').html(html);
 	});
+
+	if( window.location.hostname == 'dev-search.ecospectra.org' ) {
+		$('.sandbox').show();
+		$('#mainainerLink').attr('href','http://dev-data.ecospectra.org');
+	}
 </script>
 
 </body>

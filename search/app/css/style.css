@@ -2,6 +2,10 @@
  * General CSS
  ******/
 
+.sandbox {
+	display: none;
+}
+
 .card {
 	padding: 15px;
 	margin: 20px;
