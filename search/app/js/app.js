@@ -1,7 +1,7 @@
 var ESIS = {
 	widgets : {},
 	ckanHost : (window.location.host == 'ecospectra.org') ?
-				'http://data.ecospectra.org' : 'http://192.168.1.6:5000'
+				'http://data.ecospectra.org' : 'http://192.168.56.101:5000'
 };
 
 ESIS.app = (function() {
@@ -19,7 +19,7 @@ ESIS.app = (function() {
 			_updatePageContent(hash);
 		});
 		
-		CERES.mqe.init({defaultPage:DEFAULT_PAGE});
+		MQE.init({defaultPage:DEFAULT_PAGE});
 		ESIS.home.init();
 		ESIS.search.init();
 		ESIS.result.init();

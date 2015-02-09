@@ -64,16 +64,16 @@ ESIS.search = (function() {
 	}
 	
 	function _search() {
-		var query = CERES.mqe.getCurrentQuery();
+		var query = MQE.getCurrentQuery();
 		query.page = 0;
 		query.text = $("#search-text").val();
-		window.location = CERES.mqe.queryToUrlString(query);
+		window.location = MQE.queryToUrlString(query);
 	}
 	
 	
 	function _updateActiveFilters() {
 		var panel = $("#active-filters").html("");
-		var query = CERES.mqe.getCurrentQuery();
+		var query = MQE.getCurrentQuery();
 		
 		// make sure text box is always correct
 		$("#search-text").val(query.text);
@@ -84,7 +84,7 @@ ESIS.search = (function() {
 		
 		for( var i = 0; i < query.filters.length; i++ ) {
 			// get query copy and splice array
-			var tmpQuery = CERES.mqe.getCurrentQuery();
+			var tmpQuery = MQE.getCurrentQuery();
 			tmpQuery.page = 0;
 			
 			var foo = tmpQuery.filters.splice(i,1);
@@ -106,7 +106,7 @@ ESIS.search = (function() {
 				}	
 			}
 			
-			panel.append($('<a href="'+CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0" class="btn btn-primary btn-small"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
+			panel.append($('<a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0" class="btn btn-primary btn-small"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
 			
 		}
 		
@@ -119,7 +119,7 @@ ESIS.search = (function() {
 		panel.append($('<li class="nav-header">Narrow Your Search</li>'));
 		panel.append($('<li class="divider"></li>'));
 		
-		var numFilters = CERES.mqe.getCurrentQuery().filters.length;
+		var numFilters = MQE.getCurrentQuery().filters.length;
 
 		// add filter blocks
 		var c = 0;
@@ -137,14 +137,14 @@ ESIS.search = (function() {
 			
 			for( var i = 0; i < results.filters[key].length; i++ ) {
 				var item = results.filters[key][i];
-				var query = CERES.mqe.getCurrentQuery();
+				var query = MQE.getCurrentQuery();
 				query.page = 0;
 				
 				var filter = {};
 				filter[ESIS.filters[key] ? ESIS.filters[key] : key] = item.filter;
 				query.filters.push(filter);
 				
-				block.append($('<li><a href="'+CERES.mqe.queryToUrlString(query).replace(/"/g,'\\"')+'">'+item.filter+' ('+item.count+')</a></li>'));
+				block.append($('<li><a href="'+MQE.queryToUrlString(query).replace(/"/g,'\\"')+'">'+item.filter+' ('+item.count+')</a></li>'));
 			}
 			
 			title.append(block);
@@ -173,7 +173,7 @@ ESIS.search = (function() {
 	}
 	
 	function _updatePaging(results) {
-		var tmpQuery = CERES.mqe.getCurrentQuery();
+		var tmpQuery = MQE.getCurrentQuery();
 		var numPages = Math.ceil( parseInt(results.total) / tmpQuery.itemsPerPage );
 		var cPage = Math.floor( parseInt(results.start+1) / tmpQuery.itemsPerPage );
 		
@@ -199,13 +199,13 @@ ESIS.search = (function() {
 		// add back button
 		if( cPage != 0 ) {
 			tmpQuery.page = cPage-1;
-			panel.append($('<li><a href="'+CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
+			panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
 		}
 		
 		for( var i = startBtn; i < endBtn; i++ ) {
 			var label = i+1;
 			tmpQuery.page = i;
-			var btn = $('<li><a href="'+CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">'+label+'</a></li>');
+			var btn = $('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">'+label+'</a></li>');
 			if( cPage == i ) btn.addClass('active');
 			panel.append(btn);
 		}
@@ -213,7 +213,7 @@ ESIS.search = (function() {
 		// add next button
 		if(  cPage != numPages-1 && numPages != 0 ) {
 			tmpQuery.page = cPage+1;
-			panel.append($('<li><a href="'+CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
+			panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
 		}
 		
 	}
@@ -324,7 +324,7 @@ ESIS.search = (function() {
 	}
 
 	function _updateRestLink() {
-		var link = CERES.mqe.getRestLink();
+		var link = MQE.getRestLink();
 		if( !link.match(/$http.*/) ) {
 			link = window.location.protocol+'//'+window.location.host+link;
 		}
@@ -337,7 +337,7 @@ ESIS.search = (function() {
 
 /*
 	function _updateDownloadLinks() {
-		var q = CERES.mqe.getCurrentQuery();
+		var q = MQE.getCurrentQuery();
 		var filters = encodeURIComponent(JSON.stringify(q.filters));
 
 		var link = '/rest/downloadQueryData?text='+q.text+'&filters='+filters;
@@ -353,7 +353,7 @@ ESIS.search = (function() {
 */
 	function _hasFilter(item, key) {
 		var filter = {};
-		var tmpQuery = CERES.mqe.getCurrentQuery();
+		var tmpQuery = MQE.getCurrentQuery();
 		filter[key] = item[key];
 		for( var i = 0; i < tmpQuery.filters.length; i++ ) {
 			if( tmpQuery.filters[i][key] && tmpQuery.filters[i][key] == item[key] ) return true;
@@ -362,12 +362,12 @@ ESIS.search = (function() {
 	}
 	
 	function _createFilterUrl(key, value) {
-		var tmpQuery = CERES.mqe.getCurrentQuery();
+		var tmpQuery = MQE.getCurrentQuery();
 		var filter = {};
 		filter[ESIS.filters[key] ? ESIS.filters[key] : key] = value;
 		tmpQuery.page = 0;
 		tmpQuery.filters.push(filter);
-		return CERES.mqe.queryToUrlString(tmpQuery).replace(/"/g,'\\"');
+		return MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"');
 	}
 
 	var loadingTimer = -1;

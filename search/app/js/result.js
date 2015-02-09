@@ -74,8 +74,9 @@ ESIS.result = (function() {
 		resultPanel.find("#result-metadata").html(metadata);
 
 		$.ajax({
-			url : ESIS.ckanHost+"/spectra/getPackage?id="+result.ecosis.package_id,
+			url : ESIS.ckanHost+"/api/3/action/package_show?id="+result.ecosis.package_id,
 			success : function(resp) {
+				resp = resp.result;
 				console.log(resp);
 
 				var table = '<table class="table">';
@@ -164,13 +165,13 @@ ESIS.result = (function() {
 	function wrapFilterLink(key, value, icon) {
 		if( value.length > 30 ) return value;
 
-		var q = CERES.mqe.getCurrentQuery();
+		var q = MQE.getCurrentQuery();
 		q.text = '';
 		q.page = 0;
 		var f = {};
 		f[key] = value;
 		q.filters = [f];
-		return '<a href="'+CERES.mqe.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'">'+
+		return '<a href="'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'">'+
 					(icon ? '<i class="fa fa-filter"></i> ' : '')+value+'</a>';
 	}
 	

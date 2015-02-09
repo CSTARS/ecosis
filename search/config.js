@@ -5,12 +5,14 @@ exports.node = 'node';
 
 exports.dev = true;
 
+var root = '/Users/jrmerz/dev/cstars/EcoSIS/ecosis-search/search';
+
 exports.db = {
 	//initd           : "mongod --port 27017",
 
 	// connection string for the database, includes database name
-	url             : "mongodb://localhost:27017/esis",
-	//url             : "mongodb://192.168.1.6:27018/esis",
+	//url             : "mongodb://localhost:27017/esis",
+	url             : "mongodb://192.168.1.6:27018/esis",
 	
 	// collection where the queryable items are stored
 	mainCollection  : "search",
@@ -62,12 +64,12 @@ exports.server = {
 	// remote hosts that are allowed to access this sites mqe
 	allowedDomains : ["testnode.com","localhost","192.168.1.113"],
 	
-	script : "/Users/jrmerz/dev/cstars/esis/search/server.js"
+	script : root+"/server.js"
 }
 
 exports.ckan = {
-	//server : "http://192.168.2.109:5000",
-	server : 'http://data.ecospectra.org',
+	server : "http://192.168.56.101:5000",
+	//server : 'http://data.ecospectra.org',
 
 	keyFile : '/etc/node-ckan/ckan-local.json'	
 }
