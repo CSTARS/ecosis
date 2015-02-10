@@ -2296,6 +2296,8 @@ Polymer('esis-icon');;
             _createTableArray : function(resetWavelengths) {
                 if( typeof resetWavelengths == 'object' ) resetWavelengths = false;
 
+
+
                 this.metadata = [];
                 this.indexes = [];
                 this.wavelengths = [];
@@ -2304,6 +2306,8 @@ Polymer('esis-icon');;
 
                 this.dataArray = [];
                 var wavelengthHash = {}, hasCurrent = false;
+
+                if( this.totalSpectra == 0 ) return;
                 
                 if( this.showCompare ) {
                     var i;
@@ -2325,7 +2329,7 @@ Polymer('esis-icon');;
                         if( this.ptRegex1.exec(pt.key) || this.ptRegex2.exec(pt.key) ) {
                             this.dataArray.push([parseFloat(pt.key), parseFloat(pt.value)]);
                         } else {
-                            metadata.push(pt);
+                            this.metadata.push(pt);
                         }
                     }
                 }
@@ -2732,27 +2736,19 @@ Polymer('esis-icon');;
                 this.types = [];
                 this.selectedType = '';
 
-                if( this.package.ecosis.attributes.wavelengths.length > 0 ) {
+                if( this.item.ecosis.spectra_count > 0 ) {
                     this.types = ['Spectra'];
                 }
 
                 var attr, type;
-                for( var i = 0 ; i < this.package.ecosis.attributes.types.length; i++ ) {
-                    attr = this.package.ecosis.attributes.types[i];
-                    type = this._getAttrType(attr);
-                    if( type == 'data' && attr.name != 'Spectra' ) this.types.push(attr.name);
+                for( attr in this.schema.attributes ) {
+                    type = this.schema.attributes[attr].type;
+                    if( type == 'data' && attr != 'Spectra' ) this.types.push(attr);
                 }
 
                 if( this.types.length > 0 ) {
                     this.selectedType = this.types[0];
                 }
-            },
-
-            _getAttrType : function(attr) {
-                if( this.package.ecosis.attributes.modifications[attr.name] ) {
-                    return this.package.ecosis.attributes.modifications[attr.name];
-                }
-                return attr.type;
             }
 
         });

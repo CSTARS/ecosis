@@ -3877,6 +3877,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div flex="">
                 <div class="metadata" hidden?="{{metadata.length == 0 }}">
+                    <h4>Filter Dataset</h4>
                     <template repeat="{{m in metadata}}">
                         <div class="{{m.class}}" filterkey="{{m.key}}" filtervalue="{{m.value}}" on-click="{{addFilterFromBtn}}" title="Add Filter">
                             <esis-icon icon="fa-plus-circle" hidden?="{{m.class == &apos;selected&apos;}}"></esis-icon>
@@ -3911,7 +3912,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
     
 </polymer-element></div>
-<div hidden><polymer-element name="esis-data-viewer" attributes="package item spectra_count" assetpath="../app/elements/">
+<div hidden><polymer-element name="esis-data-viewer" attributes="package schema item spectra_count" assetpath="../app/elements/">
     <template>
         <div hidden?="{{types.length &gt; 0 || package == null}}">
             This dataset has no data to visualize.
@@ -3940,7 +3941,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <esis-spectra-viewer package="{{package}}" spectra_count="{{spectra_count}}" item="{{item}}">
                 </esis-spectra-viewer>
             </template>
-             <template bind="" if="{{selectedType != &apos;Spectra&apos;}}">
+            <template bind="" if="{{selectedType != &apos;Spectra&apos;}}">
                 <esis-derived-data-viewer package="{{package}}" attribute="{{selectedType}}" item="{{item}}">
                 </esis-derived-data-viewer>
             </template>
