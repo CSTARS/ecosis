@@ -22,7 +22,7 @@ exports.db = {
 	isMapReduce     : true,
 
 
-    indexedFilters : ['ecosis.organization_name','ecosis.keywords','Family','Category'],  
+    indexedFilters : ['ecosis.organization','ecosis.keywords','Family','Category'],  
 
     // currently MQE only allows one sort option, place the attribute you wish to sort on here
     sortBy            : 'ecosis.package_title',

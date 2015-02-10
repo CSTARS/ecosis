@@ -20,14 +20,14 @@ exports.download = function(collections, req, res) {
         return sendError(res, e);
     }
 
-    collections.package.find({'package_id': pkgid}).toArray(function(err, resp){
+    collections.main.findOne({'value.ecosis.package_id': pkgid}, {'value.ecosis': 1}, function(err, resp){
         if( err ) return sendError(res, err);
-        if( resp.length == 0 ) return sendError(res, 'package not found');
+        if( !resp ) return sendError(res, 'package not found');
 
         res.set('Content-Disposition', 'attachment; filename="'+pkgid+'.csv"');
 
         var pkg = resp[0];
-        var sort = pkg.attributes.dataset.sort_on;
+        var sort = resp.value.ecosis.sort_on;
         if( sort == '' ) sort = null;
 
 
@@ -69,8 +69,6 @@ exports.download = function(collections, req, res) {
 
         var query = {'ecosis.package_id': pkgid};
         if( filters ) query['$and'] = filters;
-
-        console.log(filters);
 
         var cursor = collections.spectra.find(query);
         if( sort ) {
@@ -193,19 +191,9 @@ exports.getDerivedData = function(collections, req, res) {
         return sendError(res, 'package_id and attribute are required');
     }
 
-    collections.package.find({'package_id': pkgid}).toArray(function(err, resp){
+    collections.main.findOne({'value.ecosis.package_id': pkgid}, {'value.ecosis': 1}, function(err, resp){
         if( err ) return sendError(res, err);
-        if( resp.length == 0 ) return sendError(res, 'package not found');
-
-        var pkg = resp[0];
-        if( !pkg.attributes ) {
-            return sendError(res, 'package has no schema defined');
-        } else if( !pkg.attributes.dataset ) {
-            return sendError(res, 'package has no schema defined');
-        }
-        
-        var sort = pkg.attributes.dataset.sort_on;
-        if( sort == '' ) sort = null;
+        if( !resp ) return sendError(res, 'package not found');
 
         var query = {'ecosis.package_id': pkgid};
         if( groupBy && groupBy != null ) {
@@ -223,12 +211,12 @@ exports.getDerivedData = function(collections, req, res) {
                 },
             '_id' : 0
         };
-        if( sort ) {
-            options[sort] = 1;
+        if( resp.value.ecosis.sort_on ) {
+            options[resp.value.ecosis.sort_on] = 1;
         }
 
         var cur = collections.spectra.find(query, options);
-        if( sort ) {
+        if( resp.value.ecosis.sort_on ) {
             cur.sort([['ecosis.sort', 1]]);
         }
 

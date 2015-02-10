@@ -8,6 +8,9 @@ ESIS.result = (function() {
 	var loadHandlers = [];
 	var ignoreAttrs = ['_id', 'ecosis', 'count', 'lengths'];
 	
+
+	var mainFilters = ['ecosis.organization','ecosis.keywords','Family','Category'];
+
 	function init() {
 		$('#result').load('/result.handlebars', function() {
 			var source = $("#result-template").html();
@@ -60,10 +63,11 @@ ESIS.result = (function() {
 
 		resultPanel.html(getResultHtml(result));
 		
-
 		var metadata = '<table class="table">';
 		for( var key in result ) {
 			if( ignoreAttrs.indexOf(key) == -1 && result[key] && (result[key].length / result.ecosis.spectra_count) < .05 ) {
+				if( mainFilters.indexOf(key) != -1 ) continue;
+
 				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
 
 				metadata += "<tr><td>"+label+"</td><td><div style='max-height:100px;overflow:auto'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";
@@ -98,6 +102,32 @@ ESIS.result = (function() {
 					if( i < resp.tags.length -1 ) table += ', ';
 				}
 				if( resp.tags.length == 0 ) table += '[None]';
+				table += '</td></tr>';
+
+				// set Family
+				table += '<tr><td>Family</td><td>';
+				if( result.Family ) { 
+					for( var i = 0; i < result.Family.length; i++ ) {
+						table += wrapFilterLink('Family', result.Family[i], true);
+						if( i < result.Family[i].length -1 ) table += ', ';
+					}
+					if( result.Family.length == 0 ) table += '[None]';
+				} else {
+					table += '[None]';
+				}
+				table += '</td></tr>';
+
+				// set Category
+				table += '<tr><td>Category</td><td>';
+				if( result.Category ) { 
+					for( var i = 0; i < result.Category.length; i++ ) {
+						table += wrapFilterLink('Category', result.Category[i], true);
+						if( i < result.Category[i].length -1 ) table += ', ';
+					}
+					if( result.Category.length == 0 ) table += '[None]';
+				} else {
+					table += '[None]';
+				}
 				table += '</td></tr>';
 
 				// set resources
@@ -141,6 +171,19 @@ ESIS.result = (function() {
 		
 		$("#result-back-btn").on('click', function(){
 			$(window).trigger("back-to-search-event");
+		});
+
+		$('#additionalFilterToggle').on('click', function() {
+			var i = $(this).find('i');
+			var open = i[0].classList.contains('fa-arrow-down');
+			if( open ) {
+				i.removeClass('fa-arrow-down');
+				i.addClass('fa-arrow-right');
+			} else {
+				i.removeClass('fa-arrow-right');
+				i.addClass('fa-arrow-down');
+			}
+			$('#result-metadata').toggle('slow');
 		});
 
 		/*$('#export-go').on('click', function(){

@@ -17,7 +17,7 @@ var exec = require('child_process').exec;
 
 var collection;
 var spectraCollection;
-var packageCollection;
+var schemaCollection;
 
 var ignoreList = ['_id','lastUpdate','lastRun', 'metadata', 'spectra'];
 
@@ -37,10 +37,10 @@ exports.bootstrap = function(server) {
         spectraCollection = coll;
     });
 
-    db.collection(config.db.packageCollection, function(err, coll) { 
+    db.collection(config.db.schemaCollection, function(err, coll) { 
         if( err ) return console.log(err);
 
-        packageCollection = coll;
+        schemaCollection = coll;
     });
 
     server.app.get('/rest/getSpectra', function(req, res){

@@ -161,6 +161,7 @@
             </div>
             <div flex>
                 <div class="metadata" hidden?="{{metadata.length == 0 }}">
+                    <h4>Filter Dataset</h4>
                     <template repeat="{{m in metadata}}">
                         <div class="{{m.class}}" filterKey="{{m.key}}" filterValue="{{m.value}}" on-click="{{addFilterFromBtn}}" title="Add Filter">
                             <esis-icon icon="fa-plus-circle" hidden?="{{m.class == 'selected'}}"></esis-icon>
