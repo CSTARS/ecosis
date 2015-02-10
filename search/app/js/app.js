@@ -1,8 +1,16 @@
 var ESIS = {
 	widgets : {},
-	ckanHost : (window.location.host == 'ecospectra.org') ?
-				'http://data.ecospectra.org' : 'http://192.168.56.101:5000'
+	ckanHost : ''
 };
+
+if( window.location.host == 'ecospectra.org' ) {
+	ESIS.ckanHost = 'http://data.ecospectra.org';
+} else if ( window.location.host == 'dev-search.ecospectra.org' ) {
+	ESIS.ckanHost = 'http://dev-data.ecospectra.org';
+} else {
+	ESIS.ckanHost = 'http://192.168.2.109:5000';
+}
+
 
 ESIS.app = (function() {
 	

@@ -73,9 +73,9 @@ ESIS.result = (function() {
 
 		resultPanel.find("#result-metadata").html(metadata);
 
-		$.ajax({
-			url : ESIS.ckanHost+"/api/3/action/package_show?id="+result.ecosis.package_id,
-			success : function(resp) {
+		$.get(ESIS.ckanHost+"/api/3/action/package_show?id="+result.ecosis.package_id,
+			function(resp) {
+
 				resp = resp.result;
 				console.log(resp);
 
@@ -89,7 +89,7 @@ ESIS.result = (function() {
 					table += wrapFilterLink('ecosis.organization', resp.organization.title, true);
 				}
 
-				table += '<tr><td>Description</td><td>'+result.ecosis.description+'</td></tr>';
+				table += '<tr><td>Description</td><td>'+resp.notes+'</td></tr>';
 
 				// set keywords
 				table += '<tr><td>Keywords</td><td>';
@@ -97,6 +97,7 @@ ESIS.result = (function() {
 					table += wrapFilterLink('ecosis.keywords', resp.tags[i].display_name, true);
 					if( i < resp.tags.length -1 ) table += ', ';
 				}
+				if( resp.tags.length == 0 ) table += '[None]';
 				table += '</td></tr>';
 
 				// set resources
@@ -119,18 +120,23 @@ ESIS.result = (function() {
 
 
 				// set package info for data viewer
-				var viewer = document.querySelector('esis-data-viewer');
-				var downloader = document.querySelector('esis-data-downloader');
-				viewer.package = resp;
-				viewer.item = result;
-				viewer.spectra_count = result.ecosis.spectra_count;
+				$.get(ESIS.ckanHost+"/ecosis/getSchema?id="+result.ecosis.package_id, 
+					function(schema) {
 
-				downloader.package_id = resp.id;
-				viewer.addEventListener('filters-updated', function(e){
-					downloader.filters = e.detail;
+					var viewer = document.querySelector('esis-data-viewer');
+					var downloader = document.querySelector('esis-data-downloader');
+					viewer.package = resp;
+					viewer.item = result;
+					viewer.schema = schema;
+					viewer.spectra_count = result.ecosis.spectra_count;
+
+					downloader.package_id = resp.id;
+					viewer.addEventListener('filters-updated', function(e){
+						downloader.filters = e.detail;
+					});
 				});
 			}
-		});
+		);
 
 		
 		$("#result-back-btn").on('click', function(){

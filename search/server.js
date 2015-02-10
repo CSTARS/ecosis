@@ -44,15 +44,15 @@ exports.bootstrap = function(server) {
     });
 
     server.app.get('/rest/getSpectra', function(req, res){
-        data.getSpectra({package: packageCollection, spectra: spectraCollection}, req, res);
+        data.getSpectra({main: collection, spectra: spectraCollection}, req, res);
     });
 
     server.app.get('/rest/getDerivedData', function(req, res){
-        data.getDerivedData({package: packageCollection, spectra: spectraCollection}, req, res);
+        data.getDerivedData({main: collection, spectra: spectraCollection}, req, res);
     });
 
     server.app.get('/rest/download', function(req, res){
-        data.download({package: packageCollection, spectra: spectraCollection}, req, res);
+        data.download({packmainage: collection, spectra: spectraCollection}, req, res);
     });
 
     // takes params format and raw

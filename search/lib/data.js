@@ -135,19 +135,9 @@ exports.getSpectra = function(collections, req, res) {
     }
 
 
-    collections.package.find({'package_id': pkgid}).toArray(function(err, resp){
+    collections.main.findOne({'value.ecosis.package_id': pkgid}, {'value.ecosis': 1}, function(err, resp){
         if( err ) return sendError(res, err);
-        if( resp.length == 0 ) return sendError(res, 'package not found');
-
-        var pkg = resp[0];
-        if( !pkg.attributes ) {
-            return sendError(res, 'package has no schema defined');
-        } else if( !pkg.attributes.dataset ) {
-            return sendError(res, 'package has no schema defined');
-        }
-
-        var sort = pkg.attributes.dataset.sort_on;
-        if( sort == '' ) sort = null;
+        if( !resp ) return sendError(res, 'package not found');
 
         var query = {'ecosis.package_id': pkgid};
 
@@ -167,7 +157,7 @@ exports.getSpectra = function(collections, req, res) {
             }
 
             var cur = collections.spectra.find(query);
-            if( sort ) {
+            if( resp.value.ecosis.sort_on ) {
                 cur.sort([['ecosis.sort', 1]]);
             }
             cur.skip(index).limit(1);

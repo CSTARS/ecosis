@@ -1,4 +1,4 @@
-<polymer-element name="esis-data-viewer" attributes="package item spectra_count">
+<polymer-element name="esis-data-viewer" attributes="package schema item spectra_count">
     <template>
         <div hidden?="{{types.length > 0 || package == null}}">
             This dataset has no data to visualize.
@@ -30,7 +30,7 @@
                     item="{{item}}">
                 </esis-spectra-viewer>
             </template>
-             <template bind if="{{selectedType != 'Spectra'}}">
+            <template bind if="{{selectedType != 'Spectra'}}">
                 <esis-derived-data-viewer
                     package="{{package}}"
                     attribute="{{selectedType}}"
@@ -54,27 +54,19 @@
                 this.types = [];
                 this.selectedType = '';
 
-                if( this.package.ecosis.attributes.wavelengths.length > 0 ) {
+                if( this.item.ecosis.spectra_count > 0 ) {
                     this.types = ['Spectra'];
                 }
 
                 var attr, type;
-                for( var i = 0 ; i < this.package.ecosis.attributes.types.length; i++ ) {
-                    attr = this.package.ecosis.attributes.types[i];
-                    type = this._getAttrType(attr);
-                    if( type == 'data' && attr.name != 'Spectra' ) this.types.push(attr.name);
+                for( attr in this.schema.attributes ) {
+                    type = this.schema.attributes[attr].type;
+                    if( type == 'data' && attr != 'Spectra' ) this.types.push(attr);
                 }
 
                 if( this.types.length > 0 ) {
                     this.selectedType = this.types[0];
                 }
-            },
-
-            _getAttrType : function(attr) {
-                if( this.package.ecosis.attributes.modifications[attr.name] ) {
-                    return this.package.ecosis.attributes.modifications[attr.name];
-                }
-                return attr.type;
             }
 
         });

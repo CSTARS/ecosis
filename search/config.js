@@ -12,12 +12,12 @@ exports.db = {
 
 	// connection string for the database, includes database name
 	//url             : "mongodb://localhost:27017/esis",
-	url             : "mongodb://192.168.1.6:27018/esis",
+	url             : "mongodb://192.168.2.109:27018/esis",
 	
 	// collection where the queryable items are stored
 	mainCollection  : "search",
 	spectraCollection : "spectra",
-	packageCollection : "package",
+	schemaCollection : "schema",
 
 	isMapReduce     : true,
 
