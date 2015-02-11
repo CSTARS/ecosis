@@ -42,6 +42,3 @@ ESIS.home = (function(){
 	}
 	
 })();
-
-
-
