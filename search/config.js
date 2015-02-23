@@ -63,6 +63,8 @@ exports.server = {
 	
 	// remote hosts that are allowed to access this sites mqe
 	allowedDomains : ["testnode.com","localhost","192.168.1.113"],
+
+	googleAnalytics : 'UA-60014992-3',
 	
 	script : root+"/server.js"
 }
