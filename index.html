@@ -29,12 +29,12 @@
 
         <ul>
           <li><a href="http://ecospectra.org">EcoSIS <strong>Search</strong></a></li>
-          <li><a href="http://data.ecospectra.org">EcoSIS <strong>Data</strong></a></li>
+          <li><a href="http://dev-search.ecospectra.org">EcoSIS <strong>Dev Search</strong></a></li>
           <li><a href="https://github.com/CSTARS/esis">View On <strong>GitHub</strong></a></li>
         </ul>
 
           
-        <div><a href="#find-dataset">Find Datasets</a></div>
+        <div><a href="#find-datasets">Find Datasets</a></div>
         <div class="sub">
           <div><a href="#find-dataset-filters">Filters Parameter</a></div>
           <div><a href="#find-dataset-examples">Examples</a></div>
@@ -43,9 +43,14 @@
         <div><a href="#get-dataset">Get Dataset</a></div>
         <div><a href="#get-spectra">Get Spectra</a></div>
         <div class="sub">
-          <div><a href="#get-spectra-parameters">Parameter</a></div>
+          <div><a href="#get-spectra-parameters">Parameters</a></div>
           <div><a href="#get-spectra-response">Response</a></div>
         </div>
+        <div><a href="#download-spectra">Download Spectra</a></div>
+        <div class="sub">
+          <div><a href="#download-spectra-parameters">Parameters</a></div>
+        </div>
+
       </header>
       <section>
         
@@ -53,14 +58,14 @@
   <a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview
 </h2>
 
-<p>The purpose of this page is to demonstrate the EcoSIS API (Application Programming Interface) and how it can be used to develop 3rd applications and tools using EcoSIS.  The EcoSIS API is a <a href="http://rest.elkstein.org/" target="_blank">REST</a> based API with all calls happening over HTTP.</p>
+<p>The purpose of this page is to show the EcoSIS API (Application Programming Interface) specification and how it can be used to develop 3rd applications and tools using EcoSIS.  The EcoSIS API is a <a href="http://rest.elkstein.org/" target="_blank">REST</a> based API with all calls over HTTP.</p>
 
 <p>The EcoSIS API is broken into four parts:</p>
   <ul>
     <li><a href="#find-datasets">Find Datasets</a></li>
     <li><a href="#get-dataset">Get Dataset</a></li>
     <li><a href="#get-spectra">Get Spectra</a></li>
-    <li>Download Spectra</li>
+    <li><a href="#download-spectra">Download Spectra</a></li>
   </ul>
 
 
@@ -68,19 +73,28 @@
 
 <pre><code>curl http://ecospectra.org/rest/query?text=&filters=[]&start=0&end=6</code></pre>
 
-<p>This would return return the first six datasets in ecosis</p>
+<p>This would return return the first six datasets in ecosis.</p>
+
+<h4>Root URLS</h4>
+
+<p>There are two root urls for EcoSIS, one for production and one for the developer sandbox:</p>
+
+<ul>
+  <li><b>http://ecospectra.org</b> - Production</li>
+  <li><b>http://dev-search.ecospectra.org</b> - Developer Sandbox</li>
+</ul>
 
 <h2><a id="find-datasets" class="anchor" href="#find-datasets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Find Datasets</h2>
 
-<p>The EcoSIS API allows you to search and find datasets by filtering datasets based on attribute names as well as free text search.  Much like you would while shopping for shoes online, the EcoSIS API allows you to specify the at you would like spectra of, say, Category = Dicot or Organization = CSTARS.</p>
+<p>The EcoSIS API allows you to search and find datasets by filtering datasets based on attribute names as well as free text search.  Much like you would while shopping for shoes online, the EcoSIS API allows you to specify attributes you would like spectra to match, say, Category = Dicot or Organization = CSTARS.</p>
 
-<h4>Dataset Search Path</h4>
+<h4>Dataset Search: Path</h4>
 
 <p>The path for the dataset search is <b>/rest/query</b>.</p>
 
-<h4>Dataset Search Request Parameters</h4>
+<h4>Dataset Search: Request Parameters</h4>
 
-<p>HTTP requests can provide query parameters, similar to passing inputs to a function.  HTTP query paramters start at ? in the url and ar followed by & after.  Ex: /rest/query?arg1=value1&arg2=value2.  The EcoSIS dataset search has the following parameters:</p>
+<p>HTTP requests can provide query parameters, similar to passing inputs to a function.  HTTP query paramters start at '?' in the url and are followed by '&' after.  Ex: /rest/query<b>?</b><i>arg1</i><b>=</b><i>value1</i><b>&</b><i>arg2</i><b>=</b><i>value2</i>.  The EcoSIS Dataset Search has the following parameters:</p>
 
 <ul>
   <li><b>text</b> - the free text query (String)</li>
@@ -94,7 +108,7 @@
 
 <h5 id="find-dataset-filters">filters</h5>
 
-<p>The <b>filters</b> parameter is the heart of the EcoSIS API.  The filters parameters is also the most complex.  At it's core, the filter paramter is a JSON array of objects.  These JSON objects can be any <a href="http://docs.mongodb.org/manual/tutorial/query-documents/" target="_blank">MongoDB query</a>.  The array of query objects will then be <b>and</b> together.  Don't worry, you don't need to learn the entire MongoDB query document (though you can if you want), learning the simple attribute match will allow you to make 90% of the queries the <a href="http://ecospectra.org" target="_blank">EcoSIS Search</a> does.  A attribute match object looks like:</p>  
+<p>The <b>filters</b> parameter is the heart of the EcoSIS API.  The filters parameters is also the most complex.  At it's core, the filter parameter is a JSON array of objects.  These JSON objects can be any <a href="http://docs.mongodb.org/manual/tutorial/query-documents/#specify-equality-condition" target="_blank">MongoDB query</a>.  The array of query objects will then be <b>logic and</b> together.  Don't worry, you don't need to learn the entire MongoDB query document (though you can if you want), learning the simple attribute match will allow you to make 90% of the queries the <a href="http://ecospectra.org" target="_blank">EcoSIS Search</a> does.  A attribute match object looks like:</p>  
 
 <pre><code>[{ 
   Category: "Dicot"
@@ -108,9 +122,9 @@
   Organization: "CSTARS"
 }]</code></pre>
 
-<p>Note for those new to JSON.  {} = object, [] = array.  So [{},{},{}] is an array of three empty objects.</p>
+<p><i>Note:</i> for those new to JSON.  {} = object, [] = array.  So [{},{},{}] is an array of three empty objects.</p>
 
-<p>Note for implementation.  You must escape JSON when you provide it to the url.  The url component escaping spec is <a href="http://tools.ietf.org/html/rfc3986" target="_blank">here</a> and it's complex!  Use whatever language you are writing in escape method(s) to do this for you!  Here is an example of creating a filter query in JavaScript:
+<p><i>Note for implementation.</i>  You must escape JSON when you provide it to the url.  The url component escaping spec is <a href="http://tools.ietf.org/html/rfc3986" target="_blank">here</a> and it's complex!  Use whatever language you are writing in escape method(s) to do this for you!  Here is an example of creating a filter query in JavaScript:
 
 <pre><code>var query = [{ 
   Category: "Dicot"
@@ -119,9 +133,9 @@
 }];
 
 // turn JavaScript object into JSON string
-query = JSON.strinify(query);
+query = JSON.stringify(query);
 
-// escape for url component (query)
+// escape for url component
 query = encodeURIComponent(query);
 
 var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</code></pre>
@@ -134,11 +148,11 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <p>The <b>stop</b> index minus the <b>start</b> index tells how many items to return.  So if you want items 20 - 30, you would say start = 20, stop = 30.</p>
 
-<h4 id="find-dataset-examples">Dataset Search Examples</h4>
+<h4 id="find-dataset-examples">Dataset Search: Examples</h4>
 
-<p>EcoSIS dataset query examples are easy to find.  Simply go to <a href="http://ecospectra.org">EcoSIS Search</a> and perform a query.  At the very bottom of the page you will see a 'Rest Link' anchor tag and under it, the actual textual representation of the link (not escaped).  You can click the click to see the raw JSON response feed.  The EcoSIS API is not just an addition to help third party developers, it powers EcoSIS itself.  So anything the search interface is doing, you can do.  And many of the API calls used to perform the action (such as search for a dataset) are respresented in the search interface.</p>
+<p>EcoSIS Dataset Search examples are easy to find.  Simply go to <a href="http://ecospectra.org">EcoSIS Search</a> and perform a query.  At the very bottom of the page you will see a 'Rest Link' anchor tag and under it, the actual textual representation of the link (not escaped).  You can click the link to see the raw JSON response feed.  The EcoSIS API is not just an addition to help third party developers, it powers EcoSIS itself.  So anything the search interface is doing, you can do.  And many of the API calls used to perform the action (such as search for a dataset) are respresented in the search interface.</p>
 
-<h4 id="find-dataset-response">Dataset Search Response</h4>
+<h4 id="find-dataset-response">Dataset Search: Response</h4>
 
 <p>The responses for the EcoSIS API will also be JSON.  The dataset search response has the following attributes</p>
 
@@ -146,13 +160,13 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
   <li><b>total</b> - the total number of datasets matching the query (int)</li>
   <li><b>start</b> - the start index for the response (int)</li>
   <li><b>stop</b> - the stop index for the response (int)</li>
-  <li><b>items</b> - Array of dataset search objects (JSON Array)</li>
+  <li><b>items</b> - Array of <a href="#find-dataset-search-object">dataset search objects</a> (JSON Array)</li>
   <li><b>filters</b> - additional filters for this search (JSON Object)</li>
 </ul>
 
-<h5>Dataset Search Object</h5>
+<h5 id="find-dataset-search-object">Dataset Search Object</h5>
 
-<p>The <b>items</b> array is an array of dataset search objects.  These objects represent a dataset with a sumation of all the spectra within that datasets unquie attribute values.  What that means,  every attribute in the response object (except two) are JSON array's of strings.  These strings are all the unquie values for that attribute in the dataset.  Ex: A dataset has the attribute 'Scientific Name' so the response object would contain the attribute 'Scientific Name' with all the unquie values for 'Scientific Name' returned in the response object:</p>
+<p>The <b>items</b> array is an array of dataset search objects.  These objects represent a dataset with a sumation of all the spectra within that datasets unique attribute values.  What that means,  every attribute in the response object (except two) are JSON array's of strings.  These strings are all the unique values for that attribute in the dataset.  Ex: A dataset has the attribute 'Scientific Name' so the response object would contain the attribute 'Scientific Name' with all the unique values for 'Scientific Name' returned in the response object:</p>
 
 
 <pre><code>{
@@ -169,11 +183,11 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
   ...
 }</code></pre>
 
-<p>The dataset search object will also contain:</p>
+<p>The dataset search object will also contain the following attributes:</p>
 
 <ul>
-  <li><b>ecosis</b> - additional dataset information including: title, organization, keyword, spectra count, etc</li>
-  <li><b>_id</b> - The unquie EcoSIS ID for this dataset.</li>
+  <li><b>ecosis</b> - additional dataset information including: title, organization, keyword, spectra count, etc.</li>
+  <li><b>_id</b> - The unique EcoSIS ID for this dataset.</li>
 </ul>
 
 <h5>Dataset Search Additional Filters</h5>
@@ -182,17 +196,17 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <h2><a id="get-dataset" class="anchor" href="#get-dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get Datasets</h2>
 
-<p>Once you have found a dataset using the <a href="#find-dataset">Find Dataset</a> query, you can use the datasets ID (see <a href="#find-dataset-response">Dataset Search Response</a> item._id or item.ecosis.package_id paramters) to access a dataset directly.  The query only has one parameter, <b>_id</b>.
+<p>Once you have found a dataset using the <a href="#find-dataset">Find Dataset</a> query, you can use the datasets ID (see <a href="#find-dataset-response">Dataset Search Response</a> item._id or item.ecosis.package_id paramters) to access a dataset directly.  The query only has one parameter: <b>_id</b>.
 
-<h4>Get Dataset Path</h4>
+<h4>Get Dataset: Path</h4>
 
-<p>The Rest path to get a dataset search object is: <b>/rest/get</b></p>
+<p>The Rest path to get a <a href="#find-dataset-search-object">dataset search object</a> is: <b>/rest/get</b></p>
 
-<h4>Get Dataset Example</h4>
+<h4>Get Dataset: Example</h4>
 
 <pre><code>curl http://ecospectra.org/rest/get?_id=[dataset ID here]</code></pre>
 
-<h4>Get Dataset Response</h4>
+<h4>Get Dataset: Response</h4>
 
 <p>The get dataset response is the same response object returned in the items array of the find query: <a href="#find-dataset-response">Dataset Search Response</a>.</p>
 
@@ -206,33 +220,37 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <p>Once you have found a dataset you can access spectra from within the dataset.  Additionally you can filter spectra within the dataset itself.</p>
 
-<h4>Get Spectra Path</h4>
+<h4>Get Spectra: Path</h4>
 
 <p>The Rest path for the Get Spectra call is: <b>/rest/getSpectra</b></p>
 
-<h4 id="get-spectra-parameters">Get Spectra Parameters</h4>
+<h4>Get Spectra: Example</h4>
+
+<pre><code>curl http://ecospectra.org/rest/getSpectra?package_id=[dataset ID here]&index=0</code></pre>
+
+<h4 id="get-spectra-parameters">Get Spectra: Parameters</h4>
 
 <p>The Get Spectra call takes the following paramters</p>
 
 <ul>
-  <li><b>package_id</b> - The unquie package ID (string)</li>
+  <li><b>package_id</b> - The unique package ID (string)</li>
   <li><b>index</b> - the index of the spectra you wish to access (int)</li>
   <li><b>filters</b> - the array of filters (JSON) (optional)</li>
 </ul>
 
 <h5>package_id</h5>
 
-<p>The unquie dataset ID for the dataset you are accessing</p>
+<p>The unique dataset ID for the dataset you are accessing</p>
 
 <h5>index</h5>
 
-<p>The spectra's <b>index</b> within the package.  As EcoSIS contains no unquie identifier, this index allows you to access spectra as though datasets simply contain arrays of spectra.  This array will change size based on the <b>filters</b> parameter.
+<p>The spectra's <b>index</b> within the package.  As EcoSIS contains no unique identifier, this index allows you to access spectra as though dataset simply contains arrays of spectra.  This array will change size based on the <b>filters</b> parameter.</p>
 
 <h5>filters</h5>
 
-<p>The <b>filters</b> parameter lets filter down the result set of spectra you are accessing via the <b>index</b> attribute.  The filters paramter is formatted the same and works the same are the <a href="#find-dataset-filters">Find Dataset Filter Parameter</a>.  Only instead of filtering key/value pairs based on attributes in a dataset, you are filtering on individual spectra metadata.</p>
+<p>The <b>filters</b> parameter lets you filter down the result set of spectra you are accessing via the <b>index</b> attribute.  The filters parameter is formatted the same and works the same as the <a href="#find-dataset-filters">Find Dataset Filter Parameter</a>.  Only instead of filtering key/value pairs based on attributes in a dataset, you are filtering on individual spectra metadata.</p>
 
-<h4 id="get-spectra-response">Get Spectra Response</h4>
+<h4 id="get-spectra-response">Get Spectra: Response</h4>
 
 <p>The response object for the Get Spectra query has the following attributes:</p>
 
@@ -243,7 +261,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
       <b>item</b> - the spectra response object (standard parameters):<br />
 
       <ul>
-        <li><b>_id</b> - UID for the spectra.  Note, this ID is not persistant, it's changed everytime the dataset is pushed to search.</li>
+        <li><b>_id</b> - UID for the spectra.  <i>Note:</i> this ID is not persistant, it's changed everytime the dataset is pushed to search.</li>
         <li><b>ecosis</b> - object containing ecosis dataset information</li>
         <li><b>datapoints</b> - array of objects each containing:<br >
           <ul>
@@ -256,10 +274,47 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
   </li>
 </ul>
 
-<p>As along with the standard <b>_id</b>, <b>ecosis</b> and <b>datapoints</b> parameters, the response object.item sends back all of the metadata included with the spectra.</p>
+<p>Along with the standard <b>_id</b>, <b>ecosis</b> and <b>datapoints</b> parameters, the response object.item sends back all of the metadata included with the spectra.</p>
 
-<p>Couple notes.  The values of the datapoints are always returned as strings.  This is both improve system performance and work around the complexity of handling floats.  It will be up to each client interacting with EcoSIS to decide how it wants to parse and handle floating point values.</p>
+<p><i>Format Note.</i>  The keys and values of the datapoints are always returned as strings.  This is both to improve system performance and work around the complexity of handling floats.  It will be up to each client interacting with EcoSIS to decide how it wants to parse and handle floating point values.</p>
 
+
+<h2>
+  <a id="download-spectra" class="anchor" href="#download-spectra" aria-hidden="true"><span class="octicon octicon-link"></span></a>
+  Download Spectra
+</h2>
+
+<p>While the Get Spectra call is useful for inspecting spectra, especially from 3rd party applications, it's not an efficient process to download large amounts of spectra.  The Download Spectra calls purpose is to allow the export of a datasets spectra in CSV format.<p>
+
+<h4>Download Spectra: Path</h4>
+
+<p>The Rest path to download spectra is: <b>/rest/download</b></p>
+
+<h4 id="download-spectra-parameters">Download Spectra: Parameters</h4>
+
+<p>The Download Spectra call takes the following parameters</p>
+
+<ul>
+  <li><b>package_id</b> - The unique package ID (string)</li>
+  <li><b>metadata</b> - Should the metadata be included in the csv file (boolean)</li>
+  <li><b>filters</b> - the array of filters (JSON) (optional)</li>
+</ul>
+
+<h5>package_id</h5>
+
+<p>The unique dataset ID for the dataset you are accessing</p>
+
+<h5>metadata</h5>
+
+<p>Do you want to include the all of the spectra's metadata in the export.  The value should be 'true' or 'false'.</p>
+
+<h5>filters</h5>
+
+<p>The <b>filters</b> parameter lets you filter down the result set of spectra you are downloading.  The filters paramter is formatted the same and works the same as the <a href="#find-dataset-filters">Find Dataset Filter Parameter</a>.  Only instead of filtering key/value pairs based on attributes in a dataset, you are filtering on individual spectra.  This allows you do export subsets of the dataset spectra.</p>
+
+<h4>Download Spectra: Example</h4>
+
+<pre><code>curl http://ecospectra.org/rest/download?package_id=[dataset ID here]&metadata=false</code></pre>
 
 
 
