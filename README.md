@@ -1,4 +1,4 @@
-esis
+EcoSIS
 ====
 
-Ecological Spectral Information System (ESIS)
+Ecological Spectral Information System (EcoSIS)
