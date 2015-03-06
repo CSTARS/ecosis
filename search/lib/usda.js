@@ -1,5 +1,5 @@
 
-exports.search = function(collection, req, res) {
+exports.search = function(collection, req, resp) {
 
     var q = req.query.q;
     if( !q ) {
