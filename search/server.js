@@ -12,12 +12,13 @@ var CursorStream = require('mongodb').CursorStream;
 var async = require('async');
 
 var data = require('./lib/data.js');
+var usda = require('./lib/usda.js');
 
 var exec = require('child_process').exec;
 
 var collection;
 var spectraCollection;
-var schemaCollection;
+var usdaCollection;
 
 var ignoreList = ['_id','lastUpdate','lastRun', 'metadata', 'spectra'];
 
@@ -37,10 +38,10 @@ exports.bootstrap = function(server) {
         spectraCollection = coll;
     });
 
-    db.collection(config.db.schemaCollection, function(err, coll) { 
+    db.collection(config.db.usdaCollection, function(err, coll) { 
         if( err ) return console.log(err);
 
-        schemaCollection = coll;
+        usdaCollection = coll;
     });
 
     server.app.get('/rest/getSpectra', function(req, res){
@@ -54,6 +55,8 @@ exports.bootstrap = function(server) {
     server.app.get('/rest/download', function(req, res){
         data.download({packmainage: collection, spectra: spectraCollection}, req, res);
     });
+
+    usda.init(usdaCollection);
 
     // takes params format and raw
     /*
@@ -258,6 +261,10 @@ exports.bootstrap = function(server) {
             'ga(\'send\', \'pageview\');'+
             '$(window).on(\'hashchange\',function(){ga(\'send\',\'pageview\',{\'page\':location.pathname+location.search+location.hash})});'
         );
+    });
+
+    server.app.get('/rest/usda', function(req, resp){
+        usda.search(usdaCollection, req, resp);
     });
 
     server.app.get('/rest/gitInfo', function(req, resp){

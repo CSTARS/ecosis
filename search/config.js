@@ -18,6 +18,7 @@ exports.db = {
 	mainCollection  : "search",
 	spectraCollection : "spectra",
 	schemaCollection : "schema",
+	usdaCollection : "usda",
 
 	isMapReduce     : true,
 
