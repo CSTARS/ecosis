@@ -12,7 +12,7 @@ exports.search = function(collection, req, resp) {
         }
     };
 
-    collection.find(query, {_id: 0}).sort({ $meta: "textScore"}).limit(100).toArray(function(err, result) {
+    collection.find(query, {score: { $meta: "textScore" }, _id: 0}).sort({ score: { $meta: "textScore" } }).limit(100).toArray(function(err, result) {
         if( err ) return resp.send({error: true, message: err});
         resp.send(result);
     });
