@@ -263,8 +263,12 @@ exports.bootstrap = function(server) {
         );
     });
 
-    server.app.get('/rest/usda', function(req, resp){
+    server.app.get('/rest/usda/search', function(req, resp){
         usda.search(usdaCollection, req, resp);
+    });
+
+    server.app.get('/rest/user/get', function(req, resp){
+        usda.get(usdaCollection, req, resp);
     });
 
     server.app.get('/rest/gitInfo', function(req, resp){
