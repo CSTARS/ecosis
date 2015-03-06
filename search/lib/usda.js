@@ -1,5 +1,5 @@
 
-exports.searcg = function(collection, req, res) {
+exports.search = function(collection, req, res) {
 
     var q = req.query.q;
     if( !q ) {
