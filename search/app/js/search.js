@@ -6,7 +6,7 @@ Handlebars.registerHelper('organization', function() {
 });
 
 ESIS.search = (function() {
-	
+
 	// handle bar template layouts
 	var RESULT_TEMPLATE = [
 	    '<div class="search-result-row animated fadeIn">',
@@ -23,22 +23,22 @@ ESIS.search = (function() {
 	    "</div>"
 	].join('');
 	var TITLE_TEMPLATE = "Search Results: <span style='color:#888'>{{start}} to {{end}} of {{total}}</span>";
-	
+
 	// template functions
 	var rowTemplate;
 	var titleTemplate;
-	
+
 	var titleAttr = 'Spectrum Number';
-	var infoAttrs = ['Category', 'Family', 'Genus', 'Scientific Name', 'Common Name', 'pkg_title'];
+	var infoAttrs = ['Theme', 'Organization', 'Common Name'];
 
 	var openFilters = [];
 	var staticFilters = {};
-	
+
 	function init() {
-		
+
 		rowTemplate = Handlebars.compile(RESULT_TEMPLATE);
 		titleTemplate = Handlebars.compile(TITLE_TEMPLATE);
-		
+
 		$(window).bind("search-start-event", function(e, results){
 			_loading(true);
 		});
@@ -53,7 +53,7 @@ ESIS.search = (function() {
 			_updateRestLink();
 			//_updateDownloadLinks();
 		});
-		
+
 		// set search handlers
 		$("#search-btn").on('click', function(){
 			_search();
@@ -62,33 +62,33 @@ ESIS.search = (function() {
 			if( e.which == 13 ) _search();
 		});
 	}
-	
+
 	function _search() {
 		var query = MQE.getCurrentQuery();
 		query.page = 0;
 		query.text = $("#search-text").val();
 		window.location = MQE.queryToUrlString(query);
 	}
-	
-	
+
+
 	function _updateActiveFilters() {
 		var panel = $("#active-filters").html("");
 		var query = MQE.getCurrentQuery();
-		
+
 		// make sure text box is always correct
 		$("#search-text").val(query.text);
-		
+
 		if( query.filters.length == 0 ) return;
-		
+
 		panel.append("<h6 style='margin-top:0px'>You are currently searching for:</h6>");
-		
+
 		for( var i = 0; i < query.filters.length; i++ ) {
 			// get query copy and splice array
 			var tmpQuery = MQE.getCurrentQuery();
 			tmpQuery.page = 0;
-			
+
 			var foo = tmpQuery.filters.splice(i,1);
-			
+
 			var f = "";
 			for( var j in query.filters[i] ) {
 				// see if it's a static filter
@@ -102,66 +102,66 @@ ESIS.search = (function() {
 						f = j+': '+JSON.stringify(query.filters[i][j]);
 					}
 				} else {
-					f = query.filters[i][j]; 
-				}	
+					f = query.filters[i][j];
+				}
 			}
-			
+
 			panel.append($('<a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0" class="btn btn-primary btn-small"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
-			
+
 		}
-		
+
 	}
-	
+
 	function _updateFilters(results) {
 		var panel = $("#filter-nav").html("");
-		
+
 		// add the title
 		panel.append($('<li class="nav-header">Narrow Your Search</li>'));
 		panel.append($('<li class="divider"></li>'));
-		
+
 		var numFilters = MQE.getCurrentQuery().filters.length;
 
 		// add filter blocks
 		var c = 0;
 		for( var key in results.filters ) {
 			if( results.filters[key].length == 0 ) continue;
-			
-			
+
+
 			var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
-			
+
 			var title = $("<li><a id='filter-block-title-"+key.replace(/\s/g,"_")+"' class='search-block-title'>"+label+"</a></li>");
-			
+
 			var display = "";
-			if( openFilters.indexOf(key) > -1 ) display = "style='display:block'" 
+			if( openFilters.indexOf(key) > -1 ) display = "style='display:block'"
 			var block = $("<ul id='filter-block-"+key.replace(/\s/g,"_")+"' class='filter-block' "+display+"></ul>");
-			
+
 			for( var i = 0; i < results.filters[key].length; i++ ) {
 				var item = results.filters[key][i];
 				var query = MQE.getCurrentQuery();
 				query.page = 0;
-				
+
 				var filter = {};
 				filter[ESIS.filters[key] ? ESIS.filters[key] : key] = item.filter;
 				query.filters.push(filter);
-				
+
 				block.append($('<li><a href="'+MQE.queryToUrlString(query).replace(/"/g,'\\"')+'">'+item.filter+' ('+item.count+')</a></li>'));
 			}
-			
+
 			title.append(block);
 			panel.append(title);
 			c++;
 		}
-		
+
 		if( c == 0 ) {
 			panel.append($("<div>No filters available for this search</div>"));
 			return;
 		}
-		
+
 		// add hide/show handlers for the blocks
 		$(".search-block-title").on('click', function(e){
 			var id = e.target.id.replace(/filter-block-title-/, '');
 			var panel = $("#filter-block-"+id);
-			
+
 			if( panel.css("display") == "none" ) {
 				panel.show('blind');
 				openFilters.push(id);
@@ -171,18 +171,18 @@ ESIS.search = (function() {
 			}
 		});
 	}
-	
+
 	function _updatePaging(results) {
 		var tmpQuery = MQE.getCurrentQuery();
 		var numPages = Math.ceil( parseInt(results.total) / tmpQuery.itemsPerPage );
 		var cPage = Math.floor( parseInt(results.start+1) / tmpQuery.itemsPerPage );
-		
+
 		var buttons = [];
-		
+
 		// going to show 7 buttons
 		var startBtn = cPage - 3;
 		var endBtn = cPage + 3;
-		
+
 		if( endBtn > numPages ) {
 			startBtn = numPages-7;
 			endBtn = numPages;
@@ -192,16 +192,16 @@ ESIS.search = (function() {
 			endBtn = 6;
 			if( endBtn > numPages ) endBtn = numPages;
 		}
-		
+
 		var panel = $("#search-paging-btns");
 		panel.html("");
-		
+
 		// add back button
 		if( cPage != 0 ) {
 			tmpQuery.page = cPage-1;
 			panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
 		}
-		
+
 		for( var i = startBtn; i < endBtn; i++ ) {
 			var label = i+1;
 			tmpQuery.page = i;
@@ -209,43 +209,43 @@ ESIS.search = (function() {
 			if( cPage == i ) btn.addClass('active');
 			panel.append(btn);
 		}
-		
+
 		// add next button
 		if(  cPage != numPages-1 && numPages != 0 ) {
 			tmpQuery.page = cPage+1;
 			panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
 		}
-		
+
 	}
-	
+
 	function _updateResultsTitle(results) {
 		var end = results.end;
 		if( results.total < end ) end = results.total;
-		
+
 		var start = parseInt(results.start)+1;
 		if( end == 0 ) start = 0;
-		
-		
+
+
 		$("#results-title").html(titleTemplate({
 			start : start,
 			end   : end,
 			total : results.total
 		}));
 	}
-	
+
 	function _updateResults(results) {
 		var panel = $("#results-panel").html("");
-		
+
 		if( results.items.length == 0 ) {
 			panel.append("<div style='font-style:italic;color:#999;padding:15px 10px'>No results found for your current search.</div>");
 			return;
 		}
-		
+
 		//ESIS.chart.clearSearchCharts();
 		for( var i = 0; i < results.items.length; i++ ) {
 			var item = results.items[i];
 			var info = _getInfo(item);
-			
+
 			panel.append(rowTemplate({
 				_id     : item._id,
 				title   : _getTitle(item),
@@ -255,7 +255,7 @@ ESIS.search = (function() {
 				isChecked : ESIS.compare.selected(item._id)
 			}));
 		//	ESIS.chart.addSearchChart(item, $('#'+item._id+'-chart'));
-			
+
 		}
 		//ESIS.chart.redrawSearchCharts(true);
 	}
@@ -281,7 +281,7 @@ ESIS.search = (function() {
 	function _getOrganization(item) {
 		if( !item.ecosis.organization_name ) return '';
 		if( item.ecosis.organization_name == '' ) return '';
-	
+
 		var link = '<a href="'+_createFilterUrl('organization_name', item.ecosis.organization_name)+'">';
 		/*if( item.ecosis.organization_image_url ) {
 			link += '<img class="img-thumbnail" src="'+ESIS.ckanHost+item.ecosis.organization_image_url+'" border=0  style="width:32px" /> ';
@@ -290,7 +290,7 @@ ESIS.search = (function() {
 
 		return link;
 	}
-	
+
 	function _getInfo(item) {
 		var info = "<ul>";
 
@@ -305,7 +305,7 @@ ESIS.search = (function() {
 				for( var j = 0; j < arr.length; j++ ) {
 					if( _hasFilter(item,arr[j]) ) info += arr[j];
 					else info += '<a href="'+_createFilterUrl(key, arr[j])+'">'+arr[j]+'</a>';
-					
+
 					if( j == 5 && j != arr.length - 1 ) {
 						info += ' ...';
 						break;
@@ -316,9 +316,9 @@ ESIS.search = (function() {
 				info += '</li>';
 			}
 		}
-		
-		
-		
+
+
+
 		info += "</ul>";
 		return info;
 	}
@@ -360,7 +360,7 @@ ESIS.search = (function() {
 		}
 		return false;
 	}
-	
+
 	function _createFilterUrl(key, value) {
 		var tmpQuery = MQE.getCurrentQuery();
 		var filter = {};
@@ -374,7 +374,7 @@ ESIS.search = (function() {
 	function _loading(loading) {
 		if( loadingTimer != -1 ) clearTimeout(loadingTimer);
 
-		if( loading ) {	
+		if( loading ) {
 			loadingTimer = setTimeout(function(){
 				loadingTimer = -1;
 				$('#loading').show();
@@ -385,10 +385,8 @@ ESIS.search = (function() {
 		}
 	}
 
-	
+
 	return {
 		init : init
 	}
 })();
-                   
-                   
