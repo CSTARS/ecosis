@@ -36,7 +36,7 @@ exports.download = function(collections, req, res) {
         var metadata = [];
         for( var i = 0; i < pkg.attributes.types.length; i++ ) {
             var attr = pkg.attributes.types[i];
-            var type = pkg.attributes.modifications[attr.name] ? 
+            var type = pkg.attributes.modifications[attr.name] ?
                             pkg.attributes.modifications[attr.name] : attr.type;
             if( type == 'data' ) {
                 data.push(attr.name);
@@ -60,7 +60,7 @@ exports.download = function(collections, req, res) {
             if( a < b ) return -1;
             return 0;
         });
-        
+
         res.write(data.join(','));
         if( includeMetadata && metadata.length > 1 ) {
             res.write(',');
@@ -108,7 +108,7 @@ function getPoint(key, pts) {
         if( pts[i].key == key ) return pts[i].value;
     }
     return '';
-} 
+}
 
 
 
@@ -156,12 +156,14 @@ exports.getSpectra = function(collections, req, res) {
 
             var cur = collections.spectra.find(query);
             if( resp.value.ecosis.sort_on ) {
-                cur.sort([['ecosis.sort', 1]]);
+              var sort = {'ecosis.sort' : 1};
+              cur.sort(sort);
             }
             cur.skip(index).limit(1);
 
             cur.toArray(function(err, resp){
                 if( err ) return sendError(res, err);
+
                 var respObj = {
                     index : index,
                     total : count,
@@ -205,8 +207,8 @@ exports.getDerivedData = function(collections, req, res) {
 
         var options = {
             'ecosis.sort' : 1,
-            'datapoints' : 
-                { '$elemMatch' : 
+            'datapoints' :
+                { '$elemMatch' :
                     { 'key' : attribute }
                 },
             '_id' : 0

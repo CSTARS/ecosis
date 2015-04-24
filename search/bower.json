@@ -23,6 +23,7 @@
     "leaflet": "~0.7.3",
     "js-md5": "~1.1.0",
     "md5": "~0.2.2",
-    "deep-equal": "~0.0.0"
+    "deep-equal": "~0.0.0",
+    "bower-bootstrap-slider": "~1.0.0"
   }
 }

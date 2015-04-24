@@ -5,111 +5,96 @@
     }
   </style>
   <template>
-    <div class="layout horizontal" id="filterPanel">
-        <div>
-            Filters:&nbsp;&nbsp;
-        </div>
-        <div class="flex" id="filterBtnsPanel"></div>
-    </div>
+    <h5>
+      Spectra #&nbsp;
+      <select on-change="updateFromSelect" id="selectSpectraInput" style="min-width:100px"></select>
+      &nbsp;of <span id="totalSpectraLabel"></span>
+    </h5>
 
     <div style="position:relative">
         <div id="root" style="height: 450px"></div>
-        <span class="label label-success">
+        <span class="label label-success" id="loadingPanel">
           <i class="fa fa-spinner fa-spin"></i> Loading #<span id="selectedIndexLabel"></span>...
         </span>
     </div>
 
-    <div>
-        <div>
-            <a class="btn btn-link" on-click="toggleAdvanced"><i class="fa fa-cogs"></i> Advanced</a>
+    <div class="well">
+      <div class="row" style="margin-top: 10px">
+        <div class="col-sm-2">Add Filter</div>
+        <div class="col-sm-10"><select id="spectraFilterSelector"></select></div>
+      </div>
+
+      <div class="row" style="margin-top: 10px">
+        <div class="col-sm-2">Current Filters</div>
+        <div class="col-sm-10" id="filterBtnsPanel"></div>
+      </div>
+
+      <div class="row" style="margin-top: 10px">
+        <div class="col-sm-2">Wavelength Range</div>
+        <div class="col-sm-10" id="sliderRoot">
+
         </div>
+      </div>
 
-        <div class="advanced" id="advancedPanel">
-            <h4>Compare Spectra</h4>
-            <table class="table">
-                <tr>
-                    <td>
-                        <a class="btn btn-default" on-click="startCompareAdd">
-                          <i class="fa fa-plus"></i> Add to Compare List
-                        </a>
+      <div class="row">
+        <div class="col-md-3"><a on-click="toggleAdvanced"><i class="fa fa-cogs"></i> Advanced</a></div>
+        <div class="col-md-9">
 
-                        <div id="addingComparePanel" class="addLabel">
-                            Specta Label: <input type="text" value="compareLabel" />
-                            <a class="btn btn-default" on-click="addCompare" ><i class="fa fa-plus"></i> Add</a>
-                            <a class="btn btn-default" on-click="cancelAddCompare" >Cancel</a>
-                        </div>
-                    </td>
-                    <td align="right">
-                        <input type="checkbox" id="compareInput"/> Show Compare Spectra
-                    </td>
-                </tr>
-                <tr id="compareRow">
-                    <td colspan="2">
-                        <h6>Comparing:</h6>
-                        <div id="comparingBtnList"></div>
-                    </td>
-                </tr>
-            </table>
+          <div class="advanced" id="advancedPanel" style="display:none">
+              <h4>Compare Spectra</h4>
+              <table class="table">
+                  <tr>
+                      <td>
+                          <a class="btn btn-default" on-click="startCompareAdd">
+                            <i class="fa fa-plus"></i> Add to Compare List
+                          </a>
 
-            <h4 style="margin-top:40px">Set Wavelength Range</h4>
-            <table class="table">
-                <tr>
-                    <td>Min Wavelength (<span id="minWavelengthLabel"></span>)</td>
-                    <td>
-                        <input id="minWavelength" type="number" on-change="setMinWavelength" />
-                    </td>
-                </tr>
-                 <tr>
-                    <td>Max Wavelength (<span id="maxWavelengthLabel"></span>)</td>
-                    <td>
-                        <input id="maxWavelength" type="number" on-change="setMaxWavelength" />
-                    </td>
-                </tr>
-            </table>
+                          <div id="addingComparePanel" class="addLabel">
+                              Specta Label: <input type="text" value="compareLabel" />
+                              <a class="btn btn-default" on-click="addCompare" ><i class="fa fa-plus"></i> Add</a>
+                              <a class="btn btn-default" on-click="cancelAddCompare" >Cancel</a>
+                          </div>
+                      </td>
+                      <td align="right">
+                          <input type="checkbox" id="compareInput"/> Show Compare Spectra
+                      </td>
+                  </tr>
+                  <tr id="compareRow">
+                      <td colspan="2">
+                          <h6>Comparing:</h6>
+                          <div id="comparingBtnList"></div>
+                      </td>
+                  </tr>
+              </table>
 
-            <h4 style="margin-top:40px">Add Filter from Dataset</h4>
-            <table class="table">
-                <tr>
-                    <td>Attribute</td>
-                    <td>
-                        <select value="{{dsFilter}}">
-                            <template repeat="{{attr in dsFilters}}">
-                                <option value="{{attr}}">{{attr}}</option>
-                            </template>
-                        </select>
-                    </td>
-                <tr hidden?="{{dsFilter == ''}}">
-                    <td>Value</td>
-                    <td>
-                        <select value="{{dsFilterValue}}" on-change="{{addDsFilter}}">
-                            <template repeat="{{val in dsFilterValues}}">
-                                <option value="{{val}}">{{val}}</option>
-                            </template>
-                        </select>
-                    </td>
-                </tr>
-            </table>
+              <h4 style="margin-top:40px">Set Wavelength Range</h4>
+              <table class="table">
+                  <tr>
+                      <td>Min Wavelength (<span id="minWavelengthLabel"></span>)</td>
+                      <td>
+                          <input id="minWavelength" type="number" on-change="setMinWavelength" />
+                      </td>
+                  </tr>
+                   <tr>
+                      <td>Max Wavelength (<span id="maxWavelengthLabel"></span>)</td>
+                      <td>
+                          <input id="maxWavelength" type="number" on-change="setMaxWavelength" />
+                      </td>
+                  </tr>
+              </table>
+
+
+          </div>
+
         </div>
+      </div>
+
+      <div style="margin-top: 10px">
+        <a class="btn btn-default" on-click="print"><i class="fa fa-print"></i> Printable Chart</a>
+        <a class="btn btn-default" id="restLink" target="_blank"><i class="fa fa-link"></i> Developer Rest Link</a>
+      </dvi>
     </div>
 
-    <div class="layout horizontal">
-        <div>
-            <div style="margin-bottom: 15px">
-                Spectra #
-                <select on-change="updateFromSelect" id="selectSpectraInput"></select>
-                of <span id="totalSpectraLabel"></span>
-            </div>
-            <div style="margin-bottom: 15px">
-                <a class="btn btn-default" on-click="print"><i class="fa fa-print"></i> Printable Chart</a>
-            </div>
-            <div>
-                <a class="btn btn-default" id="restLink" target="_blank"><i class="fa fa-link"></i> Developer Rest Link</a>
-            </div>
-        </div>
-        <div class="flex">
-            <div id="spectraFilterPanel"></div>
-        </div>
-    </div>
   </template>
 </dom-module>
 
@@ -192,8 +177,9 @@
         });
     },
 
-    updateFromSelect : function() {
-        this.updateDataTable(false);
+    updateFromSelect : function(e) {
+      this.selectedIndex = parseInt(e.currentTarget.value);
+      this.updateDataTable(false);
     },
 
     compareUpdated : function() {
@@ -203,7 +189,7 @@
     },
 
     updateDataTable : function(resetWavelengths) {
-        this.loading = true;
+        this.$.loadingPanel.style.display = 'inline-block';
 
         var filters = '';
         var fArray = [];
@@ -217,22 +203,52 @@
             filters = '&filters='+encodeURIComponent(JSON.stringify(fArray));
         }
 
-        var url = '/rest/getSpectra?package_id='+this.package.id+filters+'&index='+this.selectedIndex;
+        var url = '/rest/getSpectra?package_id='+this.package+filters+'&index='+this.selectedIndex;
 
         if( this.xhr != null ) this.xhr.abort();
 
         this.xhr = $.ajax({
             url : url,
             success : function(resp) {
-                this.xhr = null;
+              this.$.loadingPanel.style.display = 'none';
+              this.xhr = null;
 
-                this.totalSpectra = resp.total;
-                this.item = resp.item;
-                this.createTableArray(resetWavelengths);
+              this.totalSpectra = resp.total;
+              this.item = resp.item;
+              this.createTableArray(resetWavelengths);
+              this.updateIndexSelector();
+              this.updateFilters();
             }.bind(this)
         });
 
         this.$.restLink.setAttribute('href', window.location.origin+url);
+    },
+
+    updateIndexSelector : function() {
+      var options = '';
+      for( var i = 0; i < this.totalSpectra; i++ ) {
+        options += '<option value="'+i+'" '+(i == this.selectedIndex ? 'selected' : '')+'>'+i+'</option>';
+      }
+      this.$.selectSpectraInput.innerHTML = options;
+
+      this.$.totalSpectraLabel.innerText = this.totalSpectra;
+
+      this.$.sliderRoot.innerHTML = '<div><input type="text" style="width:100%" value="" data-with="100%" data-slider-min="10" data-slider-max="2000" data-slider-step="1" data-slider-value="[250,450]" id="slider" /></div>';
+      setTimeout(function(){
+        $(this.$.sliderRoot).find('#slider').slider({});
+        $(this.$.sliderRoot).find('.slider').width('100%');
+      }.bind(this), 500);
+
+    },
+
+    updateFilters : function() {
+      var filterBtns = '<option></option>';
+      for( var key in this.item ) {
+        if( key == 'ecosis' || key == '_id' || key == 'datapoints' ) continue;
+        filterBtns += '<option key="'+key+'" value="'+this.item[key]+'">'+key+': '+this.item[key]+'</option>';
+      }
+
+      this.$.spectraFilterSelector.innerHTML = filterBtns;
     },
 
     createTableArray : function(resetWavelengths) {
@@ -265,8 +281,8 @@
             }
 
         } else {
-            for( var i = 0; i < this.resp.datapoints.length; i++ ) {
-                pt = this.resp.datapoints[i];
+            for( var i = 0; i < this.item.datapoints.length; i++ ) {
+                pt = this.item.datapoints[i];
                 if( this.ptRegex1.exec(pt.key) || this.ptRegex2.exec(pt.key) ) {
                     this.dataArray.push([parseFloat(pt.key), parseFloat(pt.value)]);
                 } else {
@@ -485,7 +501,7 @@
     },
 
     toggleAdvanced : function() {
-        this.showAdvanced = !this.showAdvanced;
+      $(this.$.advancedPanel).toggle();
     },
 
     startCompareAdd : function() {

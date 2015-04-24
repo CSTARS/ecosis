@@ -8,8 +8,16 @@ ESIS.result = (function() {
   var loadHandlers = [];
   var ignoreAttrs = ['_id', 'ecosis', 'count', 'lengths'];
 
-
+  // filters that should not be active
+  var noLink = ['Citation', 'Citation DOI', 'Funding Source Grant Number', 'Funding Source']
   var mainFilters = ['ecosis.organization','ecosis.keywords','Family','Category'];
+
+  var topAttributes = {
+      Description : 'ecosis.description',
+      License : 'ecosis.license',
+      Organization : 'ecosis.organization',
+      Version : 'ecosis.version'
+  }
 
   function init() {
     $('#result').load('/result.handlebars', function() {
@@ -66,27 +74,76 @@ ESIS.result = (function() {
     resultPanel.html(getResultHtml(result));
 
 
-    var content = '<div class="well">'+result.ecosis.description+'</div>';
+    var content = '<div class="well"><div class="row"><div class="col-md-6">'
 
 
+    for( var key in topAttributes ) {
+      var val;
+      if( topAttributes[key].indexOf('ecosis.') > -1 ) {
+        val = result.ecosis[topAttributes[key].replace(/ecosis\./,'')];
+      } else {
+        val = result[topAttributes[key]];
+      }
+      if( !val ) continue;
 
+      if( Array.isArray(val) ) {
+        val = wrapFilterLinks(topAttributes[key], val);
+      } else if( key != 'Description' && key != 'Version' ) {
+        val = wrapFilterLink(topAttributes[key], val);
+      }
+
+      content += '<div class="row"><div class="col-md-3"><b>'+key+'</b></div><div class="col-md-9">'+val+'</div></div>';
+
+    }
+
+    content += '</div><div class="col-md-6">';
+
+
+    // add resources
+    content += '<h5><i class="fa fa-files-o"></i> Resources</h5><ul class="list-group">';
+    if( result.ecosis.resources && result.ecosis.resources.length > 0) {
+      for( var i = 0; i < result.ecosis.resources.length; i++ ) {
+        var r = result.ecosis.resources[i];
+
+        content += '<li class="list-group-item"><a href="'+r.url+'" >'+r.name+'</a></li>';
+      }
+    } else {
+      content += '<li class="list-group-item">No resources provided</li>';
+    }
+
+    content += '</ul>';
+    content += '</div></div></div>';
+
+
+    // add category metadata
     for( var category in ESIS.schema ) {
       var items = ESIS.schema[category];
 
-      var catHTML = '<h5>'+category+'</h5>'+
+      var catHTML = '<h4 style="page-header">'+category+'</h4>'+
         '<div class="well well-sm" style="margin:0"><div class="row">';
 
       var c = 0;
-      var table1 = '<div class="col-md-6"><table class="table">';
-      var table2 = '<div class="col-md-6"><table class="table">';
+      var table1 = '<div class="col-md-6">';
+      var table2 = '<div class="col-md-6">';
       for( var i = 0; i < items.length; i++ ) {
         if( !result[items[i].name] ) continue;
 
-        row = '<tr><td>'+items[i].name+'</td><td>'+wrapFilterLinks(items[i].name, result[items[i].name])+'</td></tr>'
+        row = '<div class="row"><div class="col-md-3"><b>'+items[i].name+'</b></div>'+
+              '<div class="col-md-9">'+wrapFilterLinks(items[i].name, result[items[i].name])+'</div></div>';
 
         if( c % 2 == 0 ) table1 += row;
         else table2 += row;
         c++;
+
+        if( items[i].allowOther && result[items[i].name+' Other'] ) {
+          row = '<div class="row"><div class="col-md-3"><b>'+items[i].name+' Other</b></div>'+
+                '<div class="col-md-9">'+wrapFilterLinks(items[i].name+' Other', result[items[i].name+' Other'])+'</div></div>';
+
+          if( c % 2 == 0 ) table1 += row;
+          else table2 += row;
+          c++;
+        }
+
       }
       catHTML += table1+'</table></div>'+table2+'</table></div></div></div>'
 
@@ -103,13 +160,12 @@ ESIS.result = (function() {
 
         var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
 
-        metadata += "<tr><td>"+label+"</td><td><div style='max-height:100px;overflow:auto'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";
+        metadata += "<tr><td><b>"+label+"</b></td><td><div style='max-height:100px;overflow:auto'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";
       }
     }
     metadata += '</table>';
 
     resultPanel.find("#result-metadata").html(metadata);
-
 
     var viewer = document.createElement('esis-spectra-viewer');
     var downloader = document.createElement('esis-data-downloader');
@@ -122,6 +178,7 @@ ESIS.result = (function() {
     viewer.addEventListener('filters-updated', function(e){
       downloader.filters = e.detail;
     });
+    viewer.update();
 
 
     $("#result-back-btn").on('click', function(){
@@ -163,11 +220,24 @@ ESIS.result = (function() {
       links += wrapFilterLink(key, values[i]);
       if( i < values.length-1 ) links += ', ';
     }
-    return links;
+    return '<div style="max-height:200px; overflow:auto">'+links+'</div>';
   }
 
   function wrapFilterLink(key, value, icon) {
-    if( value.length > 30 ) return value;
+    if( key == 'Website' ) {
+      if( !value.match(/$(http|https|ftp)/) ) value = 'http://'+value;
+      var link = '<a href="'+value+'" target="_blank"><i class="fa fa-globe"></i> '+key+' ('+value+')</a>';
+
+      return link;
+    }
+
+    if( key == 'Author Email' || key == 'Maintainer Email' ) {
+      var link = '<a href="mailto:'+value+'" target="_blank"><i class="fa fa-envelope-o"></i> '+value+'</a>';
+      return link;
+    }
+
+    if( noLink.indexOf(key) > -1 ) return value;
+    if( value.length > 80 ) return value;
 
     var q = MQE.getCurrentQuery();
     q.text = '';
