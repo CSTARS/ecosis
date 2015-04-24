@@ -87,16 +87,6 @@
 	-webkit-border-radius : 4px;
 }
 
-#result h4 {
-	margin-top : 40px;
-	margin-bottom : 5px;
-}
-
-#result h5 {
-	margin-top : 8px;
-	margin-bottom : 2px;
-}
-
 .help-text {
 	font-size   : 11px;
 	text-shadow : 0 1px 0 rgba(255,255,255,0.5);
@@ -116,4 +106,13 @@ ins {
 	border-radius : 5px;
 	-webkit-border-radius : 5px;
 	-moz-border-radius : 5px;
+}
+
+.resources-title {
+	margin: -25px 0 10px 0 !important;
+}
+@media(max-width: 768px) {
+	.resources-title {
+		margin: 0 0 5px 0 !important;
+	}
 }

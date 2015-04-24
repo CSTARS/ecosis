@@ -9,13 +9,13 @@
 
           <ul class="nav navbar-nav">
             <li>
-              <a goto="package"><i class="fa fa-info-circle"></i> Dataset Information</a>
+              <a goto="package" style="cursor:pointer"><i class="fa fa-info-circle"></i> Dataset Information</a>
             </li>
             <li>
-              <a goto="chart"><i class="fa fa-area-chart"></i> Data Viewer</a>
+              <a goto="chart" style="cursor:pointer"><i class="fa fa-area-chart"></i> Data Viewer</a>
             </li>
             <li>
-              <a goto="download"><i class="fa fa-download"></i> Download</a>
+              <a goto="download" style="cursor:pointer"><i class="fa fa-download"></i> Download</a>
             </li>
 
             <li class="dropdown" id="resourcesDropdown" style="display:none">
@@ -34,17 +34,17 @@
     </div>
   </div>
 
-<div style="padding: 0 5%">
-  <h3 class="page-header">{{ecosis._title}}</h3>
+<div style="padding: 0 2%">
 
+  <h3 class="page-header" style="margin:0" id="package"><i class="fa fa-info-circle"></i> {{ecosis._title}}</h3>
   <div id="dataset-content" class="well"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
 
+  <h4 class="page-header" id="chart" ><i class="fa fa-area-chart"></i> Data Viewer</h4>
+  <div id="dataViewerRoot" class="well"></div>
 
-  <h4 class="page-header" id="download" >Data Viewer</h4>
-  <div id="dataViewerRoot"></div>
+  <h4 class="page-header" id="download"><i class="fa fa-download"></i> Download</h4>
+  <div id="downloaderRoot" class="well"></div>
 
-  <h4 class="page-header" id="download">Download</h4>
-  <esis-data-downloader></esis-data-downloader>
 </div>
 
 </script>

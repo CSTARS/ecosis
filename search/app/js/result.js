@@ -74,7 +74,7 @@ ESIS.result = (function() {
     resultPanel.html(getResultHtml(result));
 
 
-    var content = '<div class="well"><div class="row"><div class="col-md-6">'
+    var content = '<div class="well"><div class="row"><div class="col-sm-6">'
 
 
     for( var key in topAttributes ) {
@@ -96,22 +96,23 @@ ESIS.result = (function() {
 
     }
 
-    content += '</div><div class="col-md-6">';
+    content += '</div><div class="col-sm-6">';
 
 
     // add resources
-    content += '<h5><i class="fa fa-files-o"></i> Resources</h5><ul class="list-group">';
+    content += '<h5 class="resources-title"><i class="fa fa-files-o"></i> Resources</h5>'+
+               '<div style="max-height: 400px; overflow:auto"><ul class="list-group">';
     if( result.ecosis.resources && result.ecosis.resources.length > 0) {
       for( var i = 0; i < result.ecosis.resources.length; i++ ) {
         var r = result.ecosis.resources[i];
 
-        content += '<li class="list-group-item"><a href="'+r.url+'" >'+r.name+'</a></li>';
+        content += '<li class="list-group-item" style="padding: 10px;font-size: 16px"><a href="'+r.url+'" ><i class="fa fa-file-o"></i> '+r.name+'</a></li>';
       }
     } else {
       content += '<li class="list-group-item">No resources provided</li>';
     }
 
-    content += '</ul>';
+    content += '</ul></div>';
     content += '</div></div></div>';
 
 
@@ -120,16 +121,17 @@ ESIS.result = (function() {
       var items = ESIS.schema[category];
 
       var catHTML = '<h4 style="page-header">'+category+'</h4>'+
-        '<div class="well well-sm" style="margin:0"><div class="row">';
+        '<div class="well" style="margin:0"><div class="row">';
 
       var c = 0;
-      var table1 = '<div class="col-md-6">';
-      var table2 = '<div class="col-md-6">';
+      var table1 = '<div class="col-sm-6">';
+      var table2 = '<div class="col-sm-6">';
       for( var i = 0; i < items.length; i++ ) {
         if( !result[items[i].name] ) continue;
 
         row = '<div class="row"><div class="col-md-3"><b>'+items[i].name+'</b></div>'+
               '<div class="col-md-9">'+wrapFilterLinks(items[i].name, result[items[i].name])+'</div></div>';
+        if( items[i].description ) row += '<div class="help-block">'+items[i].description +'</div>';
 
         if( c % 2 == 0 ) table1 += row;
         else table2 += row;
@@ -170,13 +172,15 @@ ESIS.result = (function() {
     var viewer = document.createElement('esis-spectra-viewer');
     var downloader = document.createElement('esis-data-downloader');
     viewer.package = result.ecosis.package_id;
+    downloader.package = result.ecosis.package_id;
     viewer.total = result.ecosis.spectra_count;
 
     resultPanel.find("#dataViewerRoot").append(viewer);
+    resultPanel.find("#downloaderRoot").append(downloader);
 
     //downloader.package_id = resp.id;
-    viewer.addEventListener('filters-updated', function(e){
-      downloader.filters = e.detail;
+    viewer.addEventListener('filter-update', function(e){
+      downloader.update(e.detail);
     });
     viewer.update();
 
@@ -209,7 +213,7 @@ ESIS.result = (function() {
       var heading = $(this).attr('goto');
       if( !heading || heading == '' ) return;
 
-      $('body,html').animate({scrollTop: $('#'+heading).offset().top-120}, 500);
+      $('body,html').animate({scrollTop: $('#'+heading).offset().top-15}, 500);
     });
   }
 
