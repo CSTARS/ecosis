@@ -5,7 +5,6 @@
  * mongod --setParameter textSearchEnabled=true
  *
  */
-var config = require(process.argv[2]);
 
 var ObjectId = require('mongodb').ObjectID;
 var CursorStream = require('mongodb').CursorStream;
@@ -62,7 +61,7 @@ exports.bootstrap = function() {
     });
 
     app.get('/rest/download', function(req, res){
-        data.download({packmainage: collection, spectra: spectraCollection}, req, res);
+        data.download({main: collection, spectra: spectraCollection}, req, res);
     });
 
     usda.init(usdaCollection);

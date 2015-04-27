@@ -93,8 +93,11 @@ ESIS.result = (function() {
       }
 
       content += '<div class="row"><div class="col-md-3"><b>'+key+'</b></div><div class="col-md-9">'+val+'</div></div>';
-
     }
+
+    // add developer link
+    content += '<div class="row"><div class="col-md-3"><b>API Link</b></div><div class="col-md-9">' +
+      '<a href="/rest/get?_id='+result.ecosis.package_id+'" target="_blank"><i class="fa fa-link"></i> Developer Rest Link</a></div></div>';
 
     content += '</div><div class="col-sm-6">';
 
@@ -230,7 +233,7 @@ ESIS.result = (function() {
   function wrapFilterLink(key, value, icon) {
     if( key == 'Website' ) {
       if( !value.match(/$(http|https|ftp)/) ) value = 'http://'+value;
-      var link = '<a href="'+value+'" target="_blank"><i class="fa fa-globe"></i> '+key+' ('+value+')</a>';
+      var link = '<a href="'+value+'" target="_blank"><i class="fa fa-globe"></i> '+value+'</a>';
 
       return link;
     }

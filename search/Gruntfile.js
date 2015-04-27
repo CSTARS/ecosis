@@ -70,7 +70,7 @@ module.exports = function (grunt) {
             //css: ['<%= yeoman.dist %>/css/{,*/}*.css']
         },
 
-        
+
         // Copies remaining files to places other tasks can use
         copy: {
             dist: {
@@ -88,7 +88,7 @@ module.exports = function (grunt) {
                 {
                     expand: true,
                     flatten :true ,
-                    src: ['bower_components/font-awesome/fonts/**'], 
+                    src: ['bower_components/font-awesome/fonts/**'],
                     dest: 'dist/fonts/',
                     cwd: '<%= yeoman.app %>',
                     filter: 'isFile'
@@ -98,6 +98,13 @@ module.exports = function (grunt) {
 
 
         shell: {
+            'server' : {
+                options: {
+                    stdout: true,
+                    stderr: true
+                },
+                command: 'node node_modules/MongoQueryEngine/server ../../config.js'
+            },
             // this should be done prior to running normal dev server, generates the webcomponets base.css file
             // also handles copying bower_components font-awesome /fonts dir
             'generate-deep-css' : {
@@ -111,7 +118,7 @@ module.exports = function (grunt) {
                          'sed -i "" -e \':a\' -e \'N\' -e \'$!ba\' -e \'s/\\,\\(\\n *\\)\\([a-z\\.\\*]\\)/\\,\\1html \\/deep\\/ \\2/g\' <%= yeoman.app %>/css/tmp.bootstrap.css &&' +
                          'sed -i "" -e \':a\' -e \'N\' -e \'$!ba\' -e \'s/\\,\\( *\\)\\([a-z\\.]\\)/\\,\\1html \\/deep\\/ \\2/g\' <%= yeoman.app %>/css/tmp.bootstrap.css &&' +
                          'sed -i "" -e \':a\' -e \'N\' -e \'$!ba\' -e \'s/\\(@media[a-z0-9()-\\: ]*{\\n\\)/\\1 html \\/deep\\//g\' <%= yeoman.app %>/css/tmp.bootstrap.css &&' +
-                         
+
                          // fix the modal selector
                          'sed -i "" -e \':a\' -e \'N\' -e \'$!ba\' -e \'s/html \\/deep\\/ \\.modal-open \\.modal/.modal-open \\/deep\\/ .modal/g\' <%= yeoman.app %>/css/tmp.bootstrap.css &&' +
 
@@ -151,6 +158,9 @@ module.exports = function (grunt) {
         },
 
     });
+    grunt.registerTask('server', [
+        'shell:server'
+    ]);
 
     grunt.registerTask('build', [
         'clean:dist',
