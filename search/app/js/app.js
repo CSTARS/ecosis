@@ -11,8 +11,8 @@ if( window.location.host == 'ecospectra.org' ) {
 	ESIS.ckanHost = 'http://192.168.2.109:5000';
 }
 
-
-ESIS.app = (function() {
+// init app
+(function() {
 
 	var DEFAULT_PAGE = "home";
 	var validPages = [DEFAULT_PAGE, "search", "result", "all", "edit", "compare", "group"];
@@ -59,7 +59,6 @@ ESIS.app = (function() {
 			ESIS.group.show();
 		}
 	}
-
 
 })();
 

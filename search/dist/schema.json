@@ -1,0 +1,578 @@
+{
+  "Measurement": [
+    {
+      "name": "Acquisition Method",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Contact",
+        "Other",
+        "Pixel",
+        "Proximal"
+      ],
+      "description": "Type of sampling acquisition approach",
+      "allowOther": true
+    },
+    {
+      "name": "Sample Platform",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Airplane",
+        "Boom",
+        "E.g.",
+        "Etc.",
+        "Satellite",
+        "Tower",
+        "UAV"
+      ],
+      "description": "What was the sample collected from?",
+      "allowOther": false
+    },
+    {
+      "name": "Measurement Venue",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Greenhouse",
+        "Laboratory",
+        "Other",
+        "Outdoor"
+      ],
+      "description": "",
+      "allowOther": true
+    },
+    {
+      "name": "Target Type",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Animal",
+        "Bark",
+        "Branch",
+        "Canopy",
+        "Flower",
+        "Leaf",
+        "Mineral",
+        "NPV",
+        "Other",
+        "Reference",
+        "Rock",
+        "Soil",
+        "Water"
+      ],
+      "description": "",
+      "allowOther": true
+    },
+    {
+      "name": "Measurement Quantity",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Absorptance",
+        "DN",
+        "Index",
+        "Other",
+        "Radiance",
+        "Reflectance",
+        "Transflectance",
+        "Transmittance"
+      ],
+      "description": "",
+      "allowOther": true
+    },
+    {
+      "name": "Index Name",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "Measurement quantity index name.  Please provide if Measurement Quantity = \"Index\"",
+      "allowOther": false
+    },
+    {
+      "name": "Measurement Units",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "Units of measurement for spectral measurement",
+      "allowOther": false
+    },
+    {
+      "name": "Wavelength Units",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Microns",
+        "Nm",
+        "Other",
+        "Unitless"
+      ],
+      "description": "e.g., microns, nm",
+      "allowOther": false
+    },
+    {
+      "name": "Target Status",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Dried",
+        "Fresh",
+        "Green",
+        "Ground",
+        "Liquid",
+        "Live",
+        "Other",
+        "Panel",
+        "Standard"
+      ],
+      "description": "",
+      "allowOther": true
+    },
+    {
+      "name": "Light Source",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Lamp",
+        "Laser",
+        "Other",
+        "Sun"
+      ],
+      "description": "",
+      "allowOther": true
+    },
+    {
+      "name": "Light Source Specifications",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Foreoptic Type",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Bare Fiber",
+        "Cosine Diffuser",
+        "Foreoptic",
+        "Gershon Tube",
+        "Integrating Sphere",
+        "Leaf Clip",
+        "None",
+        "Other"
+      ],
+      "description": "",
+      "allowOther": true
+    },
+    {
+      "name": "Foreoptic Field of View",
+      "level": 2,
+      "input": "text",
+      "units": "integer degrees",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Foreoptic Specifications",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Processing Information": [
+    {
+      "name": "Processing Averaged",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "No",
+        "Yes"
+      ],
+      "description": "Is the measurement an average of other measurements?",
+      "allowOther": false
+    },
+    {
+      "name": "Processing Interpolated",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "No",
+        "Yes"
+      ],
+      "description": "Is the measurement interpolated?",
+      "allowOther": false
+    },
+    {
+      "name": "Processing Resampled",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "No",
+        "Yes"
+      ],
+      "description": "Is the measurement resampled?",
+      "allowOther": false
+    },
+    {
+      "name": "Processing Information Details",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "More information about processing can be provided here",
+      "allowOther": false
+    }
+  ],
+  "Instrument": [
+    {
+      "name": "Instrument Manufacturer",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Instrument Model",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Instrument Serial Number",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Theme": [
+    {
+      "name": "Theme",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Agriculture",
+        "Biochemistry",
+        "Ecology",
+        "Forest",
+        "Global Change",
+        "Land Cover",
+        "Other",
+        "Phenology",
+        "Physiology",
+        "Urban",
+        "Water Quality"
+      ],
+      "description": "",
+      "allowOther": true
+    },
+    {
+      "name": "Keywords",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "But Not Controlled",
+        "May Include Terms In Cells Below"
+      ],
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Objective",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Agriculture",
+        "Biochemistry",
+        "E.g.",
+        "Ecology",
+        "Forest",
+        "Phenology",
+        "Physiology"
+      ],
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Ecosystem Type",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": [
+        "Aquatic",
+        "Coastal",
+        "Crops",
+        "E.g.",
+        "Forest",
+        "Grassland",
+        "Wetland"
+      ],
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Location": [
+    {
+      "name": "Latitude",
+      "level": 1,
+      "input": "latlng",
+      "units": "decimal degree",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Longitude",
+      "level": 1,
+      "input": "latlng",
+      "units": "decimal degree",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Location Name",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Date": [
+    {
+      "name": "Sample Collection Date",
+      "level": 1,
+      "input": "date",
+      "units": "ISO Date ",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Measurement Date",
+      "level": 2,
+      "input": "date",
+      "units": "ISO Date ",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Phenological Status",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Species": [
+    {
+      "name": "Common Name",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Latin Genus",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Latin Species",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "USDA Symbol",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Vegetation Type",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "datasetLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Citation": [
+    {
+      "name": "Citation",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Citation DOI",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Website",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Author",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Author Email",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Maintainer",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Maintainer Email",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Funding Source",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Funding Source Grant Number",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "datasetLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ]
+}

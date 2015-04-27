@@ -8,11 +8,11 @@ exports.dev = true;
 var root = '/Users/jrmerz/dev/cstars/EcoSIS/ecosis-search/search';
 
 exports.db = {
-	initd           : "mongod --port 27017",
+	//initd           : "mongod --port 27017",
 
 	// connection string for the database, includes database name
 	//url             : "mongodb://localhost:27017/esis",
-	url             : "mongodb://localhost:27017/esis",
+	url             : "mongodb://192.168.1.9:27017/esis",
 
 	// collection where the queryable items are stored
 	mainCollection  : "search",
@@ -33,7 +33,7 @@ exports.db = {
   // the text search index
   textIndexes       : ['ecosis.package_title','Keywords', 'Theme', 'Target Type'],
 
-	blacklist : ['_id', 'ecosis.geojson']
+	//blacklist : ['_id', 'ecosis.geojson']
 }
 
 exports.server = {

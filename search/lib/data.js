@@ -20,33 +20,22 @@ exports.download = function(collections, req, res) {
         return sendError(res, e);
     }
 
-    collections.main.findOne({'value.ecosis.package_id': pkgid}, {'value.ecosis': 1}, function(err, resp){
+    collections.main.findOne({'value.ecosis.package_id': pkgid}, {'value.ecosis': 1}, function(err, result){
         if( err ) return sendError(res, err);
-        if( !resp ) return sendError(res, 'package not found');
+        if( !result ) return sendError(res, 'package not found');
+        if( result.length == 0 ) return sendError(res, 'package not found');
+        var pkg = result.value;
 
-        res.set('Content-Disposition', 'attachment; filename="'+pkgid+'.csv"');
+        res.set('Content-Disposition', 'attachment; filename="'+pkg.ecosis.package_name+'.csv"');
 
-        var pkg = resp[0];
-        var sort = resp.value.ecosis.sort_on;
+
+        var sort = pkg.ecosis.sort_on;
         if( sort == '' ) sort = null;
 
 
         // get all the 'data'
-        var data = pkg.attributes.wavelengths;
-        var metadata = [];
-        for( var i = 0; i < pkg.attributes.types.length; i++ ) {
-            var attr = pkg.attributes.types[i];
-            var type = pkg.attributes.modifications[attr.name] ?
-                            pkg.attributes.modifications[attr.name] : attr.type;
-            if( type == 'data' ) {
-                data.push(attr.name);
-            } else {
-                metadata.push(attr.name);
-                if( pkg.attributes.map[attr.name] ) {
-                    metadata.push(pkg.attributes.map[attr.name]);
-                }
-            }
-        }
+        var data = pkg.ecosis.spectra_schema.data;
+        var metadata = pkg.ecosis.spectra_schema.metadata;
 
         if( includeMetadata ) {
             metadata.sort(function(a,b){
@@ -55,6 +44,7 @@ exports.download = function(collections, req, res) {
                 return 0;
             });
         }
+
         data.sort(function(a,b){
             if( a > b ) return 1;
             if( a < b ) return -1;
@@ -67,6 +57,11 @@ exports.download = function(collections, req, res) {
             res.write(metadata.join(','));
         }
 
+        // now write data keys as stored in mongo
+        for( var i = 0; i < data.length; i++ ) {
+          data[i] = data[i].replace(/\./,'_');
+        }
+
         var query = {'ecosis.package_id': pkgid};
         if( filters ) query['$and'] = filters;
 
@@ -76,19 +71,31 @@ exports.download = function(collections, req, res) {
         }
         cursor = cursor.stream();
 
+        var dataLength = data.length;
+        var metadataLength = metadata.length;
+        var i, line;
+
+        if( includeMetadata && metadata.length > 1 ) {
+          includeMetadata = true;
+        } else {
+          includeMetadata = false;
+        }
+
         cursor.on('data', function(item) {
-            var line = '', len = data.length;
-            for( var i = 0; i < len; i++ ) {
-                line += getPoint(data[i], item.datapoints);
-                if( i < len - 1 ) line += ','
+            line = '';
+
+            for( i = 0; i < dataLength; i++ ) {
+                //line += getPoint(data[i], item.datapoints);
+                line += item.datapoints[data[i]] === undefined ? '' : item.datapoints[data[i]];
+                if( i < dataLength - 1 ) line += ','
             }
 
-            if( includeMetadata && metadata.length > 1 ) {
+            if( includeMetadata ) {
                 line += ',';
-                len = metadata.length;
-                for( var i = 0; i < len; i++ ) {
+
+                for( var i = 0; i < metadataLength; i++ ) {
                     line += item[metadata[i]] === undefined ? '' : item[metadata[i]];
-                    if( i < len - 1 ) line += ','
+                    if( i < metadataLength - 1 ) line += ','
                 }
             }
 
@@ -174,6 +181,13 @@ exports.getSpectra = function(collections, req, res) {
                     respObj.message = 'no spectra found at index: '+index;
                 } else {
                     respObj.item = resp[0];
+
+                    // cleanup datapoints
+                    var points = {};
+                    for( var key in respObj.item.datapoints ) {
+                      points[key.replace(/_/g, '.')] = respObj.item.datapoints[key]
+                    }
+                    respObj.item.datapoints = points;
                 }
 
                 res.send(respObj);
@@ -205,14 +219,22 @@ exports.getDerivedData = function(collections, req, res) {
             }
         }
 
-        var options = {
+        /*var options = {
             'ecosis.sort' : 1,
             'datapoints' :
                 { '$elemMatch' :
                     { 'key' : attribute }
                 },
             '_id' : 0
+        };*/
+        var options = {
+            'ecosis.sort' : 1,
+            '_id' : 0
         };
+
+        var cleanAttr = attribute.replace(/\./g,'_');
+        options['ecosis.'+cleanAttr] = 1;
+
         if( resp.value.ecosis.sort_on ) {
             options[resp.value.ecosis.sort_on] = 1;
         }
@@ -233,8 +255,8 @@ exports.getDerivedData = function(collections, req, res) {
                     obj[sort] = resp[i][sort];
                     obj.sort = resp[i].ecosis.sort;
                 }
-                if( resp[i].datapoints && resp[i].datapoints.length > 0 ) {
-                    obj.value = resp[i].datapoints[0].value;
+                if( resp[i].datapoints && resp[i].datapoints[cleanAttr]) {
+                    obj.value = resp[i].datapoints[cleanAttr];
                 }
                 arr.push(obj);
             }

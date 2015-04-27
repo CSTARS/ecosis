@@ -123,7 +123,7 @@ ESIS.result = (function() {
     for( var category in ESIS.schema ) {
       var items = ESIS.schema[category];
 
-      var catHTML = '<h4 style="page-header">'+category+'</h4>'+
+      var catHTML = '<h4 class="page-header" style="margin-left: 5px; margin-bottom: 0">'+category+'</h4>'+
         '<div class="well" style="margin:0"><div class="row">';
 
       var c = 0;
@@ -165,7 +165,7 @@ ESIS.result = (function() {
 
         var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
 
-        metadata += "<tr><td><b>"+label+"</b></td><td><div style='max-height:100px;overflow:auto'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";
+        metadata += "<tr><td><b>"+label+"</b></td><td><div style='max-height:100px;overflow:auto; padding:2px'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";
       }
     }
     metadata += '</table>';
@@ -224,10 +224,10 @@ ESIS.result = (function() {
   function wrapFilterLinks(key, values) {
     var links = '';
     for( var i = 0; i < values.length; i++ ) {
-      links += wrapFilterLink(key, values[i]);
+      links += wrapFilterLink(key, values[i], false);
       if( i < values.length-1 ) links += ', ';
     }
-    return '<div style="max-height:200px; overflow:auto">'+links+'</div>';
+    return '<div style="max-height:200px; overflow:auto; padding: 2px">'+links+'</div>';
   }
 
   function wrapFilterLink(key, value, icon) {
@@ -252,8 +252,8 @@ ESIS.result = (function() {
     var f = {};
     f[key] = value;
     q.filters = [f];
-    return '<a href="'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'">'+
-          (icon ? '<i class="fa fa-filter"></i> ' : '')+value+'</a>';
+    return '<a href="'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'" style="white-space:normal">'+
+          (icon ? '<i class="fa fa-plus-circle"></i> ' : '')+value+'</a>';
   }
 
   function getResultHtml(result) {
