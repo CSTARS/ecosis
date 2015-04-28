@@ -6867,6 +6867,9 @@ Polymer.Debounce = (function() {
     },
 
     resetSlider : function() {
+      this.absoluteMax = this.maxWavelength;
+      this.absoluteMin = this.minWavelength;
+
       this.$.sliderRoot.innerHTML = '<input type="text" data-slider-min="'+this.minWavelength+'" data-slider-max="'+this.maxWavelength+
           '" data-slider-step="1" data-slider-value="['+this.minWavelength+','+this.maxWavelength+']" id="slider" />';
       this.$.slider = this.$.sliderRoot.querySelector('#slider');
@@ -7083,12 +7086,16 @@ Polymer.Debounce = (function() {
           this.resetSlider();
 
         } else {
-            if( this.minWavelength < this.wavelengths[0] ) {
+            var changed = false;
+            if( this.absoluteMin > this.wavelengths[0] ) {
                 this.setWavelength('min', this.wavelengths[0]);
+                changed = true;
             }
-            if( this.maxWavelength > this.wavelengths[this.wavelengths.length-1] ) {
+            if( this.absoluteMax < this.wavelengths[this.wavelengths.length-1] ) {
                 this.setWavelength('max', this.wavelengths[this.wavelengths.length-1]);
+                changed = true;
             }
+            if( changed ) this.resetSlider();
         }
 
         if( this.showCompare ) {
