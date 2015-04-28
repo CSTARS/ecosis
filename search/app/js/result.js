@@ -235,7 +235,7 @@ ESIS.result = (function() {
 
   function wrapFilterLink(key, value, icon) {
     if( key == 'Website' ) {
-      if( !value.match(/$(http|https|ftp)/) ) value = 'http://'+value;
+      if( !value.match(/^(http|https|ftp)/) ) value = 'http://'+value;
       var link = '<a href="'+value+'" target="_blank"><i class="fa fa-globe"></i> '+value+'</a>';
 
       return link;
