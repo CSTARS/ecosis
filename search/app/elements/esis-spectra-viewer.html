@@ -294,12 +294,16 @@
           this.resetSlider();
 
         } else {
+            var changed = false;
             if( this.minWavelength > this.wavelengths[0] ) {
                 this.setWavelength('min', this.wavelengths[0]);
+                changed = true;
             }
             if( this.maxWavelength < this.wavelengths[this.wavelengths.length-1] ) {
                 this.setWavelength('max', this.wavelengths[this.wavelengths.length-1]);
+                changed = true;
             }
+            if( changed ) this.resetSlider();
         }
 
         if( this.showCompare ) {
