@@ -242,7 +242,7 @@ exports.getDataInSeries = function(collections, req, res) {
         var cleanAttr = attribute.replace(/\./g,'_');
 
 
-        options['ecosis.'+cleanAttr] = 1;
+        options['datapoints.'+cleanAttr] = 1;
         options[cleanAttr] = 1;
 
         var sort = resp.value.ecosis.sort_on;
