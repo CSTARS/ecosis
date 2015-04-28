@@ -294,10 +294,10 @@
           this.resetSlider();
 
         } else {
-            if( this.minWavelength < this.wavelengths[0] ) {
+            if( this.minWavelength > this.wavelengths[0] ) {
                 this.setWavelength('min', this.wavelengths[0]);
             }
-            if( this.maxWavelength > this.wavelengths[this.wavelengths.length-1] ) {
+            if( this.maxWavelength < this.wavelengths[this.wavelengths.length-1] ) {
                 this.setWavelength('max', this.wavelengths[this.wavelengths.length-1]);
             }
         }
