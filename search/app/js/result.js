@@ -121,6 +121,9 @@ ESIS.result = (function() {
 
     // add category metadata
     for( var category in ESIS.schema ) {
+      // TODO: implement this
+      if( category == 'Location') continue;
+
       var items = ESIS.schema[category];
 
       var catHTML = '<h4 class="page-header" style="margin-left: 5px; margin-bottom: 0">'+category+'</h4>'+

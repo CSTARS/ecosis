@@ -198,9 +198,8 @@ exports.getSpectra = function(collections, req, res) {
 }
 
 
-exports.getDerivedData = function(collections, req, res) {
+exports.getDataInSeries = function(collections, req, res) {
     var pkgid = req.query.package_id;
-    var groupBy = req.query.group_by;
     var attribute = req.query.attribute;
 
     if( pkgid == null || attribute == null ) {
@@ -211,13 +210,21 @@ exports.getDerivedData = function(collections, req, res) {
         if( err ) return sendError(res, err);
         if( !resp ) return sendError(res, 'package not found');
 
-        var query = {'ecosis.package_id': pkgid};
-        if( groupBy && groupBy != null ) {
-            var attr = pkg.attributes.dataset.group_by;
-            if( attr ) {
-                query[attr] = groupBy;
-            }
+        var pkg = resp.value;
+
+        if( pkg.ecosis.spectra_schema ) {
+          if( pkg.ecosis.spectra_schema.data.indexOf(attribute) == -1 &&
+              pkg.ecosis.spectra_schema.metadata.indexOf(attribute) == -1 ) {
+                return res.send({
+                  error : true,
+                  message : 'Invalid attribute.  Please see spectra_schema below for valid attributes for this dataset',
+                  spectra_schema : pkg.ecosis.spectra_schema
+                });
+              }
         }
+
+        var query = {'ecosis.package_id': pkgid};
+
 
         /*var options = {
             'ecosis.sort' : 1,
@@ -233,14 +240,19 @@ exports.getDerivedData = function(collections, req, res) {
         };
 
         var cleanAttr = attribute.replace(/\./g,'_');
-        options['ecosis.'+cleanAttr] = 1;
 
-        if( resp.value.ecosis.sort_on ) {
+
+        options['ecosis.'+cleanAttr] = 1;
+        options[cleanAttr] = 1;
+
+        var sort = resp.value.ecosis.sort_on;
+        if( sort ) {
             options[resp.value.ecosis.sort_on] = 1;
         }
 
         var cur = collections.spectra.find(query, options);
-        if( resp.value.ecosis.sort_on ) {
+
+        if( sort ) {
             cur.sort([['ecosis.sort', 1]]);
         }
 
@@ -249,21 +261,23 @@ exports.getDerivedData = function(collections, req, res) {
 
             var arr = [], obj;
             for( var i = 0; i < resp.length; i++ ) {
-                obj = { value : null };
+                obj = {
+                  key : sort ? res[i].ecosis.sort : i,
+                  value : null
+                }
 
-                if( sort ) {
-                    obj[sort] = resp[i][sort];
-                    obj.sort = resp[i].ecosis.sort;
-                }
                 if( resp[i].datapoints && resp[i].datapoints[cleanAttr]) {
-                    obj.value = resp[i].datapoints[cleanAttr];
+                  obj.value = resp[i].datapoints[cleanAttr];
+                } else if ( resp[i][cleanAttr] ) {
+                  obj.value = resp[i][cleanAttr];
                 }
+
                 arr.push(obj);
             }
 
             res.send({
                 attribute : attribute,
-                sort : sort,
+                sort : sort || 'index',
                 values : arr
             });
         });

@@ -7032,7 +7032,6 @@ Polymer.Debounce = (function() {
     createTableArray : function(resetWavelengths) {
         if( typeof resetWavelengths == 'object' ) resetWavelengths = false;
 
-        this.metadata = [];
         this.indexes = [];
         this.wavelengths = [];
 
@@ -7059,12 +7058,10 @@ Polymer.Debounce = (function() {
             }
 
         } else {
-            for( var i = 0; i < this.item.datapoints.length; i++ ) {
-                pt = this.item.datapoints[i];
-                if( this.ptRegex1.exec(pt.key) || this.ptRegex2.exec(pt.key) ) {
-                    this.dataArray.push([parseFloat(pt.key), parseFloat(pt.value)]);
-                } else {
-                    this.metadata.push(pt);
+            for( var k in this.item.datapoints ) {
+                var v = this.item.datapoints[k];
+                if( this.ptRegex1.exec(k) || this.ptRegex2.exec(k) ) {
+                    this.dataArray.push([parseFloat(k), parseFloat(v)]);
                 }
             }
         }

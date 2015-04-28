@@ -56,8 +56,8 @@ exports.bootstrap = function() {
         data.getSpectra({main: collection, spectra: spectraCollection}, req, res);
     });
 
-    app.get('/rest/getDerivedData', function(req, res){
-        data.getDerivedData({main: collection, spectra: spectraCollection}, req, res);
+    app.get('/rest/getDataInSeries', function(req, res){
+        data.getDataInSeries({main: collection, spectra: spectraCollection}, req, res);
     });
 
     app.get('/rest/download', function(req, res){
