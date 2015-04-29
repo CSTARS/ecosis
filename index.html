@@ -33,7 +33,7 @@
           <li><a href="https://github.com/CSTARS/esis">View On <strong>GitHub</strong></a></li>
         </ul>
 
-          
+
         <div><a href="#find-datasets">Find Datasets</a></div>
         <div class="sub">
           <div><a href="#find-dataset-filters">Filters Parameter</a></div>
@@ -59,7 +59,7 @@
 </h2>
 
 <p><i>Please note</i>.  This API is currently in early alpha.  All API's are subject to change.  And bugs.  Please create issues for any bugs you find <a href="https://github.com/CSTARS/esis/issues" target="_blank">here</a>.</p>
-        
+
 <h2>
   <a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview
 </h2>
@@ -114,17 +114,17 @@
 
 <h5 id="find-dataset-filters">filters</h5>
 
-<p>The <b>filters</b> parameter is the heart of the EcoSIS API.  The filters parameters is also the most complex.  At it's core, the filter parameter is a JSON array of objects.  These JSON objects can be any <a href="http://docs.mongodb.org/manual/tutorial/query-documents/#specify-equality-condition" target="_blank">MongoDB query</a>.  The array of query objects will then be <b>logic and</b> together.  Don't worry, you don't need to learn the entire MongoDB query document (though you can if you want), learning the simple attribute match will allow you to make 90% of the queries the <a href="http://ecospectra.org" target="_blank">EcoSIS Search</a> does.  A attribute match object looks like:</p>  
+<p>The <b>filters</b> parameter is the heart of the EcoSIS API.  The filters parameters is also the most complex.  At it's core, the filter parameter is a JSON array of objects.  These JSON objects can be any <a href="http://docs.mongodb.org/manual/tutorial/query-documents/#specify-equality-condition" target="_blank">MongoDB query</a>.  The array of query objects will then be <b>logic and</b> together.  Don't worry, you don't need to learn the entire MongoDB query document (though you can if you want), learning the simple attribute match will allow you to make 90% of the queries the <a href="http://ecospectra.org" target="_blank">EcoSIS Search</a> does.  A attribute match object looks like:</p>
 
-<pre><code>[{ 
+<pre><code>[{
   Category: "Dicot"
 }]</code></pre>
 
 <p>Which says, return all datasets where <b>Category</b> matches <b>Dicot</b>.  Or to match <b>Category</b> = <b>Dicot</b> AND <b>Organization</b> = <b>CSTARS</b>:</p>
 
-<pre><code>[{ 
+<pre><code>[{
   Category: "Dicot"
-},{ 
+},{
   Organization: "CSTARS"
 }]</code></pre>
 
@@ -132,9 +132,9 @@
 
 <p><i>Note for implementation.</i>  You must escape JSON when you provide it to the url.  The url component escaping spec is <a href="http://tools.ietf.org/html/rfc3986" target="_blank">here</a> and it's complex!  Use whatever language you are writing in escape method(s) to do this for you!  Here is an example of creating a filter query in JavaScript:
 
-<pre><code>var query = [{ 
+<pre><code>var query = [{
   Category: "Dicot"
-},{ 
+},{
   Organization: "CSTARS"
 }];
 
@@ -269,13 +269,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
       <ul>
         <li><b>_id</b> - UID for the spectra.  <i>Note:</i> this ID is not persistant, it's changed everytime the dataset is pushed to search.</li>
         <li><b>ecosis</b> - object containing ecosis dataset information</li>
-        <li><b>datapoints</b> - array of objects each containing:<br >
-          <ul>
-            <li><b>key</b> - the datapoint attribute name, most likely a numberic wavelength</li>
-            <li><b>value</b> - the value for the key</li>
-            <li><b>units</b> - units for the attribute (optional)</li>
-          </ul>
-        </li>
+        <li><b>datapoints</b> - object where each key is a data attribute name or wavelength and the value is the attribute value.<br >
       </ul>
   </li>
 </ul>
@@ -283,6 +277,59 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 <p>Along with the standard <b>_id</b>, <b>ecosis</b> and <b>datapoints</b> parameters, the response object.item sends back all of the metadata included with the spectra.</p>
 
 <p><i>Format Note.</i>  The keys and values of the datapoints are always returned as strings.  This is both to improve system performance and work around the complexity of handling floats.  It will be up to each client interacting with EcoSIS to decide how it wants to parse and handle floating point values.</p>
+
+
+<h2>
+  <a id="get-data-in-series" class="anchor" href="#get-spectra" aria-hidden="true"><span class="octicon octicon-link"></span></a>
+  Get Data In Series
+</h2>
+
+<p>Use this query to get one datapoint for each spectra in a dataset.  If provided by the dataset maintainer, the data will be sorted on a provided value.</p>
+
+<h4>Get Data In Series: Path</h4>
+
+<p>The Rest path for the Get Data In Series call is: <b>/rest/getDataInSeries</b></p>
+
+<h4>Get Data In Series: Example</h4>
+
+<pre><code>curl http://ecospectra.org/rest/getDataInSeries?package_id=[dataset ID here]&attribute=NDVI</code></pre>
+
+<h4 id="get-spectra-parameters">Get Data In Series: Parameters</h4>
+
+<p>The Get Data In Series call takes the following paramters</p>
+
+<ul>
+  <li><b>package_id</b> - The unique package ID (string)</li>
+  <li><b>attribute</b> - attribute you wish to return</li>
+</ul>
+
+<h5>package_id</h5>
+
+<p>The unique dataset ID for the dataset you are accessing</p>
+
+<h5>index</h5>
+
+<p>The spectra's attribute you wish to return.  You will get one value back for each spectra in the dataset.</p>
+
+
+<h4 id="get-spectra-response">Get Data In Series: Response</h4>
+
+<p>The response object for the Get Data In Series query has the following attributes:</p>
+
+<ul>
+  <li><b>attribute</b> - the current attribute you are accessing</li>
+  <li><b>sort</b> - the attribute that is being used to sort on.  If the dataset maintainer did not provide a sort for this dataset, 'index'
+      will be the value of 'sort' and the results will be in default order form the database.
+  </li>
+  <li>
+      <b>value</b> - array of objects each containign:<br />
+
+      <ul>
+        <li><b>key</b> - the sort value for this spectra</li>
+        <li><b>value</b> - the attribute value for this spectra</li>
+      </ul>
+  </li>
+</ul>
 
 
 <h2>
@@ -338,6 +385,6 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
-    
+
   </body>
 </html>
