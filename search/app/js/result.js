@@ -99,6 +99,9 @@ ESIS.result = (function() {
     content += '<div class="row"><div class="col-md-3"><b>API Link</b></div><div class="col-md-9">' +
       '<a href="/rest/get?_id='+result.ecosis.package_id+'" target="_blank"><i class="fa fa-link"></i> Developer Rest Link</a></div></div>';
 
+      content += '<div class="row"><div class="col-md-3"><b>Spectra</b></div><div class="col-md-9">' +
+        result.ecosis.spectra_count+'</div></div>';
+
     content += '</div><div class="col-sm-6">';
 
 

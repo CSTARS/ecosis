@@ -198,6 +198,19 @@ exports.getSpectra = function(collections, req, res) {
 }
 
 
+exports.getSpectraCount = function(collections, req, res) {
+  collections.main.aggregate([{
+     $group: {
+           _id: null,
+           count: { $sum: '$value.ecosis.spectra_count' }
+      }
+   }], function(err, result){
+     if( err ) return res.send({error: true, message: err});
+     if( result.length == 0 ) res.send({error: true, message: 'Query Failed'});
+     res.send(result[0]);
+   });
+}
+
 exports.getDataInSeries = function(collections, req, res) {
     var pkgid = req.query.package_id;
     var attribute = req.query.attribute;

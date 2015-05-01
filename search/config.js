@@ -12,7 +12,7 @@ exports.db = {
 
 	// connection string for the database, includes database name
 	//url             : "mongodb://localhost:27017/esis",
-	url             : "mongodb://10.1.10.250:27017/esis",
+	url             : "mongodb://192.168.1.9:27017/esis",
 
 	// collection where the queryable items are stored
 	mainCollection  : "search",
@@ -33,7 +33,8 @@ exports.db = {
   // the text search index
   textIndexes       : ['ecosis.package_title','Keywords', 'Theme', 'Target Type'],
 
-	searchWhitelist : ['_id', 'ecosis.package_title','Keywords', 'Theme', 'Target Type', 'ecosis.description', 'Common Name']
+	searchWhitelist : ['_id', 'ecosis.package_title', 'ecosis.package_name', 'ecosis.spectra_count', 'ecosis.organization',
+												'Keywords', 'Theme', 'Target Type', 'ecosis.description', 'Common Name']
 }
 
 exports.server = {

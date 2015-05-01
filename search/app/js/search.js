@@ -1,6 +1,9 @@
 Handlebars.registerHelper('info', function() {
   return new Handlebars.SafeString(this.info);
 });
+Handlebars.registerHelper('title', function() {
+  return new Handlebars.SafeString(this.title);
+});
 Handlebars.registerHelper('organization', function() {
   return new Handlebars.SafeString(this.organization);
 });
@@ -11,11 +14,13 @@ ESIS.search = (function() {
 	var RESULT_TEMPLATE = [
 	    '<div class="panel panel-default animated fadeIn">',
         '<div class="panel-body">',
-  	    	"<h4><a href='#result/{{_id}}'>{{title}}</a></h4>",
-  	    	"<div style='margin-left:5px'>{{organization}}</div>",
   	    	"<div class='row'>",
-  	    		"<div class='col-md-7' style='padding-bottom:10px;'>{{description}}</div>",
-  	    		"<div class='col-md-5'>{{info}}</div>",
+  	    		'<div class="col-md-7" style="padding-bottom:10px;">',
+              '<h4><a href="#result/{{_id}}">{{title}}</a></h4>',
+    	    	  '<h6>{{organization}}</h6>',
+              '<div>{{description}}</div>'+
+            '</div>',
+  	    		"<div class='col-md-5' style='padding-top:15px'>{{info}}</div>",
           "</div>",
         '</div>',
 	    "</div>"
@@ -27,7 +32,7 @@ ESIS.search = (function() {
 	var titleTemplate;
 
 	var titleAttr = 'Spectrum Number';
-	var infoAttrs = ['Theme', 'Organization', 'Common Name'];
+	var infoAttrs = ['Theme', 'Common Name'];
 
 	var openFilters = [];
 	var staticFilters = {};
@@ -259,16 +264,11 @@ ESIS.search = (function() {
 	}
 
 	function _getTitle(item) {
-		/*var group_by = '';
-		if( item.ecosis.group_by && item.ecosis.group_by != '' ) {
-			if( item[item.ecosis.group_by] && item[item.ecosis.group_by].length > 0 ) {
-				group_by = ' ('+item.ecosis.group_by+': '+item[item.ecosis.group_by][0]+')';
-			}
-		}*/
+    var count = ' <small>('+(item.ecosis.spectra_count || 0)+')</small>';
 
-		if( item.ecosis.package_title ) return item.ecosis.package_title;
-		if( item.ecosis.package_name ) return item.ecosis.package_name;
-		return 'No Title';
+		if( item.ecosis.package_title ) return item.ecosis.package_title+count;
+		if( item.ecosis.package_name ) return item.ecosis.package_name+count;
+		return 'No Title'+count;
 	}
 
 	function _getDescription(item) {
@@ -277,14 +277,14 @@ ESIS.search = (function() {
 	}
 
 	function _getOrganization(item) {
-		if( !item.ecosis.organization_name ) return '';
-		if( item.ecosis.organization_name == '' ) return '';
+		if( !item.ecosis.organization ) return '';
+		if( item.ecosis.organization == '' ) return '';
 
-		var link = '<a href="'+_createFilterUrl('organization_name', item.ecosis.organization_name)+'">';
+		var link = '<a href="'+_createFilterUrl('ecosis.organization', item.ecosis.organization)+'">';
 		/*if( item.ecosis.organization_image_url ) {
 			link += '<img class="img-thumbnail" src="'+ESIS.ckanHost+item.ecosis.organization_image_url+'" border=0  style="width:32px" /> ';
 		}*/
-		link += item.ecosis.organization_name+'</a><br /><br />';
+		link += item.ecosis.organization+'</a><br /><br />';
 
 		return link;
 	}
@@ -293,8 +293,7 @@ ESIS.search = (function() {
 		var info = "<ul>";
 
 		for( var i = 0; i < infoAttrs.length; i++ ) {
-			if( item[infoAttrs[i]] ) {
-
+      if( item[infoAttrs[i]] ) {
 				var arr = item[infoAttrs[i]];
 				var key = infoAttrs[i];
 				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;

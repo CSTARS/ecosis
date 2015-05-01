@@ -64,6 +64,12 @@ exports.bootstrap = function() {
         data.download({main: collection, spectra: spectraCollection}, req, res);
     });
 
+    app.get('/rest/getSpectraCount', function(req, res){
+        data.getSpectraCount({main: collection}, req, res);
+    });
+
+
+
     usda.init(usdaCollection);
 
     // takes params format and raw
