@@ -92,15 +92,37 @@ ESIS.result = (function() {
         val = wrapFilterLink(topAttributes[key], val);
       }
 
-      content += '<div class="row"><div class="col-md-3"><b>'+key+'</b></div><div class="col-md-9">'+val+'</div></div>';
+      content += '<div class="row"><div class="col-md-4"><b>'+key+'</b></div><div class="col-md-8">'+val+'</div></div>';
     }
 
     // add developer link
-    content += '<div class="row"><div class="col-md-3"><b>API Link</b></div><div class="col-md-9">' +
+    content += '<div class="row"><div class="col-md-4"><b>API Link</b></div><div class="col-md-8">' +
       '<a href="/rest/get?_id='+result.ecosis.package_id+'" target="_blank"><i class="fa fa-link"></i> Developer Rest Link</a></div></div>';
 
-      content += '<div class="row"><div class="col-md-3"><b>Spectra</b></div><div class="col-md-9">' +
+    content += '<div class="row"><div class="col-md-4"><b>Spectra</b></div><div class="col-md-8">' +
         result.ecosis.spectra_count+'</div></div>';
+
+    // set min / max wavelength
+    if( result.ecosis.spectra_schema && result.ecosis.spectra_schema.data ) {
+      var min = -1, max = -1, val;
+      var keys = result.ecosis.spectra_schema.data;
+      for( var i = 0; i < keys.length; i++ ) {
+        val = parseFloat(keys[i]);
+        if( isNaN(val) ) continue;
+
+        if( min == -1 ) min = val;
+        if( max == -1 ) max = val;
+        if( min > val ) min = val;
+        if( max < val ) max = val;
+      }
+
+      if( min != -1 && max != -1 ) {
+        content += '<div class="row"><div class="col-md-4"><b>Wavelength Range</b></div><div class="col-md-8">' +
+            min +' - '+ max +'</div></div>';
+      }
+    }
+
+
 
     content += '</div><div class="col-sm-6">';
 
