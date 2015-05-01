@@ -28,7 +28,7 @@
     "grunt-contrib-imagemin": "^0.8.0",
     "grunt-contrib-cssmin": "^0.10.0",
     "grunt-svgmin": "^0.4.0",
-    "MongoQueryEngine": "git://github.com/CSTARS/MongoQueryEngine.git#v2"
+    "MongoQueryEngine": "git://github.com/CSTARS/MongoQueryEngine.git"
   },
   "devDependencies": {
     "grunt-filerev": "^0.2.1"
