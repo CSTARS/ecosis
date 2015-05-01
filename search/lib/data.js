@@ -59,7 +59,7 @@ exports.download = function(collections, req, res) {
 
         // now write data keys as stored in mongo
         for( var i = 0; i < data.length; i++ ) {
-          data[i] = data[i].replace(/\./,'_');
+          data[i] = data[i].replace(/\./,',');
         }
 
         var query = {'ecosis.package_id': pkgid};
@@ -185,7 +185,7 @@ exports.getSpectra = function(collections, req, res) {
                     // cleanup datapoints
                     var points = {};
                     for( var key in respObj.item.datapoints ) {
-                      points[key.replace(/_/g, '.')] = respObj.item.datapoints[key]
+                      points[key.replace(/,/g, '.')] = respObj.item.datapoints[key]
                     }
                     respObj.item.datapoints = points;
                 }
@@ -217,7 +217,7 @@ exports.getDataInSeries = function(collections, req, res) {
               pkg.ecosis.spectra_schema.metadata.indexOf(attribute) == -1 ) {
                 return res.send({
                   error : true,
-                  message : 'Invalid attribute.  Please see spectra_schema below for valid attributes for this dataset',
+                  message : 'Invalid attribute '+attribute+'.  Please see spectra_schema below for valid attributes for this dataset',
                   spectra_schema : pkg.ecosis.spectra_schema
                 });
               }
@@ -239,7 +239,7 @@ exports.getDataInSeries = function(collections, req, res) {
             '_id' : 0
         };
 
-        var cleanAttr = attribute.replace(/\./g,'_');
+        var cleanAttr = attribute.replace(/\./g,',');
 
 
         options['datapoints.'+cleanAttr] = 1;

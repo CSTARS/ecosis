@@ -35,6 +35,7 @@
   <link href="bower_components/bootswatch-dist/css/bootstrap.css" rel="stylesheet" />
   <link href="bower_components/font-awesome/css/font-awesome.css" rel="stylesheet" />
   <link href="bower_components/bower-bootstrap-slider/css/slider.css" rel="stylesheet" />
+  <link href="bower_components/animate-css/animate.css" rel="stylesheet" />
   <link href="css/style.css" rel="stylesheet">
   <!-- endbuild -->
 
@@ -90,28 +91,36 @@
   </div>
 
 
-  <div class="well" style="background-color: #eee">
+  <div class="well">
     <div class="row">
       <div class="col-md-5" >
-        <input id="search-text" type="text" class="form-control" placeholder="Keywords" style="background-color: white; max-width: 300px; display:inline-block;" >
-        <button id="search-btn" class="btn btn-default" type="button" style="margin-top:-5px"><i class="fa fa-search"></i> Search</button>
+
+        <div class="layout horizontal">
+          <div class="flex">
+              <input id="search-text" type="text" class="form-control" placeholder="Keywords" style="background-color: white;" >
+          </div>
+          <div>
+            <button id="search-btn" class="btn btn-default" type="button" style="margin-left:5px"><i class="fa fa-search"></i> Search</button>
+          </div>
+        </div>
+
       </div>
-      <div class="col-md-6" id="active-filters" style="padding: 10px 0"></div>
+      <div class="col-md-7" id="active-filters"></div>
     </div>
   </div>
 
 
   <div class="row">
     <div class="col-md-3">
-      <div class="well" style="overflow:hidden; background-color: #eee">
+      <div class="well" style="overflow:hidden;">
         <ul class="nav nav-list" id="filter-nav"></ul>
       </div>
-      <div class="well" style="display:none" style="background-color: #eee">
+      <div class="well" style="display:none">
         <ul class="nav nav-list" id="compare-list"></ul>
       </div>
     </div>
     <div class="col-md-9">
-      <div class="page-header" style="margin:10px 0 0 0">
+      <div class="page-header" style="margin:10px 0 0 0; border: none">
           <div class="row">
             <div class="col-md-6">
               <h4 id="results-title">Search Results</h4>
@@ -167,8 +176,8 @@
   </div>
 </div>
 
-<div id="loading" style="display:none;position:fixed;top:50px;text-align:center;width:100%;" class="animated flipInX">
-  <div class="alert alert-info" style="display:inline-block;box-shadow: 0 0 5px white">Loading...</div>
+<div id="loading" style="display:none; position:fixed; top:0px; text-align:center; width:100%;" class="animated fadeInDown">
+  <span class="label label-primary">Loading...</span>
 </div>
 
 <div id="gitInfo" style="padding:30px; color: #888; font-size: 12px; font-style: italic"></div>

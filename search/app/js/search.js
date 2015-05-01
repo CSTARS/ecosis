@@ -9,17 +9,15 @@ ESIS.search = (function() {
 
 	// handle bar template layouts
 	var RESULT_TEMPLATE = [
-	    '<div class="search-result-row animated fadeIn">',
-	    	"<!--<div class='checkbox pull-right'>",
-				"<label>",
-				    "<input type='checkbox' {{#if isChecked}}checked{{/if}} onclick='ESIS.compare.toggle(this);' class='select-{{_id}}' itemid='{{_id}}' itemname='{{title}}' /> Compare",
-				    "</label>",
-			"</div>-->",
-	    	"<h4><a href='#result/{{_id}}'>{{title}}</a></h4>",
-	    	"<div style='margin-left:5px'>{{organization}}</div>",
-	    	"<div class='row'>",
-	    		"<div class='col-md-7' style='padding-bottom:10px;'>{{description}}</div>",
-	    		"<div class='col-md-5'>{{info}}</div>",
+	    '<div class="panel panel-default animated fadeIn">',
+        '<div class="panel-body">',
+  	    	"<h4><a href='#result/{{_id}}'>{{title}}</a></h4>",
+  	    	"<div style='margin-left:5px'>{{organization}}</div>",
+  	    	"<div class='row'>",
+  	    		"<div class='col-md-7' style='padding-bottom:10px;'>{{description}}</div>",
+  	    		"<div class='col-md-5'>{{info}}</div>",
+          "</div>",
+        '</div>',
 	    "</div>"
 	].join('');
 	var TITLE_TEMPLATE = "Search Results: <span style='color:#888'>{{start}} to {{end}} of {{total}}</span>";
@@ -80,7 +78,7 @@ ESIS.search = (function() {
 
 		if( query.filters.length == 0 ) return;
 
-		panel.append("<h6 style='margin-top:0px'>You are currently searching for:</h6>");
+		panel.append('<div class="help-block" style="margin-top: 0">You are currently searching for:</h6>');
 
 		for( var i = 0; i < query.filters.length; i++ ) {
 			// get query copy and splice array
@@ -106,7 +104,7 @@ ESIS.search = (function() {
 				}
 			}
 
-			panel.append($('<a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0" class="btn btn-primary btn-small"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
+			panel.append($('<a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0" class="btn btn-primary btn-sm"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
 
 		}
 
@@ -116,7 +114,7 @@ ESIS.search = (function() {
 		var panel = $("#filter-nav").html("");
 
 		// add the title
-		panel.append($('<li class="nav-header">Narrow Your Search</li>'));
+		panel.append($('<li class="nav-header page-header" style="margin:0">Narrow Your Search</li>'));
 		panel.append($('<li class="divider"></li>'));
 
 		var numFilters = MQE.getCurrentQuery().filters.length;
@@ -336,22 +334,7 @@ ESIS.search = (function() {
 		);
 	}
 
-/*
-	function _updateDownloadLinks() {
-		var q = MQE.getCurrentQuery();
-		var filters = encodeURIComponent(JSON.stringify(q.filters));
 
-		var link = '/rest/downloadQueryData?text='+q.text+'&filters='+filters;
-		$('#current-download-data-link').html(
-			'<a href="'+link+'" class="btn btn-link" target="_blank"><i class="fa fa-download"></i> Download Query Data</a>'
-		);
-
-		link = '/rest/downloadQueryMetadata?text='+q.text+'&filters='+filters;
-		$('#current-download-metadata-link').html(
-			'<a href="'+link+'" class="btn btn-link" target="_blank"><i class="fa fa-download"></i> Download Query Metadata</a>'
-		);
-	}
-*/
 	function _hasFilter(item, key) {
 		var filter = {};
 		var tmpQuery = MQE.getCurrentQuery();
@@ -371,17 +354,11 @@ ESIS.search = (function() {
 		return MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"');
 	}
 
-	var loadingTimer = -1;
-	function _loading(loading) {
-		if( loadingTimer != -1 ) clearTimeout(loadingTimer);
 
+	function _loading(loading) {
 		if( loading ) {
-			loadingTimer = setTimeout(function(){
-				loadingTimer = -1;
-				$('#loading').show();
-			}, 150);
+			$('#loading').show();
 		} else {
-			loadingTimer = -1;
 			$('#loading').hide();
 		}
 	}
