@@ -32,7 +32,7 @@ ESIS.search = (function() {
 	var titleTemplate;
 
 	var titleAttr = 'Spectrum Number';
-	var infoAttrs = ['Theme', 'Common Name'];
+	var infoAttrs = ['Theme', 'Target Type', 'Common Name'];
 
 	var openFilters = [];
 	var staticFilters = {};
