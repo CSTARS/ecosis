@@ -122,8 +122,6 @@ ESIS.result = (function() {
       }
     }
 
-
-
     content += '</div><div class="col-sm-6">';
 
 
@@ -144,15 +142,24 @@ ESIS.result = (function() {
     content += '</div></div></div>';
 
 
+    var hasLocation = result.ecosis.geojson ? true : false;
+
     // add category metadata
     for( var category in ESIS.schema ) {
-      // TODO: implement this
-      if( category == 'Location') continue;
+      if( category == 'Location' && !hasLocation ) continue;
 
       var items = ESIS.schema[category];
 
       var catHTML = '<h4 class="page-header" style="margin-left: 5px; margin-bottom: 0">'+category+'</h4>'+
-        '<div class="well" style="margin:0"><div class="row">';
+        '<div class="well" style="margin:0">';
+
+
+      if( category == 'Location') {
+        content += catHTML+'<div id="result-map" style="height:300px"></div></div>';
+        continue;
+      }
+
+      catHTML += '<div class="row">';
 
       var c = 0;
       var table1 = '<div class="col-sm-6">';
@@ -186,6 +193,26 @@ ESIS.result = (function() {
 
     resultPanel.find('#dataset-content').html(content);
 
+    // if we have geojson, create map
+    if( hasLocation ) {
+      var map = L.map('result-map', {scrollWheelZoom : false}).setView([42.065, -111.821], 13);
+
+      // add an OpenStreetMap tile layer
+      L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      var geojsonFeature = {
+          "type": "Feature",
+          "properties": {},
+          "geometry": result.ecosis.geojson
+      };
+
+      var layer = L.geoJson(geojsonFeature).addTo(map);
+      map.fitBounds(layer.getBounds());
+    }
+
+
     var metadata = '<table class="table">';
     for( var key in result ) {
       if( ignoreAttrs.indexOf(key) == -1 && result[key] && (result[key].length / result.ecosis.spectra_count) < .05 ) {
@@ -216,7 +243,7 @@ ESIS.result = (function() {
     viewer.update();
 
 
-    $("#result-back-btn").on('click', function(){
+    $(".result-back-btn").on('click', function(){
       $(window).trigger("back-to-search-event");
     });
 

@@ -12,7 +12,7 @@ exports.db = {
 
 	// connection string for the database, includes database name
 	//url             : "mongodb://localhost:27017/esis",
-	url             : "mongodb://192.168.1.9:27017/esis",
+	url             : "mongodb://192.168.1.8:27017/esis",
 
 	// collection where the queryable items are stored
 	mainCollection  : "search",
@@ -22,6 +22,7 @@ exports.db = {
 
 	isMapReduce     : true,
 
+	geoFilter : ['ecosis.geojson'],
 
   indexedFilters : ['ecosis.organization', 'Keywords', 'Theme', 'Target Type'],
 
