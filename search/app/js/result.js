@@ -12,6 +12,8 @@ ESIS.result = (function() {
   var noLink = ['Citation', 'Citation DOI', 'Funding Source Grant Number', 'Funding Source']
   var mainFilters = ['ecosis.organization','ecosis.keywords','Family','Category'];
 
+  var MAX_FILTER_LINKS = 15;
+
   var topAttributes = {
       Description : 'ecosis.description',
       License : 'ecosis.license',
@@ -212,6 +214,11 @@ ESIS.result = (function() {
       map.fitBounds(layer.getBounds());
     }
 
+    // set handler for any ALL btns
+    resultPanel.find('.all-filters-link').on('click', function(){
+      ESIS.allFiltersPopup.show($(this).attr('key'), result);
+    });
+
 
     var metadata = '<table class="table">';
     for( var key in result ) {
@@ -260,11 +267,6 @@ ESIS.result = (function() {
       $('#result-metadata').toggle('slow');
     });
 
-    /*$('#export-go').on('click', function(){
-      window.open('/rest/download?package_id='+result.ecosis.package_id+
-        '&metadata='+($('#export-metadata').is(':checked') ? 'true' : 'false')
-        ,'Download');
-    });*/
 
     // set nav handler
     $('a[goto]').on('click', function(){
@@ -275,14 +277,17 @@ ESIS.result = (function() {
     });
   }
 
-
   function wrapFilterLinks(key, values) {
-    var links = '';
+    var links = [];
+    var more = false;
     for( var i = 0; i < values.length; i++ ) {
-      links += wrapFilterLink(key, values[i], false);
-      if( i < values.length-1 ) links += ', ';
+      if( i == MAX_FILTER_LINKS ) {
+        more = true;
+        break;
+      }
+      links.push(wrapFilterLink(key, values[i], false));
     }
-    return '<div style="max-height:200px; overflow:auto; padding: 2px">'+links+'</div>';
+    return links.join(', ')+(more ? '<span> ...</span> <a key="'+key+'" class="all-filters-link"><i class="fa fa-external-link-square"></i> ALL ('+values.length+')</a>' : '');
   }
 
   function wrapFilterLink(key, value, icon) {
