@@ -94,6 +94,7 @@ ESIS.search = (function() {
 
 			var f = "";
 			for( var j in query.filters[i] ) {
+
 				// see if it's a static filter
 				if( typeof query.filters[i][j] == 'object' ) {
 					if( staticFilters[j] ) {
@@ -104,6 +105,7 @@ ESIS.search = (function() {
 					} else {
 						f = j+': '+JSON.stringify(query.filters[i][j]);
 					}
+
 				} else {
 					f = query.filters[i][j];
 				}
@@ -135,11 +137,16 @@ ESIS.search = (function() {
 			var title = $("<li><a id='filter-block-title-"+key.replace(/\s/g,"_")+"' class='search-block-title'>"+label+"</a></li>");
 
 			var display = "";
-			if( openFilters.indexOf(key) > -1 ) display = "style='display:block'"
+
+      if( openFilters.indexOf(key) > -1 ) display = "style='display:block'"
+
 			var block = $("<ul id='filter-block-"+key.replace(/\s/g,"_")+"' class='filter-block' "+display+"></ul>");
 
+      var added = false;
 			for( var i = 0; i < results.filters[key].length; i++ ) {
 				var item = results.filters[key][i];
+        if( _hasFilterSimple(key, item.filter) ) continue;
+
 				var query = MQE.getCurrentQuery();
 				query.page = 0;
 
@@ -148,11 +155,14 @@ ESIS.search = (function() {
 				query.filters.push(filter);
 
 				block.append($('<li><a href="'+MQE.queryToUrlString(query).replace(/"/g,'\\"')+'">'+item.filter+' ('+item.count+')</a></li>'));
-			}
+        added = true;
+      }
 
-			title.append(block);
-			panel.append(title);
-			c++;
+      if( added ) {
+  			title.append(block);
+  			panel.append(title);
+  			c++;
+      }
 		}
 
 		if( c == 0 ) {
@@ -333,6 +343,18 @@ ESIS.search = (function() {
 		);
 	}
 
+  function  _hasFilterSimple(key, value) {
+    if( ESIS.filters[key] ) key = ESIS.filters[key];
+
+    var filter = {};
+    var tmpQuery = MQE.getCurrentQuery();
+
+    for( var i = 0; i < tmpQuery.filters.length; i++ ) {
+      if( tmpQuery.filters[i][key] && tmpQuery.filters[i][key] == value ) return true;
+    }
+
+    return false;
+  }
 
 	function _hasFilter(item, key) {
 		var filter = {};
