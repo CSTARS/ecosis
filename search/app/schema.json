@@ -1,18 +1,20 @@
 {
   "Measurement": [
     {
-      "name": "Acquisition Method",
+      "name": "Measurement Type",
       "level": 1,
       "input": "controlled",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": [
-        "Contact",
+        "Field - Sample",
+        "Field - Transect",
+        "Lab",
         "Other",
-        "Pixel",
-        "Proximal"
+        "Remote - Airborne",
+        "Remote - Spaceborne"
       ],
-      "description": "Type of sampling acquisition approach",
+      "description": "Where were the data collected.",
       "allowOther": true
     },
     {
@@ -20,17 +22,9 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
-      "vocabulary": [
-        "Airplane",
-        "Boom",
-        "E.g.",
-        "Etc.",
-        "Satellite",
-        "Tower",
-        "UAV"
-      ],
-      "description": "What was the sample collected from?",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "Describe the setting (e.g. handheld, boom, tram, UAV, outdoor, laboratory) in which the spectral measurements were made.",
       "allowOther": false
     },
     {
@@ -38,7 +32,7 @@
       "level": 2,
       "input": "controlled",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": [
         "Greenhouse",
         "Laboratory",
@@ -49,27 +43,27 @@
       "allowOther": true
     },
     {
-      "name": "Target Type",
+      "name": "Measurement Scale",
       "level": 1,
       "input": "controlled",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": [
-        "Animal",
-        "Bark",
         "Branch",
         "Canopy",
         "Flower",
+        "Fruit/Cone",
+        "Grass",
+        "Herb",
         "Leaf",
-        "Mineral",
-        "NPV",
+        "Needles",
         "Other",
-        "Reference",
-        "Rock",
-        "Soil",
-        "Water"
+        "Pad",
+        "Shrub",
+        "Trunk",
+        "Twig"
       ],
-      "description": "",
+      "description": "Scale of measurement taken from vegetation target.",
       "allowOther": true
     },
     {
@@ -77,7 +71,7 @@
       "level": 1,
       "input": "controlled",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": [
         "Absorptance",
         "DN",
@@ -96,7 +90,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": null,
       "description": "Measurement quantity index name.  Please provide if Measurement Quantity = \"Index\"",
       "allowOther": false
@@ -106,9 +100,9 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": null,
-      "description": "Units of measurement for spectral measurement",
+      "description": "Provide the scale for spectral instensity (e.g. DN, radiance, irradiance, reflectance)",
       "allowOther": false
     },
     {
@@ -116,49 +110,58 @@
       "level": 2,
       "input": "controlled",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": [
-        "Microns",
-        "Nm",
         "Other",
-        "Unitless"
+        "Unitless",
+        "nm",
+        "µm"
       ],
-      "description": "e.g., microns, nm",
+      "description": "Provide wavelength units (e.g. nm, µm, Hz)",
       "allowOther": false
     },
     {
-      "name": "Target Status",
+      "name": "Form",
       "level": 1,
       "input": "controlled",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": [
-        "Dried",
-        "Fresh",
-        "Green",
-        "Ground",
-        "Liquid",
-        "Live",
+        "Deciduous Conifer",
         "Other",
-        "Panel",
-        "Standard"
+        "Phenophase - Broadleaf Evergreen Trees and Shrubs",
+        "Phenophase - Cactus",
+        "Phenophase - Deciduous Trees and Shrubs",
+        "Phenophase - Evergreen Conifers (Excluding Pines)",
+        "Phenophase - Grasses/Sedge/Rush",
+        "Phenophase - Pine",
+        "Phenophase - Wildflowers (Forbs)"
       ],
-      "description": "",
+      "description": "General form of vegetation target.",
       "allowOther": true
     },
     {
-      "name": "Light Source",
+      "name": "Acquisition Conditions",
       "level": 1,
       "input": "controlled",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": [
-        "Lamp",
-        "Laser",
+        "Clear Sky",
+        "Clear Sky/Complete Canopy (shaded)",
+        "Clear Sky/Partial Canopy (partially shaded)",
+        "Full Clouds",
+        "Full Clouds/Complete Canopy Cover",
+        "Full Clouds/Partial Canopy Cover",
+        "Hazy",
         "Other",
-        "Sun"
+        "Partially Cloudy",
+        "Partially Cloudy/Complete Canopy Cover",
+        "Partially Cloudy/Partial Canopy Cover",
+        "Under Man-made Shelter (no precip)",
+        "Under Man-made Shelter (precip)"
       ],
-      "description": "",
+      "description": "General description of conditions during data acquisition; add additional observations in Notes field",
       "allowOther": true
     },
     {
@@ -166,121 +169,67 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": null,
       "description": "",
       "allowOther": false
     },
     {
-      "name": "Foreoptic Type",
+      "name": "Spectra Collection Protocol",
       "level": 1,
       "input": "controlled",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": [
-        "Bare Fiber",
-        "Cosine Diffuser",
-        "Foreoptic",
-        "Gershon Tube",
+        "1 degree FOV",
+        "5 degree FOV",
+        "8 degree FOV",
         "Integrating Sphere",
-        "Leaf Clip",
-        "None",
-        "Other"
+        "Other",
+        "Plant Probe"
       ],
-      "description": "",
+      "description": "Describes how spectra are collected from sample",
       "allowOther": true
-    },
-    {
-      "name": "Foreoptic Field of View",
-      "level": 2,
-      "input": "text",
-      "units": "integer degrees",
-      "datasetLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Foreoptic Specifications",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "datasetLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
     }
   ],
   "Processing Information": [
-    {
-      "name": "Processing Averaged",
-      "level": 2,
-      "input": "controlled",
-      "units": "",
-      "datasetLevel": true,
-      "vocabulary": [
-        "No",
-        "Yes"
-      ],
-      "description": "Is the measurement an average of other measurements?",
-      "allowOther": false
-    },
-    {
-      "name": "Processing Interpolated",
-      "level": 2,
-      "input": "controlled",
-      "units": "",
-      "datasetLevel": true,
-      "vocabulary": [
-        "No",
-        "Yes"
-      ],
-      "description": "Is the measurement interpolated?",
-      "allowOther": false
-    },
-    {
-      "name": "Processing Resampled",
-      "level": 2,
-      "input": "controlled",
-      "units": "",
-      "datasetLevel": true,
-      "vocabulary": [
-        "No",
-        "Yes"
-      ],
-      "description": "Is the measurement resampled?",
-      "allowOther": false
-    },
     {
       "name": "Processing Information Details",
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": false,
+      "spectraLevel": false,
       "vocabulary": null,
-      "description": "More information about processing can be provided here",
+      "description": "Information about processing can be provided here",
       "allowOther": false
     }
   ],
   "Instrument": [
     {
-      "name": "Instrument Manufacturer",
+      "name": "Instrumentation",
       "level": 1,
-      "input": "text",
+      "input": "controlled",
       "units": "",
-      "datasetLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
+      "spectraLevel": true,
+      "vocabulary": [
+        "ASD - Fore Optic",
+        "ASD - Plant Probe",
+        "GER",
+        "Ocean Optics",
+        "Other",
+        "Spectral Evolution"
+      ],
+      "description": "Type of field instrument used to collect the data",
+      "allowOther": true
     },
     {
       "name": "Instrument Model",
       "level": 1,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": null,
-      "description": "",
+      "description": "Provide the model of the spectrometer.",
       "allowOther": false
     },
     {
@@ -288,7 +237,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -300,7 +249,7 @@
       "level": 1,
       "input": "controlled",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": [
         "Agriculture",
         "Biochemistry",
@@ -314,7 +263,7 @@
         "Urban",
         "Water Quality"
       ],
-      "description": "",
+      "description": "Describe the research context for the the spectral measurements.",
       "allowOther": true
     },
     {
@@ -322,43 +271,21 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
-      "vocabulary": [
-        "But Not Controlled",
-        "May Include Terms In Cells Below"
-      ],
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Objective",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "datasetLevel": true,
-      "vocabulary": [
-        "Agriculture",
-        "Biochemistry",
-        "E.g.",
-        "Ecology",
-        "Forest",
-        "Phenology",
-        "Physiology"
-      ],
+      "spectraLevel": false,
+      "vocabulary": null,
       "description": "",
       "allowOther": false
     },
     {
       "name": "Ecosystem Type",
       "level": 2,
-      "input": "text",
+      "input": "controlled",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": true,
       "vocabulary": [
         "Aquatic",
         "Coastal",
         "Crops",
-        "E.g.",
         "Forest",
         "Grassland",
         "Wetland"
@@ -373,7 +300,7 @@
       "level": 1,
       "input": "latlng",
       "units": "decimal degree",
-      "datasetLevel": false,
+      "spectraLevel": true,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -383,7 +310,17 @@
       "level": 1,
       "input": "latlng",
       "units": "decimal degree",
-      "datasetLevel": false,
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "geojson",
+      "level": 1,
+      "input": "geojson",
+      "units": "",
+      "spectraLevel": true,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -393,7 +330,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": false,
+      "spectraLevel": false,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -405,7 +342,7 @@
       "level": 1,
       "input": "date",
       "units": "ISO Date ",
-      "datasetLevel": false,
+      "spectraLevel": true,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -415,7 +352,7 @@
       "level": 2,
       "input": "date",
       "units": "ISO Date ",
-      "datasetLevel": false,
+      "spectraLevel": true,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -425,7 +362,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": false,
+      "spectraLevel": true,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -437,9 +374,9 @@
       "level": 1,
       "input": "text",
       "units": "",
-      "datasetLevel": false,
+      "spectraLevel": true,
       "vocabulary": null,
-      "description": "",
+      "description": "Provide the common name of the target that was measured.",
       "allowOther": false
     },
     {
@@ -447,9 +384,9 @@
       "level": 1,
       "input": "text",
       "units": "",
-      "datasetLevel": false,
+      "spectraLevel": true,
       "vocabulary": null,
-      "description": "",
+      "description": "Provide the latin genus of the target that was measured.",
       "allowOther": false
     },
     {
@@ -457,9 +394,9 @@
       "level": 1,
       "input": "text",
       "units": "",
-      "datasetLevel": false,
+      "spectraLevel": true,
       "vocabulary": null,
-      "description": "",
+      "description": "Provide the latin species of the target that was measured.",
       "allowOther": false
     },
     {
@@ -467,9 +404,9 @@
       "level": 1,
       "input": "text",
       "units": "",
-      "datasetLevel": false,
+      "spectraLevel": true,
       "vocabulary": null,
-      "description": "",
+      "description": "Provide the USDA code of the target that was measured.",
       "allowOther": false
     },
     {
@@ -477,7 +414,7 @@
       "level": 1,
       "input": "text",
       "units": "",
-      "datasetLevel": false,
+      "spectraLevel": true,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -489,7 +426,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": false,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -499,7 +436,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": false,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -509,7 +446,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": false,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -519,7 +456,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": false,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -529,7 +466,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": false,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -539,7 +476,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": false,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -549,7 +486,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": false,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -559,7 +496,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": false,
       "vocabulary": null,
       "description": "",
       "allowOther": false
@@ -569,7 +506,7 @@
       "level": 2,
       "input": "text",
       "units": "",
-      "datasetLevel": true,
+      "spectraLevel": false,
       "vocabulary": null,
       "description": "",
       "allowOther": false
