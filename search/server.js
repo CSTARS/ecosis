@@ -69,7 +69,7 @@ exports.bootstrap = function() {
     });
 
     app.get('/rest/getRandomSpectra', function(req, res){
-        data.getRandomSpectra({spectra: spectraCollection}, req, res);
+        data.getRandomSpectra({main: collection, spectra: spectraCollection}, req, res);
     });
 
 

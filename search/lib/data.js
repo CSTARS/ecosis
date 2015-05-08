@@ -205,21 +205,36 @@ exports.getSpectraCount = function(collections, req, res) {
    });
 }
 
+// first, randomly select dataset
+// then randomly select spectra from dataset
 exports.getRandomSpectra = function(collections, req, res) {
-   collections.spectra.count({}, function(err, count){
+   collections.main.count({'value.ecosis.spectra_count' : {$gt: 0} }, function(err, count){
      if( err ) return res.send({error: true, message: err});
 
-     var index = Math.round(Math.random() * count);
-     collections.spectra
-      .find()
-      .skip(index)
-      .limit(1)
-      .toArray(function(err, resp){
-        if( err ) return res.send({error: true, message: err});
-        if( resp.length == 0 ) return res.send({error: true, message: 'Query Failed'});
+     var index = Math.round(Math.random() * count)-1;
+     if( index < 0 ) index = 0;
 
-        return res.send(resp[0]);
-      });
+     collections.main.find({}, {'value.ecosis.spectra_count': 1})
+        .skip(index)
+        .limit(1)
+        .toArray(function(err, resp){
+          if( err ) return res.send({error: true, message: err, code: 1});
+          if( resp.length == 0 ) return res.send({error: true, message: 'Query Failed', code:  1});
+
+          index = Math.round(Math.random() * resp[0].value.ecosis.spectra_count) - 1;
+          if( index < 0 ) index = 0;
+
+          collections.spectra
+           .find({'ecosis.package_id': resp[0]._id})
+           .skip(index)
+           .limit(1)
+           .toArray(function(err, resp){
+             if( err ) return res.send({error: true, message: err, code : 2});
+             if( resp.length == 0 ) return res.send({error: true, message: 'Query Failed', code: 2});
+
+             return res.send(resp[0]);
+           });
+        });
    });
 }
 
