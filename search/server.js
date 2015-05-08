@@ -65,7 +65,11 @@ exports.bootstrap = function() {
     });
 
     app.get('/rest/getSpectraCount', function(req, res){
-        data.getSpectraCount({main: collection}, req, res);
+        data.getSpectraCount({spectra: spectraCollection}, req, res);
+    });
+
+    app.get('/rest/getRandomSpectra', function(req, res){
+        data.getRandomSpectra({spectra: spectraCollection}, req, res);
     });
 
 

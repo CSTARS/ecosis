@@ -15,7 +15,7 @@
     </h5>
 
     <div style="position:relative">
-        <div id="root" style="height: 450px"></div>
+        <div id="root" style="height: 400px; padding: 15px"></div>
     </div>
 
     <div class="well">
@@ -96,7 +96,7 @@
 
     setOnloadHandler : function() {
         if( this.onLoadHandlerSet ) return;
-
+        debugger;
         // in global scope
         chartLoadHandlers.push(this.update.bind(this));
     },
@@ -106,11 +106,11 @@
     },
 
     update : function() {
-        if( !window.google.visualization ) return this.setOnloadHandler();
-        if( !window.google.visualization.LineChart ) return this.setOnloadHandler();
+        if( !window.google.charts ) return this.setOnloadHandler();
+        if( !window.google.charts.Line ) return this.setOnloadHandler();
 
         if( !this.chart ) {
-            this.chart = new google.visualization.LineChart(this.$.root);
+            this.chart = new google.charts.Line(this.$.root);
         }
 
         this.indexes = [];

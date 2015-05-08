@@ -199,17 +199,30 @@ exports.getSpectra = function(collections, req, res) {
 
 
 exports.getSpectraCount = function(collections, req, res) {
-  collections.main.aggregate([{
-     $group: {
-           _id: null,
-           count: { $sum: '$value.ecosis.spectra_count' }
-      }
-   }], function(err, result){
+   collections.spectra.count({}, function(err, count){
      if( err ) return res.send({error: true, message: err});
-     if( result.length == 0 ) res.send({error: true, message: 'Query Failed'});
-     res.send(result[0]);
+     res.send({count: count});
    });
 }
+
+exports.getRandomSpectra = function(collections, req, res) {
+   collections.spectra.count({}, function(err, count){
+     if( err ) return res.send({error: true, message: err});
+
+     var index = Math.round(Math.random() * count);
+     collections.spectra
+      .find()
+      .skip(index)
+      .limit(1)
+      .toArray(function(err, resp){
+        if( err ) return res.send({error: true, message: err});
+        if( resp.length == 0 ) return res.send({error: true, message: 'Query Failed'});
+
+        return res.send(resp[0]);
+      });
+   });
+}
+
 
 exports.getDataInSeries = function(collections, req, res) {
     var pkgid = req.query.package_id;

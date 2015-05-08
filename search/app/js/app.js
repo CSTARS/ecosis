@@ -24,15 +24,12 @@ if( window.location.host == 'ecospectra.org' ) {
 		// mqe.js handles the hash parsing and fires this event
 		$(window).bind("page-update-event", function(e, hash){
 			_updatePage(hash[0]);
-			_updatePageContent(hash);
 		});
 
 		MQE.init({defaultPage:DEFAULT_PAGE});
 		ESIS.home.init();
 		ESIS.search.init();
 		ESIS.result.init();
-		ESIS.compare.init();
-		ESIS.group.init();
 	});
 
 	function _updatePage(page) {
@@ -48,18 +45,6 @@ if( window.location.host == 'ecospectra.org' ) {
 		cPage = page;
 	}
 
-	function _updatePageContent(hash) {
-		if ( cPage == "all" ) {
-			ESIS.all.init();
-		} else if ( cPage == "edit" ) {
-			ESIS.edit.init();
-		} else if ( cPage == "compare" ) {
-			ESIS.compare.show();
-		} else if ( cPage == "group" ) {
-			ESIS.group.show();
-		}
-	}
-
 })();
 
 
@@ -73,4 +58,11 @@ ESIS.labels.filters = {
 };
 ESIS.filters = {
 	"organization" : "ecosis.organization"
+}
+
+// chart stuff
+
+var chartLoadHandlers = [];
+function initchart() {
+	for( var i = 0; i < chartLoadHandlers.length; i++ ) chartLoadHandlers[i]();
 }

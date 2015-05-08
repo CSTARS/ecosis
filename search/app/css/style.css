@@ -6,6 +6,12 @@
 	display: none;
 }
 
+.random-label {
+	display: inline-block;
+	padding-left: 15px;
+	color: #888;
+}
+
 .card {
 	padding: 15px;
 	margin: 20px;

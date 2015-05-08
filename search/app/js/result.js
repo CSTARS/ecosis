@@ -317,9 +317,6 @@ ESIS.result = (function() {
   }
 
   function getResultHtml(result) {
-
-    result.isChecked = ESIS.compare.selected(result._id);
-
     return resultTemplate(result);
 
   }

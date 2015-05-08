@@ -25,6 +25,7 @@
     "md5": "~0.2.2",
     "deep-equal": "~0.0.0",
     "bower-bootstrap-slider": "~1.0.0",
-    "textillate": "~0.4.0"
+    "textillate": "~0.4.0",
+    "Chart.js": "~1.0.2"
   }
 }

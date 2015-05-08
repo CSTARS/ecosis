@@ -264,8 +264,7 @@ ESIS.search = (function() {
 				title   : _getTitle(item),
 				organization   : _getOrganization(item),
 				description : _getDescription(item),
-				info    : info,
-				isChecked : ESIS.compare.selected(item._id)
+				info    : info
 			}));
 		//	ESIS.chart.addSearchChart(item, $('#'+item._id+'-chart'));
 

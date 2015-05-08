@@ -6885,7 +6885,7 @@ Polymer.Debounce = (function() {
 
     setOnloadHandler : function() {
         if( this.onLoadHandlerSet ) return;
-
+        debugger;
         // in global scope
         chartLoadHandlers.push(this.update.bind(this));
     },
@@ -6895,11 +6895,11 @@ Polymer.Debounce = (function() {
     },
 
     update : function() {
-        if( !window.google.visualization ) return this.setOnloadHandler();
-        if( !window.google.visualization.LineChart ) return this.setOnloadHandler();
+        if( !window.google.charts ) return this.setOnloadHandler();
+        if( !window.google.charts.Line ) return this.setOnloadHandler();
 
         if( !this.chart ) {
-            this.chart = new google.visualization.LineChart(this.$.root);
+            this.chart = new google.charts.Line(this.$.root);
         }
 
         this.indexes = [];

@@ -24,9 +24,12 @@
 
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript">
-      google.load('visualization', '1', {packages: ['corechart']});
-      google.setOnLoadCallback(initchart);
-    </script>
+      google.load('visualization', '1', {packages: ['line']});
+      google.setOnLoadCallback(function(){
+        initchart();
+        ESIS.home.chartReady();
+      });
+  </script>
 
 </head>
 <body>
@@ -34,13 +37,24 @@
 <div id="home" style="display:none; padding:2% 6%">
   <div class="jumbotron" style="text-align:center">
     <h1 style="text-shadow: 2px 2px 0px white"><i class="fa fa-leaf"></i> EcoSIS Spectral Library <span class="sandbox">Sandbox</span></h1>
-    <p id="home-text" class="tlt" data-in-effect="fadeIn" data-in-delay="10">Welcome to the EcoSIS Spectral Library, a useful tool for finding spectral data. <br />
+    <p>Welcome to the EcoSIS Spectral Library, a useful tool for finding spectral data. <br />
       <p id="home-total-count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
     </p>
 
     <p><a href="/#search" class="btn btn-primary btn-lg" role="button"><i class="fa fa-search"></i>  Find Spectra</a></p>
+  </div>
 
 
+  <div class="panel panel-default" id="random">
+    <div class="panel-body">
+      <div id="random-title" style="font-size: 26px" class="tlt"></div>
+
+      <span id="random-common-name" class="tlt" style="font-size: 16px" ></span>
+      <span id="random-genus" class="tlt" style="font-size: 16px" ></span>
+      <span id="random-species" class="tlt" style="font-size: 16px" ></span>
+      <div id="random-chart" style="margin-top: 50px"></div>
+
+    </div>
   </div>
 
   <div style="margin-top:30px; text-align:center">
@@ -168,7 +182,7 @@
   <span class="label label-primary">Loading...</span>
 </div>
 
-<div id="gitInfo" style="padding:30px; color: #888; font-size: 12px; font-style: italic"></div>
+<div id="gitInfo" style="padding: 50px 30px; color: #888; font-size: 12px; font-style: italic"></div>
 <script>
   $.get('/rest/gitInfo', function(resp){
     var html = '';
