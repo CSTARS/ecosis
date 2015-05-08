@@ -182,12 +182,7 @@ exports.getSpectra = function(collections, req, res) {
                 } else {
                     respObj.item = resp[0];
 
-                    // cleanup datapoints
-                    var points = {};
-                    for( var key in respObj.item.datapoints ) {
-                      points[key.replace(/,/g, '.')] = respObj.item.datapoints[key]
-                    }
-                    respObj.item.datapoints = points;
+                    cleanDatapoints(respObj.item)
                 }
 
                 res.send(respObj);
@@ -232,7 +227,7 @@ exports.getRandomSpectra = function(collections, req, res) {
              if( err ) return res.send({error: true, message: err, code : 2});
              if( resp.length == 0 ) return res.send({error: true, message: 'Query Failed', code: 2});
 
-             return res.send(resp[0]);
+             return res.send(cleanDatapoints(resp[0]));
            });
         });
    });
@@ -325,6 +320,17 @@ exports.getDataInSeries = function(collections, req, res) {
 
 
     });
+}
+
+function cleanDatapoints(item) {
+  // cleanup datapoints
+  var points = {};
+  for( var key in item.datapoints ) {
+    points[key.replace(/,/g, '.')] = item.datapoints[key]
+  }
+  item.datapoints = points;
+
+  return item;
 }
 
 
