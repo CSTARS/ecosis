@@ -9,6 +9,9 @@
 
   <script src="scripts/build.js"></script>
 
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=&sensor=true"></script>
+
+
   <script type="text/javascript">
     $.get("/schema.json", function(resp) {
       ESIS.schema = resp;
@@ -173,6 +176,41 @@
       <div class="modal-body"></div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="geo-filter">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3><i class="icon-globe"></i> Filter By Location</h3>
+      </div>
+      <div class="modal-body">
+    	<div id="geo-filter-body">
+    		<div id="geo-filter-map" style="height:300px;width:100%;border:1px solid #ccc"></div>
+    		<div>
+    			<table class="table">
+    				<tr><td>Latitude: </td><td id="geo-filter-current-lat"></td>
+    						<td>Longitude: </td><td id="geo-filter-current-lng"></td>
+    				</tr>
+    				<tr><td>Radius: </td><td id="geo-filter-current-radius"></td>
+    					<td id="geo-filter-current-matches-outer">Matches: </td><td id="geo-filter-current-matches" style="width:225px"></td>
+    				</tr>
+    			</table>
+    		</div>
+    		<div class="help-block" style="font-style:italic">
+    			*Datasets without geographic location information will not be included in your search results when the geographic
+    			filter is applied.
+    		</div>
+    	</div>
+      </div>
+      <div class="modal-footer">
+      	<a class="btn btn-primary pull-left" id="geo-filter-select"><i class="icon-filter"></i> Set Filter</a>
+      	<a class="btn btn-success pull-left" id="geo-filter-geolocate"><i class="icon-screenshot"></i> Locate Me</a>
+        <a class="btn pull-right" data-dismiss="modal" >Cancel</a>
       </div>
     </div>
   </div>

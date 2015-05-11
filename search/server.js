@@ -11,6 +11,7 @@ var CursorStream = require('mongodb').CursorStream;
 var async = require('async');
 
 var data = require('./lib/data.js');
+var geo = require('./lib/geo.js');
 var usda = require('./lib/usda.js');
 
 var exec = require('child_process').exec;
@@ -70,6 +71,10 @@ exports.bootstrap = function() {
 
     app.get('/rest/getRandomSpectra', function(req, res){
         data.getRandomSpectra({main: collection, spectra: spectraCollection}, req, res);
+    });
+
+    app.get('/rest/geoPreview', function(req, res){
+        geo.geoPreview({main: collection}, req, res);
     });
 
 

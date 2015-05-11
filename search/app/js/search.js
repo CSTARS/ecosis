@@ -90,10 +90,12 @@ ESIS.search = (function() {
 			var tmpQuery = MQE.getCurrentQuery();
 			tmpQuery.page = 0;
 
-			var foo = tmpQuery.filters.splice(i,1);
+			tmpQuery.filters.splice(i,1);
 
 			var f = "";
+      var key = "";
 			for( var j in query.filters[i] ) {
+        key = j;
 
 				// see if it's a static filter
 				if( typeof query.filters[i][j] == 'object' ) {
@@ -111,7 +113,21 @@ ESIS.search = (function() {
 				}
 			}
 
-			panel.append($('<a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0" class="btn btn-primary btn-sm"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
+      if( key == 'ecosis.geojson' ) {
+				var btn = '<div class="btn-group" style="margin:0 5px 5px 0"><a class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" href="#"> Location Filter'+
+								' <span class="caret"></span></a><ul class="dropdown-menu" style="z-index:2000">' +
+								'<li><a href="'+MQE.queryToUrlString(tmpQuery)+'" ><i class="icon-remove"></i> Remove</a></li>' +
+								'<li><a id="geo-filter-edit"><i class="icon-edit"></i> Edit</a></li>' +
+								'</ul></div>';
+				btn = $(btn);
+				panel.append(btn);
+				btn.find("#geo-filter-edit").on('click', function(){
+					ESIS.map.show();
+				});
+
+			} else {
+        panel.append($('<a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0" class="btn btn-primary btn-sm"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
+      }
 
 		}
 
@@ -169,6 +185,19 @@ ESIS.search = (function() {
 			panel.append($("<div>No filters available for this search</div>"));
 			return;
 		}
+
+    if( !_queryHasFilter(MQE.getCurrentQuery(), 'ecosis.geojson') ) {
+			panel.append($('<li><a id="filter-block-title-geo" style="cursor:pointer;font-weight:bold">Location</a></li>'));
+			$("#filter-block-title-geo").on('click', function(){
+				ESIS.map.show();
+			});
+
+      $('#search-text').removeAttr('disabled').attr('placeholder','Keywords');
+      $('#search-btn').removeClass('disabled');
+    } else {
+      $('#search-text').attr('disabled','').attr('placeholder','Not supported with location filter');
+      $('#search-btn').addClass('disabled');
+    }
 
 		// add hide/show handlers for the blocks
 		$(".search-block-title").on('click', function(e){
@@ -361,6 +390,14 @@ ESIS.search = (function() {
 		filter[key] = item[key];
 		for( var i = 0; i < tmpQuery.filters.length; i++ ) {
 			if( tmpQuery.filters[i][key] && tmpQuery.filters[i][key] == item[key] ) return true;
+		}
+		return false;
+	}
+
+  function _queryHasFilter(query, key, value) {
+		for( var i = 0; i < query.filters.length; i++ ) {
+			if( query.filters[i][key] && value == null ) return true;
+			if(  query.filters[i][key] && query.filters[i][key] == value ) return true;
 		}
 		return false;
 	}
