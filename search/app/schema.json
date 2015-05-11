@@ -1,20 +1,18 @@
 {
   "Measurement": [
     {
-      "name": "Measurement Type",
+      "name": "Acquisition Method",
       "level": 1,
       "input": "controlled",
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "Field - Sample",
-        "Field - Transect",
-        "Lab",
-        "Other",
-        "Remote - Airborne",
-        "Remote - Spaceborne"
+        "contact",
+        "other",
+        "pixel",
+        "proximal"
       ],
-      "description": "Where were the data collected.",
+      "description": "Describe the minimum measurement unit for your spectra (i.e. contact probe, proximal with X-degree foreoptic, pixel, other).",
       "allowOther": true
     },
     {
@@ -23,7 +21,15 @@
       "input": "text",
       "units": "",
       "spectraLevel": true,
-      "vocabulary": null,
+      "vocabulary": [
+        "UAV",
+        "airplane",
+        "boom",
+        "e.g.",
+        "etc.",
+        "satellite",
+        "tower"
+      ],
       "description": "Describe the setting (e.g. handheld, boom, tram, UAV, outdoor, laboratory) in which the spectral measurements were made.",
       "allowOther": false
     },
@@ -34,36 +40,36 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "Greenhouse",
-        "Laboratory",
-        "Other",
-        "Outdoor"
+        "greenhouse",
+        "laboratory",
+        "other",
+        "outdoor"
       ],
       "description": "",
       "allowOther": true
     },
     {
-      "name": "Measurement Scale",
+      "name": "Target Type",
       "level": 1,
       "input": "controlled",
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "Branch",
-        "Canopy",
-        "Flower",
-        "Fruit/Cone",
-        "Grass",
-        "Herb",
-        "Leaf",
-        "Needles",
-        "Other",
-        "Pad",
-        "Shrub",
-        "Trunk",
-        "Twig"
+        "NPV",
+        "animal",
+        "bark",
+        "branch",
+        "canopy",
+        "flower",
+        "leaf",
+        "mineral",
+        "other",
+        "reference",
+        "rock",
+        "soil",
+        "water"
       ],
-      "description": "Scale of measurement taken from vegetation target.",
+      "description": "Describe the target you are measuring.",
       "allowOther": true
     },
     {
@@ -73,14 +79,14 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "Absorptance",
         "DN",
-        "Index",
-        "Other",
-        "Radiance",
-        "Reflectance",
-        "Transflectance",
-        "Transmittance"
+        "absorptance",
+        "index",
+        "other",
+        "radiance",
+        "reflectance",
+        "transflectance",
+        "transmittance"
       ],
       "description": "",
       "allowOther": true
@@ -112,56 +118,47 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "Other",
-        "Unitless",
+        "microns",
         "nm",
-        "µm"
+        "other",
+        "unitless"
       ],
-      "description": "Provide wavelength units (e.g. nm, µm, Hz)",
+      "description": "Provide wavelength units (e.g. nm, um, Hz)",
       "allowOther": false
     },
     {
-      "name": "Form",
+      "name": "Target Status",
       "level": 1,
       "input": "controlled",
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "Deciduous Conifer",
-        "Other",
-        "Phenophase - Broadleaf Evergreen Trees and Shrubs",
-        "Phenophase - Cactus",
-        "Phenophase - Deciduous Trees and Shrubs",
-        "Phenophase - Evergreen Conifers (Excluding Pines)",
-        "Phenophase - Grasses/Sedge/Rush",
-        "Phenophase - Pine",
-        "Phenophase - Wildflowers (Forbs)"
+        "dried",
+        "fresh",
+        "green",
+        "ground",
+        "liquid",
+        "live",
+        "other",
+        "panel",
+        "standard"
       ],
-      "description": "General form of vegetation target.",
+      "description": "Describe the state of the measurement target.",
       "allowOther": true
     },
     {
-      "name": "Acquisition Conditions",
+      "name": "Light Source",
       "level": 1,
       "input": "controlled",
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "Clear Sky",
-        "Clear Sky/Complete Canopy (shaded)",
-        "Clear Sky/Partial Canopy (partially shaded)",
-        "Full Clouds",
-        "Full Clouds/Complete Canopy Cover",
-        "Full Clouds/Partial Canopy Cover",
-        "Hazy",
-        "Other",
-        "Partially Cloudy",
-        "Partially Cloudy/Complete Canopy Cover",
-        "Partially Cloudy/Partial Canopy Cover",
-        "Under Man-made Shelter (no precip)",
-        "Under Man-made Shelter (precip)"
+        "lamp",
+        "laser",
+        "other",
+        "sun"
       ],
-      "description": "General description of conditions during data acquisition; add additional observations in Notes field",
+      "description": "Describe the light source used for your spectral measurements",
       "allowOther": true
     },
     {
@@ -175,24 +172,85 @@
       "allowOther": false
     },
     {
-      "name": "Spectra Collection Protocol",
+      "name": "Foreoptic Type",
       "level": 1,
       "input": "controlled",
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "1 degree FOV",
-        "5 degree FOV",
-        "8 degree FOV",
-        "Integrating Sphere",
-        "Other",
-        "Plant Probe"
+        "bare fiber",
+        "cosine diffuser",
+        "foreoptic",
+        "gershon tube",
+        "integrating sphere",
+        "leaf clip",
+        "none",
+        "other"
       ],
-      "description": "Describes how spectra are collected from sample",
+      "description": "Describe the foreoptic used to make your spectral measurement",
       "allowOther": true
+    },
+    {
+      "name": "Foreoptic Field of View",
+      "level": 2,
+      "input": "text",
+      "units": "integer degrees",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Foreoptic Specifications",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
     }
   ],
   "Processing Information": [
+    {
+      "name": "Processing Averaged",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "no",
+        "yes"
+      ],
+      "description": "Is the measurement an average of other measurements?",
+      "allowOther": false
+    },
+    {
+      "name": "Processing Interpolated",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "no",
+        "yes"
+      ],
+      "description": "Is the measurement interpolated?",
+      "allowOther": false
+    },
+    {
+      "name": "Processing Resampled",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "no",
+        "yes"
+      ],
+      "description": "Is the measurement resampled?",
+      "allowOther": false
+    },
     {
       "name": "Processing Information Details",
       "level": 2,
@@ -200,27 +258,20 @@
       "units": "",
       "spectraLevel": false,
       "vocabulary": null,
-      "description": "Information about processing can be provided here",
+      "description": "More information about processing can be provided here",
       "allowOther": false
     }
   ],
   "Instrument": [
     {
-      "name": "Instrumentation",
+      "name": "Instrument Manufacturer",
       "level": 1,
-      "input": "controlled",
+      "input": "text",
       "units": "",
       "spectraLevel": true,
-      "vocabulary": [
-        "ASD - Fore Optic",
-        "ASD - Plant Probe",
-        "GER",
-        "Ocean Optics",
-        "Other",
-        "Spectral Evolution"
-      ],
-      "description": "Type of field instrument used to collect the data",
-      "allowOther": true
+      "vocabulary": null,
+      "description": "Provide the name of the spectrometer manufacturer.",
+      "allowOther": false
     },
     {
       "name": "Instrument Model",
@@ -251,17 +302,17 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "Agriculture",
-        "Biochemistry",
-        "Ecology",
-        "Forest",
-        "Global Change",
-        "Land Cover",
-        "Other",
-        "Phenology",
-        "Physiology",
-        "Urban",
-        "Water Quality"
+        "agriculture",
+        "biochemistry",
+        "ecology",
+        "forest",
+        "global change",
+        "land cover",
+        "other",
+        "phenology",
+        "physiology",
+        "urban",
+        "water quality"
       ],
       "description": "Describe the research context for the the spectral measurements.",
       "allowOther": true
@@ -272,7 +323,10 @@
       "input": "text",
       "units": "",
       "spectraLevel": false,
-      "vocabulary": null,
+      "vocabulary": [
+        "but not controlled",
+        "may include terms in cells below"
+      ],
       "description": "",
       "allowOther": false
     },
@@ -283,12 +337,12 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "Aquatic",
-        "Coastal",
-        "Crops",
-        "Forest",
-        "Grassland",
-        "Wetland"
+        "aquatic",
+        "coastal",
+        "crops",
+        "forest",
+        "grassland",
+        "wetland"
       ],
       "description": "",
       "allowOther": false
