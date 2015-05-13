@@ -19,6 +19,8 @@
     </style>
   </head>
   <body>
+    <div style="position:fixed;bottom:10px; right:10px" id="top"><a style="cursor:pointer">Top</a></div>
+
     <div class="wrapper">
       <header>
         <h1>EcoSIS API <small style="color:#888">(Alpha)</small></h1>
@@ -34,21 +36,33 @@
         </ul>
 
 
-        <div><a href="#find-datasets">Find Datasets</a></div>
-        <div class="sub">
-          <div><a href="#find-dataset-filters">Filters Parameter</a></div>
-          <div><a href="#find-dataset-examples">Examples</a></div>
-          <div><a href="#find-dataset-response">Response</a></div>
-        </div>
-        <div><a href="#get-dataset">Get Dataset</a></div>
-        <div><a href="#get-spectra">Get Spectra</a></div>
-        <div class="sub">
-          <div><a href="#get-spectra-parameters">Parameters</a></div>
-          <div><a href="#get-spectra-response">Response</a></div>
-        </div>
-        <div><a href="#download-spectra">Download Spectra</a></div>
-        <div class="sub">
-          <div><a href="#download-spectra-parameters">Parameters</a></div>
+        <div class="min-height: 200px; overflow: auto">
+          <div><a href="#find-datasets">Find Datasets</a></div>
+          <div class="sub">
+            <div><a href="#find-dataset-filters">Filters Parameter</a></div>
+            <div><a href="#find-dataset-examples">Examples</a></div>
+            <div><a href="#find-dataset-response">Response</a></div>
+          </div>
+          <div><a href="#get-dataset">Get Dataset</a></div>
+          <div><a href="#get-spectra">Get Spectra</a></div>
+          <div class="sub">
+            <div><a href="#get-spectra-parameters">Parameters</a></div>
+            <div><a href="#get-spectra-response">Response</a></div>
+          </div>
+          <div><a href="#get-spectra-stats">Get Spectra Stats</a></div>
+          <div class="sub">
+            <div><a href="#get-spectra-stats-parameters">Parameters</a></div>
+            <div><a href="#get-spectra-stats-response">Response</a></div>
+          </div>
+          <div><a href="#get-data-in-series">Get Data in Series</a></div>
+          <div class="sub">
+            <div><a href="#get-data-in-series-parameters">Parameters</a></div>
+            <div><a href="#get-data-in-series-response">Response</a></div>
+          </div>
+          <div><a href="#download-spectra">Download Spectra</a></div>
+          <div class="sub">
+            <div><a href="#download-spectra-parameters">Parameters</a></div>
+          </div>
         </div>
 
       </header>
@@ -279,8 +293,58 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 <p><i>Format Note.</i>  The keys and values of the datapoints are always returned as strings.  This is both to improve system performance and work around the complexity of handling floats.  It will be up to each client interacting with EcoSIS to decide how it wants to parse and handle floating point values.</p>
 
 
+
 <h2>
-  <a id="get-data-in-series" class="anchor" href="#get-spectra" aria-hidden="true"><span class="octicon octicon-link"></span></a>
+  <a id="get-spectra-stats" class="anchor" href="#get-spectra-stats" aria-hidden="true"><span class="octicon octicon-link"></span></a>
+  Get Spectra Stats
+</h2>
+
+<p>Use this query to get the min, max, sum, count, avg, and std deviation for any datasets spectra.</p>
+
+<h4>Get Spectra Stats: Path</h4>
+
+<p>The Rest path for the Get Spectra Stats call is: <b>/rest/getSpectraStats</b></p>
+
+<h4>Get Spectra Stats: Example</h4>
+
+<pre><code>curl http://ecospectra.org/rest/getSpectraStats?package_id=[dataset ID here]</code></pre>
+
+<h4 id="get-spectra-stats-parameters">Get Spectra Stats: Parameters</h4>
+
+<p>The Get Spectra Stats call takes the following paramters</p>
+
+<ul>
+  <li><b>package_id</b> - The unique package ID (string)</li>
+  <li><b>filters</b> - the array of filters (JSON) (optional)</li>
+</ul>
+
+<h5>package_id</h5>
+
+<p>The unique dataset ID for the dataset you are accessing</p>
+
+<h5>filters</h5>
+
+<p>The <b>filters</b> parameter lets you filter down the result set to get stats for.  The filters parameter is formatted the same and works the same as the <a href="#find-dataset-filters">Find Dataset Filter Parameter</a>.  Only instead of filtering key/value pairs based on attributes in a dataset, you are filtering on individual spectra metadata.</p>
+
+<h4 id="get-spectra-stats-response">Get Data In Series: Response</h4>
+
+<p>The response object for the Get Spectra Stats query is a javascript object.  Each key for the object is a wavelength or datapoint.
+  the value is a javascript object, each having the following attributes:</p>
+
+<ul>
+  <li><b>sum</b> - the total of all values for the dataset with given filter</li>
+  <li><b>count</b> - the total number of spectra used to calculate stats</li>
+  <li><b>min</b> - the smallest value found</li>
+  <li><b>max</b> - the largest value found</li>
+  <li><b>avg</b> - the average or mean of the values</li>
+  <li><b>variance</b> - the variance of the values</li>
+  <li><b>stddev</b> - the standard deviation of the values</li>
+</ul>
+
+
+
+<h2>
+  <a id="get-data-in-series" class="anchor" href="#get-data-in-series" aria-hidden="true"><span class="octicon octicon-link"></span></a>
   Get Data In Series
 </h2>
 
@@ -294,7 +358,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <pre><code>curl http://ecospectra.org/rest/getDataInSeries?package_id=[dataset ID here]&attribute=NDVI</code></pre>
 
-<h4 id="get-spectra-parameters">Get Data In Series: Parameters</h4>
+<h4 id="get-data-in-series-parameters">Get Data In Series: Parameters</h4>
 
 <p>The Get Data In Series call takes the following paramters</p>
 
@@ -312,7 +376,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 <p>The spectra's attribute you wish to return.  You will get one value back for each spectra in the dataset.</p>
 
 
-<h4 id="get-spectra-response">Get Data In Series: Response</h4>
+<h4 id="get-data-in-series-response">Get Data In Series: Response</h4>
 
 <p>The response object for the Get Data In Series query has the following attributes:</p>
 
@@ -385,6 +449,10 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
-
+    <script>
+      document.querySelector('#top').addEventListener('click', function(){
+        window.scrollTo(0,0);
+      });
+    </script>
   </body>
 </html>
