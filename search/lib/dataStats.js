@@ -64,6 +64,8 @@ module.exports.get = function(collections, req, res) {
       resp[key].avg = resp[key].sum / resp[key].count;
       resp[key].variance = resp[key].diff / resp[key].count;
       resp[key].stddev = Math.sqrt(resp[key].variance);
+
+      delete resp[key].diff;
     }
 
     res.send(resp);
