@@ -261,22 +261,12 @@ exports.getDataInSeries = function(collections, req, res) {
 
         var query = {'ecosis.package_id': pkgid};
 
-
-        /*var options = {
-            'ecosis.sort' : 1,
-            'datapoints' :
-                { '$elemMatch' :
-                    { 'key' : attribute }
-                },
-            '_id' : 0
-        };*/
         var options = {
             'ecosis.sort' : 1,
             '_id' : 0
         };
 
         var cleanAttr = attribute.replace(/\./g,',');
-
 
         options['datapoints.'+cleanAttr] = 1;
         options[cleanAttr] = 1;

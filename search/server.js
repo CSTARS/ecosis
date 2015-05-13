@@ -11,6 +11,7 @@ var CursorStream = require('mongodb').CursorStream;
 var async = require('async');
 
 var data = require('./lib/data.js');
+var dataStats = require('./lib/dataStats.js');
 var geo = require('./lib/geo.js');
 var usda = require('./lib/usda.js');
 
@@ -55,6 +56,10 @@ exports.bootstrap = function() {
 
     app.get('/rest/getSpectra', function(req, res){
         data.getSpectra({main: collection, spectra: spectraCollection}, req, res);
+    });
+
+    app.get('/rest/getSpectraStats', function(req, res){
+        dataStats.get({spectra: spectraCollection}, req, res);
     });
 
     app.get('/rest/getDataInSeries', function(req, res){
