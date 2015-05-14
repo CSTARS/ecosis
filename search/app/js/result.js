@@ -247,7 +247,7 @@ ESIS.result = (function() {
     viewer.addEventListener('filter-update', function(e){
       downloader.update(e.detail);
     });
-    viewer.update();
+    viewer.update(result);
 
 
     $(".result-back-btn").on('click', function(){

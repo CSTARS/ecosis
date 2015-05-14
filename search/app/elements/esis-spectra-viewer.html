@@ -5,7 +5,7 @@
     }
   </style>
   <template>
-    <h5 style="color: #333">
+    <h5 style="color: #333" id="selector">
       Spectra #&nbsp;
       <select on-change="updateFromSelect" id="selectSpectraInput" style="min-width:100px"></select>
       &nbsp;of <span id="totalSpectraLabel"></span>
@@ -13,6 +13,11 @@
         <i class="fa fa-spinner fa-spin"></i> Loading...
       </span>
     </h5>
+
+    <div class="checkbox" style="padding-bottom: 30px">
+      <label><input type="checkbox" on-click="toggleStats" /> Show Stats</label>
+    </div>
+    <div id="hoverInfo" style="position:absolute;z-index:50;padding: 5px; background-color: rgba(255, 255, 255, .8); margin-top:-30px"></div>
 
     <div style="position:relative">
         <div id="root" style="height: 400px; padding: 15px"></div>
@@ -24,14 +29,10 @@
         <div class="col-sm-10" id="sliderRoot"></div>
       </div>
 
-      <div class="row" style="margin-top: 20px">
-        <div class="col-sm-2">Add Filter</div>
-        <div class="col-sm-10"><select id="spectraFilterSelector" on-change="addFilterFromSelector" class="form-control"></select></div>
-      </div>
-
-      <div class="row" style="margin-top: 20px; display:none" id="filterBtnsPanelOuter">
-        <div class="col-sm-2">Current Filters</div>
-        <div class="col-sm-10" id="filterBtnsPanel"></div>
+      <div class="row" style="margin-top: 20px" id="filterPanel">
+        <div class="col-sm-2">Filter</div>
+        <div class="col-sm-5"><select id="spectraFilterSelector" on-change="setFilterValues" class="form-control"></select></div>
+        <div class="col-sm-5"><select id="spectraFilterValueSelector" on-change="setDsFilter" class="form-control"></select></div>
       </div>
 
       <div style="margin-top: 50px">
@@ -72,9 +73,12 @@
         this.ptRegex1 = /^-?\d+\.?\d*$/;
         this.ptRegex2 = /^-?\d*\.\d+$/;
 
+        this.stats = {
+          key : null,
+          value : {}
+        };
+
         this.ignoreList = ['_id', 'datapoints', 'ecosis'];
-
-
     },
 
     resetSlider : function() {
@@ -96,7 +100,7 @@
 
     setOnloadHandler : function() {
         if( this.onLoadHandlerSet ) return;
-        debugger;
+
         // in global scope
         chartLoadHandlers.push(this.update.bind(this));
     },
@@ -105,47 +109,76 @@
         window.open(this.chart.getImageURI());
     },
 
-    update : function() {
+    update : function(packageData) {
+        if( packageData ) this.packageData = packageData;
         if( !window.google.charts ) return this.setOnloadHandler();
         if( !window.google.charts.Line ) return this.setOnloadHandler();
 
         if( !this.chart ) {
             this.chart = new google.charts.Line(this.$.root);
+
+            google.visualization.events.addListener(this.chart, 'onmouseover', this.onMouseOverChart.bind(this));
+            google.visualization.events.addListener(this.chart, 'onmouseout', this.onMouseOutChart.bind(this));
         }
 
         this.indexes = [];
         this.selectedIndex = 0;
         this.totalSpectra = parseInt(this.total);
 
-        this.dsFilters = [''];
-        for( var key in this.item ) {
-            if( this.ignoreList.indexOf(key) > -1 ) continue;
-            this.dsFilters.push(key);
+        this.dsFilters = {};
+        var filters = ['Common Name', 'Latin Genus', 'Latin Species'];
+        for( var i = 0; i < filters.length; i++ ) {
+          if( !packageData[filters[i]] ) continue;
+
+          packageData[filters[i]].sort();
+          this.dsFilters[filters[i]] = packageData[filters[i]];
         }
 
-        this.filters = [];
+        if( Object.keys(this.dsFilters).length == 0 ) {
+          this.$.filterPanel.style.display = 'none';
+        } else {
+          this.$.filterPanel.style.display = 'block';
+
+          var html = '<option value="">None</option>';
+          for( var k in this.dsFilters ) {
+            html += '<option value="'+k+'">'+k+'</option>';
+          }
+          this.$.spectraFilterSelector.innerHTML = html;
+          this.setFilterValues();
+        }
+        this.activeFilter = null;
 
 
         this.updateDataTable(true);
     },
 
-    updateFilterValues : function() {
-        this.dsFilterValues = [''];
-        var attr = this.item[this.dsFilter];
-        if( !attr ) return;
+    setFilterValues : function() {
+        var f = this.$.spectraFilterSelector.value;
 
-        for( var i = 0; i < attr.length; i++ ) {
-            this.dsFilterValues.push(attr[i]);
+        if( f == '' ) {
+          this.$.spectraFilterValueSelector.setAttribute('disabled', 'disabled');
+          this.$.spectraFilterValueSelector.innerHTML = '';
+          this.activeFilter = null;
+          this.updateDataTable();
+          return;
         }
+
+        var html = '';
+
+        for( var i = 0; i < this.packageData[f].length; i++ ) {
+          html += '<option value="'+this.packageData[f][i]+'">'+this.packageData[f][i]+'</option>';
+        }
+        this.$.spectraFilterValueSelector.innerHTML = html;
+        this.$.spectraFilterValueSelector.removeAttribute('disabled');
+        this.setDsFilter();
     },
 
-    addDsFilter : function() {
-        this.async(function(){
-            if( this.dsFilterValue == '' ) return;
+    setDsFilter : function() {
+        this.activeFilter = {};
+        this.activeFilter[this.$.spectraFilterSelector.value] = this.$.spectraFilterValueSelector.value;
 
-            this.addFilter(this.dsFilter, this.dsFilterValue, true);
-            this.dsFilter = '';
-        });
+        if( this.showingStats) this.updateStats();
+        else this.updateDataTable();
     },
 
     updateFromSelect : function(e) {
@@ -163,15 +196,9 @@
         this.$.loadingPanel.style.display = 'inline-block';
 
         var filters = '';
-        var fArray = [];
-        for( var i = 0; i < this.filters.length; i++ ) {
-            var obj = {};
-            obj[this.filters[i].key] = this.filters[i].value;
-            fArray.push(obj);
-        }
 
-        if( this.filters.length > 0 ) {
-            filters = '&filters='+encodeURIComponent(JSON.stringify(fArray));
+        if( this.activeFilter ) {
+            filters = '&filters='+encodeURIComponent(JSON.stringify([this.activeFilter]));
         }
 
         var url = '/rest/getSpectra?package_id='+this.package+filters+'&index='+this.selectedIndex;
@@ -189,7 +216,6 @@
               this.createTableArray(resetWavelengths);
 
               this.updateIndexSelector();
-              this.updateFilters();
             }.bind(this)
         });
 
@@ -204,43 +230,6 @@
       this.$.selectSpectraInput.innerHTML = options;
 
       this.$.totalSpectraLabel.innerText = this.totalSpectra;
-    },
-
-    updateFilters : function() {
-      var filterBtns = '';
-      for( var key in this.item ) {
-        if( this.hasFilter(key, this.item[key]) ) continue;
-
-        if( key == 'ecosis' || key == '_id' || key == 'datapoints' ) continue;
-        filterBtns += '<option value="'+key+this.item[key]+'">'+key+': '+this.item[key]+'</option>';
-      }
-
-      if( filterBtns.length == 0 ) {
-        filterBtns = '<option>No Additional filters available</option>';
-        this.$.spectraFilterSelector.setAttribute('disabled', '');
-      } else {
-        filterBtns = '<option></option>' + filterBtns;
-        this.$.spectraFilterSelector.removeAttribute('disabled');
-      }
-
-      this.$.spectraFilterSelector.innerHTML = filterBtns;
-
-      filterBtns = '';
-      for( var i = 0; i < this.filters.length; i++ ) {
-        filterBtns += '<a class="btn btn-primary btn-sm" index="'+i+'"><i class="fa fa-times"></i> '+this.filters[i].key+': '+this.filters[i].value+'</a>';
-      }
-
-      if( filterBtns.length > 0 ) {
-        this.$.filterBtnsPanelOuter.style.display = 'block';
-        this.$.filterBtnsPanel.innerHTML = filterBtns;
-        $(this.$.filterBtnsPanel)
-          .find('a')
-          .on('click', this.removeFilterFromBtn.bind(this));
-      } else {
-        this.$.filterBtnsPanelOuter.style.display = 'none';
-        this.$.filterBtnsPanel.innerHTML = '';
-      }
-
     },
 
     createTableArray : function(resetWavelengths) {
@@ -361,7 +350,10 @@
     },
 
     filterByWavelength : function() {
-        var arr = [this.dataArray[0]];
+        var arr;
+        if( this.showingStats ) arr = [];
+        else arr = [this.dataArray[0]];
+
         for( var i = 1; i < this.dataArray.length; i++ ) {
             if( this.dataArray[i][0] >= this.minWavelength &&
                 this.dataArray[i][0] <= this.maxWavelength ) {
@@ -372,7 +364,22 @@
             }
         }
 
-        this.dt = google.visualization.arrayToDataTable(arr);
+        if( this.showingStats ) {
+          this.dt = new google.visualization.DataTable();
+          this.dt.addColumn('string', 'Wavelength');
+          this.dt.addColumn('number', 'Average');
+          this.dt.addColumn('number', 'Min');
+          this.dt.addColumn('number', 'Max');
+          // A column for custom tooltip content
+          this.dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
+
+          this.dt.addRows(arr);
+
+
+        } else {
+          this.dt = google.visualization.arrayToDataTable(arr);
+        }
+
         this.redraw();
     },
 
@@ -384,7 +391,8 @@
                 position : 'none'
             },
             vAxis : {},
-            hAxis : {}
+            hAxis : {},
+            tooltip: {isHtml: true}
         };
 
         if( this.label && this.label != '' ) {
@@ -397,75 +405,101 @@
             options.vAxis.title = this.ylabel;
         }
 
-        options.animation = {
+        /*options.animation = {
             duration : 750,
             easing : 'out'
-        }
+        }*/
 
         this.chart.draw(this.dt, options);
     },
 
-    removeFilterFromBtn : function(e) {
-        var index = parseInt(e.currentTarget.getAttribute('index'));
-        this.removeFilter(index, 1, true);
-    },
-
-    addFilterFromSelector : function(e) {
-      var value = e.currentTarget.value;
-
-      for( var key in this.item ) {
-        if( key == 'ecosis' || key == '_id' || key == 'datapoints' ) continue;
-        if( value == key+this.item[key] ) {
-          this.addFilter(key, this.item[key], true);
-          return;
-        }
-      }
-    },
-
-    removeFilter : function(index, update) {
-        var item = this.filters.splice(index, 1)[0];
-
-        if( update ) {
-            this.selectedIndex = 0;
-            this.updateDataTable();
-        }
-
-        this.fire('filter-update', this.filters);
-    },
-
-    hasFilter : function(key, value) {
-      for( var i = 0; i < this.filters.length; i++ ) {
-          if( this.filters[i].key == key && this.filters[i].value == value ) {
-              return true;
-          }
-      }
-      return false;
-    },
-
-    addFilter : function(key, value, update) {
-        for( var i = 0; i < this.filters.length; i++ ) {
-            if( this.filters[i].key == key ) {
-                this.removeFilter(i);
-                break;
-            }
-        }
-
-
-        this.filters.push({
-            key : key,
-            value : value
-        });
-
-        if( update ) {
-            this.selectedIndex = 0;
-            this.updateDataTable(false);
-        }
-
-        this.fire('filter-update', this.filters);
-    },
 
     toggleAdvanced : function() {
       $(this.$.advancedPanel).toggle();
+    },
+
+    toggleStats : function() {
+      if( this.$.selectSpectraInput.hasAttribute('disabled') ) {
+        // redraw current spectra
+        this.showingStats = false;
+        this.$.selectSpectraInput.removeAttribute('disabled');
+        this.$.selectSpectraInput.classList.remove('disabled');
+        this.$.selector.style.color = '#333';
+        this.createTableArray();
+
+      } else {
+        this.updateStats();
+      }
+    },
+
+    updateStats : function() {
+      this.showingStats = true;
+      this.$.selectSpectraInput.setAttribute('disabled','');
+      this.$.selectSpectraInput.classList.add('disabled');
+      this.$.selector.style.color = '#888';
+
+      var filters = '';
+      if( this.activeFilter ) {
+          filters = '&filters='+encodeURIComponent(JSON.stringify([this.activeFilter]));
+      }
+
+
+      if( this.stats.key === filters ) {
+        this.createStatsTableArray();
+      } else {
+        this.stats.key = filters;
+
+        this.$.loadingPanel.style.display = 'inline-block';
+        $.get('/rest/getSpectraStats?package_id='+this.package+filters, function(resp){
+          this.stats.value = resp;
+
+          var keys = Object.keys(resp);
+          if( keys.length > 0 ) {
+            this.totalSpectra = parseInt(resp[keys[0]].count);
+            this.updateIndexSelector();
+          }
+
+          this.createStatsTableArray();
+          this.$.loadingPanel.style.display = 'none';
+        }.bind(this));
+      }
+    },
+
+    createStatsTableArray : function() {
+      this.dataArray = [];
+      var v, f, k, k2;
+
+      for( k in this.stats.value ) {
+          v = this.stats.value[k];
+
+          if( this.ptRegex1.exec(k) || this.ptRegex2.exec(k) ) {
+
+            f = '';
+            for( k2 in v ) f += '<b>'+k2+'</b>: '+v[k2].toFixed(6)+'\n';
+
+            this.dataArray.push([parseFloat(k), v.avg, v.min, v.max, f]);
+          }
+      }
+
+      this.dataArray.sort(function(a, b){
+          if( a[0] < b[0] ) return -1;
+          if( a[0] > b[0] ) return 1;
+          return 0;
+      });
+
+      this.filterByWavelength();
+    },
+
+    onMouseOutChart : function() {
+      this.$.hoverInfo.innerHTML = '';
+    },
+
+    onMouseOverChart : function(e) {
+      if( !this.showingStats ) return;
+      if( e.row === undefined ) return;
+
+      var k = this.dataArray[e.row][4];
+      this.$.hoverInfo.innerHTML = k.replace(/\n/g, ', ').replace(/, $/, '');
     }
   });
 </script>

@@ -1125,7 +1125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <h5 style="color: #333">
+    <h5 style="color: #333" id="selector">
       Spectra #&#xA0;
       <select on-change="updateFromSelect" id="selectSpectraInput" style="min-width:100px"></select>
       &#xA0;of <span id="totalSpectraLabel"></span>
@@ -1133,6 +1133,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <i class="fa fa-spinner fa-spin"></i> Loading...
       </span>
     </h5>
+
+    <div class="checkbox" style="padding-bottom: 30px">
+      <label><input type="checkbox" on-click="toggleStats"> Show Stats</label>
+    </div>
+    <div id="hoverInfo" style="position:absolute;z-index:50;padding: 5px; background-color: rgba(255, 255, 255, .8); margin-top:-30px"></div>
 
     <div style="position:relative">
         <div id="root" style="height: 400px; padding: 15px"></div>
@@ -1144,14 +1149,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="col-sm-10" id="sliderRoot"></div>
       </div>
 
-      <div class="row" style="margin-top: 20px">
-        <div class="col-sm-2">Add Filter</div>
-        <div class="col-sm-10"><select id="spectraFilterSelector" on-change="addFilterFromSelector" class="form-control"></select></div>
-      </div>
-
-      <div class="row" style="margin-top: 20px; display:none" id="filterBtnsPanelOuter">
-        <div class="col-sm-2">Current Filters</div>
-        <div class="col-sm-10" id="filterBtnsPanel"></div>
+      <div class="row" style="margin-top: 20px" id="filterPanel">
+        <div class="col-sm-2">Filter</div>
+        <div class="col-sm-5"><select id="spectraFilterSelector" on-change="setFilterValues" class="form-control"></select></div>
+        <div class="col-sm-5"><select id="spectraFilterValueSelector" on-change="setDsFilter" class="form-control"></select></div>
       </div>
 
       <div style="margin-top: 50px">
