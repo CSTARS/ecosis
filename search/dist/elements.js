@@ -6947,7 +6947,10 @@ Polymer.Debounce = (function() {
           this.$.spectraFilterValueSelector.setAttribute('disabled', 'disabled');
           this.$.spectraFilterValueSelector.innerHTML = '';
           this.activeFilter = null;
-          this.updateDataTable();
+
+          if( this.showingStats) this.updateStats();
+          else this.updateDataTable();
+
           return;
         }
 
