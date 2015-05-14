@@ -7238,7 +7238,8 @@ Polymer.Debounce = (function() {
         this.stats.key = filters;
 
         this.$.loadingPanel.style.display = 'inline-block';
-        $.get('/rest/getSpectraStats?package_id='+this.package+filters, function(resp){
+        var url = '/rest/getSpectraStats?package_id='+this.package+filters;
+        $.get(url, function(resp){
           this.stats.value = resp;
 
           var keys = Object.keys(resp);
@@ -7250,6 +7251,8 @@ Polymer.Debounce = (function() {
           this.createStatsTableArray();
           this.$.loadingPanel.style.display = 'none';
         }.bind(this));
+
+        this.$.restLink.setAttribute('href', window.location.origin+url);
       }
     },
 
