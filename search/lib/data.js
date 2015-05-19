@@ -2,7 +2,6 @@
  *  Data export functions
  */
 
-
 exports.download = function(collections, req, res) {
     var pkgid = req.query.package_id;
     var filters = req.query.filters;
@@ -65,14 +64,11 @@ exports.download = function(collections, req, res) {
         var query = {'ecosis.package_id': pkgid};
         if( filters ) query['$and'] = filters;
 
-        collections.spectra.count(query, function(err, count) {
-          console.log('Count: '+count);
-        });
-
         var cursor = collections.spectra.find(query);
         if( sort ) {
-            cursor.sort([['ecosis.sort', 1]]);
+            cursor.sort({'ecosis.sort': 1});
         }
+
         var stream = cursor.stream();
 
         var dataLength = data.length;
@@ -84,10 +80,6 @@ exports.download = function(collections, req, res) {
         } else {
           includeMetadata = false;
         }
-
-        stream.on('end', function() {
-            res.end('');
-        });
 
         stream.on('data', function(item) {
             line = '';
@@ -110,7 +102,9 @@ exports.download = function(collections, req, res) {
             res.write(line+'\n');
         });
 
-
+        stream.on('end', function() {
+            res.end('');
+        });
 
     });
 }

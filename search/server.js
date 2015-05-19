@@ -46,6 +46,11 @@ exports.bootstrap = function() {
         if( err ) return console.log(err);
 
         spectraCollection = coll;
+
+        // required or large sorts will break
+        spectraCollection.ensureIndex({'ecosis.sort': 1}, function(err){
+          if( err ) console.log(err);
+        });
     });
 
     db.collection(config.db.usdaCollection, function(err, coll) {
