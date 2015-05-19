@@ -102,7 +102,7 @@ exports.download = function(collections, req, res) {
             res.write(line+'\n');
         });
 
-        cursor.on('end', function() {
+        cursor.on('close', function() {
             res.end('');
         });
 
