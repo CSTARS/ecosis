@@ -65,11 +65,15 @@ exports.download = function(collections, req, res) {
         var query = {'ecosis.package_id': pkgid};
         if( filters ) query['$and'] = filters;
 
+        collections.spectra.count(query, function(err, count) {
+          console.log('Count: '+count);
+        });
+
         var cursor = collections.spectra.find(query);
         if( sort ) {
             cursor.sort([['ecosis.sort', 1]]);
         }
-        cursor = cursor.stream();
+        var stream = cursor.stream();
 
         var dataLength = data.length;
         var metadataLength = metadata.length;
@@ -81,7 +85,11 @@ exports.download = function(collections, req, res) {
           includeMetadata = false;
         }
 
-        cursor.on('data', function(item) {
+        stream.on('end', function() {
+            res.end('');
+        });
+
+        stream.on('data', function(item) {
             line = '';
 
             for( i = 0; i < dataLength; i++ ) {
@@ -102,9 +110,7 @@ exports.download = function(collections, req, res) {
             res.write(line+'\n');
         });
 
-        cursor.on('close', function() {
-            res.end('');
-        });
+
 
     });
 }
