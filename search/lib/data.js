@@ -1,3 +1,4 @@
+var csvStringify = require('csv-stringify');
 /*
  *  Data export functions
  */
@@ -44,17 +45,35 @@ exports.download = function(collections, req, res) {
             });
         }
 
-        data.sort(function(a,b){
-            if( a > b ) return 1;
-            if( a < b ) return -1;
+
+        // sort data by wavelength
+        var tmp = [], f;
+        for( var i = data.length-1; i >= 0; i-- ) {
+            f = parseFloat(data[i]);
+            if( isNaN(f) ) {
+                tmp.push(data.splice(i, 1)[0]);
+                continue;
+            }
+
+            data[i] = [data[i], f] ;
+        }
+        data.sort(function(a, b){
+            if( a[1] > b[1] ) return -1;
+            if( a[1] < b[1] ) return 1;
             return 0;
         });
 
-        res.write(data.join(','));
-        if( includeMetadata && metadata.length > 1 ) {
-            res.write(',');
-            res.write(metadata.join(','));
+        for( var i = 0; i < data.length; i++ ) {
+            tmp.splice(0, 0, data[i][0])
         }
+        data = tmp;
+
+        // write headers
+        if( includeMetadata && metadata.length > 1 ) {
+            res.write(metadata.join(','));
+            res.write(',');
+        }
+        res.write(data.join(','));
         res.write('\n');
 
         // now write data keys as stored in mongo
@@ -82,29 +101,40 @@ exports.download = function(collections, req, res) {
           includeMetadata = false;
         }
 
-        stream.on('data', function(item) {
-            line = '';
+        var finished = false;
+        var count = 0;
+        var writeCount = 0;
+        function done() {
+          if( finished && count == writeCount ) {
+            res.end('');
+          }
+        }
 
-            for( i = 0; i < dataLength; i++ ) {
-                //line += getPoint(data[i], item.datapoints);
-                line += item.datapoints[data[i]] === undefined ? '' : item.datapoints[data[i]];
-                if( i < dataLength - 1 ) line += ','
-            }
+
+        stream.on('data', function(item) {
+            count++;
+            line = [];
 
             if( includeMetadata ) {
-                line += ',';
-
                 for( var i = 0; i < metadataLength; i++ ) {
-                    line += item[metadata[i]] === undefined ? '' : item[metadata[i]];
-                    if( i < metadataLength - 1 ) line += ','
+                    line.push(item[metadata[i]] === undefined ? '' : item[metadata[i]]);
                 }
             }
 
-            res.write(line+'\n');
+            for( i = 0; i < dataLength; i++ ) {
+                line.push(item.datapoints[data[i]] === undefined ? '' : item.datapoints[data[i]]);
+            }
+
+            csvStringify([line], function(err, output){
+              res.write(output);
+              writeCount++;
+              done();
+            });
         });
 
         stream.on('end', function() {
-            res.end('');
+          finished = true;
+          done();
         });
 
     });
