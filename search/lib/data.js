@@ -55,6 +55,7 @@ exports.download = function(collections, req, res) {
             res.write(',');
             res.write(metadata.join(','));
         }
+        res.write('\n');
 
         // now write data keys as stored in mongo
         for( var i = 0; i < data.length; i++ ) {
