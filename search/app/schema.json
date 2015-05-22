@@ -7,10 +7,10 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "contact",
-        "other",
-        "pixel",
-        "proximal"
+        "Contact",
+        "Other",
+        "Pixel",
+        "Proximal"
       ],
       "description": "Describe the minimum measurement unit for your spectra (i.e. contact probe, proximal with X-degree foreoptic, pixel, other).",
       "allowOther": true
@@ -22,13 +22,11 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "UAV",
-        "airplane",
-        "boom",
-        "e.g.",
-        "etc.",
-        "satellite",
-        "tower"
+        "Airplane",
+        "Boom",
+        "Satellite",
+        "Tower",
+        "UAV"
       ],
       "description": "Describe the setting (e.g. handheld, boom, tram, UAV, outdoor, laboratory) in which the spectral measurements were made.",
       "allowOther": false
@@ -40,10 +38,10 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "greenhouse",
-        "laboratory",
-        "other",
-        "outdoor"
+        "Greenhouse",
+        "Laboratory",
+        "Other",
+        "Outdoor"
       ],
       "description": "",
       "allowOther": true
@@ -55,19 +53,19 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
+        "Animal",
+        "Bark",
+        "Branch",
+        "Canopy",
+        "Flower",
+        "Leaf",
+        "Mineral",
         "NPV",
-        "animal",
-        "bark",
-        "branch",
-        "canopy",
-        "flower",
-        "leaf",
-        "mineral",
-        "other",
-        "reference",
-        "rock",
-        "soil",
-        "water"
+        "Other",
+        "Reference",
+        "Rock",
+        "Soil",
+        "Water"
       ],
       "description": "Describe the target you are measuring.",
       "allowOther": true
@@ -79,14 +77,14 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
+        "Absorptance",
         "DN",
-        "absorptance",
-        "index",
-        "other",
-        "radiance",
-        "reflectance",
-        "transflectance",
-        "transmittance"
+        "Index",
+        "Other",
+        "Radiance",
+        "Reflectance",
+        "Transflectance",
+        "Transmittance"
       ],
       "description": "",
       "allowOther": true
@@ -118,10 +116,10 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "microns",
+        "Other",
+        "Unitless",
         "nm",
-        "other",
-        "unitless"
+        "um"
       ],
       "description": "Provide wavelength units (e.g. nm, um, Hz)",
       "allowOther": false
@@ -133,15 +131,15 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "dried",
-        "fresh",
-        "green",
-        "ground",
-        "liquid",
-        "live",
-        "other",
-        "panel",
-        "standard"
+        "Dried",
+        "Fresh",
+        "Green",
+        "Ground",
+        "Liquid",
+        "Live",
+        "Other",
+        "Panel",
+        "Standard"
       ],
       "description": "Describe the state of the measurement target.",
       "allowOther": true
@@ -153,10 +151,10 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "lamp",
-        "laser",
-        "other",
-        "sun"
+        "Lamp",
+        "Laser",
+        "Other",
+        "Sun"
       ],
       "description": "Describe the light source used for your spectral measurements",
       "allowOther": true
@@ -178,14 +176,14 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "bare fiber",
-        "cosine diffuser",
-        "foreoptic",
-        "gershon tube",
-        "integrating sphere",
-        "leaf clip",
-        "none",
-        "other"
+        "Bare Fiber",
+        "Cosine Diffuser",
+        "Foreoptic",
+        "Gershon Tube",
+        "Integrating Sphere",
+        "Leaf Clip",
+        "None",
+        "Other"
       ],
       "description": "Describe the foreoptic used to make your spectral measurement",
       "allowOther": true
@@ -219,8 +217,8 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "no",
-        "yes"
+        "No",
+        "Yes"
       ],
       "description": "Is the measurement an average of other measurements?",
       "allowOther": false
@@ -232,8 +230,8 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "no",
-        "yes"
+        "No",
+        "Yes"
       ],
       "description": "Is the measurement interpolated?",
       "allowOther": false
@@ -245,8 +243,8 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "no",
-        "yes"
+        "No",
+        "Yes"
       ],
       "description": "Is the measurement resampled?",
       "allowOther": false
@@ -302,17 +300,17 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "agriculture",
-        "biochemistry",
-        "ecology",
-        "forest",
-        "global change",
-        "land cover",
-        "other",
-        "phenology",
-        "physiology",
-        "urban",
-        "water quality"
+        "Agriculture",
+        "Biochemistry",
+        "Ecology",
+        "Forest",
+        "Global Change",
+        "Land Cover",
+        "Other",
+        "Phenology",
+        "Physiology",
+        "Urban",
+        "Water Quality"
       ],
       "description": "Describe the research context for the the spectral measurements.",
       "allowOther": true
@@ -323,10 +321,7 @@
       "input": "text",
       "units": "",
       "spectraLevel": false,
-      "vocabulary": [
-        "but not controlled",
-        "may include terms in cells below"
-      ],
+      "vocabulary": null,
       "description": "",
       "allowOther": false
     },
@@ -337,12 +332,12 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
-        "aquatic",
-        "coastal",
-        "crops",
-        "forest",
-        "grassland",
-        "wetland"
+        "Aquatic",
+        "Coastal",
+        "Crops",
+        "Forest",
+        "Grassland",
+        "Wetland"
       ],
       "description": "",
       "allowOther": false
