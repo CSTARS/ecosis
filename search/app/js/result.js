@@ -1,243 +1,332 @@
 ESIS.result = (function() {
-	
-	var resultTemplate = null;
-	
-	var loaded = false;
-	var waiting = null;
-	
-	var loadHandlers = [];
-	var ignoreAttrs = ['_id', 'ecosis', 'count', 'lengths'];
-	
 
-	var mainFilters = ['ecosis.organization','ecosis.keywords','Family','Category'];
+  var resultTemplate = null;
 
-	function init() {
-		$('#result').load('/result.handlebars', function() {
-			var source = $("#result-template").html();
-			resultTemplate = Handlebars.compile(source);
-			
-			loaded = true;
-			
-			if( waiting != null ) updateResult(waiting);
-			
-			for( var i = 0; i < loadHandlers.length; i++ ) {
-				var f = loadHandlers[i];
-				f();
-			}
-		});
-		
-		$(window).bind('result-update-event', function(e, result){
-			console.log(result);
-			updateResult(result);
-		});
-	}
-	
-	// fires when template is loaded
-	function onLoad(handler) {
-		if( resultTemplate == null ) loadHandlers.push(handler);
-		else handler();
-	}
+  var loaded = false;
+  var waiting = null;
 
-	function getTitle(item) {
-		/*var group_by = '';
-		if( item.ecosis.group_by && item.ecosis.group_by != '' ) {
-			if( item[item.ecosis.group_by] && item[item.ecosis.group_by].length > 0 ) {
-				group_by = ' ('+item.ecosis.group_by+': '+item[item.ecosis.group_by][0]+')';
-			}
-		}*/
+  var loadHandlers = [];
+  var ignoreAttrs = ['_id', 'ecosis', 'count', 'lengths'];
 
-		if( item.ecosis.package_title ) return item.ecosis.package_title;
-		if( item.ecosis.package_name ) return item.ecosis.package_name;
-		return 'No Title';
-	}
-	
-	function updateResult(result) {
-		if( !loaded ) {
-			waiting = result;
-			return;
-		}
-		
-		var resultPanel = $("#result");
+  // filters that should not be active
+  var noLink = ['Citation', 'Citation DOI', 'Funding Source Grant Number', 'Funding Source']
+  var mainFilters = ['ecosis.organization','ecosis.keywords','Family','Category'];
 
-		result.ecosis._title = getTitle(result);
+  var MAX_FILTER_LINKS = 15;
 
-		resultPanel.html(getResultHtml(result));
-		
-		var metadata = '<table class="table">';
-		for( var key in result ) {
-			if( ignoreAttrs.indexOf(key) == -1 && result[key] && (result[key].length / result.ecosis.spectra_count) < .05 ) {
-				if( mainFilters.indexOf(key) != -1 ) continue;
+  var topAttributes = {
+      Description : 'ecosis.description',
+      License : 'ecosis.license',
+      Organization : 'ecosis.organization',
+      Version : 'ecosis.version'
+  }
 
-				var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
+  function init() {
+    $('#result').load('/result.handlebars', function() {
+      var source = $("#result-template").html();
+      resultTemplate = Handlebars.compile(source);
 
-				metadata += "<tr><td>"+label+"</td><td><div style='max-height:100px;overflow:auto'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";
-			}
-		}
-		metadata += '</table>';
+      loaded = true;
 
-		resultPanel.find("#result-metadata").html(metadata);
+      if( waiting != null ) updateResult(waiting);
 
-		$.get(ESIS.ckanHost+"/api/3/action/package_show?id="+result.ecosis.package_id,
-			function(resp) {
+      for( var i = 0; i < loadHandlers.length; i++ ) {
+        var f = loadHandlers[i];
+        f();
+      }
+    });
 
-				resp = resp.result;
-				console.log(resp);
+    $(window).bind('result-update-event', function(e, result){
+      console.log(result);
+      updateResult(result);
+    });
+  }
 
-				var table = '<table class="table">';
+  // fires when template is loaded
+  function onLoad(handler) {
+    if( resultTemplate == null ) loadHandlers.push(handler);
+    else handler();
+  }
 
-				if( resp.organization ) {
-					table += '<tr><td>Organization</td><td>';
-					if( resp.organization.image_url && resp.organization.image_url != '' ) {
-						table += '<img style="max-width:300px" src="'+ESIS.ckanHost+'/uploads/group/'+resp.organization.image_url+'" /><br />';
-					}
-					table += wrapFilterLink('ecosis.organization', resp.organization.title, true);
-				}
+  function getTitle(item) {
+    /*
+    var group_by = '';
+    if( item.ecosis.group_by && item.ecosis.group_by != '' ) {
+      if( item[item.ecosis.group_by] && item[item.ecosis.group_by].length > 0 ) {
+        group_by = ' ('+item.ecosis.group_by+': '+item[item.ecosis.group_by][0]+')';
+      }
+    }
+    */
 
-				table += '<tr><td>Description</td><td>'+resp.notes+'</td></tr>';
+    if( item.ecosis.package_title ) return item.ecosis.package_title;
+    if( item.ecosis.package_name ) return item.ecosis.package_name;
+    return 'No Title';
+  }
 
-				// set keywords
-				table += '<tr><td>Keywords</td><td>';
-				for( var i = 0; i < resp.tags.length; i++ ) {
-					table += wrapFilterLink('ecosis.keywords', resp.tags[i].display_name, true);
-					if( i < resp.tags.length -1 ) table += ', ';
-				}
-				if( resp.tags.length == 0 ) table += '[None]';
-				table += '</td></tr>';
+  function updateResult(result) {
+    if( !loaded ) {
+      waiting = result;
+      return;
+    }
 
-				// set Family
-				table += '<tr><td>Family</td><td>';
-				if( result.Family ) { 
-					for( var i = 0; i < result.Family.length; i++ ) {
-						table += wrapFilterLink('Family', result.Family[i], true);
-						if( i < result.Family[i].length -1 ) table += ', ';
-					}
-					if( result.Family.length == 0 ) table += '[None]';
-				} else {
-					table += '[None]';
-				}
-				table += '</td></tr>';
+    var resultPanel = $("#result");
 
-				// set Category
-				table += '<tr><td>Category</td><td>';
-				if( result.Category ) { 
-					for( var i = 0; i < result.Category.length; i++ ) {
-						table += wrapFilterLink('Category', result.Category[i], true);
-						if( i < result.Category[i].length -1 ) table += ', ';
-					}
-					if( result.Category.length == 0 ) table += '[None]';
-				} else {
-					table += '[None]';
-				}
-				table += '</td></tr>';
+    result.ecosis._title = getTitle(result);
 
-				// set resources
-				table += '<tr><td>Resources</td><td>';
-				for( var i = 0; i < resp.resources.length; i++ ) {
-					table += '<a href="'+resp.resources[i].url.replace(/:\/\//,ESIS.ckanHost) + 
-								'" target="_blank"><i class="fa fa-download"></i> '+resp.resources[i].name+'</a>';
-					if( i < resp.resources.length -1 ) table += '<br />';
-				}
-				table += '</td></tr>';
-
-				if( resp.metadata_created ) {
-					table += '<tr><td>Uploaded</td><td>'+(new Date(resp.metadata_created).toLocaleDateString())+'</td></tr>';
-				}
-				
-
-				table += '</table>'
-
-				$('#dataset-content').html(table);
+    resultPanel.html(getResultHtml(result));
 
 
-				// set package info for data viewer
-				$.get(ESIS.ckanHost+"/ecosis/getSchema?id="+result.ecosis.package_id, 
-					function(schema) {
-
-					var viewer = document.querySelector('esis-data-viewer');
-					var downloader = document.querySelector('esis-data-downloader');
-					viewer.package = resp;
-					viewer.item = result;
-					viewer.schema = schema;
-					viewer.spectra_count = result.ecosis.spectra_count;
-
-					downloader.package_id = resp.id;
-					viewer.addEventListener('filters-updated', function(e){
-						downloader.filters = e.detail;
-					});
-				});
-			}
-		);
-
-		
-		$("#result-back-btn").on('click', function(){
-			$(window).trigger("back-to-search-event");
-		});
-
-		$('#additionalFilterToggle').on('click', function() {
-			var i = $(this).find('i');
-			var open = i[0].classList.contains('fa-arrow-down');
-			if( open ) {
-				i.removeClass('fa-arrow-down');
-				i.addClass('fa-arrow-right');
-			} else {
-				i.removeClass('fa-arrow-right');
-				i.addClass('fa-arrow-down');
-			}
-			$('#result-metadata').toggle('slow');
-		});
-
-		/*$('#export-go').on('click', function(){
-			window.open('/rest/download?package_id='+result.ecosis.package_id+
-				'&metadata='+($('#export-metadata').is(':checked') ? 'true' : 'false')
-				,'Download'); 
-		});*/
-
-		// set nav handler
-		$('a[goto]').on('click', function(){
-			var heading = $(this).attr('goto');
-			if( !heading || heading == '' ) return;
-
-			$('body,html').animate({scrollTop: $('#'+heading).offset().top-120}, 500);
-		});
-	}
+    var content = '<div class="well"><div class="row"><div class="col-sm-6">'
 
 
-	function wrapFilterLinks(key, values) {
-		var links = '';
-		for( var i = 0; i < values.length; i++ ) {
-			links += wrapFilterLink(key, values[i]);
-			if( i < values.length-1 ) links += ', ';
-		}
-		return links;
-	}
+    for( var key in topAttributes ) {
+      var val;
+      if( topAttributes[key].indexOf('ecosis.') > -1 ) {
+        val = result.ecosis[topAttributes[key].replace(/ecosis\./,'')];
+      } else {
+        val = result[topAttributes[key]];
+      }
+      if( !val ) continue;
 
-	function wrapFilterLink(key, value, icon) {
-		if( value.length > 30 ) return value;
+      if( Array.isArray(val) ) {
+        val = wrapFilterLinks(topAttributes[key], val);
+      } else if( key != 'Description' && key != 'Version' ) {
+        val = wrapFilterLink(topAttributes[key], val);
+      }
 
-		var q = MQE.getCurrentQuery();
-		q.text = '';
-		q.page = 0;
-		var f = {};
-		f[key] = value;
-		q.filters = [f];
-		return '<a href="'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'">'+
-					(icon ? '<i class="fa fa-filter"></i> ' : '')+value+'</a>';
-	}
-	
-	function getResultHtml(result) {
+      content += '<div class="row"><div class="col-md-4"><b>'+key+'</b></div><div class="col-md-8">'+val+'</div></div>';
+    }
 
-		result.isChecked = ESIS.compare.selected(result._id);
+    // add developer link
+    content += '<div class="row"><div class="col-md-4"><b>API Link</b></div><div class="col-md-8">' +
+      '<a href="/rest/get?_id='+result.ecosis.package_id+'" target="_blank"><i class="fa fa-link"></i> Developer Rest Link</a></div></div>';
 
-		return resultTemplate(result);
-		
-	}
+    content += '<div class="row"><div class="col-md-4"><b>Spectra</b></div><div class="col-md-8">' +
+        result.ecosis.spectra_count+'</div></div>';
 
-	
-	return {
-		init : init,
-		updateResult : updateResult,
-		getResultHtml : getResultHtml,
-		onLoad : onLoad
-	}
-	
+    // set min / max wavelength
+    if( result.ecosis.spectra_schema && result.ecosis.spectra_schema.data ) {
+      var min = -1, max = -1, val;
+      var keys = result.ecosis.spectra_schema.data;
+      for( var i = 0; i < keys.length; i++ ) {
+        val = parseFloat(keys[i]);
+        if( isNaN(val) ) continue;
+
+        if( min == -1 ) min = val;
+        if( max == -1 ) max = val;
+        if( min > val ) min = val;
+        if( max < val ) max = val;
+      }
+
+      if( min != -1 && max != -1 ) {
+        content += '<div class="row"><div class="col-md-4"><b>Wavelength Range</b></div><div class="col-md-8">' +
+            min +' - '+ max +'</div></div>';
+      }
+    }
+
+    content += '</div><div class="col-sm-6">';
+
+
+    // add resources
+    content += '<h5 class="resources-title"><i class="fa fa-files-o"></i> Resources</h5>'+
+               '<div style="max-height: 400px; overflow:auto"><ul class="list-group">';
+    if( result.ecosis.resources && result.ecosis.resources.length > 0) {
+      for( var i = 0; i < result.ecosis.resources.length; i++ ) {
+        var r = result.ecosis.resources[i];
+
+        content += '<li class="list-group-item" style="padding: 10px;font-size: 16px"><a href="'+r.url+'" ><i class="fa fa-file-o"></i> '+r.name+'</a></li>';
+      }
+    } else {
+      content += '<li class="list-group-item">No resources provided</li>';
+    }
+
+    content += '</ul></div>';
+    content += '</div></div></div>';
+
+
+    var hasLocation = result.ecosis.geojson ? true : false;
+
+    // add category metadata
+    for( var category in ESIS.schema ) {
+      if( category == 'Location' && !hasLocation ) continue;
+
+      var items = ESIS.schema[category];
+
+      var catHTML = '<h4 class="page-header" style="margin-left: 5px; margin-bottom: 0">'+category+'</h4>'+
+        '<div class="well" style="margin:0">';
+
+
+      if( category == 'Location') {
+        content += catHTML+'<div id="result-map" style="height:300px"></div></div>';
+        continue;
+      }
+
+      catHTML += '<div class="row">';
+
+      var c = 0;
+      var table1 = '<div class="col-sm-6">';
+      var table2 = '<div class="col-sm-6">';
+      for( var i = 0; i < items.length; i++ ) {
+        if( !result[items[i].name] ) continue;
+
+        row = '<div class="row"><div class="col-md-3"><b>'+items[i].name+'</b></div>'+
+              '<div class="col-md-9">'+wrapFilterLinks(items[i].name, result[items[i].name])+'</div></div>';
+        if( items[i].description ) row += '<div class="help-block">'+items[i].description +'</div>';
+
+        if( c % 2 == 0 ) table1 += row;
+        else table2 += row;
+        c++;
+
+        if( items[i].allowOther && result[items[i].name+' Other'] ) {
+          row = '<div class="row"><div class="col-md-3"><b>'+items[i].name+' Other</b></div>'+
+                '<div class="col-md-9">'+wrapFilterLinks(items[i].name+' Other', result[items[i].name+' Other'])+'</div></div>';
+
+          if( c % 2 == 0 ) table1 += row;
+          else table2 += row;
+          c++;
+        }
+
+      }
+      catHTML += table1+'</table></div>'+table2+'</table></div></div></div>'
+
+      if( c > 0 ) content += catHTML;
+
+    }
+
+    resultPanel.find('#dataset-content').html(content);
+
+    // if we have geojson, create map
+    if( hasLocation ) {
+      var map = L.map('result-map', {scrollWheelZoom : false}).setView([42.065, -111.821], 13);
+
+      // add an OpenStreetMap tile layer
+      L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      var geojsonFeature = {
+          "type": "Feature",
+          "properties": {},
+          "geometry": result.ecosis.geojson
+      };
+
+      var layer = L.geoJson(geojsonFeature).addTo(map);
+      map.fitBounds(layer.getBounds());
+    }
+
+    // set handler for any ALL btns
+    resultPanel.find('.all-filters-link').on('click', function(){
+      ESIS.allFiltersPopup.show($(this).attr('key'), result);
+    });
+
+
+    var metadata = '<table class="table">';
+    for( var key in result ) {
+      if( ignoreAttrs.indexOf(key) == -1 && result[key] && (result[key].length / result.ecosis.spectra_count) < .05 ) {
+        if( mainFilters.indexOf(key) != -1 ) continue;
+
+        var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
+
+        metadata += "<tr><td><b>"+label+"</b></td><td><div style='max-height:100px;overflow:auto; padding:2px'>"+wrapFilterLinks(key, result[key])+"</div></td></tr>";
+      }
+    }
+    metadata += '</table>';
+
+    resultPanel.find("#result-metadata").html(metadata);
+
+    var viewer = document.createElement('esis-spectra-viewer');
+    var downloader = document.createElement('esis-data-downloader');
+    viewer.package = result.ecosis.package_id;
+    downloader.package = result.ecosis.package_id;
+    viewer.total = result.ecosis.spectra_count;
+
+    resultPanel.find("#dataViewerRoot").append(viewer);
+    resultPanel.find("#downloaderRoot").append(downloader);
+
+    //downloader.package_id = resp.id;
+    viewer.addEventListener('filter-update', function(e){
+      downloader.update(e.detail);
+    });
+    viewer.update(result);
+
+
+    $(".result-back-btn").on('click', function(){
+      $(window).trigger("back-to-search-event");
+    });
+
+    $('#additionalFilterToggle').on('click', function() {
+      var i = $(this).find('i');
+      var open = i[0].classList.contains('fa-arrow-down');
+      if( open ) {
+        i.removeClass('fa-arrow-down');
+        i.addClass('fa-arrow-right');
+      } else {
+        i.removeClass('fa-arrow-right');
+        i.addClass('fa-arrow-down');
+      }
+      $('#result-metadata').toggle('slow');
+    });
+
+
+    // set nav handler
+    $('a[goto]').on('click', function(){
+      var heading = $(this).attr('goto');
+      if( !heading || heading == '' ) return;
+
+      $('body,html').animate({scrollTop: $('#'+heading).offset().top-15}, 500);
+    });
+  }
+
+  function wrapFilterLinks(key, values) {
+    var links = [];
+    var more = false;
+    for( var i = 0; i < values.length; i++ ) {
+      if( i == MAX_FILTER_LINKS ) {
+        more = true;
+        break;
+      }
+      links.push(wrapFilterLink(key, values[i], false));
+    }
+    return links.join(', ')+(more ? '<span> ...</span> <a key="'+key+'" class="all-filters-link"><i class="fa fa-external-link-square"></i> ALL ('+values.length+')</a>' : '');
+  }
+
+  function wrapFilterLink(key, value, icon) {
+    if( key == 'Website' ) {
+      if( !value.match(/^(http|https|ftp)/) ) value = 'http://'+value;
+      var link = '<a href="'+value+'" target="_blank"><i class="fa fa-globe"></i> '+value+'</a>';
+
+      return link;
+    }
+
+    if( key == 'Author Email' || key == 'Maintainer Email' ) {
+      var link = '<a href="mailto:'+value+'" target="_blank"><i class="fa fa-envelope-o"></i> '+value+'</a>';
+      return link;
+    }
+
+    if( noLink.indexOf(key) > -1 ) return value;
+    if( value.length > 80 ) return value;
+
+    var q = MQE.getCurrentQuery();
+    q.text = '';
+    q.page = 0;
+    var f = {};
+    f[key] = value;
+    q.filters = [f];
+    return '<a href="'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'" style="white-space:normal">'+
+          (icon ? '<i class="fa fa-plus-circle"></i> ' : '')+value+'</a>';
+  }
+
+  function getResultHtml(result) {
+    return resultTemplate(result);
+
+  }
+
+
+  return {
+    init : init,
+    updateResult : updateResult,
+    getResultHtml : getResultHtml,
+    onLoad : onLoad
+  }
+
 })();

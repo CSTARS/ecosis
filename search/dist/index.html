@@ -1,112 +1,132 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	
-	<title>Ecosis - Spectral Library</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-	<script src="scripts/b17d5778.build.js"></script>
+  <title>EcoSIS - Spectral Library</title>
 
-	<link href="css/deep.css" rel="stylesheet" shim-shadowdom />
+  <script src="scripts/build.js"></script>
 
-	<link rel="stylesheet" href="css/04f782fe.build.css">
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=&sensor=true"></script>
 
 
-	<script type="text/javascript" src="mqe/mqe.js"></script>
+  <script type="text/javascript">
+    $.get("/schema.json", function(resp) {
+      ESIS.schema = resp;
+    });
+  </script>
 
-	<link rel="import" href="elements.html">
+  <link rel="stylesheet" href="css/build.css">
 
-	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-	<script type="text/javascript">
-      google.load('visualization', '1', {packages: ['corechart']});
-      google.setOnLoadCallback(initchart);
-    </script>
-	
-	<!--
-	<script type="text/javascript">
-		$(window).ready(function(){
-			
-			$("#accordion2").collapse();
-			$("#accordion2").height("auto");
-		});
-	</script>
-	-->
+
+  <script type="text/javascript" src="mqe/mqe.js"></script>
+
+  <link rel="import" href="elements.html">
+
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['line']});
+      google.setOnLoadCallback(function(){
+        initchart();
+        ESIS.home.chartReady();
+      });
+  </script>
 
 </head>
 <body>
 
 <div id="home" style="display:none; padding:2% 6%">
-	<div class="jumbotron">
-	  <h1 style="text-shadow: 2px 2px 0px white"><i class="fa fa-leaf"></i> EcoSIS Spectral Library <span class="sandbox">Sandbox</span></h1>
-	  <p>Welcome to the EcoSIS Spectral Library, a useful tool for finding spectral data</p>
-	  <p><a href="/#search" class="btn btn-primary btn-lg" role="button"><i class="fa fa-search"></i>  Find Spectra</a></p>
-	</div>
+  <div class="jumbotron" style="text-align:center">
+    <h1 style="text-shadow: 2px 2px 0px white"><i class="fa fa-leaf"></i> EcoSIS Spectral Library <span class="sandbox">Sandbox</span></h1>
+    <p>Welcome to the EcoSIS Spectral Library, a useful tool for finding spectral data. <br />
+      <p id="home-total-count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
+    </p>
 
-	<div style="margin-top:30px; text-align:center">
-		Data maintainers, <a id="mainainerLink" href="http://data.ecospectra.org">Enter Here</a>
-	</div>
-	
+    <p><a href="/#search" class="btn btn-primary btn-lg" role="button"><i class="fa fa-search"></i>  Find Spectra</a></p>
+  </div>
+
+
+  <div class="panel panel-default" id="random">
+    <div class="panel-body">
+      <div id="random-title" style="font-size: 26px" class="tlt"></div>
+
+      <span id="random-common-name" class="tlt" style="font-size: 16px" ></span>
+      <span id="random-genus" class="tlt" style="font-size: 16px" ></span>
+      <span id="random-species" class="tlt" style="font-size: 16px" ></span>
+      <div id="random-chart" style="margin-top: 50px"></div>
+
+    </div>
+  </div>
+
+  <div style="margin-top:30px; text-align:center">
+    Data maintainers, <a id="mainainerLink" href="http://data.ecospectra.org">Enter Here</a>
+  </div>
+
 </div>
 
 <div id="search" style="display:none; padding:2% 6%">
-	<div class="page-header" style="margin:0px">
-		<div class="row">
-			<div class="col-md-9">
-				<h4>EcoSIS Spectral Library <span class="sandbox">Sandbox</span></h4>
-			</div>
-			<div class="col-md-3">
-				<a class='btn btn-primary pull-right' href="/#home" style="margin:5px">
-					<i class="fa fa-home"></i> Home
-				</a>
-			</div>
-		</div>
-	</div>
-	
+  <div class="page-header" style="margin:0px">
+    <div class="row">
+      <div class="col-md-9">
+        <h4>EcoSIS Spectral Library <span class="sandbox">Sandbox</span></h4>
+      </div>
+      <div class="col-md-3">
+        <a class='btn btn-primary pull-right' href="/#home" style="margin:5px">
+          <i class="fa fa-home"></i> Home
+        </a>
+      </div>
+    </div>
+  </div>
 
-	<div class="well form-search">
-		<div class="row">
-			<div class="col-md-5" >
-				<div class="input-group" style="max-width: 300px">
-				  <input id="search-text" type="text" class="form-control"  >
-				  <span class="input-group-btn">
-			        <button id="search-btn" class="btn btn-default" type="button"><i class="fa fa-search"></i> Search</button>
-			      </span>
-				</div>
-			</div>
-			<div class="col-md-6" id="active-filters"></div>
-		</div>
-	</div>
 
-	
-	<div class="row">
-		<div class="col-md-3">
-			<div class="well" style="overflow:hidden">
-				<ul class="nav nav-list" id="filter-nav"></ul>
-			</div>
-			<div class="well" style="display:none">
-				<ul class="nav nav-list" id="compare-list"></ul>
-			</div>
-		</div>
-		<div class="col-md-9">
-			<div class="page-header" style="margin:10px 0 0 0">
-					<div class="row">
-						<div class="col-md-6">
-							<h4 id="results-title">Search Results</h4>
-						</div>
-						<div class="col-md-6">
-							<ul id="search-paging-btns" class="pagination pull-right" style="margin:0px"></ul>
-						</div>
-					</div>
-			</div>
-			<div id="results-panel"></div>
-		</div>
-	</div>
+  <div class="well">
+    <div class="row">
+      <div class="col-md-5" >
 
-	<div id="search-footer" style="text-align:center;margin-top: 100px;padding-top: 20px; border-top:1px solid #eee">
-		<div id="current-search-rest-link"></div>
-	</div>
+        <div class="layout horizontal">
+          <div class="flex">
+              <input id="search-text" type="text" class="form-control" placeholder="Keywords" style="background-color: white;" >
+          </div>
+          <div>
+            <button id="search-btn" class="btn btn-default" type="button" style="margin-left:5px"><i class="fa fa-search"></i> Search</button>
+          </div>
+        </div>
+
+      </div>
+      <div class="col-md-7" id="active-filters"></div>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col-md-3">
+      <div class="well" style="overflow:hidden;">
+        <ul class="nav nav-list" id="filter-nav"></ul>
+      </div>
+      <div class="well" style="display:none">
+        <ul class="nav nav-list" id="compare-list"></ul>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="page-header" style="margin:10px 0 0 0; border: none">
+          <div class="row">
+            <div class="col-md-6">
+              <h4 id="results-title">Search Results</h4>
+            </div>
+            <div class="col-md-6">
+              <ul id="search-paging-btns" class="pagination pull-right" style="margin:0px"></ul>
+            </div>
+          </div>
+      </div>
+      <div id="results-panel"></div>
+    </div>
+  </div>
+
+  <div id="search-footer" style="text-align:center;margin-top: 100px;padding-top: 20px; border-top:1px solid #eee">
+    <div id="current-search-rest-link"></div>
+  </div>
 
 </div>
 
@@ -114,56 +134,107 @@
 
 
 <div id="compare" style="display:none">
-	<div class="row">
-		<div class="col-md-9">
-			<h2>Compare</h2>
-		</div>
-		<div class="col-md-3" style="height:40px;padding-top:10px;">
-			<a class='btn btn-primary pull-right' href="/#home" style="margin:5px"><i class="icon-home icon-white"></i> Home</a>
-			<a id="compare-back-btn" class="btn btn-primary pull-right" style="margin:5px"><i class="icon-search icon-white"></i> Back to Search</a>
-		</div>
-	</div>
-	<div id="compare-chart"></div>
-	<div id="compare-list-btns"></div>
+  <div class="row">
+    <div class="col-md-9">
+      <h2>Compare</h2>
+    </div>
+    <div class="col-md-3" style="height:40px;padding-top:10px;">
+      <a class='btn btn-primary pull-right' href="/#home" style="margin:5px"><i class="icon-home icon-white"></i> Home</a>
+      <a id="compare-back-btn" class="btn btn-primary pull-right" style="margin:5px"><i class="icon-search icon-white"></i> Back to Search</a>
+    </div>
+  </div>
+  <div id="compare-chart"></div>
+  <div id="compare-list-btns"></div>
 </div>
 
 <div id="group" style="display:none; padding:2% 6%">
-	<h2 id="group-header" class="page-header"></h2>
-	<div style="height: 40px">
-		<div class="pull-right">
-			<a class="btn btn-primary" id="group-back-search">Back to Search</a>
-			<a class="btn btn-primary" id="group-back-spectra">Back to Spectra</a>
-		</div>
-	</div>
-	<div id="group-chart"></div>
-	<div id="group-link" style="text-align:center;margin-bottom:15px"></div>
-	<div id="group-controls" style="text-align:center">
-		<a id="group-prev" class="btn btn-primary">Previous</a>
-		<select id="group-select" style="margin-bottom:0px;width:auto"></select>
-		<a id="group-next" class="btn btn-primary">Next</a>
+  <h2 id="group-header" class="page-header"></h2>
+  <div style="height: 40px">
+    <div class="pull-right">
+      <a class="btn btn-primary" id="group-back-search">Back to Search</a>
+      <a class="btn btn-primary" id="group-back-spectra">Back to Spectra</a>
+    </div>
+  </div>
+  <div id="group-chart"></div>
+  <div id="group-link" style="text-align:center;margin-bottom:15px"></div>
+  <div id="group-controls" style="text-align:center">
+    <a id="group-prev" class="btn btn-primary">Previous</a>
+    <select id="group-select" style="margin-bottom:0px;width:auto"></select>
+    <a id="group-next" class="btn btn-primary">Next</a>
 
-		<div id="group-loading">Loading...</div>
-	</div>
+    <div id="group-loading">Loading...</div>
+  </div>
 </div>
 
-<div id="loading" style="display:none;position:fixed;top:50px;text-align:center;width:100%;" class="animated flipInX">
-	<div class="alert alert-info" style="display:inline-block;box-shadow: 0 0 5px white">Loading...</div>
+<div class="modal fade" id="all-filters-popup">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="gitInfo" style="padding:30px; color: #888; font-size: 12px; font-style: italic"></div>
+<div class="modal fade" id="geo-filter">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3><i class="icon-globe"></i> Filter By Location</h3>
+      </div>
+      <div class="modal-body">
+    	<div id="geo-filter-body">
+    		<div id="geo-filter-map" style="height:300px;width:100%;border:1px solid #ccc"></div>
+    		<div>
+    			<table class="table">
+    				<tr><td>Latitude: </td><td id="geo-filter-current-lat"></td>
+    						<td>Longitude: </td><td id="geo-filter-current-lng"></td>
+    				</tr>
+    				<tr><td>Radius: </td><td id="geo-filter-current-radius"></td>
+    					<td id="geo-filter-current-matches-outer">Matches: </td><td id="geo-filter-current-matches" style="width:225px"></td>
+    				</tr>
+    			</table>
+    		</div>
+    		<div class="help-block" style="font-style:italic">
+    			*Datasets without geographic location information will not be included in your search results when the geographic
+    			filter is applied.
+    		</div>
+    	</div>
+      </div>
+      <div class="modal-footer">
+      	<a class="btn btn-primary pull-left" id="geo-filter-select"><i class="icon-filter"></i> Set Filter</a>
+      	<a class="btn btn-success pull-left" id="geo-filter-geolocate"><i class="icon-screenshot"></i> Locate Me</a>
+        <a class="btn pull-right" data-dismiss="modal" >Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="loading" style="display:none; position:fixed; top:0px; text-align:center; width:100%;" class="animated fadeInDown">
+  <span class="label label-primary">Loading...</span>
+</div>
+
+<div id="gitInfo" style="padding: 50px 30px; color: #888; font-size: 12px; font-style: italic"></div>
 <script>
-	$.get('/rest/gitInfo', function(resp){
-		var html = '';
-		if( resp && resp.branch == 'master' ) return;
-		for( var key in resp ) html += '<div><b>'+key+':</b> '+resp[key]+'</div>';
-		$('#gitInfo').html(html);
-	});
+  $.get('/rest/gitInfo', function(resp){
+    var html = '';
+    if( resp && resp.branch == 'master' ) return;
+    for( var key in resp ) html += '<div><b>'+key+':</b> '+resp[key]+'</div>';
+    $('#gitInfo').html(html);
+  });
 
-	if( window.location.hostname == 'dev-search.ecospectra.org' ) {
-		$('.sandbox').show();
-		$('#mainainerLink').attr('href','http://dev-data.ecospectra.org');
-	}
+  if( window.location.hostname == 'dev-search.ecospectra.org' ) {
+    $('.sandbox').show();
+    $('#mainainerLink').attr('href','http://dev-data.ecospectra.org');
+  }
 </script>
+<script src="/analytics"></script>
 
 </body>
 </html>

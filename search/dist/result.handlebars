@@ -1,86 +1,60 @@
 <script id="result-template" type="text/x-handlebars-template">
 
 
-	<div class="navbar navbar-default navbar-fixed-top">
-	  <div class="container-fluid">
-	 	<div class="navbar-header" style="width:100%;margin:0px">
+  <div class="navbar navbar-default">
+    <div class="container-fluid">
+     <div class="navbar-header" style="width:100%;margin:0px">
+       <a class="result-back-btn navbar-brand visible-xs-inline-block"  style="font-size: 14px; cursor: pointer" >
+        <i class="fa fa-search"></i> Back to Search
+       </a>
 
-	 		<div style="display:inline-block" class="hidden-xs">
-	 			<a class="btn btn-link navbar-btn" goto="package">Dataset Information</a>
-		 		<a class="btn btn-link navbar-btn" goto="metadata">Search Filters</a>
-		 		<a class="btn btn-link navbar-btn" goto="chart">Inspect</a>
-		 		<a class="btn btn-link navbar-btn" goto="download">Download</a>
-	 		</div>
+       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#ecosis-header-collapse">
+         <span class="sr-only">Toggle navigation</span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+       </button>
+      </div>
 
-	 		<div style="display:inline-block" >
-	 			<!-- Single button -->
-				<div class="btn-group visible-xs">
-				  <button type="button" class="btn btn-link navbar-btn dropdown-toggle" data-toggle="dropdown">
-				    Go To <span class="caret"></span>
-				  </button>
-				  <ul class="dropdown-menu" role="menu" style="margin-top:50px">
-				    <li><a goto="package">Dataset Information</a></li>
-				    <li><a goto="metadata">Search Filters</a></li>
-				    <li><a goto="chart">Inspect</a></li>
-				    <li><a goto="download">Download</a></li>
-				  </ul>
-				</div>
-	 		</div>
+      <div class="collapse navbar-collapse" id="ecosis-header-collapse">
 
-	 		<a id="result-back-btn" class="btn btn-link navbar-btn pull-right" >
-	 			<i class="fa fa-search"></i> Back to Search
-	 		</a>
-	    	
-			
-	    </div>
+        <ul class="nav navbar-nav">
+          <li>
+            <a goto="package" style="cursor:pointer"><i class="fa fa-info-circle"></i> Dataset Information</a>
+          </li>
+          <li>
+            <a goto="chart" style="cursor:pointer"><i class="fa fa-area-chart"></i> Data Viewer</a>
+          </li>
+          <li>
+            <a goto="download" style="cursor:pointer"><i class="fa fa-download"></i> Download</a>
+          </li>
 
-	  </div>
-	</div>
+          <li class="dropdown" id="resourcesDropdown" style="display:none">
+        </ul>
 
-	<div class="result-padding" style="margin-top:105px">
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a class="result-back-btn"  style="cursor:pointer" >
+             <i class="fa fa-search"></i> Back to Search
+           </a>
+          </li>
+        </ul>
+      </div>
 
-	<div class="result-header">
-		<div style="padding: 0 10px">
-			
-			<table style="width:100%">
-				<tr>
-					<td>
-						<h3 style="margin-top:10px">{{ecosis._title}}</h3>
-					</td><td align="right">
-						<!--<div class='checkbox' style='margin-top: 15px'>
-							<label style="color:#333">
-								<input type='checkbox' {{#if isChecked}}checked{{/if}} onclick='ESIS.compare.toggle(this);' class='select-{{_id}}' itemid='{{_id}}' itemname='{{title}}' /> Compare
-							</label>
-						</div>-->
-					</td>
-				</tr>
-			</table>
-			
-
-			
-		</div>
-	</div>
-
-	<div class="card">
-		<h3 id="package" >Dataset</h3>
-		<div id="dataset-content">Loading...</div>
-	</div>
-	
-	<div class="card">
-		<h3 id="metadata"><a id="additionalFilterToggle"><i class="fa fa-arrow-right"></i></a> Addition Filters</h3>
-		<div id="result-metadata" style="display:none"></div>
-	</div>
-
-
-	<div class="card">
-		<esis-data-viewer></esis-data-viewer>
-	</div>
-
-	<div class="card">
-		<h3 class="page-header" id="download" style="border-bottom: none">Download</h3>
-		<esis-data-downloader></esis-data-downloader>
-	</div>
-
-	
+    </div>
   </div>
+
+<div style="padding: 0 2%">
+
+  <h3 class="page-header" style="margin:0" id="package"><i class="fa fa-info-circle"></i> {{ecosis._title}}</h3>
+  <div id="dataset-content" class="well"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
+
+  <h3 class="page-header" id="chart" ><i class="fa fa-area-chart"></i> Data Viewer</h3>
+  <div id="dataViewerRoot" class="well"></div>
+
+  <h3 class="page-header" id="download"><i class="fa fa-download"></i> Download CSV</h3>
+  <div id="downloaderRoot" class="well"></div>
+
+</div>
+
 </script>

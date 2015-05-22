@@ -1,59 +1,95 @@
 /**
  * This will actually extend the MQE expressjs server
- * 
+ *
  * make sure mongo is fired up w/ text search enabled
  * mongod --setParameter textSearchEnabled=true
- * 
+ *
  */
-var config = require(process.argv[2]);
 
 var ObjectId = require('mongodb').ObjectID;
 var CursorStream = require('mongodb').CursorStream;
 var async = require('async');
 
 var data = require('./lib/data.js');
+var dataStats = require('./lib/dataStats.js');
+var geo = require('./lib/geo.js');
+var usda = require('./lib/usda.js');
 
 var exec = require('child_process').exec;
 
 var collection;
 var spectraCollection;
-var schemaCollection;
+var usdaCollection;
 
 var ignoreList = ['_id','lastUpdate','lastRun', 'metadata', 'spectra'];
 
+
+// global ns provided by mqe
+var app = global.app;
+var mqe = global.mqe;
+var config = global.appConfig;
+var express = global.express;
+var logger = global.logger;
+
+
 // express app
-exports.bootstrap = function(server) {
-    var db = server.mqe.getDatabase();
-    
-    db.collection(config.db.mainCollection, function(err, coll) { 
+exports.bootstrap = function() {
+    var db = global.db;
+
+    db.collection(config.db.mainCollection, function(err, coll) {
         if( err ) return console.log(err);
 
         collection = coll;
     });
 
-    db.collection(config.db.spectraCollection, function(err, coll) { 
+    db.collection(config.db.spectraCollection, function(err, coll) {
         if( err ) return console.log(err);
 
         spectraCollection = coll;
+
+        // required or large sorts will break
+        spectraCollection.ensureIndex({'ecosis.sort': 1}, function(err){
+          if( err ) console.log(err);
+        });
     });
 
-    db.collection(config.db.schemaCollection, function(err, coll) { 
+    db.collection(config.db.usdaCollection, function(err, coll) {
         if( err ) return console.log(err);
 
-        schemaCollection = coll;
+        usdaCollection = coll;
     });
 
-    server.app.get('/rest/getSpectra', function(req, res){
+    app.get('/rest/getSpectra', function(req, res){
         data.getSpectra({main: collection, spectra: spectraCollection}, req, res);
     });
 
-    server.app.get('/rest/getDerivedData', function(req, res){
-        data.getDerivedData({main: collection, spectra: spectraCollection}, req, res);
+    app.get('/rest/getSpectraStats', function(req, res){
+        dataStats.get({spectra: spectraCollection}, req, res);
     });
 
-    server.app.get('/rest/download', function(req, res){
-        data.download({packmainage: collection, spectra: spectraCollection}, req, res);
+    app.get('/rest/getDataInSeries', function(req, res){
+        data.getDataInSeries({main: collection, spectra: spectraCollection}, req, res);
     });
+
+    app.get('/rest/download', function(req, res){
+        data.download({main: collection, spectra: spectraCollection}, req, res);
+    });
+
+    app.get('/rest/getSpectraCount', function(req, res){
+        data.getSpectraCount({spectra: spectraCollection}, req, res);
+    });
+
+    app.get('/rest/getRandomSpectra', function(req, res){
+        data.getRandomSpectra({main: collection, spectra: spectraCollection}, req, res);
+    });
+
+    app.get('/rest/geoPreview', function(req, res){
+        geo.geoPreview({main: collection}, req, res);
+    });
+
+
+
+    usda.init(usdaCollection);
 
     // takes params format and raw
     /*
@@ -87,7 +123,7 @@ exports.bootstrap = function(server) {
                 }
                 txt += '\n';
             }
-            
+
 
             for( var i = 0; i < item.spectra.length; i++ ) {
                 txt += item.spectra[i][0]+format+item.spectra[i][1]+'\n';
@@ -98,10 +134,10 @@ exports.bootstrap = function(server) {
         });
     });
     */
-    
 
-    server.app.get('/rest/downloadQueryData', function(req, resp) {
-        var q = server.mqe.requestToQuery(req);
+
+    app.get('/rest/downloadQueryData', function(req, resp) {
+        var q = mqe.requestToQuery(req);
 
         resp.set('Content-Disposition', 'attachment; filename="query-data.csv"');
         resp.set('Content-Type', 'text/csv');
@@ -128,17 +164,17 @@ exports.bootstrap = function(server) {
                     {
                         $limit : 10000
                     },
-                    { 
-                        $project : { 
-                            _id : 1, 
+                    {
+                        $project : {
+                            _id : 1,
                             spectra : 1
-                        } 
+                        }
                     },
                     { $unwind: "$spectra" },
-                    { 
-                        $group: { 
-                            _id: "$spectra.wavelength", 
-                            values : { 
+                    {
+                        $group: {
+                            _id: "$spectra.wavelength",
+                            values : {
                                 $push : "$spectra.values"
                             },
                             ids : {
@@ -147,11 +183,11 @@ exports.bootstrap = function(server) {
                         }
                     },
                     {
-                        $sort : { _id : 1 } 
+                        $sort : { _id : 1 }
                     }
-                ], 
+                ],
                 {
-                    allowDiskUse: true, 
+                    allowDiskUse: true,
                     cursor: { batchSize: 0 }
                 }
             );
@@ -174,7 +210,7 @@ exports.bootstrap = function(server) {
         });
     });
 
-    server.app.get('/rest/downloadQueryMetadata', function(req, resp) {
+    app.get('/rest/downloadQueryMetadata', function(req, resp) {
         var q = server.mqe.requestToQuery(req);
 
         resp.set('Content-Disposition', 'attachment; filename="query-metadata.csv"');
@@ -189,8 +225,8 @@ exports.bootstrap = function(server) {
             for( var key in doc.metadata ) {
                 if( prev.keys.indexOf('metadata.'+key) == -1 ) {
                     prev.keys.push('metadata.'+key);
-                }   
-            }  
+                }
+            }
         }
 
 
@@ -234,31 +270,54 @@ exports.bootstrap = function(server) {
 
     });
 
-    server.app.get('/rest/group/getInfo', function(req, resp){
+    app.get('/rest/group/getInfo', function(req, resp){
         getGroupInfo(req, resp);
     });
 
-    server.app.get('/rest/import', function(req, resp){
+    app.get('/rest/import', function(req, resp){
         server.runImport(function(obj){
             server.mqe.clearCache();
             resp.send(obj);
         });
     });
 
-    server.app.get('/rest/gitInfo', function(req, resp){
+    app.get('/analytics', function(req, resp){
+        resp.set('Content-Type', 'application/javascript');
+        if( !config.server.googleAnalytics ) return resp.send('');
+
+        resp.send(
+            '(function(i,s,o,g,r,a,m){i[\'GoogleAnalyticsObject\']=r;i[r]=i[r]||function(){'+
+            '(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),'+
+            'm=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)'+
+            '})(window,document,\'script\',\'//www.google-analytics.com/analytics.js\',\'ga\');'+
+            'ga(\'create\', \''+config.server.googleAnalytics+'\', \'auto\');'+
+            'ga(\'send\', \'pageview\');'+
+            '$(window).on(\'hashchange\',function(){ga(\'send\',\'pageview\',{\'page\':location.pathname+location.search+location.hash})});'
+        );
+    });
+
+    app.get('/rest/usda/search', function(req, resp){
+        usda.search(usdaCollection, req, resp);
+    });
+
+    app.get('/rest/user/get', function(req, resp){
+        usda.get(usdaCollection, req, resp);
+    });
+
+    app.get('/rest/gitInfo', function(req, resp){
         gitInfo(function(txt){
             resp.send(txt);
         });
     });
 
     if( config.dev ) {
-        server.app.use("/", server.express.static(__dirname+"/app"));
+        app.use("/", express.static(__dirname+"/app"));
         console.log('using: '+__dirname+"/app");
     } else {
-        server.app.use("/", server.express.static(__dirname+"/dist"));
+        app.use("/", express.static(__dirname+"/dist"));
         console.log('using: '+__dirname+"/dist");
     }
-    
+
 };
 
 function gitInfo(callback) {
@@ -291,7 +350,7 @@ function gitInfo(callback) {
 function getQueryIdsAndCounts(options, callback) {
     collection.find(options, {_id : 1, 'spectra' : {$slice : 1} }).limit(10000).toArray(function(err, result){
         if( err ) return resp.send('Error processing request :(');
-        
+
         var ids = {};
         for( var i = 0; i < result.length; i++ ) {
             ids[result[i]._id.toString()] = result[i].spectra[0].values.length;

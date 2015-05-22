@@ -1,6 +1,6 @@
 {
   "name": "esis",
-  "version": "0.0.1",
+  "version": "0.4.0",
   "author": "Justin Merz <jrmerz@gmail.com>",
   "description": "Ecosis Search (mqe)",
   "dependencies": {
@@ -9,6 +9,12 @@
     "MD5": "*",
     "async": "~0.9.0",
     "request": "~2.40.0",
+    "MongoQueryEngine": "git://github.com/CSTARS/MongoQueryEngine.git",
+    "leaflet": "^0.7.3",
+    "csv-stringify": "0.0.6"
+  },
+  "devDependencies": {
+    "grunt-filerev": "^0.2.1",
     "grunt": "^0.4.5",
     "grunt-vulcanize": "^0.4.1",
     "grunt-manifest": "^0.4.0",
@@ -28,8 +34,5 @@
     "grunt-contrib-imagemin": "^0.8.0",
     "grunt-contrib-cssmin": "^0.10.0",
     "grunt-svgmin": "^0.4.0"
-  },
-  "devDependencies": {
-    "grunt-filerev": "^0.2.1"
   }
 }
