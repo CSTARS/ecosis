@@ -94,11 +94,15 @@ ESIS.search = (function() {
 
 			var f = "";
       var key = "";
+
 			for( var j in query.filters[i] ) {
         key = j;
 
-				// see if it's a static filter
-				if( typeof query.filters[i][j] == 'object' ) {
+
+        var existsFilter = _isExistsFilter(query.filters[i][j], j) // see if it's a static filter
+        if( existsFilter ){
+          f = 'Exists: '+existsFilter;
+        } else if( typeof query.filters[i][j] == 'object' ) {
 					if( staticFilters[j] ) {
 						// grab label from static filter
 						f = staticFilters[j].label;
@@ -114,7 +118,7 @@ ESIS.search = (function() {
 			}
 
       if( key == 'ecosis.geojson' ) {
-				var btn = '<div class="btn-group" style="margin:0 5px 5px 0"><a class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" href="#"> Location Filter'+
+				var btn = '<div class="btn-group" style="margin:0 5px 5px 0; text-transform:none"><a class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" href="#"> Location Filter'+
 								' <span class="caret"></span></a><ul class="dropdown-menu" style="z-index:2000">' +
 								'<li><a href="'+MQE.queryToUrlString(tmpQuery)+'" ><i class="icon-remove"></i> Remove</a></li>' +
 								'<li><a id="geo-filter-edit"><i class="icon-edit"></i> Edit</a></li>' +
@@ -126,7 +130,7 @@ ESIS.search = (function() {
 				});
 
 			} else {
-        panel.append($('<a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0" class="btn btn-primary btn-sm"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
+        panel.append($('<a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0;text-transform:none" class="btn btn-primary btn-sm"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
       }
 
 		}
@@ -181,11 +185,7 @@ ESIS.search = (function() {
       }
 		}
 
-		if( c == 0 ) {
-			panel.append($("<div>No filters available for this search</div>"));
-			return;
-		}
-
+    // append location filter
     if( !_queryHasFilter(MQE.getCurrentQuery(), 'ecosis.geojson') ) {
 			panel.append($('<li><a id="filter-block-title-geo" style="cursor:pointer;font-weight:bold">Location</a></li>'));
 			$("#filter-block-title-geo").on('click', function(){
@@ -194,10 +194,23 @@ ESIS.search = (function() {
 
       $('#search-text').removeAttr('disabled').attr('placeholder','Keywords');
       $('#search-btn').removeClass('disabled');
+
+      c++;
     } else {
       $('#search-text').attr('disabled','').attr('placeholder','Not supported with location filter');
       $('#search-btn').addClass('disabled');
     }
+
+    panel.append($('<li><a id="filter-block-title-custom" style="cursor:pointer;font-weight:bold">Custom</a></li>'));
+    $("#filter-block-title-custom").on('click', function(){
+      ESIS.customFiltersPopup.show();
+    });
+    c++
+
+    if( c == 0 ) {
+			panel.append($("<div>No filters available for this search</div>"));
+			return;
+		}
 
 		// add hide/show handlers for the blocks
 		$(".search-block-title").on('click', function(e){
@@ -392,6 +405,21 @@ ESIS.search = (function() {
 			if( tmpQuery.filters[i][key] && tmpQuery.filters[i][key] == item[key] ) return true;
 		}
 		return false;
+	}
+
+  function _isExistsFilter(item, key) {
+		if( key == '$or' ) {
+      for( var i = 0; i < item.length; i++ ) {
+        var f = item[i];
+        if( f['value.ecosis.spectra_schema.data'] ) {
+          return f['value.ecosis.spectra_schema.data'];
+        } else if ( f['value.ecosis.spectra_schema.metadata'] ) {
+          return f['value.ecosis.spectra_schema.metadata'];
+        }
+      }
+    }
+
+    return null;
 	}
 
   function _queryHasFilter(query, key, value) {

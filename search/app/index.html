@@ -24,6 +24,7 @@
   <script type="text/javascript" src="js/result.js"></script>
   <script type="text/javascript" src="js/map.js"></script>
   <script type="text/javascript" src="js/allFiltersPopup.js"></script>
+  <script type="text/javascript" src="js/customFilterPopup.js"></script>
   <!-- endbuild -->
 
   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=&sensor=true"></script>
@@ -200,6 +201,40 @@
       <div class="modal-body"></div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="custom-filters-popup">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title">Create Custom Filter</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label for="inputCustomFilter" class="col-lg-2 control-label">Filter</label>
+            <div class="col-lg-10">
+              <input type="text" class="form-control" id="inputCustomFilter" placeholder="Custom Filter">
+              <div class="help-block">
+                Create custom filter using the following expression.
+                <ul>
+                  <li><b>Equals:</b> <i>Attribute Name</i>=<i>Value</i>.  <br />Ex: Latin Genus=Acer
+                  </li>
+                  <li><b>Has Attribute:</b> ^<i>Attribute Name</i>.  <br />Ex: ^Nitrogen</li>
+                  <li><b>Multiple Expressions:</b> <i>Attribute Name</i>=<i>Value</i>, ^<i>Attribute Name</i>.  <br />Ex: Latin Genus=Acer, ^Nitrogen</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="set-custom-filter">Set</button>
       </div>
     </div>
   </div>
