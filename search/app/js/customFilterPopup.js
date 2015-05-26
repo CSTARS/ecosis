@@ -44,7 +44,7 @@ ESIS.customFiltersPopup = (function() {
             metadataField,
             exists
           ]
-        })
+        });
 
       } else if( parts[i].indexOf('=') > -1 ) {
         var p = parts[i].split('='), f;

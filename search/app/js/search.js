@@ -329,7 +329,7 @@ ESIS.search = (function() {
 
 	function _getOrganization(item) {
 		if( !item.ecosis.organization ) return '';
-		if( item.ecosis.organization == '' ) return '';
+		if( item.ecosis.organization == '' || item.ecosis.organization == 'None' ) return '';
 
 		var link = '<a href="'+_createFilterUrl('ecosis.organization', item.ecosis.organization)+'">';
 		/*if( item.ecosis.organization_image_url ) {
