@@ -12,7 +12,7 @@
         "Pixel",
         "Proximal"
       ],
-      "description": "Describe the minimum measurement unit for your spectra (i.e. contact probe, proximal with X-degree foreoptic, pixel, other).",
+      "description": "Minimum measurement unit for your spectra (i.e. contact probe, proximal with X-degree foreoptic, pixel, other).",
       "allowOther": true
     },
     {
@@ -28,7 +28,7 @@
         "Tower",
         "UAV"
       ],
-      "description": "Describe the setting (e.g. handheld, boom, tram, UAV, outdoor, laboratory) in which the spectral measurements were made.",
+      "description": "Platform from which the spectral measurements were made (e.g. handheld, boom, tram, UAV).",
       "allowOther": false
     },
     {
@@ -43,7 +43,7 @@
         "Other",
         "Outdoor"
       ],
-      "description": "",
+      "description": "Setting in which the spectral measurements were made.",
       "allowOther": true
     },
     {
@@ -67,7 +67,7 @@
         "Soil",
         "Water"
       ],
-      "description": "Describe the target you are measuring.",
+      "description": "Describes the target that was measured.",
       "allowOther": true
     },
     {
@@ -96,7 +96,7 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": null,
-      "description": "Measurement quantity index name.  Please provide if Measurement Quantity = \"Index\"",
+      "description": "Measurement quantity's index name.  Please provide if Measurement Quantity = \"Index\"",
       "allowOther": false
     },
     {
@@ -106,7 +106,7 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": null,
-      "description": "Provide the scale for spectral instensity (e.g. DN, radiance, irradiance, reflectance)",
+      "description": "Scale for spectral instensity (e.g. DN, radiance, irradiance, reflectance)",
       "allowOther": false
     },
     {
@@ -121,7 +121,7 @@
         "nm",
         "um"
       ],
-      "description": "Provide wavelength units (e.g. nm, um, Hz)",
+      "description": "Wavelength units (e.g. nm, um, Hz)",
       "allowOther": false
     },
     {
@@ -141,7 +141,7 @@
         "Panel",
         "Standard"
       ],
-      "description": "Describe the state of the measurement target.",
+      "description": "State of the measurement target.",
       "allowOther": true
     },
     {
@@ -156,7 +156,7 @@
         "Other",
         "Sun"
       ],
-      "description": "Describe the light source used for your spectral measurements",
+      "description": "Description of the light source used for your spectral measurements",
       "allowOther": true
     },
     {
@@ -185,7 +185,7 @@
         "None",
         "Other"
       ],
-      "description": "Describe the foreoptic used to make your spectral measurement",
+      "description": "Description of the foreoptic used to make your spectral measurement",
       "allowOther": true
     },
     {
@@ -256,7 +256,7 @@
       "units": "",
       "spectraLevel": false,
       "vocabulary": null,
-      "description": "More information about processing can be provided here",
+      "description": "Other details about processing are provided here.",
       "allowOther": false
     }
   ],
@@ -268,7 +268,7 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": null,
-      "description": "Provide the name of the spectrometer manufacturer.",
+      "description": "Spectrometer manufacturer.",
       "allowOther": false
     },
     {
@@ -278,7 +278,7 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": null,
-      "description": "Provide the model of the spectrometer.",
+      "description": "Spectrometer model.",
       "allowOther": false
     },
     {
@@ -312,7 +312,7 @@
         "Urban",
         "Water Quality"
       ],
-      "description": "Describe the research context for the the spectral measurements.",
+      "description": "Research context for the the spectral measurements.",
       "allowOther": true
     },
     {
@@ -425,7 +425,7 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": null,
-      "description": "Provide the common name of the target that was measured.",
+      "description": "Common name of the target that was measured.",
       "allowOther": false
     },
     {
@@ -435,7 +435,7 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": null,
-      "description": "Provide the latin genus of the target that was measured.",
+      "description": "Latin genus of the target that was measured.",
       "allowOther": false
     },
     {
@@ -445,7 +445,7 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": null,
-      "description": "Provide the latin species of the target that was measured.",
+      "description": "Latin species of the target that was measured.",
       "allowOther": false
     },
     {
@@ -455,7 +455,7 @@
       "units": "",
       "spectraLevel": true,
       "vocabulary": null,
-      "description": "Provide the USDA code of the target that was measured.",
+      "description": "USDA code of the target that was measured.",
       "allowOther": false
     },
     {
