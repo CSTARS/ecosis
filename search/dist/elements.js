@@ -7005,12 +7005,22 @@ Polymer.Debounce = (function() {
               this.totalSpectra = resp.total;
               this.item = resp.item;
               this.createTableArray(resetWavelengths);
+              this.updateAttributes();
 
               this.updateIndexSelector();
             }.bind(this)
         });
 
         this.$.restLink.setAttribute('href', window.location.origin+url);
+    },
+
+    updateAttributes : function() {
+      var table = '<table class="table">';
+      for( var attr in this.item) {
+        if( attr == 'ecosis' || attr == '_id' || attr == 'datapoints' ) continue;
+        table += '<tr><td>'+attr+'</td><td>'+this.item[attr]+'</td></tr>';
+      }
+      this.$.attributes.innerHTML = table;
     },
 
     updateIndexSelector : function() {
@@ -7225,6 +7235,7 @@ Polymer.Debounce = (function() {
 
     updateStats : function() {
       this.showingStats = true;
+      this.$.attributes.innerHTML = '';
       this.$.selectSpectraInput.setAttribute('disabled','');
       this.$.selectSpectraInput.classList.add('disabled');
       this.$.selector.style.color = '#888';

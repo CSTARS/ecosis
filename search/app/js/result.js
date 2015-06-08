@@ -99,7 +99,8 @@ ESIS.result = (function() {
 
     // add developer link
     content += '<div class="row"><div class="col-md-4"><b>API Link</b></div><div class="col-md-8">' +
-      '<a href="/rest/get?_id='+result.ecosis.package_id+'" target="_blank"><i class="fa fa-link"></i> Developer Rest Link</a></div></div>';
+      '<a href="/rest/get?_id='+result.ecosis.package_id+'" target="_blank"><i class="fa fa-link"></i> Developer API Rest Link</a>'+
+      '<br/><a href="http://cstars.github.io/esis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a></div></div>';
 
     content += '<div class="row"><div class="col-md-4"><b>Spectra</b></div><div class="col-md-8">' +
         result.ecosis.spectra_count+'</div></div>';

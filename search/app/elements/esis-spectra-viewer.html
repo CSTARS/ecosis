@@ -3,20 +3,34 @@
     :host {
       display: block;
     }
+    .attributes {
+      max-height: 150px;
+      overflow: auto;
+      margin: 0 15px;
+    }
   </style>
   <template>
-    <h5 style="color: #333" id="selector">
-      Spectra #&nbsp;
-      <select on-change="updateFromSelect" id="selectSpectraInput" style="min-width:100px"></select>
-      &nbsp;of <span id="totalSpectraLabel"></span>
-      <span class="label label-success" id="loadingPanel">
-        <i class="fa fa-spinner fa-spin"></i> Loading...
-      </span>
-    </h5>
 
-    <div class="checkbox" style="padding-bottom: 30px">
-      <label><input type="checkbox" on-click="toggleStats" /> Show Stats</label>
+    <div class="layout horizontal">
+      <div>
+        <h5 style="color: #333" id="selector">
+          Spectra #&nbsp;
+          <select on-change="updateFromSelect" id="selectSpectraInput" style="min-width:100px"></select>
+          &nbsp;of <span id="totalSpectraLabel"></span>
+          <span class="label label-success" id="loadingPanel">
+            <i class="fa fa-spinner fa-spin"></i> Loading...
+          </span>
+        </h5>
+
+        <div class="checkbox" style="padding-bottom: 30px">
+          <label><input type="checkbox" on-click="toggleStats" /> Show Stats</label>
+        </div>
+      </div>
+      <div class="flex">
+        <div class="attributes" id="attributes"></div>
+      </div>
     </div>
+
     <div id="hoverInfo" style="position:absolute;z-index:50;padding: 5px; background-color: rgba(255, 255, 255, .8); margin-top:-30px"></div>
 
     <div style="position:relative">
@@ -44,7 +58,7 @@
           </div>
           <div class="col-sm-6" style="text-align:right">
             <a class="btn btn-link" id="restLink" target="_blank"><i class="fa fa-link"></i> Developer Rest Link</a>
-            <a class="btn btn-link" href="http://cstars.github.io/esis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API</a>
+            <a class="btn btn-link" href="http://cstars.github.io/esis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a>
           </div>
         </div>
       </div>
@@ -219,12 +233,22 @@
               this.totalSpectra = resp.total;
               this.item = resp.item;
               this.createTableArray(resetWavelengths);
+              this.updateAttributes();
 
               this.updateIndexSelector();
             }.bind(this)
         });
 
         this.$.restLink.setAttribute('href', window.location.origin+url);
+    },
+
+    updateAttributes : function() {
+      var table = '<table class="table">';
+      for( var attr in this.item) {
+        if( attr == 'ecosis' || attr == '_id' || attr == 'datapoints' ) continue;
+        table += '<tr><td>'+attr+'</td><td>'+this.item[attr]+'</td></tr>';
+      }
+      this.$.attributes.innerHTML = table;
     },
 
     updateIndexSelector : function() {
@@ -439,6 +463,7 @@
 
     updateStats : function() {
       this.showingStats = true;
+      this.$.attributes.innerHTML = '';
       this.$.selectSpectraInput.setAttribute('disabled','');
       this.$.selectSpectraInput.classList.add('disabled');
       this.$.selector.style.color = '#888';
