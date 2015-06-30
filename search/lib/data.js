@@ -1,4 +1,5 @@
 var csvStringify = require('csv-stringify');
+var helpers = require('./helpers');
 /*
  *  Data export functions
  */
@@ -213,7 +214,8 @@ exports.getSpectra = function(collections, req, res) {
                 } else {
                     respObj.item = resp[0];
 
-                    cleanDatapoints(respObj.item)
+                    helpers.cleanDatapoints(respObj.item);
+                    helpers.addDatasetLinks(respObj.item);
                 }
 
                 res.send(respObj);
@@ -258,12 +260,63 @@ exports.getRandomSpectra = function(collections, req, res) {
              if( err ) return res.send({error: true, message: err, code : 2});
              if( resp.length == 0 ) return res.send({error: true, message: 'Query Failed', code: 2});
 
-             return res.send(cleanDatapoints(resp[0]));
+             return res.send(helpers.cleanDatapoints(resp[0]));
            });
         });
    });
 }
 
+
+exports.getMultipleSpectra = function(collections, req, res) {
+  var filters = req.query.filters;
+  var start = parseInt(req.query.start);
+  var end = parseInt(req.query.end);
+  var message = '';
+
+  if( !start ) start = 0;
+  if( !end || end > start + 100 ) {
+    end = start + 100;
+  }
+
+  try {
+      if( filters ) filters = JSON.parse(filters);
+  } catch(e) {
+      return sendError(res, e);
+  }
+
+  var query = {};
+  if( filters ) query['$and'] = filters;
+
+  res.write('{');
+
+  collections.spectra.count(query, function(err, count){
+    if( end-start > 100 ) message = "warning, only 100 results will be returned.  Use 'start' and 'stop' "+
+      "attributes to get entire set";
+
+    res.write('"total":' + count + ',"start":' + start +
+      ',"end":' + end + ', "message": "'+message+'", "items":[');
+
+    var cursor = collections.spectra.find(query);
+    var first = true;
+    cursor = cursor.stream();
+    cursor
+      .skip(start)
+      .limit(end-start)
+
+    // map reduce for this was super slow :(
+    cursor.on('data', function(item) {
+      helpers.cleanDatapoints(item);
+      helpers.addDatasetLinks(item);
+
+      res.write((first ? '' : ',')+JSON.stringify(item));
+      first = false;
+    });
+
+    cursor.on('end', function() {
+      res.end(']}');
+    });
+  });
+}
 
 exports.getDataInSeries = function(collections, req, res) {
     var pkgid = req.query.package_id;
@@ -338,21 +391,10 @@ exports.getDataInSeries = function(collections, req, res) {
                 values : arr
             });
         });
-
-
     });
 }
 
-function cleanDatapoints(item) {
-  // cleanup datapoints
-  var points = {};
-  for( var key in item.datapoints ) {
-    points[key.replace(/,/g, '.')] = item.datapoints[key]
-  }
-  item.datapoints = points;
 
-  return item;
-}
 
 
  function sendError(res, msg) {

@@ -12,7 +12,7 @@ exports.db = {
 
 	// connection string for the database, includes database name
 	//url             : "mongodb://localhost:27017/esis",
-	url             : "mongodb://192.168.2.138:27017/esis",
+	url             : "mongodb://192.168.1.65:27017/esis",
 
 	// collection where the queryable items are stored
 	mainCollection  : "search",
@@ -47,6 +47,8 @@ exports.server = {
 	// local port on machine
 	localport : 3003,
 
+	url : 'http://ecospectra.org',
+
 	// remote hosts that are allowed to access this sites mqe
 	allowedDomains : ["testnode.com","localhost","192.168.1.113"],
 
@@ -56,7 +58,7 @@ exports.server = {
 }
 
 exports.ckan = {
-	server : "http://192.168.1.2:5000",
+	server : "http://192.168.1.65:5000",
 	//server : 'http://data.ecospectra.org',
 
 	keyFile : '/etc/node-ckan/ckan-local.json'

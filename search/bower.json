@@ -16,16 +16,14 @@
   ],
   "dependencies": {
     "bootswatch-dist": "paper",
-    "handlebars": "~2.0.0",
-    "polymer": "Polymer/polymer#^0.8.0-rc.7",
-    "animate-css": "~3.2.6",
-    "font-awesome": "~4.3.0",
-    "leaflet": "~0.7.3",
-    "js-md5": "~1.1.0",
-    "md5": "~0.2.2",
-    "deep-equal": "~0.0.0",
-    "bower-bootstrap-slider": "~1.0.0",
-    "textillate": "~0.4.0",
-    "Chart.js": "~1.0.2"
+    "handlebars": "*",
+    "polymer": "Polymer/polymer#^1.0.5",
+    "animate-css": "*",
+    "font-awesome": "*",
+    "leaflet": "*",
+    "js-md5": "*",
+    "md5": "*",
+    "bower-bootstrap-slider": "*",
+    "textillate": "*"
   }
 }
