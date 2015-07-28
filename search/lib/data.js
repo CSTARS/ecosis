@@ -292,8 +292,9 @@ exports.getMultipleSpectra = function(collections, req, res) {
   collections.spectra.count(query, function(err, count){
     if( end-start > 100 ) message = "warning, only 100 results will be returned.  Use 'start' and 'stop' "+
       "attributes to get entire set";
+    if( err ) message = err;
 
-    res.write('"total":' + count + ',"start":' + start +
+    res.write('"total":' + (count === undefined ? '0' : count) + ',"start":' + start +
       ',"end":' + end + ', "message": "'+message+'", "items":[');
 
     var cursor = collections.spectra.find(query);
