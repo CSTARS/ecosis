@@ -1,7 +1,6 @@
-import/speclib-jpl/files/*
-import/specchio/files/*
-node_modules*
-*node_modules*
-*.DS_Store
-*.tmp
-*bower_components
+.build
+node_modules
+public/.tmp
+.tmp
+public/bower_components
+npm-debug.log

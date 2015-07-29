@@ -1,0 +1,67 @@
+{
+
+    "specialization": {},
+
+    "middleware": {
+        "static": {
+            "module": {
+                "arguments": [ "path:./public" ]
+            }
+        },
+
+        "router": {
+            "module": {
+                "arguments": [{ "directory": "path:./controllers" }]
+            }
+        }
+    },
+
+    "mqe" : {
+      "db" : {
+        "url_old"             : "mongodb://localhost:27017/esis",
+        "url"             : "mongodb://192.168.2.138:27017/esis",
+
+        "mainCollection"  : "search",
+        "spectraCollection" : "spectra",
+        "usdaCollection" : "usda",
+
+        "isMapReduce"     : true,
+
+        "geoFilter" : ["ecosis.geojson"],
+
+        "indexedFilters" : ["Theme", "Measurement Scale", "Keywords", "ecosis.organization"],
+
+        "sortBy"            : "ecosis.package_title",
+
+        "textIndexes"       : ["ecosis.package_title","Keywords", "Theme", "Target Type"],
+
+        "searchWhitelist" : ["_id", "ecosis.package_title", "ecosis.package_name", "ecosis.spectra_count", "ecosis.organization",
+        											"Keywords", "Theme", "Target Type", "ecosis.description", "Common Name"]
+      },
+
+      "server" : {
+        "host" : "localhost",
+
+        "remoteport" : 80,
+
+        "localport" : 3003,
+
+        "url" : "http://ecospectra.org",
+
+        "allowedDomains" : [],
+
+        "googleAnalytics" : "UA-60014992-3"
+      },
+      "rest" : {
+        "get" : "/package/get",
+        "query" : "/package/query"
+      },
+      "ckan" : {
+        "server" : "http://192.168.1.65:5000",
+        "server_old" : "http://data.ecospectra.org",
+
+        "keyFile" : "/etc/node-ckan/ckan-local.json"
+      }
+    }
+
+}

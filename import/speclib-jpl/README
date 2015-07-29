@@ -1,4 +1,0 @@
-Import code for: speclib.jpl.nasa.gov
-
-harvest.js - crawl website and download all txt files
-parse.js - parse all text files into json and return

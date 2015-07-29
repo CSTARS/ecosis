@@ -1,0 +1,117 @@
+<dom-module id="esis-data-downloader">
+  <template>
+
+
+    <div class="form-horizontal">
+
+      <div class="form-group">
+        <label for="inputEmail" class="col-sm-2 control-label">Metadata</label>
+        <div class="col-sm-9">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="metadata" on-change="updateLink">  Include Metadata
+            </label>
+          </div>
+
+          <div class="help-block">Include the metadata fields in the download.</div>
+        </div>
+      </div>
+
+      <div class="form-group" id="filtersGroup">
+        <label for="inputEmail" class="col-sm-2 control-label">Filters</label>
+        <div class="col-sm-9">
+          <div class="radio">
+            <label>
+              <input type="radio" name="downloadType" checked id="all" on-change="updateLink">
+              All Data
+            </label>
+          </div>
+          <div class="help-block">Download the entire dataset.</div>
+
+          <div class="radio">
+            <label>
+              <input type="radio" name="downloadType" id="filtered" on-change="updateLink">
+              Filtered Data
+            </label>
+          </div>
+
+
+          <div class="help-block">
+            Download only the data matching the following filters: <span id="filtersLabel"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-offset-2 col-sm-9">
+        <a class="btn btn-primary" target="_blank" id="linkUrl"><i class="fa fa-download"></i> Download</a>
+      </div>
+
+    </div>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is : 'esis-data-downloader',
+      fitlers : [],
+      includeMetadata : false,
+      linkUrl : '',
+      package_id : '',
+      filteredOnly : false,
+      allData : true,
+
+      observe : {
+          filters : '_update',
+          includeMetadata : '_update',
+          filteredOnly : '_update',
+          allData : '_update'
+      },
+
+      properties : {
+        package : {
+          type : String
+        }
+      },
+
+      attached : function() {
+        this.update([]);
+      },
+
+      update : function(filters) {
+        this.filters = filters;
+
+        if( this.filters.length == 0 ) {
+          $(this.$.all).prop('checked', true);
+          $(this.$.filtered).prop('checked', false);
+          this.$.filtersGroup.style.display = 'none';
+        } else {
+          this.$.filtersGroup.style.display = 'block';
+
+          var labels = '';
+          for( var i = 0; i < this.filters.length; i++ ) {
+            labels += '<span class="label label-primary">'+this.filters[i].key+': '+this.filters[i].value+'</span>';
+          }
+          this.$.filtersLabel.innerHTML = labels;
+        }
+
+
+        this.updateLink();
+      },
+
+      updateLink : function() {
+        var f = [];
+
+        if( $(this.$.filtered).is(':checked') ) {
+            for( var i = 0; i < this.filters.length; i++ ) {
+                var obj = {};
+                obj[this.filters[i].key] = this.filters[i].value;
+                f.push(obj);
+            }
+        }
+
+        this.$.linkUrl.setAttribute('href', '/package/download?package_id='+this.package+
+            (f.length > 0 ? '&filters='+encodeURIComponent(JSON.stringify(f)) : '')+
+            '&metadata='+($(this.$.metadata).is(':checked') ? 'true' : 'false'));
+      }
+  });
+</script>
