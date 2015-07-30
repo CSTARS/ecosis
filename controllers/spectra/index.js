@@ -39,7 +39,7 @@ module.exports = function (router) {
     router.get('/count', function(req, res) {
       res.set('Content-Type', 'application/json');
 
-      model.random(function(err, count){
+      model.count(function(err, count){
         if( err ) {
           res.send({error: true, message: err});
         }

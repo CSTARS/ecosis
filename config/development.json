@@ -1,10 +1,10 @@
 {
-    
+
 
     "middleware": {
 
         "devtools": {
-            "enabled": true,
+            "enabled": false,
             "priority": 35,
             "module": {
                 "name": "construx",
@@ -12,8 +12,8 @@
                     "path:./public",
                     "path:./.build",
                     {
-                        
-                        
+
+
                         "copier": {
                             "module": "construx-copier",
                             "files": "**/*"

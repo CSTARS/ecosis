@@ -17,13 +17,14 @@
   "dependencies": {
     "bootswatch-dist": "paper",
     "handlebars": "*",
-    "polymer": "Polymer/polymer#^1.0.5",
+    "polymer": "Polymer/polymer#^1.0.8",
     "animate-css": "*",
     "font-awesome": "*",
     "leaflet": "*",
     "js-md5": "*",
     "md5": "*",
     "bower-bootstrap-slider": "*",
-    "textillate": "*"
+    "textillate": "*",
+    "paper-tabs": "PolymerElements/paper-tabs#~1.0.1"
   }
 }

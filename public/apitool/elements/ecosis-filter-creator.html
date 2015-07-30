@@ -1,0 +1,147 @@
+<dom-module id="ecosis-filter-creator">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+
+  <template>
+
+    <span id="preview"></span> <a class="btn btn-link" on-click="edit"><i class="fa fa-pencil"></i></a>
+
+    <div class="modal fade" id="custom-filters-popup">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title">Add/Remove Filter</h4>
+          </div>
+
+          <div class="modal-body">
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label for="inputCustomFilter" class="col-lg-3 control-label">Add Filters</label>
+                <div class="col-lg-9">
+                  <input type="text" class="form-control" id="inputCustomFilter" placeholder="Custom Filter" on-keypress="onKeyPress">
+                  <div class="help-block">
+                    Add filters using the following expressions.
+                    <ul>
+                      <li>
+                        <div><b>Equals:</b> <i class="text-primary">Attribute Name</i><span class="text-success">=</span><i class="text-warning">Value</i></div>
+                        <div class="popup-example">Ex: Latin Genus=Acer</div>
+                      </li>
+                      <li>
+                        <div><b>Has Attribute:</b> <span class="text-success">^</span><i class="text-primary">Attribute Name</i></div>
+                        <div class="popup-example">Ex: ^Light Source</div>
+                      <li>
+                        <div><b>With Regex:</b> <i class="text-primary">Attribute Name</i><span class="text-success">=/</span><i class="text-warning">regular expression</i><span class="text-success">/<span></div>
+                        <div class="popup-example">Ex: Common Name=/maple$/</div>
+                        <div class="popup-example">Do not apply flags (e.g. /maple$/i with 'i' being the case insensitive flag).
+                           'i' is applied by default.</div>
+                      </li>
+                      <li>
+                        <div><b>Multiple Expressions:</b>
+                          <i class="text-primary">Attribute Name</i><span class="text-success">=</span><i class="text-warning">Value</i>,
+                          <span class="text-success">^</span><i class="text-primary">Attribute Name</i></div>
+                        <div class="popup-example">Ex: Latin Genus=Acer, ^Nitrogen</div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="inputCustomFilter" class="col-lg-3 control-label">Remove Filters</label>
+                <div class="col-lg-9">
+                  <div id="currentFilters"></div>
+                </div>
+              </div>
+
+            </div> <!-- form -->
+          </div> <!-- modal body -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is : 'ecosis-filter-creator',
+
+    ready : function() {
+      this.filters = [];
+
+      $(this.$['custom-filters-popup']).modal({show: false});
+      this.update();
+    },
+
+    update : function() {
+      this.$.preview.innerHTML = JSON.stringify(this.filters);
+
+      var html = '';
+      for( var i = 0; i < this.filters.length; i++ ) {
+        html += '<a class="btn btn-primary btn-sm" style="margin:3px;text-transform:inherit" index="'+i+'"><i class="fa fa-remove"></i> '+JSON.stringify(this.filters[i])+'</a>';
+      }
+      this.$.currentFilters.innerHTML = html;
+
+      $(this.$.currentFilters)
+        .find('a')
+        .on('click', function(){
+          var index = parseInt($(this).attr('index'));
+          this.filters.splice(index, 1);
+          this.update();
+        }.bind(this));
+
+      this.fire('filter-update', this.filters);
+    },
+
+    edit : function() {
+      $(this.$['custom-filters-popup']).modal('show');
+    },
+
+    onKeyPress : function(e) {
+      if( e.which == 13 ) {
+        this.parse(this.$.inputCustomFilter.value);
+        this.$.inputCustomFilter.value = '';
+        this.update();
+      }
+    },
+
+    parse : function(text) {
+      parts = text.split(',');
+
+      for( var i = 0; i < parts.length; i++ ) {
+        parts[i] = parts[i].trim();
+
+        // TODO: how do we want to handle values.
+        if( parts[i][0] == '^' ) {
+          var dataField = {}, metadataField = {}, exists = {};
+          var field = parts[i].replace(/\^/, '').trim();
+
+          //dataField['value.ecosis.spectra_schema.data'] = field;
+          metadataField['value.ecosis.spectra_schema.metadata'] = field;
+
+          //exists['value.'+field] = {'$exists' : true};
+
+          this.filters.push(metadataField);
+
+        } else if( parts[i].indexOf('=') > -1 ) {
+          var p = parts[i].split('='), f;
+          var field = p[0].trim();
+          var value = p[1].trim();
+
+          var f = {};
+          f[field] = value;
+
+          this.filters.push(f);
+        }
+      }
+    }
+
+  });
+</script>
