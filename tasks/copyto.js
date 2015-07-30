@@ -1,6 +1,5 @@
 'use strict';
 
-
 module.exports = function copyto(grunt) {
     // Load task
     grunt.loadNpmTasks('grunt-copy-to');
@@ -10,15 +9,16 @@ module.exports = function copyto(grunt) {
         build: {
             files: [{
                 cwd: 'public',
-                src: ['**/*'],
-                dest: '.build/'
+                src: ['index.html'],
+                dest: 'dist/'
+            },
+            {
+                cwd: 'public/bower_components/font-awesome',
+                src: ['fonts/**/*'],
+                dest: 'dist/'
             }],
             options: {
-                ignore: [
-                    
-                    'public/js/**/*',
-                    'public/templates/**/*'
-                ]
+                ignore: []
             }
         }
     };

@@ -28,7 +28,7 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
     collection.findOne(
         {'value.ecosis.package_id': pkgid},
         {'value.ecosis': 1},
-        function(err, result){
+        function(err, result) {
           if( err ) {
             return callback(err);
           } else if( !result ) {
