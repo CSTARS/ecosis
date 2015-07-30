@@ -33,7 +33,7 @@
 
         "sortBy"            : "ecosis.package_title",
 
-        "textIndexes"       : ["ecosis.package_title","Keywords", "Theme", "Target Type"],
+        "textIndexes"       : ["ecosis.package_title","Keywords", "Theme", "Target Type", "Latin Genus", "Latin Species", "Common Name"],
 
         "searchWhitelist" : ["_id", "ecosis.package_title", "ecosis.package_name", "ecosis.spectra_count", "ecosis.organization",
         											"Keywords", "Theme", "Target Type", "ecosis.description", "Common Name"]

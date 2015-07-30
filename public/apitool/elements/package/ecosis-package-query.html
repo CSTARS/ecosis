@@ -3,10 +3,6 @@
     :host {
       display: block;
     }
-    #response {
-      max-height: 600px;
-      overflow: auto;
-    }
   </style>
 
   <template>
@@ -19,14 +15,17 @@
         <label for="filtersInput" class="col-lg-2 control-label">filter</label>
         <div class="col-lg-10">
           <ecosis-filter-creator on-filter-update="setFilters"></ecosis-filter-creator>
-          <div class="help-block">JSON object containing array of filters to apply</div>
+          <div class="help-block"><a href="http://www.json.org/" target="_blank">JSON</a> array
+            containing object filters to apply.  Each object in the array should be a MongoDB
+            <a href="http://docs.mongodb.org/manual/tutorial/query-documents/" target="_blank">query object.</a>
+          </div>
         </div>
       </div>
 
       <div class="form-group">
         <label for="textInput" class="col-lg-2 control-label">text</label>
         <div class="col-lg-10">
-          <input type="text" class="form-control" />
+          <input type="text" class="form-control" on-keyup="onTextKeyUp"/>
           <div class="help-block">The free text query</div>
         </div>
       </div>
@@ -34,7 +33,7 @@
       <div class="form-group">
         <label for="textInput" class="col-lg-2 control-label">start</label>
         <div class="col-lg-10">
-          <input type="number" class="form-control" value="0" />
+          <input type="number" class="form-control" value="0" on-change="setRange" id="start" />
           <div class="help-block">The start index of the response</div>
         </div>
       </div>
@@ -42,7 +41,7 @@
       <div class="form-group">
         <label for="textInput" class="col-lg-2 control-label">stop</label>
         <div class="col-lg-10">
-          <input type="number" class="form-control" value="6" />
+          <input type="number" class="form-control" value="6" on-change="setRange" id="end" />
           <div class="help-block">The stop index of the response</div>
         </div>
       </div>
@@ -52,7 +51,7 @@
     <div id="preview"></div>
     <div id="previewEscaped"></div>
 
-    <div id="response"></div>
+    <ecosis-query-preview id="queryPreview"></ecosis-query-preview>
 
   </template>
 </dom-module>
@@ -63,6 +62,7 @@
 
     ready : function() {
       this.host = 'http://localhost:3003';
+      this.textTimer = -1;
 
       this.query = {
         filters : [],
@@ -82,21 +82,29 @@
       var urlEscaped = this.host+'/package/query'+escaped;
 
       this.$.preview.innerHTML = '<a href="'+urlEscaped+'" target="_blank">'+url+'</a>';
-
-      this.$.response.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
-      $.get(urlEscaped, function(resp){
-        var html = JSON.stringify(resp, '  ', '  ')
-                        .replace(/ /g, '&nbsp;')
-                        .replace(/\n/g, '<br />');
-
-        this.$.response.innerHTML = '<div>'+html+'</div>';
-      }.bind(this));
+      this.$.queryPreview.update(urlEscaped);
     },
 
     setFilters : function(e) {
       if(!this.query) return;
 
       this.query.filters = e.detail;
+      this.updatePreview();
+    },
+
+    onTextKeyUp : function(e) {
+      this.query.text = e.currentTarget.value;
+
+      if( this.textTimer != -1 ) clearTimeout(this.textTimer);
+      this.textTimer = setTimeout(function(){
+        this.textTimer = -1;
+        this.updatePreview();
+      }.bind(this), 200);
+    },
+
+    setRange : function() {
+      this.query.start = this.$.start.value;
+      this.query.stop = this.$.stop.value;
       this.updatePreview();
     }
 

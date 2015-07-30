@@ -1,0 +1,49 @@
+<dom-module id="ecosis-package-get">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+
+  <template>
+    <h4 class="page-header">/package/get</h4>
+    <div class="help-block">
+      You must provide either the package_id or the package_name.
+    </div>
+
+    <h5>Parameters</h5>
+
+    <div class="form-horizontal">
+
+      <div class="form-group">
+        <label for="filtersInput" class="col-lg-2 control-label">package_id</label>
+        <div class="col-lg-10">
+          <input type="text" class="form-control" on-keyup="onTextKeyUp"/>
+          <div class="help-block">EcoSIS package id</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="filtersInput" class="col-lg-2 control-label">package_name</label>
+        <div class="col-lg-10">
+          <input type="text" class="form-control" on-keyup="onTextKeyUp"/>
+          <div class="help-block">EcoSIS package name</div>
+        </div>
+      </div>
+
+    </div>
+
+    <h5>Preview</h5>
+    <div id="preview"></div>
+    <div id="previewEscaped"></div>
+
+    <ecosis-query-preview id="queryPreview"></ecosis-query-preview>
+
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is : 'ecosis-package-get'
+  });
+</script>
