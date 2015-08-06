@@ -61,7 +61,6 @@
     is : 'ecosis-package-query',
 
     ready : function() {
-      this.host = 'http://localhost:3003';
       this.textTimer = -1;
 
       this.query = {
@@ -78,8 +77,8 @@
       var params = '?text='+this.query.text+'&filters='+JSON.stringify(this.query.filters)+'&start='+this.query.start+'&stop='+this.query.stop;
       var escaped = '?text='+encodeURIComponent(this.query.text)+'&filters='+encodeURIComponent(JSON.stringify(this.query.filters))+
                     '&start='+encodeURIComponent(this.query.start)+'&stop='+encodeURIComponent(this.query.stop);
-      var url = this.host+'/package/query'+params;
-      var urlEscaped = this.host+'/package/query'+escaped;
+      var url = HOST+'/package/query'+params;
+      var urlEscaped = HOST+'/package/query'+escaped;
 
       this.$.preview.innerHTML = '<a href="'+urlEscaped+'" target="_blank">'+url+'</a>';
       this.$.queryPreview.update(urlEscaped);

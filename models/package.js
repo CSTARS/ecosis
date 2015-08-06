@@ -12,7 +12,7 @@ module.exports = function() {
 
 function exportPackage(pkgid, filters, includeMetadata, callback) {
     if( pkgid === null ) {
-        return callback('package_id parameter is required');
+        return callback('package_id or package_name parameter is required');
     }
 
     try {
@@ -26,7 +26,7 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
     var pkg, response, sort, i, data, metadata;
 
     collection.findOne(
-        {'value.ecosis.package_id': pkgid},
+        { '$or': [{'value.ecosis.package_id': pkgid}, {'value.ecosis.package_name': pkgid}]},
         {'value.ecosis': 1},
         function(err, result) {
           if( err ) {

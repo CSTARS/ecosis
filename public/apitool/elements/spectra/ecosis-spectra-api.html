@@ -3,12 +3,37 @@
     :host {
       display: block;
     }
+
+    :root {
+      --paper-tabs-selection-bar-color: #0c7cd5;
+      --paper-tab-ink: #0c7cd5;
+    }
+
+    paper-tabs {
+      color: #0c7cd5 !important;
+    }
   </style>
 
   <template>
-    Spectra
+    <h3 class="page-header">Package API</h3>
 
-    <content></content>
+    <div style="padding: 15px">
+      <div style="padding: 0 10px">Find packaged datasets, get package specific package
+        information or export package to tabluar CSV file.</div>
+
+      <paper-tabs id="tabs">
+        <paper-tab link>
+          <a href="#spectra/query" class="horizontal center-center layout">Query</a>
+        </paper-tab>
+        <paper-tab link>
+          <a href="#spectra/get" class="horizontal center-center layout">Get</a>
+        </paper-tab>
+      </paper-tabs>
+
+      <div style="padding-top: 30px">
+        <content></content>
+      </div>
+    </div>
   </template>
 </dom-module>
 
@@ -16,8 +41,13 @@
   Polymer({
     is : 'ecosis-spectra-api',
 
-    setTab : function(api) {
+    ready : function() {
+      this.tabOrder = ['query', 'get'];
+    },
 
+    setTab : function(api) {
+      this.$.tabs.selected = this.tabOrder.indexOf(api);
     }
+
   });
 </script>

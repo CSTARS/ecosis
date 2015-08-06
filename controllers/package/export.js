@@ -3,9 +3,18 @@
 var csvStringify = require('csv-stringify');
 
 module.exports = function(model, req, res) {
-  var pkgid = req.query.package_id;
+
+  var pkgid = null;
+  if( req.query.package_id ) {
+    pkgid = req.query.package_id;
+  } else if( req.query.id ) {
+    pkgid = req.query.id;
+  } else if( req.query.package_name ) {
+    pkgid = req.query.package_name;
+  }
+
   var filters = req.query.filters;
-  var includeMetadata = req.query.metadata === 'true';
+  var includeMetadata = req.query.metadata ? (req.query.metadata.toLowerCase() === 'true') : false;
 
   /**
    * result contains packageName and stream

@@ -3,10 +3,6 @@
     :host {
       display: block;
     }
-    #response {
-      max-height: 600px;
-      overflow: auto;
-    }
   </style>
   <template>
     <div id="response"></div>
@@ -21,11 +17,16 @@
       this.$.response.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
 
       $.get(url, function(resp){
-        var html = JSON.stringify(resp, '  ', '  ')
+        /*var html = JSON.stringify(resp, '  ', '  ')
                         .replace(/ /g, '&nbsp;')
                         .replace(/\n/g, '<br />');
 
-        this.$.response.innerHTML = '<div>'+html+'</div>';
+        this.$.response.innerHTML = '<div>'+html+'</div>';*/
+        $(this.$.response)
+          .html('')
+          .JSONView(resp)
+          .JSONView('collapse');
+
       }.bind(this));
     }
   })
