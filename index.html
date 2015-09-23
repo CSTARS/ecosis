@@ -238,7 +238,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
   Get Spectra
 </h2>
 
-<p>Once you have found a dataset you can access spectra from within the dataset.  Additionally you can filter spectra within the dataset itself.</p>
+<p>You can find and get spectra filtering by metadata attributes including package_id</p>
 
 <h4>Get Spectra: Path</h4>
 
@@ -246,15 +246,16 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <h4>Get Spectra: Example</h4>
 
-<pre><code>curl http://ecospectra.org/rest/getSpectra?package_id=[dataset ID here]&index=0</code></pre>
+<pre><code>curl http://ecospectra.org/rest/getSpectra?package_id=[dataset ID here]&start=0&stop=2&filters=[Array of filters]</code></pre>
 
 <h4 id="get-spectra-parameters">Get Spectra: Parameters</h4>
 
 <p>The Get Spectra call takes the following paramters</p>
 
 <ul>
-  <li><b>package_id</b> - The unique package ID (string)</li>
-  <li><b>index</b> - the index of the spectra you wish to access (int)</li>
+  <li><b>package_id</b> - The unique package ID (string) (optional)</li>
+  <li><b>start</b> - the start index of the spectra you wish to access (int) (optional)</li>
+  <li><b>stop</b> - the stop index of the spectra you wish to access (int) (optional)</li>
   <li><b>filters</b> - the array of filters (JSON) (optional)</li>
 </ul>
 
@@ -262,24 +263,32 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <p>The unique dataset ID for the dataset you are accessing</p>
 
-<h5>index</h5>
+<h5>start</h5>
 
-<p>The spectra's <b>index</b> within the package.  As EcoSIS contains no unique identifier, this index allows you to access spectra as though dataset simply contains arrays of spectra.  This array will change size based on the <b>filters</b> parameter.</p>
+<p>The <b>start</b> index that will be used for response.  Required for pagination.</p>
+
+<h5>stop</h5>
+
+<p>The <b>stop</b> index that will be used for response.  Required for pagination.</p>
 
 <h5>filters</h5>
 
-<p>The <b>filters</b> parameter lets you filter down the result set of spectra you are accessing via the <b>index</b> attribute.  The filters parameter is formatted the same and works the same as the <a href="#find-dataset-filters">Find Dataset Filter Parameter</a>.  Only instead of filtering key/value pairs based on attributes in a dataset, you are filtering on individual spectra metadata.</p>
+<p>The <b>filters</b> parameter lets you filter down the result set of spectra you are accessing.  The filters parameter
+  is formatted the same and works the same as the <a href="#find-dataset-filters">Find Dataset Filter Parameter</a>.
+  Only instead of filtering key/value pairs based on attributes in a dataset, you are filtering on individual spectra metadata.
+  It is recommended that you provide a filter {"ecosis.package_id":[Dataset ID]} or the ?package_id=Dataset Id parameter or
+  your query may contain spectra from multiple datasets</p>
 
 <h4 id="get-spectra-response">Get Spectra: Response</h4>
 
 <p>The response object for the Get Spectra query has the following attributes:</p>
 
 <ul>
-  <li><b>index</b> - the current index of the spectra you are accessing</li>
-  <li><b>total</b> - the number of spectra in the result set (this will change based on filters provied)</li>
+  <li><b>start</b> - the start index of the spectra you are accessing</li>
+  <li><b>start</b> - the stop index of the spectra you are accessing</li>
+  <li><b>total</b> - the total number of spectra in the result set (this will change based on filters provied)</li>
   <li>
-      <b>item</b> - the spectra response object (standard parameters):<br />
-
+      <b>items</b> - an array of spectra response objects (standard parameters below):<br />
       <ul>
         <li><b>_id</b> - UID for the spectra.  <i>Note:</i> this ID is not persistant, it's changed everytime the dataset is pushed to search.</li>
         <li><b>ecosis</b> - object containing ecosis dataset information</li>
@@ -288,10 +297,10 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
   </li>
 </ul>
 
-<p>Along with the standard <b>_id</b>, <b>ecosis</b> and <b>datapoints</b> parameters, the response object.item sends back all of the metadata included with the spectra.</p>
+<p>Along with the standard <b>_id</b>, <b>ecosis</b> and <b>datapoints</b> parameters, the response object.items sends back all of the metadata included with the spectra.</p>
 
-<p><i>Format Note.</i>  The keys and values of the datapoints are always returned as strings.  This is both to improve system performance and work around the complexity of handling floats.  It will be up to each client interacting with EcoSIS to decide how it wants to parse and handle floating point values.</p>
-
+<p><i>Format Note.</i>  The keys and values of the datapoints are always returned as strings.  This is both to improve system performance and work around the complexity
+  of handling floats.  It will be up to each client interacting with EcoSIS to decide how it wants to parse and handle floating point values.</p>
 
 
 <h2>
