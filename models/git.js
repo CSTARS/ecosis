@@ -2,7 +2,6 @@
 
 var exec = require('child_process').exec;
 var cwd = __dirname+'/../';
-console.log(cwd);
 
 module.exports = function() {
     return {
