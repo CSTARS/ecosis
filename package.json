@@ -10,12 +10,12 @@
     "all": "npm run build && npm run test"
   },
   "dependencies": {
-    "MongoQueryEngine": "git+https://github.com/CSTARS/MongoQueryEngine.git#middleware",
     "construx": "^1.0.0",
     "construx-copier": "^1.0.0",
     "csv-stringify": "0.0.8",
     "express": "^4.12.2",
-    "kraken-js": "^1.0.6"
+    "kraken-js": "^1.0.6",
+    "mongo-query-engine": "^1.0.3"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

@@ -37,7 +37,6 @@ ESIS.result = (function() {
     });
 
     $(window).bind('result-update-event', function(e, result){
-      console.log(result);
       updateResult(result);
     });
   }
@@ -220,7 +219,6 @@ ESIS.result = (function() {
       ESIS.allFiltersPopup.show($(this).attr('key'), result);
     });
 
-
     var metadata = '<table class="table">';
     for( var key in result ) {
       if( ignoreAttrs.indexOf(key) == -1 && result[key] && (result[key].length / result.ecosis.spectra_count) < .05 ) {
@@ -248,8 +246,8 @@ ESIS.result = (function() {
     viewer.addEventListener('filter-update', function(e){
       downloader.update(e.detail);
     });
-    viewer.update(result);
 
+    if( viewer.update ) viewer.update(result);
 
     $(".result-back-btn").on('click', function(){
       $(window).trigger("back-to-search-event");
@@ -276,6 +274,11 @@ ESIS.result = (function() {
 
       $('body,html').animate({scrollTop: $('#'+heading).offset().top-15}, 500);
     });
+
+    console.log('result - 4');
+
+    window.__mqe_lploaded = true;
+		if( window.__mqe_lpready ) window.__mqe_lpready();
   }
 
   function wrapFilterLinks(key, values) {

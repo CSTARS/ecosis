@@ -3,8 +3,7 @@ var express = require('express');
 var kraken = require('kraken-js');
 var http = require('http');
 
-var mqeLib = require('/Users/jrmerz/dev/cstars/MongoQueryEngine');
-//var mqeLib = require('MongoQueryEngine');
+var mqeLib = require('mongo-query-engine');
 
 var options, app, server, logger, conf;
 

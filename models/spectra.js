@@ -33,9 +33,6 @@ function querySpectra(package_id, filters, start, stop, callback) {
 
   filters = applyPackageId(package_id, filters);
 
-  console.log(package_id);
-  console.log(filters);
-
   var query = {};
   if( filters ) {
     query.$and = filters;
