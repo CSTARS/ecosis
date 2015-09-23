@@ -5,7 +5,7 @@
     "middleware": {
         "static": {
             "module": {
-                "arguments": [ "path:./public" ]
+                "arguments": [ "path:./dist" ]
             }
         },
 
