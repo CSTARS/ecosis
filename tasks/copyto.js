@@ -9,7 +9,7 @@ module.exports = function copyto(grunt) {
         build: {
             files: [{
                 cwd: 'public',
-                src: ['index.html'],
+                src: ['index.html','schema.json', 'result.handlebars'],
                 dest: 'dist/'
             },
             {
