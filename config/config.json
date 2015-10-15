@@ -20,7 +20,7 @@
       "node" : "node",
       "db" : {
         "url_old"         : "mongodb://localhost:27017/esis",
-        "url"             : "mongodb://192.168.2.138:27017/esis",
+        "url"             : "mongodb://192.168.43.187:27017/esis",
 
         "mainCollection"  : "search",
         "spectraCollection" : "spectra",

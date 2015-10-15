@@ -4,45 +4,60 @@
       display: block;
     }
     .attributes {
-      max-height: 150px;
+      max-height: 300px;
       overflow: auto;
       margin: 0 15px;
+    }
+    .card {
+      margin: 30px 10px 10px 10px;
+      padding: 15px;
+      box-shadow: 0 0 5px #ccc;
+      overflow: visible !important;
     }
   </style>
   <template>
 
+
+    <h5 style="color: #333" id="selector">
+      <span id="countLabel">
+        Spectra
+        <span id="currentSpectra" style="color:#888"></span>
+        of
+        <span id="totalSpectraLabel" style="color:#888"></span>
+      </span>
+
+      <small id="loadingPanel">
+        <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
+      </small>
+
+      <div class="checkbox pull-right" style="margin:0">
+        <label><input type="checkbox" on-click="toggleStats" /> Stats</label>
+      </div>
+    </h5>
+
     <div class="layout horizontal">
       <div>
-        <h5 style="color: #333" id="selector">
-          Spectra #&nbsp;
-          <select on-change="updateFromSelect" id="selectSpectraInput" style="min-width:100px"></select>
-          &nbsp;of <span id="totalSpectraLabel"></span>
-          <span class="label label-success" id="loadingPanel">
-            <i class="fa fa-spinner fa-spin"></i> Loading...
-          </span>
-        </h5>
-
-        <div class="checkbox" style="padding-bottom: 30px">
-          <label><input type="checkbox" on-click="toggleStats" /> Show Stats</label>
-        </div>
+        <a class="btn btn-default" on-click="previous" id="previous"><i class="fa fa-arrow-left"></i></a>
       </div>
-
-      <!-- TODO: this isn't awesome... popup? popover? -->
-      <div class="flex">
+      <div class="flex" id="metadataPanel">
         <div class="attributes" id="attributes"></div>
       </div>
+      <div class="flex">
+        <div id="hoverInfo" style="position:absolute;z-index:50;padding: 5px; background-color: rgba(255, 255, 255, .8); margin-top:-30px"></div>
+
+        <div id="root" style="height: 300px; padding: 15px"></div>
+
+        <div id="sliderRoot"></div>
+      </div>
+      <div>
+        <a class="btn btn-default" on-click="next" id="next"><i class="fa fa-arrow-right"></i></a>
+      </div>
     </div>
 
-    <div id="hoverInfo" style="position:absolute;z-index:50;padding: 5px; background-color: rgba(255, 255, 255, .8); margin-top:-30px"></div>
-
-    <div style="position:relative">
-        <div id="root" style="height: 400px; padding: 15px"></div>
-    </div>
-
-    <div class="well">
-      <div class="row">
-        <div class="col-sm-2">Wavelength Range</div>
-        <div class="col-sm-10" id="sliderRoot"></div>
+    <div class="card">
+      <div class="row" id="spectraSliderRow">
+        <div class="col-sm-2">Spectra</div>
+        <div class="col-sm-10" id="sliderSpectraRoot"></div>
       </div>
 
       <div class="row" style="margin-top: 20px" id="filterPanel">
@@ -108,11 +123,26 @@
       this.$.slider = this.$.sliderRoot.querySelector('#slider');
 
       this.slider = $(this.$.slider).slider({});
+
       $(this.$.slider).parent().width('100%');
+
       this.slider.on('slideStop', function(e){
         this.minWavelength = e.value[0];
         this.maxWavelength = e.value[1];
         this.filterByWavelength();
+      }.bind(this));
+
+      this.$.sliderSpectraRoot.innerHTML = '<input type="text" data-slider-min="1" data-slider-max="'+this.totalSpectra+
+          '" data-slider-step="1" data-slider-value="1" id="spectraSlider" />';
+      this.$.spectraSlider = this.$.sliderSpectraRoot.querySelector('#spectraSlider');
+
+      this.spectraSlider = $(this.$.spectraSlider).slider({});
+
+      $(this.$.spectraSlider).parent().width('100%');
+
+      this.spectraSlider.on('slideStop', function(e){
+        this.selectedIndex = e.value-1;
+        this.updateDataTable(false);
       }.bind(this));
     },
 
@@ -197,14 +227,11 @@
     setDsFilter : function() {
         this.activeFilter = {};
         this.activeFilter[this.$.spectraFilterSelector.value] = this.$.spectraFilterValueSelector.value;
+        this.selectedIndex = 0;
+        this.resetSlider();
 
         if( this.showingStats) this.updateStats();
         else this.updateDataTable();
-    },
-
-    updateFromSelect : function(e) {
-      this.selectedIndex = parseInt(e.currentTarget.value);
-      this.updateDataTable(false);
     },
 
     compareUpdated : function() {
@@ -250,7 +277,7 @@
     },
 
     updateAttributes : function() {
-      var table = '<table class="table">';
+      var table = '<h4>Metadata</h4><table class="table">';
       for( var attr in this.item) {
         if( attr == 'ecosis' || attr == '_id' || attr == 'datapoints' ) continue;
         table += '<tr><td>'+attr+'</td><td>'+this.item[attr]+'</td></tr>';
@@ -258,13 +285,23 @@
       this.$.attributes.innerHTML = table;
     },
 
-    updateIndexSelector : function() {
-      var options = '';
-      for( var i = 0; i < this.totalSpectra; i++ ) {
-        options += '<option value="'+i+'" '+(i == this.selectedIndex ? 'selected' : '')+'>'+i+'</option>';
-      }
-      this.$.selectSpectraInput.innerHTML = options;
+    previous : function() {
+      if( this.selectedIndex == 0 ) return;
+      this.selectedIndex--;
+      this.spectraSlider.slider('setValue',this.selectedIndex+1);
+      this.updateDataTable(false);
+    },
 
+    next : function() {
+      if( this.selectedIndex >= this.totalSpectra - 1 ) return;
+      this.selectedIndex++;
+      this.spectraSlider.slider('setValue',this.selectedIndex+1);
+      this.updateDataTable(false);
+    },
+
+    updateIndexSelector : function() {
+      this.$.currentSpectra.innerHTML = (this.selectedIndex+1);
+      this.spectraSlider.slider('setValue',this.selectedIndex+1);
       this.$.totalSpectraLabel.innerText = this.totalSpectra;
     },
 
@@ -454,16 +491,24 @@
       $(this.$.advancedPanel).toggle();
     },
 
-    toggleStats : function() {
-      if( this.$.selectSpectraInput.hasAttribute('disabled') ) {
-        // redraw current spectra
-        this.showingStats = false;
-        this.$.selectSpectraInput.removeAttribute('disabled');
-        this.$.selectSpectraInput.classList.remove('disabled');
-        this.$.selector.style.color = '#333';
-        this.createTableArray();
+    toggleStats : function(e) {
+      if( !$(e.currentTarget).prop('checked') ) {
+        this.$.spectraSliderRow.style.display = 'block';
+        this.$.next.style.display = 'inline-block';
+        this.$.previous.style.display = 'inline-block';
+        this.$.metadataPanel.className = 'flex';
+        this.$.countLabel.style.display = 'inline-block';
 
+        this.showingStats = false;
+        this.createTableArray();
+        this.updateAttributes();
       } else {
+        this.$.spectraSliderRow.style.display = 'none';
+        this.$.next.style.display = 'none';
+        this.$.previous.style.display = 'none';
+        this.$.metadataPanel.className = '';
+        this.$.countLabel.style.display = 'none';
+
         this.updateStats();
       }
     },
@@ -471,15 +516,11 @@
     updateStats : function() {
       this.showingStats = true;
       this.$.attributes.innerHTML = '';
-      this.$.selectSpectraInput.setAttribute('disabled','');
-      this.$.selectSpectraInput.classList.add('disabled');
-      this.$.selector.style.color = '#888';
 
       var filters = '';
       if( this.activeFilter ) {
           filters = '&filters='+encodeURIComponent(JSON.stringify([this.activeFilter]));
       }
-
 
       if( this.stats.key === filters ) {
         this.createStatsTableArray();
