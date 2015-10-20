@@ -18,7 +18,7 @@
   <template>
 
 
-    <h5 style="color: #333" id="selector">
+    <h5 style="color: #333; margin-bottom: 30px; height: 50px" id="selector" >
       <span id="countLabel">
         Spectra
         <span id="currentSpectra" style="color:#888"></span>
@@ -26,18 +26,16 @@
         <span id="totalSpectraLabel" style="color:#888"></span>
       </span>
 
-      <small id="loadingPanel">
-        <i class="fa fa-circle-o-notch fa-spin"></i> Loading...
-      </small>
+      <small id="loadingPanel">Loading...</small>
 
       <div class="checkbox pull-right" style="margin:0">
         <label><input type="checkbox" on-click="toggleStats" /> Stats</label>
       </div>
     </h5>
 
-    <div class="layout horizontal">
+    <div class="layout horizontal" style="margin-bottom: 15px">
       <div>
-        <a class="btn btn-default" on-click="previous" id="previous"><i class="fa fa-arrow-left"></i></a>
+        <a class="btn btn-default" on-click="previous" id="previous" style="margin-top: 120px"><i class="fa fa-arrow-left"></i></a>
       </div>
       <div class="flex" id="metadataPanel">
         <div class="attributes" id="attributes"></div>
@@ -47,35 +45,44 @@
 
         <div id="root" style="height: 300px; padding: 15px"></div>
 
-        <div id="sliderRoot"></div>
+        <div style="padding: 0 25px">
+          <div id="sliderRoot"></div>
+          <div class="help-block" style="text-align:center">Filter Wavelength</div>
+        </div>
       </div>
       <div>
-        <a class="btn btn-default" on-click="next" id="next"><i class="fa fa-arrow-right"></i></a>
+        <a class="btn btn-default" on-click="next" id="next" style="margin-top: 120px"><i class="fa fa-arrow-right"></i></a>
       </div>
     </div>
 
     <div class="card">
       <div class="row" id="spectraSliderRow">
-        <div class="col-sm-2">Spectra</div>
+        <div class="col-sm-2">Select Spectra</div>
         <div class="col-sm-10" id="sliderSpectraRoot"></div>
       </div>
 
       <div class="row" style="margin-top: 20px" id="filterPanel">
-        <div class="col-sm-2">Filter</div>
+        <div class="col-sm-2">Filter Spectra</div>
         <div class="col-sm-5"><select id="spectraFilterSelector" on-change="setFilterValues" class="form-control"></select></div>
         <div class="col-sm-5"><select id="spectraFilterValueSelector" on-change="setDsFilter" class="form-control"></select></div>
       </div>
 
       <div style="margin-top: 50px">
         <div class="row">
-          <div class="col-sm-6">
+          <div class="col-sm-2">
             <!-- TODO: implement when paper chart supports
               <a class="btn btn-default" on-click="print"><i class="fa fa-print"></i> Printable Chart</a>
             -->
           </div>
-          <div class="col-sm-6" style="text-align:right">
-            <a class="btn btn-link" id="restLink" target="_blank"><i class="fa fa-link"></i> Developer Rest Link</a>
-            <a class="btn btn-link" href="http://cstars.github.io/esis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a>
+          <div class="col-sm-10" style="text-align:right">
+            <div>
+              <a class="btn btn-link" id="restLink" target="_blank"><i class="fa fa-link"></i> Spectra API Link</a>
+              <a class="btn btn-link" href="http://cstars.github.io/esis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a>
+            </div>
+            <div class="help-block">
+              The API Link shows the HTTP request for rendering the above chart.  For more information
+              see the EcoSIS API documentation.
+            </div>
           </div>
         </div>
       </div>
@@ -132,6 +139,11 @@
         this.filterByWavelength();
       }.bind(this));
 
+      if( this.totalSpectra <= 1 ) {
+        this.$.sliderSpectraRoot.innerHTML = '';
+        return;
+      }
+
       this.$.sliderSpectraRoot.innerHTML = '<input type="text" data-slider-min="1" data-slider-max="'+this.totalSpectra+
           '" data-slider-step="1" data-slider-value="1" id="spectraSlider" />';
       this.$.spectraSlider = this.$.sliderSpectraRoot.querySelector('#spectraSlider');
@@ -141,6 +153,8 @@
       $(this.$.spectraSlider).parent().width('100%');
 
       this.spectraSlider.on('slideStop', function(e){
+        if( isNaN(e.value) ) return; // this happens?
+
         this.selectedIndex = e.value-1;
         this.updateDataTable(false);
       }.bind(this));
@@ -228,10 +242,12 @@
         this.activeFilter = {};
         this.activeFilter[this.$.spectraFilterSelector.value] = this.$.spectraFilterValueSelector.value;
         this.selectedIndex = 0;
-        this.resetSlider();
 
-        if( this.showingStats) this.updateStats();
-        else this.updateDataTable();
+        if( this.showingStats) {
+          this.updateStats();
+        } else {
+          this.updateDataTable(false, this.resetSlider.bind(this));
+        }
     },
 
     compareUpdated : function() {
@@ -240,8 +256,9 @@
         }
     },
 
-    updateDataTable : function(resetWavelengths) {
+    updateDataTable : function(resetWavelengths, callback) {
         this.$.loadingPanel.style.display = 'inline-block';
+        this.$.loadingPanel.innerHTML = 'Loading...';
 
         var filters = '';
 
@@ -270,6 +287,7 @@
               this.updateAttributes();
 
               this.updateIndexSelector();
+              if( callback ) callback();
             }.bind(this)
         });
 
@@ -528,6 +546,8 @@
         this.stats.key = filters;
 
         this.$.loadingPanel.style.display = 'inline-block';
+        this.$.loadingPanel.innerHTML = 'Calculating...';
+
         var url = '/spectra/stats?package_id='+this.package+filters;
         $.get(url, function(resp){
           this.stats.value = resp;
