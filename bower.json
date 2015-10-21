@@ -17,7 +17,7 @@
   "dependencies": {
     "bootswatch-dist": "paper",
     "handlebars": "*",
-    "polymer": "Polymer/polymer#^1.0.8",
+    "polymer": "~1.1.5",
     "animate-css": "*",
     "font-awesome": "*",
     "leaflet": "*",

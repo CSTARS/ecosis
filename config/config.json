@@ -25,6 +25,7 @@
         "mainCollection"  : "search",
         "spectraCollection" : "spectra",
         "usdaCollection" : "usda",
+        "lookupCollection" : "lookup",
 
         "isMapReduce"     : true,
 

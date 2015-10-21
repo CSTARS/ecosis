@@ -8,10 +8,10 @@ module.exports = function (router) {
 
     router.get('/preview', function(req, res){
       var query = mqe.requestToQuery(req);
-
-      model.count(req, res, function(err, result) {
+      
+      model.count(query, function(err, result) {
         res.set('Content-Type', 'application/json');
-        
+
         if( err ) {
           return res.send({error: true, message: err});
         }

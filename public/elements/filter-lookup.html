@@ -1,0 +1,111 @@
+<dom-module id="filter-lookup">
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+      .header {
+        padding: 10px;
+      }
+      .results {
+        overflow: auto
+      }
+    </style>
+
+    <div class="modal fade" id="popup">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3><i class="fa fa-search"></i> Filter Lookup</h3>
+          </div>
+          <div class="modal-body">
+            <h4 style="text-align:center;display:none" id="state">
+              <a class="btn btn-primary btn-lg" on-click="reset"><i class="fa fa-times"></i> <span id="stateLabel"></span></a> =
+            </h4>
+
+            <input id="input" type="text" class="form-control" placeholder="Search Text" on-keyup="search"/>
+
+            <div class="results">
+              <template is="dom-repeat" items="{{results}}">
+                <div class="btn btn-default btn-sm" style="margin: 5px" on-click="select">{{item}}</div>
+              </template>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'filter-lookup',
+
+      ready : function() {
+        this.results = [];
+        this.state = 'key';
+
+        this.popup = $(this.$.popup).remove();
+        $('body').append(this.popup);
+        this.popup.modal({show: false});
+      },
+
+      search : function() {
+        if( this.state == 'key' ) {
+          $.get('/lookup/key?q='+this.$.input.value, function(resp){
+            this.results = resp;
+          }.bind(this));
+        } else {
+          $.get('/lookup/value?key='+this.key+'&q='+this.$.input.value, function(resp){
+            this.results = resp.values;
+          }.bind(this));
+        }
+      },
+
+      reset : function() {
+        this.key = '';
+        this.state = 'key';
+        this.$.state.style.display = 'none';
+        this.results = [];
+      },
+
+      select : function(e) {
+        if( this.state == 'key' ) {
+          this.state = 'value';
+
+          this.key = e.currentTarget.innerHTML;
+          this.$.stateLabel.innerHTML = this.key;
+
+          this.$.input.value = '';
+          this.results = [];
+
+          this.$.state.style.display = 'block';
+          this.search();
+          this.$.input.focus();
+        } else {
+          var q = MQE.getCurrentQuery();
+          q.page = 0;
+
+          var filter = {};
+          filter[this.key] = e.currentTarget.innerHTML;
+          q.filters.push(filter);
+          window.location = MQE.queryToUrlString(q);
+          this.hide();
+        }
+      },
+
+      show : function() {
+        this.reset();
+        this.popup.modal('show');
+        setTimeout(function(){
+          this.$.input.focus();
+        }.bind(this), 200);
+      },
+
+      hide : function() {
+        this.popup.modal('hide');
+      }
+    });
+  </script>
+</dom-module>

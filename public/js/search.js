@@ -201,11 +201,17 @@ ESIS.search = (function() {
       $('#search-btn').addClass('disabled');
     }
 
-    panel.append($('<li><a id="filter-block-title-custom" style="cursor:pointer;font-weight:bold">Custom</a></li>'));
+    panel.append($('<li><a id="filter-block-title-custom" style="cursor:pointer;font-weight:bold">Custom Filter</a></li>'));
     $("#filter-block-title-custom").on('click', function(){
       ESIS.customFiltersPopup.show();
     });
-    c++
+    c++;
+
+    panel.append($('<li><a id="filter-block-title-lookup" style="cursor:pointer;font-weight:bold">Lookup Filter</a></li>'));
+    $("#filter-block-title-lookup").on('click', function(){
+      document.querySelector('filter-lookup').show();
+    });
+    c++;
 
     if( c == 0 ) {
       panel.append($("<div>No filters available for this search</div>"));

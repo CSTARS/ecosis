@@ -48,6 +48,7 @@ options = {
 
           setup.spectraCollection = setup.database.collection(setup.config.db.spectraCollection);
           setup.usdaCollection = setup.database.collection(setup.config.db.usdaCollection);
+          setup.lookupCollection = setup.database.collection(setup.config.db.lookupCollection);
 
           global.setup = setup;
 
