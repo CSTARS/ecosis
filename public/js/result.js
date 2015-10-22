@@ -145,7 +145,7 @@ ESIS.result = (function() {
     content += '</div></div></div>';
 
 
-    var hasLocation = result.ecosis.geojson ? true : false;
+    var hasLocation = result.ecosis.geojson || result.ecosis.spectra_bbox_geojson ? true : false;
 
     // add category metadata
     for( var category in ESIS.schema ) {
@@ -205,27 +205,28 @@ ESIS.result = (function() {
           attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
 
-      var geojsonFeature = {
-          "type": "Feature",
-          "properties": {},
-          "geometry": result.ecosis.geojson
-      };
-
-      var layer = L.geoJson(geojsonFeature).addTo(map);
-      //map.fitBounds(layer.getBounds());
+      var l1, l2, l3
+      if( result.ecosis.geojson ) {
+        l1 = L.geoJson(result.ecosis.geojson).addTo(map);
+      }
+      if( result.ecosis.spectra_bbox_geojson ) {
+        l2 = L.geoJson(result.ecosis.spectra_bbox_geojson).addTo(map);
+      }
 
       $.get('/geo/spectra?package_id='+result.ecosis.package_id, function(resp){
         if( resp.error ) {
-          map.fitBounds(layer.getBounds());
+          if( l2 ) map.fitBounds(l2.getBounds());
+          else if( l1 ) map.fitBounds(l1.getBounds());
           return;
         }
         if( resp.length == 0 ) {
-          map.fitBounds(layer.getBounds());
+          if( l2 ) map.fitBounds(l2.getBounds());
+          else if( l1 ) map.fitBounds(l1.getBounds());
           return;
         }
 
-        var l2 = L.geoJson(resp).addTo(map);
-        map.fitBounds(l2.getBounds());
+        var l3 = L.geoJson(resp).addTo(map);
+        map.fitBounds(l3.getBounds());
       });
     }
 
