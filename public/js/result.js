@@ -198,6 +198,7 @@ ESIS.result = (function() {
 
     // if we have geojson, create map
     if( hasLocation ) {
+      L.Icon.Default.imagePath = '/images';
       var map = L.map('result-map', {scrollWheelZoom : false}).setView([42.065, -111.821], 13);
 
       // add an OpenStreetMap tile layer
