@@ -212,7 +212,21 @@ ESIS.result = (function() {
       };
 
       var layer = L.geoJson(geojsonFeature).addTo(map);
-      map.fitBounds(layer.getBounds());
+      //map.fitBounds(layer.getBounds());
+
+      $.get('/geo/spectra?package_id='+result.ecosis.package_id, function(resp){
+        if( resp.error ) {
+          map.fitBounds(layer.getBounds());
+          return;
+        }
+        if( resp.length == 0 ) {
+          map.fitBounds(layer.getBounds());
+          return;
+        }
+
+        var layer = L.geoJson(resp).addTo(map);
+        map.fitBounds(layer.getBounds());
+      });
     }
 
     // set handler for any ALL btns

@@ -8,7 +8,7 @@ module.exports = function (router) {
 
     router.get('/preview', function(req, res){
       var query = mqe.requestToQuery(req);
-      
+
       model.count(query, function(err, result) {
         res.set('Content-Type', 'application/json');
 
@@ -18,4 +18,19 @@ module.exports = function (router) {
         res.send({count: result});
       });
     });
+
+    router.get('/spectra', function(req, res){
+      var package_id = req.query.package_id;
+      if( !package_id ) {
+        return res.send({error:true, message:'package_id required'});
+      }
+
+      model.getSpectraLocations(package_id, function(err, result) {
+        if( err ) {
+          return res.send({error: true, message: err});
+        }
+        res.send(result);
+      });
+    });
+
 };

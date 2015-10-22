@@ -52,13 +52,17 @@ function findValue(key, query, callback) {
         return callback(err);
       }
 
+      if( !result.values ) {
+        return callback(null, []);
+      }
+
       for( var i = result.values.length-1; i >= 0; i--) {
         if( !query.test(result.values[i]) ) {
           result.values.splice(i, 1);
         }
       }
 
-      if( result.values.length > 50 ) {
+      if( result.values.length-1 >= 50 ) {
         result.splice(50, result.values.length-1);
       }
 
