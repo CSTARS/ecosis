@@ -224,8 +224,8 @@ ESIS.result = (function() {
           return;
         }
 
-        var layer = L.geoJson(resp).addTo(map);
-        map.fitBounds(layer.getBounds());
+        var l2 = L.geoJson(resp).addTo(map);
+        map.fitBounds(l2.getBounds());
       });
     }
 
