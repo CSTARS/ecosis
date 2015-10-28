@@ -385,7 +385,7 @@ ESIS.search = (function() {
 
     $('#current-search-rest-link').html(
       '<a href="'+link+'" target="_blank">REST Link</a> | '+
-      '<a href="http://cstars.github.io/esis/" target="_blank">EcoSIS API</a>'+
+      '<a href="http://cstars.github.io/ecosis/" target="_blank">EcoSIS API</a>'+
       '<br /> <span style="color:#888;font-size:11px;font-style:italic">'+ decodeURIComponent(link)+'</span>'
     );
   }
