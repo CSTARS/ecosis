@@ -18,7 +18,8 @@ ESIS.result = (function() {
       Description : 'ecosis.description',
       License : 'ecosis.license',
       Organization : 'ecosis.organization',
-      Version : 'ecosis.version'
+      Version : 'ecosis.version',
+      Keywords : 'Keywords'
   }
 
   function init() {
