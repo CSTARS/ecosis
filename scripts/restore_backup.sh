@@ -1,8 +1,17 @@
 #! /bin/bash
 
 CONF_FILE=/etc/ckan/default/development.ini
-
 root="$(pwd)"
+
+if [ -n "$1" ]; then
+	echo "You must supply a backup zip file"
+	exit
+fi
+
+if [ ! -f $1 ]; then
+	echo "The zip file provided doesn't exist: $1"
+	exit
+fi
 
 echo ""
 echo "DANGER!  This will wipe your CKAN Postgres instance, MongoDB ecosis db,"
@@ -34,14 +43,37 @@ echo "Initializing python virtual env for CKAN"
 . /usr/lib/ckan/default/bin/activate
 cd /usr/lib/ckan/default/src/ckan
 
+dir = "$root/tmp"
+
+echo "Unpacking backup"
+unzip $1 -d $dir
+
 # paster info: http://docs.ckan.org/en/latest/maintaining/paster.html
 
 # dump entire pg db
-#echo "Backing up CKAN PostgreSQL data"
-#paster db dump -c $CONF_FILE "$dir/pg_ckan_backup.sql"
+echo "Cleaning CKAN DB"
+paster db clean -c $CONF_FILE
 
-# dump entire mongo db
-#echo "Backing up MongoDB data"
-#mongodump --db ecosis --out "$dir/mongodb_backup"
+# load backup entire pg db
+echo "Loading CKAN backup"
+paster db load -c $CONF_FILE "$dir/pg_ckan_backup.sql"
+
+echo "Loading CKAN backup"
+mongorestore "$dir/mongodb_backup"
+
+echo "replacing config file"
+if [ -f $CONF_FILE ]; then
+	sudo rm $CONF_FILE
+fi
+sudo mv "$dir/development.ini" $CONF_FILE
+
+echo "replacing CKAN file resources"
+if [ -d /usr/lib/ckan ]; then
+	sudo rm -rf /var/lib/ckan
+fi
+sudo mv "$dir/var/lib/ckan" /var/lib/ckan
+
+echo "cleanup"
+sudo rm -rf $dir
 
 echo "Done."
