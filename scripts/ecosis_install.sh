@@ -27,7 +27,6 @@ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 if [ $distro == "ubuntu" ]; then
   # get the NodeJS repo code
   sudo curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
-  sudo apt-get install -y nodejs
 
   # install mongo db
   echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
@@ -36,7 +35,6 @@ elif [ $distor == "debian" ]; then
 
   # get the NodeJS repo code
   sudo curl -sL https://deb.nodesource.com/setup_4.x | bash -
-  sudo apt-get install -y nodejs
 
   # install mongo db
   echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.0 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
@@ -50,10 +48,16 @@ echo "Updating apt"
 sudo apt-get update
 
 echo "Installing MongoDB and NodeJS from apt"
-sudo apt-get install nodejs mongodb-org
+sudo apt-get install -y nodejs mongodb-org
+
+echo "Making sure MongoDB data dir exists"
+if [ ! -d /data/db ]; then
+  sudo mkdir -p /data/db
+fi
 
 echo "Installing EcoSIS CKAN plugin"
-cd /usr/lib/ckan/default/src
+. /usr/lib/ckan/default/bin/activate
+cd /usr/lib/ckan/default
 
 githuburl="git+https://github.com/CSTARS/ckanext-ecosis.git@$version#egg=ecosis"
 pip install -e $githuburl

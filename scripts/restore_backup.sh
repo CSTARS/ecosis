@@ -3,7 +3,7 @@
 CONF_FILE=/etc/ckan/default/development.ini
 root="$(pwd)"
 
-if [ -n "$1" ]; then
+if [ ! -n "$1" ]; then
 	echo "You must supply a backup zip file"
 	exit
 fi
@@ -43,7 +43,7 @@ echo "Initializing python virtual env for CKAN"
 . /usr/lib/ckan/default/bin/activate
 cd /usr/lib/ckan/default/src/ckan
 
-dir = "$root/tmp"
+dir="$root/tmp"
 
 echo "Unpacking backup"
 unzip $1 -d $dir
