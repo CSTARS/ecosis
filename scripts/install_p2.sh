@@ -20,13 +20,15 @@ if [ ! -f /etc/solr/conf/schema.xml.bak ]; then
 fi
 
 if [ -f /etc/solr/conf/schema.xml ]; then
-  rm /etc/solr/conf/schema.xml
+  sudo rm /etc/solr/conf/schema.xml
 fi
 
 sudo ln -s /usr/lib/ckan/default/src/ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
 
 echo "**** Restarting jetty"
 sudo service jetty8 restart
+
+sleep 2
 
 echo "**** Creating PG tables"
 . /usr/lib/ckan/default/bin/activate
