@@ -34,7 +34,7 @@ cd /usr/lib/ckan/default/src/ckan
 paster db init -c /etc/ckan/default/development.ini
 
 echo "**** Linking who.ini"
-if[ ! -f /etc/ckan/default/who.ini ]; then
+if [ ! -f /etc/ckan/default/who.ini ]; then
   ln -s /usr/lib/ckan/default/src/ckan/who.ini /etc/ckan/default/who.ini
 fi
 
