@@ -10,8 +10,13 @@ fi
 
 echo "Continuing install..."
 
+jettycmd=jetty8
+if [ -f /etc/default/jetty ]; then
+	jettycmd=jetty
+fi
+
 echo "**** Starting jetty"
-sudo service jetty8 start
+sudo service $jettycmd start
 
 echo "**** Replacing SOLR default schema with CKAN schema"
 if [ ! -f /etc/solr/conf/schema.xml.bak ]; then
@@ -26,7 +31,7 @@ fi
 sudo ln -s /usr/lib/ckan/default/src/ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
 
 echo "**** Restarting jetty"
-sudo service jetty8 restart
+sudo service $jettycmd restart
 
 sleep 2
 
