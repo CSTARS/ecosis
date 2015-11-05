@@ -47,6 +47,25 @@ then install from there.
 At this point you *should* have a fully functional EcoSIS CKAN instance.  You will
 also have MongoDB and NodeJS setup, which are required to run this search interface.
 
+## Apache
+
+If you going to run on port 80, you probably want to run via
+[apache wsgi](https://github.com/GrahamDumpleton/mod_wsgi).  There
+are other solutions for this if you wish to investigate.
+
+To setup EcoSIS dev to run on port 80, you need to simply run:
+```
+./apache_setup.sh
+```
+This will
+ - install apache if need
+ - install the mod-wsgi module
+ - copy the CKAN site config.
+ - copy the apache.wsgi file
+
+You will still need to edit the *ServerName* to the correct domain name.
+
+
 ## Restore from Backups
 
 If you have a backup dump (created using ./create_backup.sh), you can import using:
