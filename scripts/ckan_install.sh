@@ -15,6 +15,7 @@ if [ $answer != "Y" ]; then
 fi
 
 echo "**** Installing packages"
+sudo apt-get update
 sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-7-jdk
 
 echo "**** Create Python virtual env"
