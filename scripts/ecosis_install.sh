@@ -7,7 +7,7 @@ echo "Are your installing dev or prod: [dev|prod]"
 
 read version
 
-if [ $version != "dev" && $version != "prod" ]; then
+if [ $version != "dev" ] && [ $version != "prod" ]; then
   echo "invalid version: $version"
   exit
 fi
