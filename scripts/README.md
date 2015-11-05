@@ -22,6 +22,27 @@ cd ecosis/scripts
 
 There will be a pause for you to configure the CKAN ini file and the jetty conf
 file.  There should be some help text for what you need to do in the ckan_install.sh command.
+
+You will need to set the following in /etc/ckan/default/development.ini
+```
+# update with your ckan_default user password you entered during install
+sqlalchemy.url = postgresql://ckan_default:yourpassword@localhost/ckan_default
+
+solr_url=http://127.0.0.1:8983/solr
+
+ckan.site_id = default
+
+# whatever your domain is
+ckan.site_url = http://demo.ckan.org
+```
+
+Then edit /etc/default/jetty or /etc/default/jetty8 depending on your system
+```
+NO_START=0
+JETTY_HOST=127.0.0.1
+JETTY_PORT=8983
+```
+
 Once you have made the edits, finish up the CKAN install.
 ```
 ./ckan_install_p2.sh
@@ -42,6 +63,20 @@ this script will add repos for the latest and greatest to your sources list and
 then install from there.
 ```
 ./ecosis_install.sh
+```
+
+To finish the plugin install you need to once again edit the /etc/ckan/default/development.ini file
+```
+# add "ecosis", should look something like this
+ckan.plugins = stats text_view image_view recline_view ecosis
+
+# provide the path for the custom import app
+extra_public_paths = /usr/lib/ckan/default/src/esis/spectra-importer/dist
+```
+Restart apache to have changes take effect.
+
+```
+sudo /etc/init.d/apache2 restart
 ```
 
 At this point you *should* have a fully functional EcoSIS CKAN instance.  You will

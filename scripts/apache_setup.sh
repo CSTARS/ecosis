@@ -2,8 +2,11 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo '**** Installing apache and mod-wsgi'
-sudo aptitude install apache2 libapache2-mod-wsgi
+echo '**** Installing apache2, mod-wsgi and mod-proxy-html'
+sudo aptitude install apache2 libapache2-mod-wsgi libapache2-mod-proxy-html
+
+echo '**** enabling mod proxy (for search)'
+sudo a2enmod proxy proxy_http
 
 echo '**** Moving conf and wsgi files'
 sudo cp "$DIR/apache/ckan.conf" /etc/apache2/sites-available/ecosis-ckan.conf

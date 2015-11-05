@@ -64,3 +64,8 @@ pip install -e $githuburl
 
 echo "**** Installing EcoSIS plugin pip requirements"
 pip install -r /usr/lib/ckan/default/src/ecosis/requirements.txt
+
+echo ""
+echo "done."
+echo "Make sure to add 'ecosis' to the plugin list in /etc/ckan/default/development.ini to ckan.plugins"
+echo "You also need to add 'extra_public_paths = /usr/lib/ckan/default/src/esis/spectra-importer/dist' to the config file"
