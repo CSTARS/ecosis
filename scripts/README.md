@@ -65,14 +65,10 @@ then install from there.
 ./ecosis_install.sh
 ```
 
-To finish the plugin install you need to once again edit the /etc/ckan/default/development.ini file
-```
-# add "ecosis", should look something like this
-ckan.plugins = stats text_view image_view recline_view ecosis
+To finish the plugin install you need to once again edit the /etc/ckan/default/development.ini
+file and add the EcoSIS config.  A sample can be found [here](https://github.com/CSTARS/ckanext-ecosis/blob/dev/ecosis_conf.ini)
 
-# provide the path for the custom import app
-extra_public_paths = /usr/lib/ckan/default/src/esis/spectra-importer/dist
-```
+
 Restart apache to have changes take effect.
 
 ```
@@ -81,6 +77,17 @@ sudo /etc/init.d/apache2 restart
 
 At this point you *should* have a fully functional EcoSIS CKAN instance.  You will
 also have MongoDB and NodeJS setup, which are required to run this search interface.
+
+#### Known EcoSIS Plugin issues.
+
+Looks like there are issues with the pymongo plugin that cause the error: ServerSelectionTimeoutError:
+No servers found yet to be thrown. [ticket](https://jira.mongodb.org/browse/PYTHON-961).  If this is
+the cause, downgrade the plugin to 2.8, the plugin is setup to hand both versions.
+```
+. /usr/lib/ckan/default/bin/activate
+pip install pymongo==2.8
+```
+
 
 ## Apache
 
