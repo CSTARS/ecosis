@@ -131,6 +131,16 @@ If you have a backup dump (created using ./create_backup.sh), you can import usi
 It's import to note, this will wipe everything and load data from the backup!  It's probably
 best to backup first.  I know, mind, blown.
 
+#### check permissions
+
+Make sure www-data has access to the workspace
+
+```
+chown -R root:www-data /var/lib/ckan
+chmod -R g+w /var/lib/ckan
+```
+TODO: make this part of the restore script
+
 ## Create Backup
 
 If you want to create a new backup, simply run:
