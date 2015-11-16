@@ -10,7 +10,7 @@ pid=`less $pidfile`
 kill -9 $pid
 
 echo 'restarting server'
-node ./ecosis-search/server --mqe-local=/opt/node-apps/esis-search/config.js esis-search-server &
+node ./ecosis-search/server --mqe-local=/opt/node-apps/ecosis-search/config.js ecosis-search-server &
 echo $! > $pidfile
 
 sleep 3

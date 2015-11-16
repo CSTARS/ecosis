@@ -61,7 +61,6 @@
       "ckan" : {
         "server" : "http://192.168.1.65:5000",
         "server_old" : "http://data.ecospectra.org",
-
         "keyFile" : "/etc/node-ckan/ckan-local.json"
       }
     }
