@@ -2,6 +2,7 @@
 
 var exportIgnoreList = ['_id', 'datapoints', 'ecosis'];
 var collection = global.setup.collection;
+var spectraCollection = global.setup.spectraCollection;
 
 module.exports = function() {
     return {
@@ -50,8 +51,8 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
           }
 
           // get all the 'data'
-          data = pkg.ecosis.spectra_schema.data;
-          metadata = pkg.ecosis.spectra_schema.metadata;
+          data = pkg.ecosis.package_schema.wavelengths;
+          metadata = pkg.ecosis.package_schema.metadata;
 
           // sort metadat by names
           if( includeMetadata ) {
@@ -92,11 +93,10 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
           data = tmp;
 
           // write headers
-
           if( includeMetadata && metadata.length > 1 ) {
             response.headers = metadata;
           }
-          response.headers.concat(data);
+          response.headers = response.headers.concat(data);
 
           // now write data keys as stored in mongo
           for( i = 0; i < data.length; i++ ) {
@@ -108,7 +108,7 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
             query.$and = filters;
           }
 
-          var cursor = collection.find(query);
+          var cursor = spectraCollection.find(query);
           if( sort ) {
             cursor.sort({'ecosis.sort': 1});
           }

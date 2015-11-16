@@ -7329,7 +7329,7 @@ this.fire('dom-change');
             }
         }
 
-        this.$.linkUrl.setAttribute('href', '/package/download?package_id='+this.package+
+        this.$.linkUrl.setAttribute('href', '/package/export?package_id='+this.package+
             (f.length > 0 ? '&filters='+encodeURIComponent(JSON.stringify(f)) : '')+
             '&metadata='+($(this.$.metadata).is(':checked') ? 'true' : 'false'));
       }
