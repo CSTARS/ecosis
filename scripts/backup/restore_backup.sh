@@ -59,7 +59,7 @@ echo "Loading CKAN backup"
 paster db load -c $CONF_FILE "$dir/pg_ckan_backup.sql"
 
 echo "Loading CKAN backup"
-mongorestore "$dir/mongodb_backup"
+mongorestore --drop --batchSize=100 "$dir/mongodb_backup"
 
 echo "replacing config file"
 if [ -f $CONF_FILE ]; then
