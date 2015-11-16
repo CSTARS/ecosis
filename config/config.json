@@ -20,7 +20,7 @@
       "node" : "node",
       "db" : {
         "url_old"         : "mongodb://localhost:27017/ecosis",
-        "url"             : "mongodb://10.0.1.19:27017/ecosis",
+        "url"             : "mongodb://192.168.2.138:27017/ecosis",
 
         "mainCollection"  : "search",
         "spectraCollection" : "spectra",
