@@ -68,7 +68,6 @@ then install from there.
 To finish the plugin install you need to once again edit the /etc/ckan/default/development.ini
 file and add the EcoSIS config.  A sample can be found [here](https://github.com/CSTARS/ckanext-ecosis/blob/dev/ecosis_conf.ini)
 
-
 Restart apache to have changes take effect.
 
 ```

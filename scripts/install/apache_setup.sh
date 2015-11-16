@@ -9,9 +9,9 @@ echo '**** enabling mod proxy (for search)'
 sudo a2enmod proxy proxy_http
 
 echo '**** Moving conf and wsgi files'
-sudo cp "$DIR/apache/ckan.conf" /etc/apache2/sites-available/ecosis-ckan.conf
-sudo cp "$DIR/apache/search.conf" /etc/apache2/sites-available/ecosis-search.conf
-sudo cp "$DIR/apache/apache.wsgi" /etc/ckan/default/
+sudo cp "$DIR/../apache/ckan.conf" /etc/apache2/sites-available/ecosis-ckan.conf
+sudo cp "$DIR/../apache/search.conf" /etc/apache2/sites-available/ecosis-search.conf
+sudo cp "$DIR/../apache/apache.wsgi" /etc/ckan/default/
 
 echo '**** linking to sites enabled'
 cd /etc/apache2/sites-enabled
