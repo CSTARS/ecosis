@@ -106,6 +106,20 @@ This will
 
 You will still need to edit the *ServerName* to the correct domain name.
 
+## Mail
+
+Install SMTP server
+
+```
+sudo apt-get install postfix
+```
+
+then set mail from in /etc/ckan/default/development.ini
+
+```
+smtp.mail_from = dev-data
+```
+
 
 ## Restore from Backups
 
