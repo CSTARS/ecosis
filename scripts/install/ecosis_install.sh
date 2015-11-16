@@ -12,6 +12,12 @@ if [ $version != "dev" ] && [ $version != "prod" ]; then
   exit
 fi
 
+if [ $version != "prod" ]; then
+  $version = ""
+else
+  $version = "@$version"
+fi
+
 echo ""
 echo "Are your running ubuntu or debian: [ubuntu|debian]"
 
@@ -59,7 +65,7 @@ echo "Installing EcoSIS CKAN plugin"
 . /usr/lib/ckan/default/bin/activate
 cd /usr/lib/ckan/default
 
-githuburl="git+https://github.com/CSTARS/ckanext-ecosis.git@$version#egg=ecosis"
+githuburl="git+https://github.com/CSTARS/ckanext-ecosis.git$version#egg=ecosis"
 pip install -e $githuburl
 
 echo "**** Installing EcoSIS plugin pip requirements"
