@@ -2,5 +2,6 @@
 node_modules
 public/.tmp
 .tmp
+.DS_Store
 public/bower_components
 npm-debug.log

@@ -7,6 +7,8 @@
 
   <title>EcoSIS - Spectral Library</title>
 
+  <link rel="shortcut icon" href="assets/favicon.ico" />
+
   <script src="scripts/build.js"></script>
 
   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=&sensor=true&libraries=geometry"></script>
@@ -33,16 +35,37 @@
         ESIS.home.chartReady();
       });
   </script>
+  <style>
+  .splash {
+    background: url(../assets/banner.png) no-repeat center top;
+    margin-top: 0px;
+    padding-top: 60px;
+    text-align: center;
+    background-attachment: relative;
+    background-position: center center;
+    min-height: 480px;
+    width: 100%;
+    -webkit-background-size: 100%;
+    -moz-background-size: 100%;
+    -o-background-size: 100%;
+    background-size: 100%;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    /* background-size: cover; */
+  }
+  </style>
 
 </head>
 <body>
 
 <filter-lookup></filter-lookup>
 
-<div id="home" style="display:none; padding:2% 6%">
-  <div class="jumbotron" style="text-align:center">
-    <h1 style="text-shadow: 2px 2px 0px white"><i class="fa fa-leaf"></i> EcoSIS Spectral Library <span class="sandbox">Sandbox</span></h1>
-    <p>Welcome to the EcoSIS Spectral Library, a useful tool for finding spectral data. <br />
+<div id="home" style="display:none;">
+  <div class="splash"></div>
+
+  <div class="jumbotron" style="text-align:center;background-color: white;padding: 100px 0;border-bottom: 1px solid #eee">
+    <p>Welcome to the EcoSIS Spectral Library <span class="sandbox" style="font-weight:bold">Sandbox</span>, a useful tool for finding spectral data. <br />
       <p id="home-total-count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
     </p>
 
@@ -50,20 +73,18 @@
   </div>
 
 
-  <div class="panel panel-default" id="random">
-    <div class="panel-body">
-      <div id="random-title" style="font-size: 26px" class="tlt"></div>
+  <div id="random" style="padding: 0 5%;">
+    <div id="random-title" style="font-size: 26px" class="tlt"></div>
 
-      <span id="random-common-name" class="tlt" style="font-size: 16px" ></span>
-      <span id="random-genus" class="tlt" style="font-size: 16px" ></span>
-      <span id="random-species" class="tlt" style="font-size: 16px" ></span>
-      <div id="random-chart" style="margin-top: 50px"></div>
-
-    </div>
+    <span id="random-common-name" class="tlt" style="font-size: 16px" ></span>
+    <span id="random-genus" class="tlt" style="font-size: 16px" ></span>
+    <span id="random-species" class="tlt" style="font-size: 16px" ></span>
+    <div id="random-chart" style="margin-top: 50px"></div>
   </div>
 
-  <div style="margin-top:30px; text-align:center">
-    Data maintainers, <a id="mainainerLink" href="http://data.ecospectra.org">Enter Here</a>
+  <div style="margin-top:30px; text-align:center; border-top: 1px solid #eee; padding: 25px 5%">
+    Data maintainers, <a id="mainainerLink" href="http://data.ecospectra.org">Enter Here</a> |
+    <a href="http://tutorial.ecospectra.org" target="_blank">EcoSIS Tutorials</a>
   </div>
 
 </div>
@@ -266,6 +287,7 @@
     if( resp && resp.branch == 'master' ) return;
     for( var key in resp ) html += '<div><b>'+key+':</b> '+resp[key]+'</div>';
     $('#gitInfo').html(html);
+    $('.sandbox').show();
   });
 
   if( window.location.hostname == 'dev-search.ecospectra.org' ) {
