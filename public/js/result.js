@@ -203,7 +203,7 @@ ESIS.result = (function() {
         content +=
           '<li class="list-group-item">' +
             '<span style="font-weight:bold">'+result.ecosis.linked_data[i].label+':</span> '+
-            '<a href="'+result.ecosis.linked_data[i].url+'" target="_blank">'+result.ecosis.linked_data[i].url+'</span>'+
+            '<a href="'+result.ecosis.linked_data[i].url+'" target="_blank">'+result.ecosis.linked_data[i].url+'</a>'+
           '</li>';
       }
       content += '</ul></div>';
