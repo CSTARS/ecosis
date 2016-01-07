@@ -195,6 +195,20 @@ ESIS.result = (function() {
 
     }
 
+    if( result.ecosis.linked_data && result.ecosis.linked_data.length > 0 ) {
+      content += '<h4 class="page-header" style="margin-left: 5px; margin-bottom: 0">Linked Data</h4>'+
+        '<div class="well" style="margin:0"><ul class="list-group">';
+
+      for( var i = 0; i < result.ecosis.linked_data.length; i++ ) {
+        content +=
+          '<li class="list-group-item">' +
+            '<span style="font-weight:bold">'+result.ecosis.linked_data[i].label+':</span> '+
+            '<a href="'+result.ecosis.linked_data[i].url+'" target="_blank">'+result.ecosis.linked_data[i].url+'</span>'+
+          '</li>';
+      }
+      content += '</ul></div>';
+    }
+
     resultPanel.find('#dataset-content').html(content);
 
     // if we have geojson, create map
