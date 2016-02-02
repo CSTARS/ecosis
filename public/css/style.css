@@ -120,7 +120,7 @@ ins {
 }
 
 .resources-title {
-	margin: -25px 0 10px 0 !important;
+	margin: -5px 0 10px 0 !important;
 }
 @media(max-width: 768px) {
 	.resources-title {

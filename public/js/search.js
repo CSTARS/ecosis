@@ -329,7 +329,12 @@ ESIS.search = (function() {
   }
 
   function _getDescription(item) {
-    if( item.ecosis.description ) return item.ecosis.description;
+    if( item.ecosis.description ) {
+      if( item.ecosis.description.length > 300 ) {
+        return item.ecosis.description.substr(0, 300)+'...';
+      }
+      return item.ecosis.description;
+    }
     return 'No description provided';
   }
 

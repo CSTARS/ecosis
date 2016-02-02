@@ -15,7 +15,6 @@ ESIS.result = (function() {
   var MAX_FILTER_LINKS = 15;
 
   var topAttributes = {
-      Description : 'ecosis.description',
       License : 'ecosis.license',
       Organization : 'ecosis.organization',
       Version : 'ecosis.version',
@@ -76,7 +75,8 @@ ESIS.result = (function() {
     resultPanel.html(getResultHtml(result));
 
 
-    var content = '<div class="well"><div class="row"><div class="col-sm-6">'
+    var content = '<div>'+result.ecosis.description+'</div>'+
+        '<div class="well"><div class="row"><div class="col-sm-6">'
 
 
     for( var key in topAttributes ) {
@@ -90,12 +90,15 @@ ESIS.result = (function() {
 
       if( Array.isArray(val) ) {
         val = wrapFilterLinks(topAttributes[key], val);
-      } else if( key != 'Description' && key != 'Version' ) {
+      } else if( key != 'Version' ) {
         val = wrapFilterLink(topAttributes[key], val);
       }
 
       content += '<div class="row"><div class="col-md-4"><b>'+key+'</b></div><div class="col-md-8">'+val+'</div></div>';
     }
+
+    content += '<div class="row"><div class="col-md-4"><b>Spectra Count</b></div><div class="col-md-8">' +
+        result.ecosis.spectra_count+'</div></div>';
 
     // add developer link
     content += '<div class="row"><div class="col-md-4"><b>API Link</b></div><div class="col-md-8">' +
@@ -103,8 +106,7 @@ ESIS.result = (function() {
       '<br/><a href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a></div></div>';
 
 
-    content += '<div class="row"><div class="col-md-4"><b>Spectra</b></div><div class="col-md-8">' +
-        result.ecosis.spectra_count+'</div></div>';
+
 
     // set min / max wavelength
     if( result.ecosis.spectra_schema && result.ecosis.spectra_schema.data ) {
