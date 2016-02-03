@@ -73,7 +73,7 @@ ESIS.result = (function() {
     result.ecosis._title = getTitle(result);
     resultPanel.html(getResultHtml(result));
 
-    var content = '<div>'+result.ecosis.description+'</div>'+
+    var content = '<div itemprop="description">'+result.ecosis.description+'</div>'+
         '<div class="well"><div class="row"><div class="col-sm-6">'
 
     for( var key in topAttributes ) {
@@ -91,7 +91,14 @@ ESIS.result = (function() {
         val = wrapFilterLink(topAttributes[key], val);
       }
 
-      content += '<div class="row"><div class="col-md-4"><b>'+key+'</b></div><div class="col-md-8">'+val+'</div></div>';
+      content += '<div class="row"><div class="col-md-4"><b>'+key+'</b></div>';
+
+      if( key === 'Organization' ) {
+        content += '<div class="col-md-8" itemprop="sourceOrganization"><span itemscope itemtype="http://schema.org/Organization"><span itemprop="name">'+val+'</span></span></div>';
+      } else {
+        content += '<div class="col-md-8" itemprop="'+key.toLowerCase()+'">'+val+'</div>';
+      }
+      content += '</div>';
     }
 
     content += '<div class="row"><div class="col-md-4"><b>Spectra Count</b></div><div class="col-md-8">' +
@@ -356,8 +363,8 @@ ESIS.result = (function() {
   }
 
   function getResultHtml(result) {
+    result.ecosis.href = window.location.href;
     return resultTemplate(result);
-
   }
 
 
