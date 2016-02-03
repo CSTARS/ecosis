@@ -40,21 +40,23 @@ ESIS.home = (function(){
 		});
 
 		$(window).on('resize', redrawChart);
-		$(window).on('hashchange', function(){
-			hash = window.location.hash.replace(/#/g, '');
+		$(window).on('hashchange', onHashChange);
 
-			if( hash == '' || hash == 'home' ) {
-				if( showing ) return;
+		onHashChange();
+	}
 
-				showing = true;
-				startRandom();
-			} else {
-				showing = false;
-				clearTimeout(timeoutId);
-			}
-		});
+	function onHashChange() {
+		hash = window.location.hash.replace(/#/g, '');
 
-		startRandom();
+		if( hash == '' || hash == 'home' ) {
+			if( showing ) return;
+
+			showing = true;
+			startRandom();
+		} else {
+			showing = false;
+			clearTimeout(timeoutId);
+		}
 	}
 
 	function startRandom() {

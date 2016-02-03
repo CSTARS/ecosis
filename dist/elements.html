@@ -1,4 +1,4 @@
-<html><head><meta charset="UTF-8"><script>(function () {
+<html><head><meta charset="UTF-8"></head><body><div hidden="" by-vulcanize=""><script>(function () {
 function resolve() {
 document.body.removeAttribute('unresolved');
 }
@@ -6614,7 +6614,7 @@ this.fire('dom-change');
     left: 0;
   }
 </style>
-</head><body><div hidden="" by-vulcanize=""><dom-module id="esis-spectra-viewer" assetpath="/public/elements/">
+<dom-module id="esis-spectra-viewer" assetpath="elements/">
   <style>
     :host {
       display: block;
@@ -6686,7 +6686,9 @@ this.fire('dom-change');
       <div style="margin-top: 50px">
         <div class="row">
           <div class="col-sm-2">
-            
+            <!-- TODO: implement when paper chart supports
+              <a class="btn btn-default" on-click="print"><i class="fa fa-print"></i> Printable Chart</a>
+            -->
           </div>
           <div class="col-sm-10" style="text-align:right">
             <div>
@@ -6932,6 +6934,7 @@ this.fire('dom-change');
     },
 
     updateIndexSelector : function() {
+      if( !this.spectraSlider ) return;
       this.$.currentSpectra.innerHTML = (this.selectedIndex+1);
       this.spectraSlider.slider('setValue',this.selectedIndex+1);
       this.$.totalSpectraLabel.innerText = this.totalSpectra;
@@ -7218,7 +7221,7 @@ this.fire('dom-change');
     }
   });
 </script>
-<dom-module id="esis-data-downloader" assetpath="/public/elements/">
+<dom-module id="esis-data-downloader" assetpath="elements/">
   <template>
 
 
@@ -7335,7 +7338,7 @@ this.fire('dom-change');
       }
   });
 </script>
-<dom-module id="filter-lookup" assetpath="/public/elements/">
+<dom-module id="filter-lookup" assetpath="elements/">
   <template>
     <style>
       :host {

@@ -318,6 +318,7 @@
     },
 
     updateIndexSelector : function() {
+      if( !this.spectraSlider ) return;
       this.$.currentSpectra.innerHTML = (this.selectedIndex+1);
       this.spectraSlider.slider('setValue',this.selectedIndex+1);
       this.$.totalSpectraLabel.innerText = this.totalSpectra;

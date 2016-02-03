@@ -71,13 +71,10 @@ ESIS.result = (function() {
     var resultPanel = $("#result");
 
     result.ecosis._title = getTitle(result);
-
     resultPanel.html(getResultHtml(result));
-
 
     var content = '<div>'+result.ecosis.description+'</div>'+
         '<div class="well"><div class="row"><div class="col-sm-6">'
-
 
     for( var key in topAttributes ) {
       var val;
@@ -106,8 +103,6 @@ ESIS.result = (function() {
       '<br/><a href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a></div></div>';
 
 
-
-
     // set min / max wavelength
     if( result.ecosis.spectra_schema && result.ecosis.spectra_schema.data ) {
       var min = -1, max = -1, val;
@@ -127,7 +122,6 @@ ESIS.result = (function() {
             min +' - '+ max +'</div></div>';
       }
     }
-
     content += '</div><div class="col-sm-6">';
 
 
@@ -146,7 +140,6 @@ ESIS.result = (function() {
 
     content += '</ul></div>';
     content += '</div></div></div>';
-
 
     var hasLocation = result.ecosis.geojson || result.ecosis.spectra_bbox_geojson ? true : false;
 
@@ -214,7 +207,7 @@ ESIS.result = (function() {
     resultPanel.find('#dataset-content').html(content);
 
     // if we have geojson, create map
-    if( hasLocation ) {
+    if( hasLocation && isCanvasSupported() ) {
       L.Icon.Default.imagePath = '/images';
       var map = L.map('result-map', {scrollWheelZoom : false}).setView([42.065, -111.821], 13);
 
@@ -252,6 +245,7 @@ ESIS.result = (function() {
     resultPanel.find('.all-filters-link').on('click', function(){
       ESIS.allFiltersPopup.show($(this).attr('key'), result);
     });
+
 
     var metadata = '<table class="table">';
     for( var key in result ) {
@@ -300,7 +294,6 @@ ESIS.result = (function() {
       $('#result-metadata').toggle('slow');
     });
 
-
     // set nav handler
     $('a[goto]').on('click', function(){
       var heading = $(this).attr('goto');
@@ -309,10 +302,18 @@ ESIS.result = (function() {
       $('body,html').animate({scrollTop: $('#'+heading).offset().top-15}, 500);
     });
 
-    console.log('result - 4');
+    window.ecosisResultReady = true;
+    if( window.onEcosisResultReady ) {
+      window.onEcosisResultReady();
+    }
 
     window.__mqe_lploaded = true;
 		if( window.__mqe_lpready ) window.__mqe_lpready();
+  }
+
+  function isCanvasSupported(){
+    var elem = document.createElement('canvas');
+    return !!(elem.getContext && elem.getContext('2d'));
   }
 
   function wrapFilterLinks(key, values) {

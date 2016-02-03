@@ -8,7 +8,8 @@ var mqeLib = require('mongo-query-engine');
 var options, app, server, logger, conf;
 
 process.on('uncaughtException', function(err) {
-  logger.error(err);
+  if( logger ) logger.error(err);
+  else console.log(err);
 });
 
 /*
