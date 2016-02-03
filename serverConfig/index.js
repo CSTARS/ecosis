@@ -25,7 +25,7 @@ module.exports = {
         // combine all filters listed below into a single attribute that will be used for
         // the text search index
         textIndexes  : ['ecosis.package_title','Keywords', 'Theme', 'Ecosystem Type',
-                'Target Type', 'ecosis.package_description', 'Measurement Quantity', 'Acquisition Method',
+                'Target Type', 'ecosis.description', 'Measurement Quantity', 'Acquisition Method',
                 'Light Source', 'Target Status', 'Instrument Manufacturer', 'Instrument Model', 'Common Name',
                 'Latin Genus', 'Latin Species', 'USDA Symbol', 'Vegetation Type', 'Citation',
                 'Funding Source', 'Author', 'Maintainer'],
