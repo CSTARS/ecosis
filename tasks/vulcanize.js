@@ -6,14 +6,14 @@ module.exports = function(grunt) {
 
 	// Options
 	return {
-    default: {
+    build: {
       options: {
         inlineCss : true,
 				inlineScripts : true
       },
       files: {
-        'dist/elements.html': [
-        'public/elements.html'
+        'dist/require.html': [
+        'public/require.html'
         ]
       }
     }

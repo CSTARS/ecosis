@@ -34,6 +34,8 @@ module.exports = {
           'Keywords', 'Theme', 'Target Type', 'ecosis.description', 'Common Name']
     },
 
+    seoFormat : '?result=',
+
     server : {
       host : 'localhost',
 

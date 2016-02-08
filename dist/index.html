@@ -23,23 +23,10 @@
   <link rel="apple-touch-icon" sizes="128x128" href="/assets/icon_128.png">
   <link rel="apple-touch-icon-precomposed" sizes="128x128" href="/assets/icon_128.png">
 
-  <script src="scripts/build.js"></script>
-
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=&sensor=true&libraries=geometry"></script>
-
-
-  <script type="text/javascript">
-    $.get("/schema.json", function(resp) {
-      ESIS.schema = resp;
-    });
-  </script>
-
-  <link rel="stylesheet" href="css/build.css">
-
-
+  <script src="js/webcomponents.js"></script>
+  <link rel="stylesheet" href="font-awesome/css/font-awesome.css">
   <script type="text/javascript" src="mqe/resources/mqe.js"></script>
-
-  <link rel="import" href="elements.html">
+  <link rel="import" href="require.html">
 
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript">
@@ -49,6 +36,7 @@
         ESIS.home.chartReady();
       });
   </script>
+
   <style>
     .splash {
       background: url(../assets/banner.png) no-repeat center top;
@@ -168,7 +156,7 @@
 </div>
 
 <div id="result" style="display:none"></div>
-
+<div id="result-template-container" style="display:none"></div>
 
 <div id="compare" style="display:none">
   <div class="row">
@@ -311,5 +299,4 @@
 </script>
 <script src="/analytics"></script>
 
-</body>
-</html>
+</body></html>

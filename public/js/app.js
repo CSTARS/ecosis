@@ -11,6 +11,16 @@ if( window.location.host == 'ecospectra.org' ) {
 	ESIS.ckanHost = 'http://192.168.2.138:5000';
 }
 
+function qs(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
 // init app
 (function() {
 
@@ -18,11 +28,18 @@ if( window.location.host == 'ecospectra.org' ) {
 	var validPages = [DEFAULT_PAGE, "search", "result", "all", "edit", "compare", "group"];
 
 	var cPage = "";
+  var firstRender = true;
 
 	$(document).ready(function() {
 
 		// mqe.js handles the hash parsing and fires this event
 		$(window).bind("page-update-event", function(e, hash){
+			if( window.prerender && firstRender ) {
+				firstRender = false;
+				console.log('Ignoring first render');
+				return;
+			}
+
 			_updatePage(hash[0]);
 		});
 
@@ -38,6 +55,12 @@ if( window.location.host == 'ecospectra.org' ) {
 		$('body').scrollTop(0);
 
 		if( validPages.indexOf(page) == -1 ) page = DEFAULT_PAGE;
+
+		try {
+			if( page !== 'result' ) {
+				document.title = 'EcoSIS - Spectral Library';
+			}
+		} catch(e) {}
 
 		$("#"+cPage).hide();
 		$("#"+page).show();

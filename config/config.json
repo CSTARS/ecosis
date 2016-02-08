@@ -41,14 +41,16 @@
                             "Keywords", "Theme", "Target Type", "ecosis.description", "Common Name"]
       },
 
+      "seoFormat" : "?result=",
+
       "server" : {
         "host" : "localhost",
 
         "remoteport" : 80,
 
-        "localport" : 3003,
+        "localport" : 3000,
 
-        "url" : "http://ecospectra.org",
+        "url" : "http://localhost:3000/",
 
         "allowedDomains" : [],
 

@@ -4,6 +4,7 @@ var kraken = require('kraken-js');
 var http = require('http');
 
 var mqeLib = require('mongo-query-engine');
+//var mqeLib = require('/Users/jrmerz/dev/cstars/mongo-query-engine');
 
 var options, app, server, logger, conf;
 
@@ -21,7 +22,9 @@ options = {
       conf = config;
 
       // allow command line switch from serving /dist to /app
+      var staticRoot = 'dist';
       if( config.get('dev') ) {
+        staticRoot = 'public';
         var middleware = config.get('middleware').static;
         middleware.module.arguments[0] = middleware.module.arguments[0].replace(/dist$/,'public');
       }
@@ -51,11 +54,15 @@ options = {
           var setup = mqeLib.getSetup();
           logger = setup.logger;
 
+          setup.static = staticRoot;
+
           setup.spectraCollection = setup.database.collection(setup.config.db.spectraCollection);
           setup.usdaCollection = setup.database.collection(setup.config.db.usdaCollection);
           setup.lookupCollection = setup.database.collection(setup.config.db.lookupCollection);
 
           global.setup = setup;
+
+          app.use(require('./lib/prerender/middleware'));
 
           /*
            * Add any additional config setup or overrides here. `config` is an initialized

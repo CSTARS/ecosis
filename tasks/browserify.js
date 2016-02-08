@@ -5,13 +5,33 @@ module.exports = function browserify(grunt) {
 	// Load task
 	grunt.loadNpmTasks('grunt-browserify');
 
-	// Options
-	return {
-		build: {
-			files: {
-				'.build/js/app.js': ['public/js/app.js']
-			},
-			options: {}
-		}
+	var files = {
+		'public/js/lib.js': ['lib/index.js']
 	};
+
+
+	// Options
+	var browserifyOptions = {
+    debug : true, // include source maps
+    standalone : 'LIB'
+  };
+
+  // Options
+  return {
+    build: {
+      files: files,
+      options: {
+        browserifyOptions : browserifyOptions
+      }
+    },
+    watch : {
+      files: files,
+      options: {
+        browserifyOptions : browserifyOptions,
+        keepAlive : true,
+        watch : true,
+        debug : true
+      }
+    }
+  };
 };

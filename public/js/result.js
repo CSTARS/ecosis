@@ -22,7 +22,7 @@ ESIS.result = (function() {
   }
 
   function init() {
-    $('#result').load('/result.handlebars', function() {
+    $('#result-template-container').load('/result.handlebars', function() {
       var source = $("#result-template").html();
       resultTemplate = Handlebars.compile(source);
 
@@ -36,9 +36,21 @@ ESIS.result = (function() {
       }
     });
 
+
     $(window).bind('result-update-event', function(e, result){
       updateResult(result);
     });
+
+    if( window.prerender ) {
+      $.get('/mqe/get',{
+          _id : qs('result')
+        },
+  			function(data) {
+          $('#result').show();
+          updateResult(data);
+  			}
+  		);
+    }
   }
 
   // fires when template is loaded
@@ -48,15 +60,6 @@ ESIS.result = (function() {
   }
 
   function getTitle(item) {
-    /*
-    var group_by = '';
-    if( item.ecosis.group_by && item.ecosis.group_by != '' ) {
-      if( item[item.ecosis.group_by] && item[item.ecosis.group_by].length > 0 ) {
-        group_by = ' ('+item.ecosis.group_by+': '+item[item.ecosis.group_by][0]+')';
-      }
-    }
-    */
-
     if( item.ecosis.package_title ) return item.ecosis.package_title;
     if( item.ecosis.package_name ) return item.ecosis.package_name;
     return 'No Title';
@@ -151,10 +154,10 @@ ESIS.result = (function() {
     var hasLocation = result.ecosis.geojson || result.ecosis.spectra_bbox_geojson ? true : false;
 
     // add category metadata
-    for( var category in ESIS.schema ) {
+    for( var category in LIB.schema ) {
       if( category == 'Location' && !hasLocation ) continue;
 
-      var items = ESIS.schema[category];
+      var items = LIB.schema[category];
 
       var catHTML = '<h4 class="page-header" style="margin-left: 5px; margin-bottom: 0">'+category+'</h4>'+
         '<div class="well" style="margin:0">';
@@ -285,6 +288,9 @@ ESIS.result = (function() {
     if( viewer.update ) viewer.update(result);
 
     $(".result-back-btn").on('click', function(){
+      if( window.prerender && qs('result') ) {
+        return window.location = '/#search';
+      }
       $(window).trigger("back-to-search-event");
     });
 
@@ -309,13 +315,25 @@ ESIS.result = (function() {
       $('body,html').animate({scrollTop: $('#'+heading).offset().top-15}, 500);
     });
 
-    window.ecosisResultReady = true;
-    if( window.onEcosisResultReady ) {
-      window.onEcosisResultReady();
+    try {
+      renderMetadata(result);
+    } catch(e) { debugger; }
+  }
+
+  function renderMetadata(item) {
+    var result = LIB.ldjson(item, window.location.origin);
+
+    var ldEle = document.querySelector('script[type="application/ld+json"]');
+    if( !ldEle ) {
+      ldEle = document.createElement('script');
+      ldEle.setAttribute('type', 'application/ld+json');
+      document.body.appendChild(ldEle);
     }
 
-    window.__mqe_lploaded = true;
-		if( window.__mqe_lpready ) window.__mqe_lpready();
+    ldEle.innerHTML = JSON.stringify(result.ldjson, '  ', '  ');
+    document.querySelector('meta[name="description"]').setAttribute('content', result.description || '');
+    document.querySelector('meta[name="keywords"]').setAttribute('content', result.keywords || '');
+    document.title = result.title;
   }
 
   function isCanvasSupported(){
@@ -358,7 +376,7 @@ ESIS.result = (function() {
     var f = {};
     f[key] = value;
     q.filters = [f];
-    return '<a href="'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'" style="white-space:normal">'+
+    return '<a href="/'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'" style="white-space:normal">'+
           (icon ? '<i class="fa fa-plus-circle"></i> ' : '')+value+'</a>';
   }
 
