@@ -76,7 +76,7 @@ ESIS.result = (function() {
     result.ecosis._title = getTitle(result);
     resultPanel.html(getResultHtml(result));
 
-    var content = '<div itemprop="description">'+result.ecosis.description+'</div>'+
+    var content = '<div>'+result.ecosis.description+'</div>'+
         '<div class="well"><div class="row"><div class="col-sm-6">'
 
     for( var key in topAttributes ) {
@@ -97,9 +97,9 @@ ESIS.result = (function() {
       content += '<div class="row"><div class="col-md-4"><b>'+key+'</b></div>';
 
       if( key === 'Organization' ) {
-        content += '<div class="col-md-8" itemprop="sourceOrganization"><span itemscope itemtype="http://schema.org/Organization"><span itemprop="name">'+val+'</span></span></div>';
+        content += '<div class="col-md-8"><span><span>'+val+'</span></span></div>';
       } else {
-        content += '<div class="col-md-8" itemprop="'+key.toLowerCase()+'">'+val+'</div>';
+        content += '<div class="col-md-8">'+val+'</div>';
       }
       content += '</div>';
     }
@@ -197,8 +197,9 @@ ESIS.result = (function() {
         if( !result[items[i].name] ) continue;
 
         row = '<div class="row"><div class="col-md-3"><b>'+items[i].name+'</b></div>'+
-              '<div class="col-md-9">'+wrapFilterLinks(items[i].name, result[items[i].name])+'</div></div>';
-        if( items[i].description ) row += '<div class="help-block">'+items[i].description +'</div>';
+              '<div class="col-md-9"><div>'+wrapFilterLinks(items[i].name, result[items[i].name])+'</div>'+
+              ( items[i].description ? '<div class="help-block">'+items[i].description +'</div>' : '')+
+              '</div></div>';
 
         if( c % 2 == 0 ) table1 += row;
         else table2 += row;

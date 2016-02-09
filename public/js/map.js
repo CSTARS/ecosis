@@ -28,6 +28,7 @@ ESIS.map = (function() {
     } else {
       _updateLL();
       setTimeout(function(){
+        map.invalidateSize();
         //TODO
         //google.maps.event.trigger(map, "resize");
       },500);
