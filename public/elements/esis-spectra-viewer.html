@@ -136,6 +136,14 @@
       this.slider.on('slideStop', function(e){
         this.minWavelength = e.value[0];
         this.maxWavelength = e.value[1];
+
+        if( isNaN(this.minWavelength) ) {
+          this.minWavelength = 0;
+        }
+        if( isNaN(this.maxWavelength) ) {
+          this.maxWavelength = 0;
+        }
+
         this.filterByWavelength();
       }.bind(this));
 
@@ -375,6 +383,14 @@
 
           this.minWavelength = this.wavelengths[0];
           this.maxWavelength = this.wavelengths[this.wavelengths.length-1];
+
+          if( isNaN(this.minWavelength) ) {
+            this.minWavelength = 0;
+          }
+          if( isNaN(this.maxWavelength) ) {
+            this.maxWavelength = 0;
+          }
+
           this.resetSlider();
 
         } else {

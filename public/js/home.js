@@ -2,6 +2,7 @@ ESIS.home = (function(){
 
 	var ptRegex1 = /^-?\d+\.?\d*$/;
 	var ptRegex2 = /^-?\d*\.\d+$/;
+	var initialized = false;
 
 	var textEffect = {
 		in: {
@@ -28,23 +29,6 @@ ESIS.home = (function(){
 		if( waiting ) redrawChart();
 	}
 
-	function init() {
-		showing = true;
-
-		$.get('/spectra/count', function(resp){
-			var count = resp.count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-			$('#home-total-count')
-				.text(''+count+' spectra and counting.')
-				.textillate();
-		});
-
-		$(window).on('resize', redrawChart);
-		$(window).on('hashchange', onHashChange);
-
-		onHashChange();
-	}
-
 	function onHashChange() {
 		hash = window.location.hash.replace(/#/g, '');
 
@@ -69,41 +53,33 @@ ESIS.home = (function(){
 
 		if( resp['Common Name'] ) {
 			$('#random-common-name')
-				.html('<span class="random-label">Common Name:</span> '+_createAnchor('Common Name', resp))
-				.find('a, .random-label')
-				.textillate(textEffect);
+				.html('<span class="random-label">Common Name:</span> '+_createAnchor('Common Name', resp));
 		} else {
 			$('#random-common-name').text('');
 		}
 
 		if( resp['Latin Genus'] ) {
 			$('#random-genus')
-				.html('<span class="random-label">Genus:</span> '+_createAnchor('Latin Genus', resp))
-				.find('a, .random-label')
-				.textillate(textEffect);
+				.html('<span class="random-label">Genus:</span> '+_createAnchor('Latin Genus', resp));
 		} else {
 			$('#random-genus').text('');
 		}
 
 		if( resp['Latin Species'] ) {
 			$('#random-species')
-				.html('<span class="random-label">Species:</span> '+_createAnchor('Latin Species', resp))
-				.find('a, .random-label')
-				.textillate(textEffect);
+				.html('<span class="random-label">Species:</span> '+_createAnchor('Latin Species', resp));
 		} else {
 			$('#random-species').text('');
 		}
-
-
 		$('#random-title')
-			.html('<a href="#result/'+resp.ecosis.package_id+'">'+resp.ecosis.package_title+'</a>')
-			.find('a')
-			.textillate(textEffect);
+			.html('<a href="#result/'+resp.ecosis.package_id+'">'+resp.ecosis.package_title+'</a>');
 
 		timeoutId = setTimeout(startRandom, 15000);
 		setTimeout(function(){
-			$('#random-chart')[0].className = 'animated fadeOut';
-			$('#random').find('a, .random-label').textillate('out');
+			if( $('#random-chart')[0] ) {
+				$('#random-chart')[0].className = 'animated fadeOut';
+			}
+
 		}, 14000);
 
 		if( chartIsLoaded ) {
@@ -172,8 +148,15 @@ ESIS.home = (function(){
 		return '<a href="#search//'+encodeURIComponent(JSON.stringify(filter))+'/0/6">'+spectra[key]+'</a>';
 	}
 
+	setTimeout(function(){
+		$(window).on('resize', redrawChart);
+		$(window).on('hashchange', onHashChange);
+
+		onHashChange();
+	}, 500);
+
+
 	return {
-		init : init,
 		chartReady : chartReady
 	}
 

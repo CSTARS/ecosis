@@ -44,7 +44,7 @@ function qs(name, url) {
 		});
 
 		MQE.init({defaultPage:DEFAULT_PAGE});
-		ESIS.home.init();
+		//ESIS.home.init();
 		ESIS.search.init();
 		ESIS.result.init();
 	});
