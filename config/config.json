@@ -31,7 +31,7 @@
 
         "geoFilter" : ["ecosis.geojson"],
 
-        "indexedFilters" : ["Theme", "Measurement Scale", "Keywords", "ecosis.organization"],
+        "indexedFilters" : ["Theme", "Measurement Scale", "ecosis.organization"],
 
         "sortBy"            : "ecosis.package_title",
 

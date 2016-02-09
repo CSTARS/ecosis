@@ -28491,11 +28491,6 @@ ESIS.search = (function() {
     });
     c++;
 
-    panel.append($('<li><a id="filter-block-title-lookup" style="cursor:pointer;font-weight:bold">Lookup Filter</a></li>'));
-    $("#filter-block-title-lookup").on('click', function(){
-      document.querySelector('filter-lookup').show();
-    });
-    c++;
 
     if( c == 0 ) {
       panel.append($("<div>No filters available for this search</div>"));
@@ -28673,9 +28668,9 @@ ESIS.search = (function() {
     }
 
     $('#current-search-rest-link').html(
-      '<a href="'+link+'" target="_blank">Search API Link</a> | '+
-      '<a href="http://cstars.github.io/ecosis/" target="_blank">EcoSIS API Documentation</a> | '+
-      '<a href="http://tutorial.ecospectra.org" target="_blank">EcoSIS Tutorials</a>'+
+      '<a href="'+link+'" target="_blank"><i class="fa fa-link"></i> Search API Link</a> | '+
+      '<a href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a> | '+
+      '<a href="http://tutorial.ecospectra.org" target="_blank"><i class="fa fa-question-circle"></i> EcoSIS Tutorials</a>'+
       '<br /> <span style="color:#888;font-size:11px;font-style:italic">'+ decodeURIComponent(link)+'</span>'
     );
   }
@@ -29037,11 +29032,31 @@ ESIS.search = (function() {
       content += '</div>';
     }
 
+    var wavelength = '';
+    if( result.ecosis.package_schema.wavelengths && result.ecosis.package_schema.wavelengths.length > 0) {
+      var min = parseFloat(result.ecosis.package_schema.wavelengths[0]);
+      var max = parseFloat(result.ecosis.package_schema.wavelengths[0]);
+      result.ecosis.package_schema.wavelengths.forEach(function(w){
+        w = parseFloat(w);
+        if( min > w ) min = w;
+        if( max < w ) max = w;
+      });
+
+      var units = '';
+      if( result['Wavelength Units'] && result['Wavelength Units'].length > 0 ) {
+        units = result['Wavelength Units'][0];
+      }
+
+      wavelengths = ' <span style="color:#aaa">('+min+units+' - '+max+units+')</span>';
+    }
+
     content += '<div class="row"><div class="col-md-4"><b>Spectra Count</b></div><div class="col-md-8">' +
-        result.ecosis.spectra_count+'</div></div>';
+        result.ecosis.spectra_count+wavelengths+'</div></div>';
 
     // add developer link
-    content += '<div class="row"><div class="col-md-4"><b>API Link</b></div><div class="col-md-8">' +
+    content +=
+      '<div class="row"><div class="col-md-4"><b>Links</b></div><div class="col-md-8">' +
+      '<a href="/#result/'+result.ecosis.package_id+'" target="_blank"><i class="fa fa-link"></i> Dataset Link</a></br />'+
       '<a href="/package/get?package_id='+result.ecosis.package_id+'" target="_blank"><i class="fa fa-link"></i> Dataset API Link</a>'+
       '<br/><a href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a></div></div>';
 
@@ -29330,7 +29345,7 @@ ESIS.search = (function() {
 </script>
 <script type="text/javascript">ESIS.map = (function() {
   var map;
-  var centerMarker;
+  //var centerMarker;
   var circle;
   //var r = 16093; // default to 10 miles
   var r = 844906; // 525 miles
@@ -29358,7 +29373,8 @@ ESIS.search = (function() {
     } else {
       _updateLL();
       setTimeout(function(){
-        google.maps.event.trigger(map, "resize");
+        //TODO
+        //google.maps.event.trigger(map, "resize");
       },500);
     }
   }
@@ -29369,17 +29385,22 @@ ESIS.search = (function() {
     // update radius
     var b = map.getBounds();
     if( b ) {
-      var ll1 = new google.maps.LatLng(b.getNorthEast().lat(), ll.lng());
-      var ll2 = new google.maps.LatLng(b.getSouthWest().lat(), ll.lng());
+      var ll1 = L.latLng(b.getNorthEast().lat, ll.lng);
+      var ll2 = L.latLng(b.getSouthWest().lat, ll.lng);
 
-      var d = google.maps.geometry.spherical.computeDistanceBetween(ll1, ll2);
+      var d = ll1.distanceTo(ll2);
       r = (d / 2) * .75;
     }
 
     circle.setRadius(r);
-    centerMarker.setPosition(ll);
-    $("#geo-filter-current-lat").html(ll.lat().toFixed(3));
-    $("#geo-filter-current-lng").html(ll.lng().toFixed(3));
+    circle.setLatLng(ll);
+
+    //try {
+    //  centerMarker.setLatLng(ll);
+    //} catch(e) {}
+
+    $("#geo-filter-current-lat").html(ll.lat.toFixed(3));
+    $("#geo-filter-current-lng").html(ll.lng.toFixed(3));
     $("#geo-filter-current-radius").html(Math.round(r * .000621371)+" miles");
 
     // now do a quick search, if not IE8
@@ -29407,7 +29428,7 @@ ESIS.search = (function() {
           $near: {
              $geometry: {
                 type: "Point" ,
-                coordinates: [ ll.lng(), ll.lat() ]
+                coordinates: [ ll.lng, ll.lat ]
              },
              $maxDistance: r
           }
@@ -29427,7 +29448,7 @@ ESIS.search = (function() {
   function _initMap() {
 
     // set geo filter map
-    var mapOptions = {
+    /*var mapOptions = {
         center : new google.maps.LatLng(39.251, -97.850),
         zoom : 4,
         mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -29448,7 +29469,25 @@ ESIS.search = (function() {
     });
     circle.bindTo('center', centerMarker, 'position');
 
-    google.maps.event.addListener(map, 'bounds_changed', _updateLL);
+    google.maps.event.addListener(map, 'bounds_changed', _updateLL);*/
+
+    map = L.map($("#geo-filter-map")[0]).setView([39.251, -97.850], 4);
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    console.log(r);
+    circle = L.circle([39.251, -97.850], r, {
+      fillColor : '#AA0000'
+    }).addTo(map);
+
+    //try {
+    //  centerMarker = L.marker([39.251, -97.850]).addTo(map);
+    //} catch(e) {}
+
+    map.on('zoomend', _updateLL);
+    map.on('moveend', _updateLL);
+
     _updateLL();
 
     $("#geo-filter-select").on('click', function(){
@@ -29474,7 +29513,7 @@ ESIS.search = (function() {
           $near: {
              $geometry: {
                 type: "Point" ,
-                coordinates: [ ll.lng(), ll.lat() ]
+                coordinates: [ ll.lng, ll.lat ]
              },
              $maxDistance: r
           }
@@ -29491,7 +29530,7 @@ ESIS.search = (function() {
         navigator.geolocation.getCurrentPosition(
             function(position) {
               $("#geo-filter-geolocate").removeClass("disabled").html('Locate Me');
-              map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+              map.setView(L.latLng(position.coords.latitude, position.coords.longitude));
             },
             function(error) {
               $("#geo-filter-geolocate").removeClass("disabled").html('Locate Me');
@@ -37643,130 +37682,92 @@ this.fire('dom-change');
       }
   });
 </script>
-<dom-module id="filter-lookup" assetpath="elements/">
+<dom-module id="search-text-suggest" assetpath="elements/">
   <template>
     <style>
       :host {
         display: none;
-      }
-      .header {
+        position: absolute;
+        background-color: white;
         padding: 10px;
-      }
-      .results {
-        overflow: auto
+        box-shadow: 0 0 10px #888;
+        z-index: 1000;
       }
     </style>
 
-    <div class="modal fade" id="popup">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3>Lookup Filter</h3>
-          </div>
-          <div class="modal-body">
-            <h4 style="text-align:center;display:none" id="state">
-              <a class="btn btn-primary btn-lg" on-click="back"><i class="fa fa-times"></i> <span id="stateLabel"></span></a> =
-            </h4>
-
-            <input id="input" type="text" class="form-control" placeholder="Search Filters" on-keyup="onKeyUp">
-
-            <div class="results">
-              <template is="dom-repeat" items="{{results}}">
-                <div class="btn btn-default btn-sm" style="margin: 5px" on-click="select">{{item}}</div>
-              </template>
-            </div>
-
-          </div>
-        </div>
+    <template is="dom-repeat" items="{{results}}">
+      <div style="padding: 5px">
+        <a style="cursor:pointer; margin-right: 50px" on-click="setValue">{{item.value}}</a>
+        <span class="label label-default pull-right">{{item.key}}</span>
       </div>
-    </div>
+    </template>
 
   </template>
   <script>
     Polymer({
-      is: 'filter-lookup',
+      is: 'search-text-suggest',
 
       ready : function() {
         this.results = [];
-        this.state = 'key';
+        this.timer = -1;
+        this.hideTimer = -1;
+        this.input = document.querySelector('#search-text');
 
-        this.popup = $(this.$.popup).remove();
-        $('body').append(this.popup);
-        this.popup.modal({show: false});
-        this.searchTimer = -1;
-      },
-
-      onKeyUp : function() {
-        if( this.searchTimer != -1 ) clearTimeout(this.searchTimer);
-        this.searchTimer = setTimeout(function(){
-          this.searchTimer = -1;
-          this.search();
-        }.bind(this), 150);
-      },
-
-      search : function() {
-        if( this.state == 'key' ) {
-          $.get('/lookup/key?q='+this.$.input.value, function(resp){
-            this.results = resp;
-          }.bind(this));
-        } else {
-          $.get('/lookup/value?key='+this.key+'&q='+this.$.input.value, function(resp){
-            this.results = resp.values;
-          }.bind(this));
-        }
-      },
-
-      back : function() {
-        this.state = 'key';
-        this.$.input.value = this.key;
-        this.$.state.style.display = 'none';
-        this.$.input.focus();
-        this.search();
-      },
-
-      reset : function() {
-        this.key = '';
-        this.state = 'key';
-        this.$.state.style.display = 'none';
-        this.results = [];
-      },
-
-      select : function(e) {
-        if( this.state == 'key' ) {
-          this.state = 'value';
-
-          this.key = e.currentTarget.innerHTML;
-          this.$.stateLabel.innerHTML = this.key;
-
-          this.$.input.value = '';
-          this.results = [];
-
-          this.$.state.style.display = 'block';
-          this.search();
-          this.$.input.focus();
-        } else {
-          var q = MQE.getCurrentQuery();
-          q.page = 0;
-
-          var filter = {};
-          filter[this.key] = e.currentTarget.innerHTML;
-          q.filters.push(filter);
-          window.location = MQE.queryToUrlString(q);
-          this.hide();
-        }
+        $(this.input)
+          .on('focus', this._search.bind(this))
+          .on('blur', this.hide.bind(this))
+          .on('keyup', this.search.bind(this));
       },
 
       show : function() {
-        this.reset();
-        this.popup.modal('show');
-        setTimeout(function(){
-          this.$.input.focus();
-        }.bind(this), 200);
+        if( this.hideTimer != -1 ) {
+          clearTimeout(this.hideTimer);
+        }
+        this.style.display = 'block';
       },
 
       hide : function() {
-        this.popup.modal('hide');
+        this.hideTimer = setTimeout(function(){
+          this.hideTimer = -1;
+          this.style.display = 'none';
+        }.bind(this), 200);
+      },
+
+      search : function() {
+        if( this.timer !== -1 ) {
+          clearTimeout(this.timer);
+        }
+
+        this.timer = setTimeout(function(){
+          this.timer = -1;
+          this._search();
+        }.bind(this), 200);
+      },
+
+      _search : function() {
+        if( this.current == this.input.value ) {
+          return;
+        }
+
+        this.hide();
+        if( this.input.value === '' ) {
+          this.results = [];
+          return;
+        }
+
+        this.current = this.input.value;
+        $.get('/lookup', {q: this.input.value}, function(resp){
+          this.results = resp;
+
+          if( this.results.length > 0 ) {
+            this.show();
+          }
+        }.bind(this));
+      },
+
+      setValue : function(e) {
+        this.input.value = e.currentTarget.innerHTML;
+        $('#search-btn').trigger('click');
       }
     });
   </script>

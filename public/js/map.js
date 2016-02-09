@@ -1,6 +1,6 @@
 ESIS.map = (function() {
   var map;
-  var centerMarker;
+  //var centerMarker;
   var circle;
   //var r = 16093; // default to 10 miles
   var r = 844906; // 525 miles
@@ -28,7 +28,8 @@ ESIS.map = (function() {
     } else {
       _updateLL();
       setTimeout(function(){
-        google.maps.event.trigger(map, "resize");
+        //TODO
+        //google.maps.event.trigger(map, "resize");
       },500);
     }
   }
@@ -39,17 +40,22 @@ ESIS.map = (function() {
     // update radius
     var b = map.getBounds();
     if( b ) {
-      var ll1 = new google.maps.LatLng(b.getNorthEast().lat(), ll.lng());
-      var ll2 = new google.maps.LatLng(b.getSouthWest().lat(), ll.lng());
+      var ll1 = L.latLng(b.getNorthEast().lat, ll.lng);
+      var ll2 = L.latLng(b.getSouthWest().lat, ll.lng);
 
-      var d = google.maps.geometry.spherical.computeDistanceBetween(ll1, ll2);
+      var d = ll1.distanceTo(ll2);
       r = (d / 2) * .75;
     }
 
     circle.setRadius(r);
-    centerMarker.setPosition(ll);
-    $("#geo-filter-current-lat").html(ll.lat().toFixed(3));
-    $("#geo-filter-current-lng").html(ll.lng().toFixed(3));
+    circle.setLatLng(ll);
+
+    //try {
+    //  centerMarker.setLatLng(ll);
+    //} catch(e) {}
+
+    $("#geo-filter-current-lat").html(ll.lat.toFixed(3));
+    $("#geo-filter-current-lng").html(ll.lng.toFixed(3));
     $("#geo-filter-current-radius").html(Math.round(r * .000621371)+" miles");
 
     // now do a quick search, if not IE8
@@ -77,7 +83,7 @@ ESIS.map = (function() {
           $near: {
              $geometry: {
                 type: "Point" ,
-                coordinates: [ ll.lng(), ll.lat() ]
+                coordinates: [ ll.lng, ll.lat ]
              },
              $maxDistance: r
           }
@@ -97,7 +103,7 @@ ESIS.map = (function() {
   function _initMap() {
 
     // set geo filter map
-    var mapOptions = {
+    /*var mapOptions = {
         center : new google.maps.LatLng(39.251, -97.850),
         zoom : 4,
         mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -118,7 +124,25 @@ ESIS.map = (function() {
     });
     circle.bindTo('center', centerMarker, 'position');
 
-    google.maps.event.addListener(map, 'bounds_changed', _updateLL);
+    google.maps.event.addListener(map, 'bounds_changed', _updateLL);*/
+
+    map = L.map($("#geo-filter-map")[0]).setView([39.251, -97.850], 4);
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    console.log(r);
+    circle = L.circle([39.251, -97.850], r, {
+      fillColor : '#AA0000'
+    }).addTo(map);
+
+    //try {
+    //  centerMarker = L.marker([39.251, -97.850]).addTo(map);
+    //} catch(e) {}
+
+    map.on('zoomend', _updateLL);
+    map.on('moveend', _updateLL);
+
     _updateLL();
 
     $("#geo-filter-select").on('click', function(){
@@ -144,7 +168,7 @@ ESIS.map = (function() {
           $near: {
              $geometry: {
                 type: "Point" ,
-                coordinates: [ ll.lng(), ll.lat() ]
+                coordinates: [ ll.lng, ll.lat ]
              },
              $maxDistance: r
           }
@@ -161,7 +185,7 @@ ESIS.map = (function() {
         navigator.geolocation.getCurrentPosition(
             function(position) {
               $("#geo-filter-geolocate").removeClass("disabled").html('Locate Me');
-              map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+              map.setView(L.latLng(position.coords.latitude, position.coords.longitude));
             },
             function(error) {
               $("#geo-filter-geolocate").removeClass("disabled").html('Locate Me');

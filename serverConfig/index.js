@@ -16,7 +16,7 @@ module.exports = {
 
         geoFilter : ['ecosis.geojson'],
 
-        indexedFilters : ['Theme', 'Target Type', 'ecosis.organization', 'Keywords'],
+        indexedFilters : ['Theme', 'Target Type', 'ecosis.organization'],
 
         // currently MQE only allows one sort option, place the attribute you wish to sort on here
         sortBy : 'ecosis.package_title',

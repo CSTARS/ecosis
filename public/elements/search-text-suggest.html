@@ -1,0 +1,90 @@
+<dom-module id="search-text-suggest">
+  <template>
+    <style>
+      :host {
+        display: none;
+        position: absolute;
+        background-color: white;
+        padding: 10px;
+        box-shadow: 0 0 10px #888;
+        z-index: 1000;
+      }
+    </style>
+
+    <template is="dom-repeat" items="{{results}}">
+      <div style="padding: 5px">
+        <a style="cursor:pointer; margin-right: 50px" on-click="setValue">{{item.value}}</a>
+        <span class="label label-default pull-right">{{item.key}}</span>
+      </div>
+    </template>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'search-text-suggest',
+
+      ready : function() {
+        this.results = [];
+        this.timer = -1;
+        this.hideTimer = -1;
+        this.input = document.querySelector('#search-text');
+
+        $(this.input)
+          .on('focus', this._search.bind(this))
+          .on('blur', this.hide.bind(this))
+          .on('keyup', this.search.bind(this));
+      },
+
+      show : function() {
+        if( this.hideTimer != -1 ) {
+          clearTimeout(this.hideTimer);
+        }
+        this.style.display = 'block';
+      },
+
+      hide : function() {
+        this.hideTimer = setTimeout(function(){
+          this.hideTimer = -1;
+          this.style.display = 'none';
+        }.bind(this), 200);
+      },
+
+      search : function() {
+        if( this.timer !== -1 ) {
+          clearTimeout(this.timer);
+        }
+
+        this.timer = setTimeout(function(){
+          this.timer = -1;
+          this._search();
+        }.bind(this), 200);
+      },
+
+      _search : function() {
+        if( this.current == this.input.value ) {
+          return;
+        }
+
+        this.hide();
+        if( this.input.value === '' ) {
+          this.results = [];
+          return;
+        }
+
+        this.current = this.input.value;
+        $.get('/lookup', {q: this.input.value}, function(resp){
+          this.results = resp;
+
+          if( this.results.length > 0 ) {
+            this.show();
+          }
+        }.bind(this));
+      },
+
+      setValue : function(e) {
+        this.input.value = e.currentTarget.innerHTML;
+        $('#search-btn').trigger('click');
+      }
+    });
+  </script>
+</dom-module>

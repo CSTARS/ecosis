@@ -104,11 +104,31 @@ ESIS.result = (function() {
       content += '</div>';
     }
 
+    var wavelength = '';
+    if( result.ecosis.package_schema.wavelengths && result.ecosis.package_schema.wavelengths.length > 0) {
+      var min = parseFloat(result.ecosis.package_schema.wavelengths[0]);
+      var max = parseFloat(result.ecosis.package_schema.wavelengths[0]);
+      result.ecosis.package_schema.wavelengths.forEach(function(w){
+        w = parseFloat(w);
+        if( min > w ) min = w;
+        if( max < w ) max = w;
+      });
+
+      var units = '';
+      if( result['Wavelength Units'] && result['Wavelength Units'].length > 0 ) {
+        units = result['Wavelength Units'][0];
+      }
+
+      wavelengths = ' <span style="color:#aaa">('+min+units+' - '+max+units+')</span>';
+    }
+
     content += '<div class="row"><div class="col-md-4"><b>Spectra Count</b></div><div class="col-md-8">' +
-        result.ecosis.spectra_count+'</div></div>';
+        result.ecosis.spectra_count+wavelengths+'</div></div>';
 
     // add developer link
-    content += '<div class="row"><div class="col-md-4"><b>API Link</b></div><div class="col-md-8">' +
+    content +=
+      '<div class="row"><div class="col-md-4"><b>Links</b></div><div class="col-md-8">' +
+      '<a href="/#result/'+result.ecosis.package_id+'" target="_blank"><i class="fa fa-link"></i> Dataset Link</a></br />'+
       '<a href="/package/get?package_id='+result.ecosis.package_id+'" target="_blank"><i class="fa fa-link"></i> Dataset API Link</a>'+
       '<br/><a href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a></div></div>';
 

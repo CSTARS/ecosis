@@ -207,11 +207,6 @@ ESIS.search = (function() {
     });
     c++;
 
-    panel.append($('<li><a id="filter-block-title-lookup" style="cursor:pointer;font-weight:bold">Lookup Filter</a></li>'));
-    $("#filter-block-title-lookup").on('click', function(){
-      document.querySelector('filter-lookup').show();
-    });
-    c++;
 
     if( c == 0 ) {
       panel.append($("<div>No filters available for this search</div>"));
@@ -389,9 +384,9 @@ ESIS.search = (function() {
     }
 
     $('#current-search-rest-link').html(
-      '<a href="'+link+'" target="_blank">Search API Link</a> | '+
-      '<a href="http://cstars.github.io/ecosis/" target="_blank">EcoSIS API Documentation</a> | '+
-      '<a href="http://tutorial.ecospectra.org" target="_blank">EcoSIS Tutorials</a>'+
+      '<a href="'+link+'" target="_blank"><i class="fa fa-link"></i> Search API Link</a> | '+
+      '<a href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a> | '+
+      '<a href="http://tutorial.ecospectra.org" target="_blank"><i class="fa fa-question-circle"></i> EcoSIS Tutorials</a>'+
       '<br /> <span style="color:#888;font-size:11px;font-style:italic">'+ decodeURIComponent(link)+'</span>'
     );
   }
