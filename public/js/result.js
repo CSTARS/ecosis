@@ -412,6 +412,9 @@ ESIS.result = (function() {
     return resultTemplate(result);
   }
 
+  if( window.domready ) {
+    init();
+  }
 
   return {
     init : init,

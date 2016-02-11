@@ -455,6 +455,9 @@ ESIS.search = (function() {
     }
   }
 
+  if( window.domready ) {
+    init();
+  }
 
   return {
     init : init

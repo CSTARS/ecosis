@@ -90,7 +90,7 @@ ESIS.home = (function(){
 	}
 
 	function redrawChart() {
-		if( !showing ) return;
+		if( !showing || !spectra ) return;
 
 		dataArray = [];
 

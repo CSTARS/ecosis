@@ -43,11 +43,20 @@ function qs(name, url) {
 			_updatePage(hash[0]);
 		});
 
-		MQE.init({defaultPage:DEFAULT_PAGE});
-		//ESIS.home.init();
-		ESIS.search.init();
-		ESIS.result.init();
+		init();
 	});
+
+	function init() {
+		MQE.init({defaultPage:DEFAULT_PAGE});
+
+		// the polyfill is cause issues with this...
+		window.domready = true;
+
+		if( ESIS.search && ESIS.result ) {
+			ESIS.search.init();
+			ESIS.result.init();
+		}
+	}
 
 	function _updatePage(page) {
 		if( page == cPage ) return;

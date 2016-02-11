@@ -20,7 +20,7 @@
       "node" : "node",
       "db" : {
         "url_old"         : "mongodb://localhost:27017/ecosis",
-        "url"             : "mongodb://192.168.1.12:27017/ecosis",
+        "url"             : "mongodb://192.168.2.138:27017/ecosis",
 
         "mainCollection"  : "search",
         "spectraCollection" : "spectra",
@@ -61,7 +61,7 @@
         "query" : "/package/query"
       },
       "ckan" : {
-        "server" : "http://192.168.1.12:5000",
+        "server" : "http://192.168.2.138:5000",
         "server_old" : "http://data.ecospectra.org",
         "keyFile" : "/etc/node-ckan/ckan-local.json"
       }
