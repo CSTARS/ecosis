@@ -155,6 +155,9 @@ ESIS.home = (function(){
 		onHashChange();
 	}, 500);
 
+	if( window.chartReady ) {
+		chartReady();
+	}
 
 	return {
 		chartReady : chartReady

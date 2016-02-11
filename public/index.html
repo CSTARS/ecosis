@@ -33,7 +33,11 @@
       google.load('visualization', '1', {packages: ['line']});
       google.setOnLoadCallback(function(){
         initchart();
-        ESIS.home.chartReady();
+        if( ESIS.home ) {
+          ESIS.home.chartReady();
+        } else {
+          window.chartReady = true;
+        }
       });
   </script>
 

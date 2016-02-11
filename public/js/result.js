@@ -80,6 +80,8 @@ ESIS.result = (function() {
         '<div class="well"><div class="row"><div class="col-sm-6">'
 
     for( var key in topAttributes ) {
+      if( key === 'Organization' ) continue;
+
       var val;
       if( topAttributes[key].indexOf('ecosis.') > -1 ) {
         val = result.ecosis[topAttributes[key].replace(/ecosis\./,'')];
@@ -95,20 +97,16 @@ ESIS.result = (function() {
       }
 
       content += '<div class="row"><div class="col-md-4"><b>'+key+'</b></div>';
+      content += '<div class="col-md-8">'+val+'</div>';
 
-      if( key === 'Organization' ) {
-        content += '<div class="col-md-8"><span><span>'+val+'</span></span></div>';
-      } else {
-        content += '<div class="col-md-8">'+val+'</div>';
-      }
       content += '</div>';
     }
 
-    var wavelength = '';
-    if( result.ecosis.package_schema.wavelengths && result.ecosis.package_schema.wavelengths.length > 0) {
-      var min = parseFloat(result.ecosis.package_schema.wavelengths[0]);
-      var max = parseFloat(result.ecosis.package_schema.wavelengths[0]);
-      result.ecosis.package_schema.wavelengths.forEach(function(w){
+    var wavelengths = '';
+    if( result.ecosis.spectra_metadata_schema && result.ecosis.spectra_metadata_schema.wavelengths && result.ecosis.spectra_metadata_schema.wavelengths.length > 0) {
+      var min = parseFloat(result.ecosis.spectra_metadata_schema.wavelengths[0]);
+      var max = parseFloat(result.ecosis.spectra_metadata_schema.wavelengths[0]);
+      result.ecosis.spectra_metadata_schema.wavelengths.forEach(function(w){
         w = parseFloat(w);
         if( min > w ) min = w;
         if( max < w ) max = w;
@@ -133,25 +131,6 @@ ESIS.result = (function() {
       '<br/><a href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a></div></div>';
 
 
-    // set min / max wavelength
-    if( result.ecosis.spectra_schema && result.ecosis.spectra_schema.data ) {
-      var min = -1, max = -1, val;
-      var keys = result.ecosis.spectra_schema.data;
-      for( var i = 0; i < keys.length; i++ ) {
-        val = parseFloat(keys[i]);
-        if( isNaN(val) ) continue;
-
-        if( min == -1 ) min = val;
-        if( max == -1 ) max = val;
-        if( min > val ) min = val;
-        if( max < val ) max = val;
-      }
-
-      if( min != -1 && max != -1 ) {
-        content += '<div class="row"><div class="col-md-4"><b>Wavelength Range</b></div><div class="col-md-8">' +
-            min +' - '+ max +'</div></div>';
-      }
-    }
     content += '</div><div class="col-sm-6">';
 
 
@@ -171,11 +150,38 @@ ESIS.result = (function() {
     content += '</ul></div>';
     content += '</div></div></div>';
 
+    // add organization info;
+    if( result.ecosis.organization !== 'None' ) {
+      if( !result.ecosis.organization_info ) {
+        result.ecosis.organization_info = {};
+      }
+      content += '<div><h4 class="page-header">Organization</h4>';
+      content += '<div class="media"><div class="media-left">';
+      if( result.ecosis.organization_info.logo ) {
+        content += '<img class="media-object"  alt="128x128" src="'+result.ecosis.organization_info.logo+'" style="width: 128px;" />';
+      } else {
+        content += '<i class="fa fa-group" style="font-size: 96px"></i>';
+      }
+      content += '</div>';
+      content += '<div class="media-body"><h4 class="media-heading">'+wrapFilterLink('ecosis.organization', result.ecosis.organization)+'</h4>';
+
+      content += result.ecosis.organization_info.description ? result.ecosis.organization_info.description+'<br />' : '';
+      if( result.ecosis.organization_info.members ) {
+        content += '<b>Members:</b> <span style="color:#888">'+result.ecosis.organization_info.members.join(', ')+"</span>";
+      }
+
+      content += '</div></div>';
+
+      content += '</div>';
+    }
+
+
     var hasLocation = result.ecosis.geojson || result.ecosis.spectra_bbox_geojson ? true : false;
 
     // add category metadata
     for( var category in LIB.schema ) {
       if( category == 'Location' && !hasLocation ) continue;
+      if( category === 'Date' ) continue;
 
       var items = LIB.schema[category];
 

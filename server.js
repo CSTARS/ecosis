@@ -46,12 +46,16 @@ options = {
         return {'_id': query._id};
       };
 
-      mqeLib.init({
-          config: mqeConfig,
-          app: app,
-          express: express
-        }, function(){
+      var setup = {
+        config: mqeConfig,
+        app: app,
+        express: express
+      };
+      require('./lib/appendOrgInfo')(setup);
+
+      mqeLib.init(setup, function(){
           var setup = mqeLib.getSetup();
+
           logger = setup.logger;
 
           setup.static = staticRoot;
