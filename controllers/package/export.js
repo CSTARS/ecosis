@@ -21,7 +21,7 @@ module.exports = function(model, req, res) {
    */
   model.export(pkgid, filters, includeMetadata, function(err, result){
     res.set('Content-Disposition', 'attachment; filename="'+result.packageName+'.csv"');
-    
+
     csvStringify([result.headers], function(err, output){
       res.write(output);
     });

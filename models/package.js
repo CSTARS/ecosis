@@ -51,8 +51,8 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
           }
 
           // get all the 'data'
-          data = pkg.ecosis.package_schema.wavelengths;
-          metadata = pkg.ecosis.package_schema.metadata;
+          data = pkg.ecosis.spectra_metadata_schema.wavelengths;
+          metadata = pkg.ecosis.spectra_metadata_schema.metadata;
 
           // sort metadat by names
           if( includeMetadata ) {
