@@ -86,7 +86,7 @@
         "Transflectance",
         "Transmittance"
       ],
-      "description": "",
+      "description": "Scale for spectral instensity (e.g. DN, radiance, irradiance, reflectance)",
       "allowOther": true
     },
     {
@@ -102,17 +102,24 @@
     {
       "name": "Measurement Units",
       "level": 2,
-      "input": "text",
+      "input": "controlled-single",
       "units": "",
       "spectraLevel": true,
-      "vocabulary": null,
-      "description": "Scale for spectral instensity (e.g. DN, radiance, irradiance, reflectance)",
+      "vocabulary": [
+        "%",
+        "W/m^2",
+        "W/m^2/Hz",
+        "W/m^2/nm",
+        "W/m^2/um",
+        "W/sr/m^2"
+      ],
+      "description": "Measuremnt units",
       "allowOther": false
     },
     {
       "name": "Wavelength Units",
       "level": 2,
-      "input": "controlled",
+      "input": "controlled-single",
       "units": "",
       "spectraLevel": true,
       "vocabulary": [
@@ -122,7 +129,7 @@
         "um"
       ],
       "description": "Wavelength units (e.g. nm, um, Hz)",
-      "allowOther": false
+      "allowOther": true
     },
     {
       "name": "Target Status",
@@ -177,6 +184,7 @@
       "spectraLevel": true,
       "vocabulary": [
         "Bare Fiber",
+        "Contact Probe",
         "Cosine Diffuser",
         "Foreoptic",
         "Gershon Tube",
@@ -220,7 +228,7 @@
         "No",
         "Yes"
       ],
-      "description": "Is the measurement an average of other measurements?",
+      "description": "Is the measurement an average of multiple measurements?",
       "allowOther": false
     },
     {
@@ -246,7 +254,7 @@
         "No",
         "Yes"
       ],
-      "description": "Is the measurement resampled?",
+      "description": "Is the measurement resampled? (e.g. are multiple wavelengths averaged?)",
       "allowOther": false
     },
     {
