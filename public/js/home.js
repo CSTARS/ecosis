@@ -23,6 +23,7 @@ ESIS.home = (function(){
 	var hash = null;
 	var showing = false;
 	var timeoutId = -1;
+	var first = true;
 
 	function chartReady() {
 		chartIsLoaded = true;
@@ -30,6 +31,15 @@ ESIS.home = (function(){
 	}
 
 	function onHashChange() {
+		if( first ) {
+			first = false;
+			$.get('/spectra/count', function(resp){
+				var count = resp.count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+				$('#home-total-count').text(''+count+' spectra and counting.');
+			});
+		}
+
 		hash = window.location.hash.replace(/#/g, '');
 
 		if( hash == '' || hash == 'home' ) {
