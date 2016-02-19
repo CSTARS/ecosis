@@ -275,13 +275,17 @@ ESIS.search = (function() {
   }
 
   function _updateResultsTitle(results) {
-    var end = results.end;
+    var end = results.stop;
     if( results.total < end ) end = results.total;
 
     var start = parseInt(results.start)+1;
     if( end == 0 ) start = 0;
 
-
+    console.log({
+      start : start,
+      end   : end,
+      total : results.total
+    })
     $("#results-title").html(titleTemplate({
       start : start,
       end   : end,

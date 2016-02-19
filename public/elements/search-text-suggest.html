@@ -13,7 +13,7 @@
 
     <template is="dom-repeat" items="{{results}}">
       <div style="padding: 5px">
-        <a style="cursor:pointer; margin-right: 50px" on-click="setValue">{{item.value}}</a>
+        <a style="cursor:pointer; margin-right: 50px" on-click="setValue" key$="{{item.key}}">{{item.value}}</a>
         <span class="label label-default pull-right">{{item.key}}</span>
       </div>
     </template>
@@ -82,8 +82,15 @@
       },
 
       setValue : function(e) {
-        this.input.value = e.currentTarget.innerHTML;
-        $('#search-btn').trigger('click');
+        var key = e.currentTarget.getAttribute('key');
+        var value = e.currentTarget.innerHTML;
+        var f = {};
+        f[key] = value;
+
+        var query = MQE.getCurrentQuery();
+        query.filters.push(f);
+
+        window.location = MQE.queryToUrlString(query);
       }
     });
   </script>
