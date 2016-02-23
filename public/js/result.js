@@ -228,7 +228,7 @@ ESIS.result = (function() {
     }
 
     if( result.ecosis.linked_data && result.ecosis.linked_data.length > 0 ) {
-      content += '<h4 class="page-header" style="margin-left: 5px; margin-bottom: 0">Linked Data</h4>'+
+      content += '<h4 class="page-header" style="margin-left: 5px; margin-bottom: 0">Linked Resources</h4>'+
         '<div class="well" style="margin:0"><ul class="list-group">';
 
       for( var i = 0; i < result.ecosis.linked_data.length; i++ ) {
