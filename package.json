@@ -1,7 +1,7 @@
 {
-  "name": "kraken-ecosis-search",
+  "name": "ecosis-search",
   "version": "0.1.0",
-  "description": "Kraken EcoSIS search",
+  "description": "EcoSIS Search",
   "author": "jrmerz",
   "main": "index.js",
   "scripts": {

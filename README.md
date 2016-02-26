@@ -1,4 +1,7 @@
-kraken-ecosis-search
+EcoSIS Spectral Library
 ===========
 
-Kraken EcoSIS search
+Main search application.
+
+[http://ecospectra.org](Production)
+[http://dev-search.ecospectra.org](Dev)
