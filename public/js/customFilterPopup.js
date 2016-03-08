@@ -33,8 +33,8 @@ ESIS.customFiltersPopup = (function() {
         var dataField = {}, metadataField = {}, exists = {};
         var field = parts[i].replace(/\^/, '').trim();
 
-        dataField['value.ecosis.spectra_schema.data'] = field;
-        metadataField['value.ecosis.spectra_schema.metadata'] = field;
+        dataField['value.ecosis.spectra_metadata_schema.data'] = field;
+        metadataField['value.ecosis.spectra_metadata_schema.metadata'] = field;
 
         exists['value.'+field] = {'$exists' : true};
 
@@ -49,7 +49,7 @@ ESIS.customFiltersPopup = (function() {
       } else if( parts[i].indexOf('=') > -1 ) {
         var p = parts[i].split('='), f;
         var field = p[0].trim();
-        var value = p[1].trim();
+        var value = p[1].trim().toLowerCase();
 
         var f = {};
         f[field] = value;

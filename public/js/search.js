@@ -130,7 +130,16 @@ ESIS.search = (function() {
         });
 
       } else {
-        panel.append($('<a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0;text-transform:none" class="btn btn-primary btn-sm"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
+        var label = key;
+        if( key.match('\.') ) {
+          label = key.split('.').pop();
+        }
+
+        panel.append(
+          $('<a href="' +
+            MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"') +
+            '" style="margin:0 5px 5px 0;text-transform:none" class="btn btn-primary btn-sm">'+
+            '<i class="fa fa-times" style="color:white"></i> <span style="text-transform:capitalize">'+label+'</span>: '+f+'</a>'))
       }
 
     }
