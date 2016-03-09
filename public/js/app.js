@@ -82,6 +82,17 @@ function qs(name, url) {
 
 ESIS.labels = {};
 
+ESIS.isMapFilter = function(filter) {
+	if( !filter.$or ) return false;
+	if( filter.$or.length === 0 ) return false;
+
+	var item = filter.$or[0];
+	if( item['ecosis.geojson'] || item['ecosis.spectra_bbox_geojson'] ) {
+		return true;
+	}
+	return false;
+};
+
 ESIS.labels.filters = {
 	"groups" : "Group",
 	"package_title" : "Dataset",

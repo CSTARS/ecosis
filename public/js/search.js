@@ -290,11 +290,6 @@ ESIS.search = (function() {
     var start = parseInt(results.start)+1;
     if( end == 0 ) start = 0;
 
-    console.log({
-      start : start,
-      end   : end,
-      total : results.total
-    })
     $("#results-title").html(titleTemplate({
       start : start,
       end   : end,

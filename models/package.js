@@ -24,7 +24,7 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
       return callback('Failed to parse filters parameter as JSON');
     }
 
-    var pkg, response, sort, i, data, metadata;
+    var pkg, response, sort, i, data, metadata, units;
 
     collection.findOne(
         { '$or': [{'value.ecosis.package_id': pkgid}, {'value.ecosis.package_name': pkgid}]},
@@ -53,6 +53,7 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
           // get all the 'data'
           data = pkg.ecosis.spectra_metadata_schema.wavelengths;
           metadata = pkg.ecosis.spectra_metadata_schema.metadata;
+          units = pkg.ecosis.spectra_metadata_schema.units;
 
           // sort metadat by names
           if( includeMetadata ) {
@@ -94,7 +95,14 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
 
           // write headers
           if( includeMetadata && metadata.length > 1 ) {
-            response.headers = metadata;
+            response.headers = [];
+            metadata.forEach(function(header){
+              if( units[header] ) {
+                response.headers.push(header+' ('+units[header]+')');
+              } else {
+                response.headers.push(header);
+              }
+            });
           }
           response.headers = response.headers.concat(data);
 

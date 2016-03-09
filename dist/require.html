@@ -27913,6 +27913,17 @@ function qs(name, url) {
 
 ESIS.labels = {};
 
+ESIS.isMapFilter = function(filter) {
+	if( !filter.$or ) return false;
+	if( filter.$or.length === 0 ) return false;
+
+	var item = filter.$or[0];
+	if( item['ecosis.geojson'] || item['ecosis.spectra_bbox_geojson'] ) {
+		return true;
+	}
+	return false;
+};
+
 ESIS.labels.filters = {
 	"groups" : "Group",
 	"package_title" : "Dataset",
@@ -28062,7 +28073,16 @@ ESIS.search = (function() {
         });
 
       } else {
-        panel.append($('<a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'" style="margin:0 5px 5px 0;text-transform:none" class="btn btn-primary btn-sm"><i class="fa fa-times" style="color:white"></i> '+f+'</a>'))
+        var label = key;
+        if( key.match('\.') ) {
+          label = key.split('.').pop();
+        }
+
+        panel.append(
+          $('<a href="' +
+            MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"') +
+            '" style="margin:0 5px 5px 0;text-transform:none" class="btn btn-primary btn-sm">'+
+            '<i class="fa fa-times" style="color:white"></i> <span style="text-transform:capitalize">'+label+'</span>: '+f+'</a>'))
       }
 
     }
@@ -28213,11 +28233,6 @@ ESIS.search = (function() {
     var start = parseInt(results.start)+1;
     if( end == 0 ) start = 0;
 
-    console.log({
-      start : start,
-      end   : end,
-      total : results.total
-    })
     $("#results-title").html(titleTemplate({
       start : start,
       end   : end,
@@ -29321,8 +29336,8 @@ ESIS.search = (function() {
         var dataField = {}, metadataField = {}, exists = {};
         var field = parts[i].replace(/\^/, '').trim();
 
-        dataField['value.ecosis.spectra_schema.data'] = field;
-        metadataField['value.ecosis.spectra_schema.metadata'] = field;
+        dataField['value.ecosis.spectra_metadata_schema.data'] = field;
+        metadataField['value.ecosis.spectra_metadata_schema.metadata'] = field;
 
         exists['value.'+field] = {'$exists' : true};
 
@@ -29337,7 +29352,7 @@ ESIS.search = (function() {
       } else if( parts[i].indexOf('=') > -1 ) {
         var p = parts[i].split('='), f;
         var field = p[0].trim();
-        var value = p[1].trim();
+        var value = p[1].trim().toLowerCase();
 
         var f = {};
         f[field] = value;
@@ -36945,10 +36960,18 @@ this.fire('dom-change');
     },
 
     updateAttributes : function() {
+      var units = this.packageData.ecosis.spectra_metadata_schema.units || {};
+
       var table = '<h4>Metadata</h4><table class="table">';
       for( var attr in this.item) {
         if( attr == 'ecosis' || attr == '_id' || attr == 'datapoints' ) continue;
-        table += '<tr><td>'+attr+'</td><td>'+this.item[attr]+'</td></tr>';
+
+        var unitLabel = '';
+        if( units[attr] ) {
+          unitLabel = ' <span style="color:#888;font-size:80%">('+units[attr]+')</span>';
+        }
+
+        table += '<tr><td><b>'+attr+'</b>'+unitLabel+'</td><td>'+this.item[attr]+'</td></tr>';
       }
       this.$.attributes.innerHTML = table;
     },

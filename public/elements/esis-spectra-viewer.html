@@ -303,10 +303,18 @@
     },
 
     updateAttributes : function() {
+      var units = this.packageData.ecosis.spectra_metadata_schema.units || {};
+
       var table = '<h4>Metadata</h4><table class="table">';
       for( var attr in this.item) {
         if( attr == 'ecosis' || attr == '_id' || attr == 'datapoints' ) continue;
-        table += '<tr><td>'+attr+'</td><td>'+this.item[attr]+'</td></tr>';
+
+        var unitLabel = '';
+        if( units[attr] ) {
+          unitLabel = ' <span style="color:#888;font-size:80%">('+units[attr]+')</span>';
+        }
+
+        table += '<tr><td><b>'+attr+'</b>'+unitLabel+'</td><td>'+this.item[attr]+'</td></tr>';
       }
       this.$.attributes.innerHTML = table;
     },
