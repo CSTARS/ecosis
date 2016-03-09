@@ -3,8 +3,8 @@ var ESIS = {
 	ckanHost : ''
 };
 
-if( window.location.host == 'ecospectra.org' ) {
-	ESIS.ckanHost = 'http://data.ecospectra.org';
+if( window.location.host == 'ecosis.org' ) {
+	ESIS.ckanHost = 'http://data.ecosis.org';
 } else if ( window.location.host == 'dev-search.ecospectra.org' ) {
 	ESIS.ckanHost = 'http://dev-data.ecospectra.org';
 } else {
