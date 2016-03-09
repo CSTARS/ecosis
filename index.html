@@ -31,7 +31,7 @@
 
 
         <ul>
-          <li><a href="http://ecospectra.org">EcoSIS <strong>Search</strong></a></li>
+          <li><a href="http://ecosis.org">EcoSIS <strong>Search</strong></a></li>
           <li><a href="http://dev-search.ecospectra.org">EcoSIS <strong>Dev Search</strong></a></li>
           <li><a href="https://github.com/CSTARS/esis">View On <strong>GitHub</strong></a></li>
         </ul>
@@ -92,7 +92,7 @@
 
 <p>A Sample API call would look like this:</p>
 
-<pre><code>curl http://ecospectra.org/rest/query?text=&filters=[]&start=0&end=6</code></pre>
+<pre><code>curl http://ecosis.org/rest/query?text=&filters=[]&start=0&end=6</code></pre>
 
 <p>This would return return the first six datasets in ecosis.</p>
 
@@ -101,7 +101,7 @@
 <p>There are two root urls for EcoSIS, one for production and one for the developer sandbox:</p>
 
 <ul>
-  <li><b>http://ecospectra.org</b> - Production</li>
+  <li><b>http://ecosis.org</b> - Production</li>
   <li><b>http://dev-search.ecospectra.org</b> - Developer Sandbox</li>
 </ul>
 
@@ -125,11 +125,14 @@
 </ul>
 
 <h5>text</h5>
-<p>The <b>text</b> parameter is exactly the same as entering text into the search text box at <a href="http://ecospectra.org" target="_blank">EcoSIS Search</a>.  You can enter any free text you wish for this field or you can leave it blank.</p>
+<p>The <b>text</b> parameter is exactly the same as entering text into the search text box at <a href="http://ecosis.org" target="_blank">EcoSIS Search</a>.  You can enter any free text you wish for this field or you can leave it blank.</p>
 
 <h5 id="find-dataset-filters">filters</h5>
 
-<p>The <b>filters</b> parameter is the heart of the EcoSIS API.  The filters parameters is also the most complex.  At it's core, the filter parameter is a JSON array of objects.  These JSON objects can be any <a href="http://docs.mongodb.org/manual/tutorial/query-documents/#specify-equality-condition" target="_blank">MongoDB query</a>.  The array of query objects will then be <b>logic and</b> together.  Don't worry, you don't need to learn the entire MongoDB query document (though you can if you want), learning the simple attribute match will allow you to make 90% of the queries the <a href="http://ecospectra.org" target="_blank">EcoSIS Search</a> does.  A attribute match object looks like:</p>
+<p>The <b>filters</b> parameter is the heart of the EcoSIS API.  The filters parameters is also the most complex.  At it's core, the filter parameter is a JSON array of objects.
+  These JSON objects can be any <a href="http://docs.mongodb.org/manual/tutorial/query-documents/#specify-equality-condition" target="_blank">MongoDB query</a>.  The array of
+  query objects will then be <b>logic and</b> together.  Don't worry, you don't need to learn the entire MongoDB query document (though you can if you want), learning the
+  simple attribute match will allow you to make 90% of the queries the <a href="http://ecosis.org" target="_blank">EcoSIS Search</a> does.  A attribute match object looks like:</p>
 
 <pre><code>[{
   Category: "Dicot"
@@ -159,7 +162,7 @@ query = JSON.stringify(query);
 // escape for url component
 query = encodeURIComponent(query);
 
-var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</code></pre>
+var restUrl = 'http://ecosis.org?text=&filter='+query+'&start=0&stop=6';</code></pre>
 
 <h5>start</h5>
 
@@ -171,7 +174,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <h4 id="find-dataset-examples">Dataset Search: Examples</h4>
 
-<p>EcoSIS Dataset Search examples are easy to find.  Simply go to <a href="http://ecospectra.org">EcoSIS Search</a> and perform a query.  At the very bottom of the page you will see a 'Rest Link' anchor tag and under it, the actual textual representation of the link (not escaped).  You can click the link to see the raw JSON response feed.  The EcoSIS API is not just an addition to help third party developers, it powers EcoSIS itself.  So anything the search interface is doing, you can do.  And many of the API calls used to perform the action (such as search for a dataset) are respresented in the search interface.</p>
+<p>EcoSIS Dataset Search examples are easy to find.  Simply go to <a href="http://ecosis.org">EcoSIS Search</a> and perform a query.  At the very bottom of the page you will see a 'Rest Link' anchor tag and under it, the actual textual representation of the link (not escaped).  You can click the link to see the raw JSON response feed.  The EcoSIS API is not just an addition to help third party developers, it powers EcoSIS itself.  So anything the search interface is doing, you can do.  And many of the API calls used to perform the action (such as search for a dataset) are respresented in the search interface.</p>
 
 <h4 id="find-dataset-response">Dataset Search: Response</h4>
 
@@ -225,7 +228,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <h4>Get Dataset: Example</h4>
 
-<pre><code>curl http://ecospectra.org/rest/get?_id=[dataset ID here]</code></pre>
+<pre><code>curl http://ecosis.org/rest/get?_id=[dataset ID here]</code></pre>
 
 <h4>Get Dataset: Response</h4>
 
@@ -247,7 +250,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <h4>Get Spectra: Example</h4>
 
-<pre><code>curl http://ecospectra.org/rest/getSpectra?package_id=[dataset ID here]&start=0&stop=2&filters=[Array of filters]</code></pre>
+<pre><code>curl http://ecosis.org/rest/getSpectra?package_id=[dataset ID here]&start=0&stop=2&filters=[Array of filters]</code></pre>
 
 <h4 id="get-spectra-parameters">Get Spectra: Parameters</h4>
 
@@ -317,7 +320,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <h4>Get Spectra Stats: Example</h4>
 
-<pre><code>curl http://ecospectra.org/rest/getSpectraStats?package_id=[dataset ID here]</code></pre>
+<pre><code>curl http://ecosis.org/rest/getSpectraStats?package_id=[dataset ID here]</code></pre>
 
 <h4 id="get-spectra-stats-parameters">Get Spectra Stats: Parameters</h4>
 
@@ -366,7 +369,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <h4>Get Data In Series: Example</h4>
 
-<pre><code>curl http://ecospectra.org/rest/getDataInSeries?package_id=[dataset ID here]&attribute=NDVI</code></pre>
+<pre><code>curl http://ecosis.org/rest/getDataInSeries?package_id=[dataset ID here]&attribute=NDVI</code></pre>
 
 <h4 id="get-data-in-series-parameters">Get Data In Series: Parameters</h4>
 
@@ -441,7 +444,7 @@ var restUrl = 'http://ecospectra.org?text=&filter='+query+'&start=0&stop=6';</co
 
 <h4>Download Spectra: Example</h4>
 
-<pre><code>curl http://ecospectra.org/rest/download?package_id=[dataset ID here]&metadata=false</code></pre>
+<pre><code>curl http://ecosis.org/rest/download?package_id=[dataset ID here]&metadata=false</code></pre>
 
 
 
