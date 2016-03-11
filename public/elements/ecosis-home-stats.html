@@ -1,0 +1,117 @@
+<dom-module id="ecosis-home-stats">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <div class="jumbotron" style="text-align:center;background-color: white;padding: 100px 0;border-bottom: 1px solid #eee">
+      <p>Welcome to the EcoSIS Spectral Library<span class="sandbox" style="font-weight:bold">&nbsp;Sandbox</span>, a useful tool for finding spectral data. <br />
+        <p id="count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
+      </p>
+
+      <p><a href="/#search" class="btn btn-primary btn-lg" role="button"><i class="fa fa-search"></i>  Find Spectra</a></p>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-4">
+          <h4>Top Organizations</h4>
+          <div id="organization"></div>
+        </div>
+        <div class="col-sm-4">
+          <h4>Top Keywords</h4>
+          <div id="Keywords"></div>
+        </div>
+        <div class="col-sm-4">
+          <h4>Top Themes</h4>
+          <div id="Theme"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="border-bottom:1px solid #eee"></div>
+
+    <div class="container">
+      <h4>Recently Added</h4>
+      <div id="added"></div>
+    </div>
+
+
+  </template>
+  <script>
+    Polymer({
+      is: 'ecosis-home-stats',
+
+      ready : function() {
+        this.stats = {};
+        this.top = ['ecosis.organization', 'Keywords', 'Theme'];
+        $.get('/stats/home', this.onStatsLoad.bind(this));
+      },
+
+      onStatsLoad : function(stats) {
+        this.stats = stats;
+
+        this.$.count.innerHTML = stats.spectraCount;
+
+        this.top.forEach(function(filter){
+          this.createList(filter);
+        }.bind(this));
+
+        var html = '';
+        stats.lastAdded.forEach(function(pkg){
+          html += '<div class="card"><h4><a href="/#result/'+pkg.ecosis.package_id+'">'+pkg.ecosis.package_title+'</a>';
+          html += '<small class="pull-right">Created: '+new Date(pkg.ecosis.created).toLocaleDateString()+'</small></h4>';
+          html += '<a href="/'+this.createFilter('ecosis.organization', pkg.ecosis.organization)+'">'+pkg.ecosis.organization+'</a>';
+          html += '<div class="help-block">'+pkg.ecosis.description+'</div>';
+          if( pkg.Theme ) {
+            var themes = pkg.Theme.map(function(t){
+              return this.createFilterLink('Theme', t);
+            }.bind(this));
+            html += '<div>Themes: '+themes.join(', ')+'</div>';
+          }
+          if( pkg.Keywords ) {
+            var keywords = pkg.Keywords.map(function(k){
+              return this.createFilterLink('Keywords', k);
+            }.bind(this));
+            html += '<div>Keywords: '+keywords.join(', ')+'</div>';
+          }
+          html += '</div>';
+        }.bind(this));
+
+        this.$.added.innerHTML = html;
+      },
+
+      createList : function(filter){
+        var html = '<ul class="list-group">';
+        var list = this.stats[filter];
+        var f, hash;
+
+        list.forEach(function(item){
+          html += '<li class="list-group-item">'+
+              '<a href="/'+this.createFilter(filter, item.value)+'">'+item.value+'</a> '+
+              '<span class="badge">'+item.count+'</span>'+
+            '</li>';
+        }.bind(this));
+
+        this.$[filter.replace(/.*\./,'')].innerHTML = html+'</ul>';
+      },
+
+      createFilterLink : function(key, value) {
+        return '<a href="#/"'+this.createFilter(key, value)+'>'+value+'</a>';
+      },
+
+      createFilter : function(key, value) {
+        var f = {};
+        f[key] = value;
+        var q = MQE.getDefaultQuery();
+        q.filters = [f];
+        return MQE.queryToUrlString(q);
+      }
+
+
+
+    });
+  </script>
+</dom-module>

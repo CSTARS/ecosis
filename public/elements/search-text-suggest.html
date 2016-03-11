@@ -14,7 +14,7 @@
     <template is="dom-repeat" items="{{results}}">
       <div style="padding: 5px">
         <a style="cursor:pointer; margin-right: 50px" on-click="setValue" key$="{{item.key}}">{{item.value}}</a>
-        <span class="label label-default pull-right">{{item.key}}</span>
+        <span class="label label-default pull-right">{{item.label}}</span>
       </div>
     </template>
 
@@ -73,7 +73,10 @@
 
         this.current = this.input.value;
         $.get('/lookup', {q: this.input.value}, function(resp){
-          this.results = resp;
+          this.results = resp.map(function(result){
+            result.label = result.key.replace(/.*\./, '');
+            return result;
+          });
 
           if( this.results.length > 0 ) {
             this.show();

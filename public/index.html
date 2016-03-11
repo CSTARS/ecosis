@@ -33,11 +33,7 @@
       google.load('visualization', '1', {packages: ['line']});
       google.setOnLoadCallback(function(){
         initchart();
-        if( ESIS.home ) {
-          ESIS.home.chartReady();
-        } else {
-          window.chartReady = true;
-        }
+        window.chartReady = true;
       });
   </script>
 
@@ -68,23 +64,7 @@
 <div id="home" style="display:none;">
   <div class="splash"></div>
 
-  <div class="jumbotron" style="text-align:center;background-color: white;padding: 100px 0;border-bottom: 1px solid #eee">
-    <p>Welcome to the EcoSIS Spectral Library<span class="sandbox" style="font-weight:bold">&nbsp;Sandbox</span>, a useful tool for finding spectral data. <br />
-      <p id="home-total-count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
-    </p>
-
-    <p><a href="/#search" class="btn btn-primary btn-lg" role="button"><i class="fa fa-search"></i>  Find Spectra</a></p>
-  </div>
-
-
-  <div id="random" style="padding: 0 5%;">
-    <div id="random-title" style="font-size: 26px"></div>
-
-    <span id="random-common-name"  style="font-size: 16px" ></span>
-    <span id="random-genus" style="font-size: 16px" ></span>
-    <span id="random-species" style="font-size: 16px" ></span>
-    <div id="random-chart" style="margin-top: 50px"></div>
-  </div>
+  <ecosis-home-stats></ecosis-home-stats>
 
   <div style="margin-top:30px; text-align:center; border-top: 1px solid #eee; padding: 25px 5%">
     Data maintainers, <a id="mainainerLink" href="http://data.ecosis.org">Enter Here</a> |
