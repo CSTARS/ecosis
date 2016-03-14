@@ -260,11 +260,14 @@ ESIS.search = (function() {
 
     var panel = $("#search-paging-btns");
     panel.html("");
+    var bpanel = $("#search-paging-btns-bottom");
+    bpanel.html("");
 
     // add back button
     if( cPage != 0 ) {
       tmpQuery.page = cPage-1;
       panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
+      bpanel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
     }
 
     for( var i = startBtn; i < endBtn; i++ ) {
@@ -273,12 +276,17 @@ ESIS.search = (function() {
       var btn = $('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">'+label+'</a></li>');
       if( cPage == i ) btn.addClass('active');
       panel.append(btn);
+
+      btn = $('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">'+label+'</a></li>');
+      if( cPage == i ) btn.addClass('active');
+      bpanel.append(btn);
     }
 
     // add next button
     if(  cPage != numPages-1 && numPages != 0 ) {
       tmpQuery.page = cPage+1;
       panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
+      bpanel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
     }
 
   }
