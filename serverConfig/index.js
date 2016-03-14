@@ -24,7 +24,7 @@ module.exports = {
         // currently Mongo only allows the creation of text search on one attribute.  MQE will
         // combine all filters listed below into a single attribute that will be used for
         // the text search index
-        textIndexes  : ['ecosis.package_title','ecosis.package_description','ecosis.package_organization','Keywords', 'Theme', 'Ecosystem Type',
+        textIndexes  : ['ecosis.package_title','ecosis.organization','Keywords', 'Theme', 'Ecosystem Type',
                 'Target Type', 'ecosis.description', 'Measurement Quantity', 'Acquisition Method',
                 'Light Source', 'Target Status', 'Instrument Manufacturer', 'Instrument Model', 'Common Name',
                 'Latin Genus', 'Latin Species', 'USDA Symbol', 'Vegetation Type', 'Citation',
