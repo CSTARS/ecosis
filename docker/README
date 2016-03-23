@@ -1,0 +1,9 @@
+# EcoSIS Docker Setup
+
+EcoSIS will be split into three docker containers.
+
+1) CKAN w/ EcoSIS extension
+  - includes Postgres, Solr
+2) EcoSIS Search
+  - ExpressJS
+3) MongoDB

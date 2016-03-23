@@ -1,0 +1,30 @@
+This is for the ecosis/ckan-base docker image setup.
+
+First run docker build
+```
+docker build -t ecosis/ckan-base:[version] .
+```
+
+But you are not done.  Then
+```
+# tail cmd keeps docker alive while you install
+docker run -d --name=ckan ecosis/ckan-base:[version] tail -f /dev/null
+docker exec -ti [container name] bash
+```
+
+And and preform the following edits:
+
+Edit /etc/ckan/default/development.ini
+- update pg connection: sqlalchemy.url = postgresql://ckan_default:ckan_default@localhost/ckan_default"
+- update solr connection: solr_url=http://127.0.0.1:8983/solr/ckan
+
+
+Then run
+```
+./ckan_install_p2.sh
+```
+
+If all is well, this should work:
+```
+/run.sh
+```
