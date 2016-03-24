@@ -1,11 +1,10 @@
-#!/bin/bash
-set -eu
+#! /bin/bash
 
 pidfile=/var/run/solr.pid
 
 pid=`less $pidfile`
 if [ "$pid" != "" ]; then
-  kill $pid
+  kill $pid || echo 'solr not running.'
 fi
 
 # Start Solr

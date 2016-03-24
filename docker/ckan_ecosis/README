@@ -2,5 +2,5 @@ This is for the ecosis/ckan-ecosis docker image setup.
 
 Run docker build
 ```
-docker build -t ecosis/ckan-ecosis:[version] .
+docker build --build-arg branch=dev -t ecosis/ckan-ecosis:[version] .
 ```
