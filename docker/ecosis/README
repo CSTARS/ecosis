@@ -1,0 +1,5 @@
+Build
+
+```
+docker build --build-arg branch=dev -t ecosis/ecosis-base:[version] .
+```

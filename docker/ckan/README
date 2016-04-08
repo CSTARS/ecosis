@@ -9,7 +9,12 @@ But you are not done.  Then
 ```
 # tail cmd keeps docker alive while you install
 docker run -d --name=ckan ecosis/ckan-base:[version] tail -f /dev/null
-docker exec -ti [container name] bash
+docker exec -ti ckan bash
+```
+
+Once on the machine run.
+```
+./ckan_install.sh
 ```
 
 And and preform the following edits:
@@ -27,4 +32,9 @@ Then run
 If all is well, this should work:
 ```
 /run.sh
+```
+
+Commit final product
+```
+docker commit [container id] ecosis/ckan-base:[version]
 ```

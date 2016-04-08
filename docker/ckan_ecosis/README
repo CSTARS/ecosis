@@ -4,3 +4,14 @@ Run docker build
 ```
 docker build --build-arg branch=dev -t ecosis/ckan-ecosis:[version] .
 ```
+
+Run w/ port mapping and volumes
+```
+docker run -p 5000:5000 -v [/local/data/volume]:/data --link mongo:mongo -d --name=ecosis-ckan ecosis/ckan-ecosis:[version]
+```
+
+## Data Volume
+
+The data volume should have the following format:
+- data
+  /

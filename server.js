@@ -46,6 +46,12 @@ options = {
         return {'_id': query._id};
       };
 
+      if( config.get('docker') ) {
+        url = 'mongodb://'+process.env.MONGO_PORT_27017_TCP_ADDR+':27017/'+config.get('mongo').database;
+      } else {
+        url = config.get('mongo').url+config.get('mongo').database;
+      }
+
       var setup = {
         config: mqeConfig,
         app: app,

@@ -1,23 +1,18 @@
 #! /bin/bash
 
-apt-get update
-apt-get install git
-
 version=$1
 
-if [ $version != "dev" ] && [ $version != "master" ]; then
+if [[ $version != "dev" ]] && [[ $version != "master" ]]; then
   echo "invalid version: $version"
   exit
 fi
 
-if [ $version != "prod" ]; then
-  $version = ""
+if [[ $version == "master" ]]; then
+  version=""
 else
-  $version = "@$version"
+  version="-b $version"
 fi
 
-echo "Installing EcoSIS CKAN plugin"
-cd /ckan
+git clone $version https://github.com/CSTARS/ecosis.git
 
-githuburl="git+https://github.com/CSTARS/ckanext-ecosis.git$version#egg=ecosis"
-pip install -e $githuburl
+cd ecosis && npm install --production

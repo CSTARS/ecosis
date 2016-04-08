@@ -1,6 +1,7 @@
 #! /bin/bash
 
-service postgresql start
+PGDATA=/data/postgresql/9.4/main
+service postgresql restart
 
 cd / && /run_solr.sh
 

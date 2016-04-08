@@ -10,6 +10,6 @@ fi
 # Start Solr
 echo "Starting Solr..."
 cd /opt/solr/example
-java -jar start.jar >>/var/log/solr/solr.out 2>&1 &
+java -Dsolr.solr.home=/data/solr -jar start.jar >>/var/log/solr/solr.out 2>&1 &
 
 echo $! > $pidfile
