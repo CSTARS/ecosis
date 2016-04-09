@@ -1,0 +1,71 @@
+<dom-module id="results-panel-header">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <div class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+       <div class="navbar-header" style="width:100%;margin:0px">
+         <a on-click="back" class="navbar-brand visible-xs-inline-block"  style="font-size: 14px; cursor: pointer" >
+          <i class="fa fa-search"></i> Back to Search
+         </a>
+
+         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#ecosis-header-collapse">
+           <span class="sr-only">Toggle navigation</span>
+           <span class="icon-bar"></span>
+           <span class="icon-bar"></span>
+           <span class="icon-bar"></span>
+         </button>
+        </div>
+
+        <div class="collapse navbar-collapse" id="ecosis-header-collapse">
+
+          <ul class="nav navbar-nav">
+            <li>
+              <a goto="package" on-click="goto" style="cursor:pointer"><i class="fa fa-info-circle"></i> Dataset Information</a>
+            </li>
+            <li>
+              <a goto="chart" on-click="goto" style="cursor:pointer"><i class="fa fa-area-chart"></i> Data Viewer</a>
+            </li>
+            <li>
+              <a goto="download" on-click="goto" style="cursor:pointer"><i class="fa fa-download"></i> Download</a>
+            </li>
+
+            <li class="dropdown" id="resourcesDropdown" style="display:none">
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a on-click="back" style="cursor:pointer" >
+               <i class="fa fa-search"></i> Back to Search
+             </a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'results-panel-header',
+
+      goto : function(e) {
+        var heading = $(e.currentTarget).attr('goto');
+        if( !heading || heading == '' ) return;
+        this.fire('change', heading);
+      },
+
+      back : function() {
+        if( window.prerender && qs('result') ) {
+          return window.location = '/#search';
+        }
+        $(window).trigger("back-to-search-event");
+      }
+    });
+  </script>
+</dom-module>

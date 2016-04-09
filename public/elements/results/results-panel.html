@@ -1,0 +1,480 @@
+<link rel="import" href="data-downloader.html" />
+<link rel="import" href="spectra-viewer.html" />
+<link rel="import" href="results-panel-header.html" />
+<link rel="import" href="help-popover.html" />
+
+<dom-module id="results-panel">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      .elabel {
+        font-weight: bold;
+      }
+    </style>
+
+    <results-panel-header on-change="setPanel"></results-panel-header>
+
+    <div id="dataset-content" class="well" style="display:none">
+      <i class="fa fa-spinner fa-spin"></i> Loading...
+    </div>
+
+    <div class="container" style="margin-top: 90px" itemtype="http://schema.org/Dataset" >
+
+      <div id="package">
+        <h3 class="page-header" >
+          <i class="fa fa-info-circle"></i>
+          <span itemprop="name">{{result.ecosis.package_title}}</span>
+          <small class="pull-right"><a id="dsLink" target="_blank"><i class="fa fa-globe"></i> Dataset Link</a> |
+          <a id="dsApiLink" target="_blank" itemprop="url"><i class="fa fa-globe"></i> Dataset API Link</a></small>
+        </h3>
+
+        <div id="keywords" itemprop="keywords" style="font-size: 20px"></div>
+        <div itemprop="description" class="help-block" style="margin-bottom: 20px">{{result.ecosis.description}}</div>
+
+        <div class="row">
+          <div class="col-sm-2 elabel">Spectra Count</div>
+          <div class="col-sm-10" id="spCount"></div>
+        </div>
+
+        <div id="organization" itemtype="http://schema.org/Organization" itemprop="publisher" style="margin-bottom: 30px">
+          <h4 class="page-header">Organization</h4>
+          <div class="media">
+            <div class="media-left">
+              <img class="media-object" itemprop="image" id="orgImg" alt="128x128" style="width: 128px;" />
+              <i class="fa fa-group" id="orgNoImg" style="font-size: 96px"></i>
+            </div>
+            <div class="media-body">
+              <h4 class="media-heading" id="orgName"></h4>
+              <div id="orgDescription" itemprop="description"></div>
+              <div id="orgMembers"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-6">
+            <h4>Measurement</h4>
+            <div id="measurements"></div>
+          </div>
+          <div class="col-sm-6">
+            <h4>Theme</h4>
+            <div id="theme"></div>
+
+            <h4>Processing Information</h4>
+            <div id="processingInformation"></div>
+
+            <h4>Instrument</h4>
+            <div id="instrument"></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-6">
+            <h4>Species</h4>
+            <div id="species"></div>
+          </div>
+          <div class="col-sm-6">
+            <h4>Citation</h4>
+            <div id="citation"></div>
+          </div>
+        </div>
+
+        <h4 class="page-header">Location</h4>
+        <div id="location" style="height:350px"></div>
+        <div id="noLocation">No location information provided</div>
+
+        <div itemtype="http://schema.org/Organization" itemprop="provider" style="border-top: 1px solid #eee; margin-top: 100px">
+          <h5 itemprop="name" style="margin-bottom: 0px">EcoSIS</h5>
+          <div class="help-block" style="margin-bottom: 0px" itemprop="description">Ecosystem Spectral Information System</div>
+          <div>
+            <a href="https://ecosis.org" itemprop="url">https://ecosis.org</a> |
+            <a href="http://cstars.github.io/ecosis/" target="_blank">EcoSIS API Documentation</a> |
+            <a href="mailto:info@ecosis.org" itemprop="email">info@ecospectra.org</a> |
+            <a href="mailto:help@ecospectra.org">help@ecospectra.org</a>
+
+          </div>
+        </div>
+      </div>
+
+
+      <div id="chart" style="display:none">
+        <h3 class="page-header" ><i class="fa fa-area-chart"></i> <span>{{result.ecosis.package_title}}</span> - Data Viewer</h3>
+        <spectra-viewer
+          id="viewer"
+          package="{{result.ecosis.package_id}}"
+          total="{{results.ecosis.spectra_count}}">
+        </spectra-viewer>
+      </div>
+
+      <div id="download" style="display:none">
+        <h3 class="page-header" ><i class="fa fa-download"></i> <span>{{result.ecosis.package_title}}</span> - Download CSV</h3>
+        <div id="downloaderRoot" class="well">
+          <data-downloader package="{{result.ecosis.package_id}}"></data-downloader>
+
+          <h5 style="margin-top: 50px"><i class="fa fa-files-o"></i> Download Individual Package Resources</h5>
+          <ul class="list-group" id="resources"></ul>
+        </div>
+      </div>
+
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'results-panel',
+
+      ready : function() {
+        this.panels = ['package','download','chart'];
+        this.MAX_FILTER_LINKS = 15;
+
+        $(window).bind('result-update-event', function(e, result){
+          this.render(result);
+        }.bind(this));
+      },
+
+      setPanel : function(panel) {
+        if( typeof panel === 'object' ) {
+          panel = panel.detail;
+        }
+
+        this.panels.forEach(function(p){
+          this.$[p].style.display = (p === panel ? 'block' : 'none');
+        }.bind(this));
+      },
+
+      render : function(result) {
+        this.result = result;
+
+        this.renderResources();
+        this.renderKeywords();
+        this.setLinks();
+        this.renderOrganization();
+        this.renderMeasurements();
+        this.renderTheme();
+        this.renderProcessingInformation();
+        this.renderInsturment();
+        this.renderSpecies();
+        this.renderLocation();
+        this.renderCitation();
+        this.renderMetadata();
+
+        this.$.viewer.update(result);
+      },
+
+      renderLinkedResources : function() {
+        if( result.ecosis.linked_data && result.ecosis.linked_data.length > 0 ) {
+          content += '<h4 class="page-header" style="margin-left: 5px; margin-bottom: 0">Linked Resources</h4>'+
+            '<div class="well" style="margin:0"><ul class="list-group">';
+
+          for( var i = 0; i < result.ecosis.linked_data.length; i++ ) {
+            content +=
+              '<li class="list-group-item">' +
+                '<span style="font-weight:bold">'+result.ecosis.linked_data[i].label+':</span> '+
+                '<a href="'+result.ecosis.linked_data[i].url+'" target="_blank">'+result.ecosis.linked_data[i].url+'</a>'+
+              '</li>';
+          }
+          content += '</ul></div>';
+        }
+      },
+
+      renderLocation : function() {
+        var hasLocation = this.result.ecosis.geojson || this.result.ecosis.spectra_bbox_geojson ? true : false;
+
+        if( !hasLocation ) {
+          this.$.location.style.display = 'none';
+          this.$.noLocation.style.display = 'block';
+          return;
+        }
+
+        this.$.location.style.display = 'block';
+        this.$.noLocation.style.display = 'none';
+
+        var ecosis = this.result.ecosis;
+
+        if( this.isCanvasSupported() ) {
+          if( !this.map ) {
+            this.initMap();
+          } else {
+            this.layers.forEach(function(layer){
+              if( !layer ) return;
+              this.map.removeLayer(layer);
+            }.bind(this));
+          }
+
+          var l1, l2, l3
+          if( ecosis.geojson ) {
+            l1 = L.geoJson(ecosis.geojson).addTo(this.map);
+          }
+
+          if( ecosis.spectra_bbox_geojson ) {
+            l2 = L.geoJson(ecosis.spectra_bbox_geojson).addTo(this.map);
+          }
+
+          $.get('/geo/spectra?package_id='+ecosis.package_id, function(resp){
+            if( resp.error ) {
+              if( l2 ) this.map.fitBounds(l2.getBounds());
+              else if( l1 ) this.map.fitBounds(l1.getBounds());
+              return;
+            }
+
+            if( resp.length == 0 ) {
+              if( l2 ) this.map.fitBounds(l2.getBounds());
+              else if( l1 ) this.map.fitBounds(l1.getBounds());
+              return;
+            }
+
+            var l3 = L.geoJson(resp).addTo(this.map);
+            this.map.fitBounds(l3.getBounds());
+
+            this.layers = [l1, l2, l3];
+          }.bind(this));
+        }
+
+      },
+
+      renderCitation : function() {
+        var table = '<table class="table">';
+        LIB.schema.Citation.forEach(function(item){
+          table +=
+              '<tr>'+
+                '<td class="elabel">'+item.name+'</td>'+
+                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
+                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
+              '</tr>';
+        }.bind(this));
+        this.$.citation.innerHTML = table+'</table>';
+      },
+
+      renderSpecies : function() {
+        var table = '<table class="table">';
+        LIB.schema.Species.forEach(function(item){
+          table +=
+              '<tr>'+
+                '<td class="elabel">'+item.name+'</td>'+
+                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
+                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
+              '</tr>';
+        }.bind(this));
+        this.$.species.innerHTML = table+'</table>';
+      },
+
+      renderTheme : function() {
+        var table = '<table class="table">';
+        LIB.schema.Theme.forEach(function(item){
+          if( item.name === 'Keywords' ) return;
+
+          table +=
+              '<tr>'+
+                '<td class="elabel">'+item.name+'</td>'+
+                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
+                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
+              '</tr>';
+        }.bind(this));
+        this.$.theme.innerHTML = table+'</table>';
+      },
+
+      renderProcessingInformation : function() {
+        var table = '<table class="table">';
+        LIB.schema['Processing Information'].forEach(function(item){
+          table +=
+              '<tr>'+
+                '<td class="elabel">'+item.name+'</td>'+
+                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
+                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
+              '</tr>';
+        }.bind(this));
+        this.$.processingInformation.innerHTML = table+'</table>';
+      },
+
+      renderInsturment : function() {
+        var table = '<table class="table">';
+        LIB.schema.Instrument.forEach(function(item){
+          table +=
+              '<tr>'+
+                '<td class="elabel">'+item.name+'</td>'+
+                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
+                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
+              '</tr>';
+        }.bind(this));
+        this.$.instrument.innerHTML = table+'</table>';
+      },
+
+      renderMeasurements : function() {
+        var table = '<table class="table">';
+        LIB.schema.Measurement.forEach(function(item){
+          table +=
+              '<tr>'+
+                '<td class="elabel">'+item.name+'</td>'+
+                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
+                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
+              '</tr>';
+        }.bind(this));
+        this.$.measurements.innerHTML = table+'</table>';
+      },
+
+      renderOrganization : function() {
+        var org = this.result.ecosis.organization;
+
+        if( !org || org === 'None' ) {
+          this.$.organization.style.display = 'none';
+          this.$.orgImg.removeAttribute('src');
+          this.$.orgTitle.removeAttribute('href');
+          this.$.orgTitle.removeAttribute('title');
+          this.$.orgTitle.innerHTML = '';
+          this.$.orgDescription.innerHTML = '';
+          this.$.orgMembers.innerHTML = '';
+          return;
+        }
+
+        var info = this.result.ecosis.organization_info || {};
+
+        this.$.organization.style.display = 'block';
+        if( info.logo ) {
+          this.$.orgImg.setAttribute('src', info.logo);
+          this.$.orgImg.style.display = 'inline-block';
+          this.$.orgNoImg.style.display = 'none';
+        } else {
+          this.$.orgImg.removeAttribute('src');
+          this.$.orgImg.style.display = 'none';
+          this.$.orgNoImg.style.display = 'inline-block';
+        }
+
+        this.$.orgName.innerHTML = this.wrapFilterLink('ecosis.organization', org, '', 'itemprop="name"');
+        this.$.orgDescription.innerHTML = info.description || '';
+
+        if( this.orgMembers ) {
+          this.$.orgMembers.innerHTML = '<b>Members:</b> <span style="color:#888">'+result.ecosis.organization_info.members.join(', ')+"</span>";
+        } else {
+          this.$.orgMembers.innerHTML = '';
+        }
+      },
+
+      setLinks : function() {
+        this.$.dsLink.setAttribute('href', '/#result/'+this.result.ecosis.package_id);
+        this.$.dsApiLink.setAttribute('href', '/package/get?package_id='+this.result.ecosis.package_id);
+      },
+
+      renderKeywords : function() {
+        this.$.keywords.innerHTML = this.wrapFilterLinks('Keywords', this.result.Keywords, 'hashtag');
+
+        var wavelengths = '';
+        var schema = this.result.ecosis.spectra_metadata_schema;
+        if( schema && schema.wavelengths && schema.wavelengths.length > 0) {
+          var min = parseFloat(schema.wavelengths[0]);
+          var max = parseFloat(schema.wavelengths[0]);
+          schema.wavelengths.forEach(function(w){
+            w = parseFloat(w);
+            if( min > w ) min = w;
+            if( max < w ) max = w;
+          });
+
+          var units = '';
+          if( this.result['Wavelength Units'] && this.result['Wavelength Units'].length > 0 ) {
+            units = this.result['Wavelength Units'][0];
+          }
+          wavelengths = ' <span style="color:#aaa">('+min+units+' - '+max+units+')</span>';
+        }
+
+        this.$.spCount.innerHTML = this.result.ecosis.spectra_count+wavelengths;
+      },
+
+      renderResources : function() {
+        var html = '';
+
+        if( this.result.ecosis.resources && this.result.ecosis.resources.length > 0) {
+          for( var i = 0; i < this.result.ecosis.resources.length; i++ ) {
+            var r = this.result.ecosis.resources[i];
+            html += '<li class="list-group-item" style="padding: 10px;font-size: 16px">'+
+                      '<a href="'+r.url+'" ><i class="fa fa-download"></i> '+r.name+'</a>'+
+                    '</li>';
+          }
+        } else {
+          html += '<li class="list-group-item">No resources provided</li>';
+        }
+
+        this.$.resources.innerHTML = html;
+      },
+
+      renderMetadata : function() {
+        var result = LIB.ldjson(this.result, window.location.origin);
+
+        var ldEle = document.querySelector('script[type="application/ld+json"]');
+        if( !ldEle ) {
+          ldEle = document.createElement('script');
+          ldEle.setAttribute('type', 'application/ld+json');
+          document.body.appendChild(ldEle);
+        }
+
+        ldEle.innerHTML = JSON.stringify(result.ldjson, '  ', '  ');
+        document.querySelector('meta[name="description"]').setAttribute('content', result.description || '');
+        document.querySelector('meta[name="keywords"]').setAttribute('content', result.keywords || '');
+        document.title = result.title;
+      },
+
+      wrapFilterLinks : function(key, values, icon) {
+        if( !values ) {
+          return 'Not Provided';
+        }
+        if( values.length === 0 ) {
+          return 'Not Provided';
+        }
+
+        var links = [];
+        var more = false;
+        for( var i = 0; i < values.length; i++ ) {
+          if( i == this.MAX_FILTER_LINKS ) {
+            more = true;
+            break;
+          }
+          links.push(this.wrapFilterLink(key, values[i], icon));
+        }
+        return links.join(', ')+(more ? '<span> ...</span> <a key="'+key+'" class="all-filters-link"><i class="fa fa-external-link-square"></i> ALL ('+values.length+')</a>' : '');
+      },
+
+      wrapFilterLink : function(key, value, icon, attributes) {
+        if( key == 'Website' ) {
+          if( !value.match(/^(http|https|ftp)/) ) value = 'http://'+value;
+          var link = '<a href="'+value+'" target="_blank"><i class="fa fa-globe"></i> '+value+'</a>';
+
+          return link;
+        }
+
+        if( key == 'Author Email' || key == 'Maintainer Email' ) {
+          var link = '<a href="mailto:'+value+'" target="_blank"><i class="fa fa-envelope-o"></i> '+value+'</a>';
+          return link;
+        }
+
+        //if( noLink.indexOf(key) > -1 ) return value;
+        //if( value.length > 80 ) return value;
+
+        var q = MQE.getCurrentQuery();
+        q.text = '';
+        q.page = 0;
+        var f = {};
+        f[key] = value;
+        q.filters = [f];
+        return '<a href="/'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'" '+
+              (attributes ? attributes : '')+' style="white-space:normal">'+
+              (icon ? '<i class="fa fa-'+icon+'"></i> ' : '')+value+'</a>';
+      },
+
+      isCanvasSupported : function(){
+        var elem = document.createElement('canvas');
+        return !!(elem.getContext && elem.getContext('2d'));
+      },
+
+      initMap : function() {
+        L.Icon.Default.imagePath = '/images';
+        this.map = L.map(this.$.location, {scrollWheelZoom : false}).setView([42.065, -111.821], 13);
+
+        // add an OpenStreetMap tile layer
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(this.map);
+      }
+    });
+  </script>
+</dom-module>

@@ -22,6 +22,7 @@ ESIS.result = (function() {
   }
 
   function init() {
+    return;
     $('#result-template-container').load('/result.handlebars', function() {
       var source = $("#result-template").html();
       resultTemplate = Handlebars.compile(source);
@@ -34,11 +35,6 @@ ESIS.result = (function() {
         var f = loadHandlers[i];
         f();
       }
-    });
-
-
-    $(window).bind('result-update-event', function(e, result){
-      updateResult(result);
     });
 
     if( window.prerender ) {
@@ -66,6 +62,7 @@ ESIS.result = (function() {
   }
 
   function updateResult(result) {
+    return;
     if( !loaded ) {
       waiting = result;
       return;

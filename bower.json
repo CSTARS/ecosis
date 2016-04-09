@@ -19,7 +19,7 @@
     "handlebars": "*",
     "polymer": "~1.1.5",
     "animate-css": "*",
-    "font-awesome": "*",
+    "font-awesome": "^4.5.0",
     "leaflet": "*",
     "js-md5": "*",
     "md5": "*",

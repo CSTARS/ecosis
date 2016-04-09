@@ -1,0 +1,51 @@
+<dom-module id="data-downloader">
+  <template>
+    <style>
+     :host {
+       display:block
+     }
+    </style>
+    <div class="form-horizontal">
+
+      <div class="form-group">
+        <label for="inputEmail" class="col-sm-2 control-label">Metadata</label>
+        <div class="col-sm-9">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="metadata" on-change="update">  Include Metadata
+            </label>
+          </div>
+
+          <div class="help-block">Include the metadata fields in the download.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-offset-2 col-sm-9">
+        <a class="btn btn-primary btn-btn-lg" target="_blank" id="linkUrl"><i class="fa fa-download"></i> Download CSV</a>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is : 'data-downloader',
+
+      properties : {
+        package : {
+          type : String,
+          observer : 'update'
+        }
+      },
+
+      update : function() {
+        var f = [];
+
+        this.$.linkUrl.setAttribute('href', '/package/export?package_id='+this.package+
+            (f.length > 0 ? '&filters='+encodeURIComponent(JSON.stringify(f)) : '')+
+            '&metadata='+($(this.$.metadata).is(':checked') ? 'true' : 'false'));
+      }
+    });
+  </script>
+</dom-module>
