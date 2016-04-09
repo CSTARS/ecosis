@@ -30,7 +30,7 @@
 
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript">
-      google.load('visualization', '1', {packages: ['line']});
+      google.load('visualization', '1', {packages: ['corechart','line']});
       google.setOnLoadCallback(function(){
         initchart();
         window.chartReady = true;
@@ -74,8 +74,8 @@
 
 </div>
 
-<div id="search" style="display:none; padding:2% 6%">
-  <div class="page-header" style="margin:0px">
+<div id="search" style="display:none;">
+  <div class="page-header" style="margin:15px">
     <div class="row">
       <div class="col-md-9">
         <h4>EcoSIS Spectral Library <span class="sandbox">Sandbox</span></h4>
@@ -88,54 +88,55 @@
     </div>
   </div>
 
+  <div class="container">
+    <div class="well">
+      <div class="row">
+        <div class="col-md-5" >
 
-  <div class="well">
-    <div class="row">
-      <div class="col-md-5" >
+          <div class="layout horizontal">
+            <div class="flex">
+                <input id="search-text" type="text" class="form-control" placeholder="Keywords" style="background-color: white;" >
+                <search-text-suggest></search-text-suggest>
+            </div>
+            <div>
+              <button id="search-btn" class="btn btn-default" type="button" style="margin-left:5px"><i class="fa fa-search"></i> Search</button>
+            </div>
+          </div>
 
-        <div class="layout horizontal">
-          <div class="flex">
-              <input id="search-text" type="text" class="form-control" placeholder="Keywords" style="background-color: white;" >
-              <search-text-suggest></search-text-suggest>
-          </div>
-          <div>
-            <button id="search-btn" class="btn btn-default" type="button" style="margin-left:5px"><i class="fa fa-search"></i> Search</button>
-          </div>
         </div>
-
-      </div>
-      <div class="col-md-7" id="active-filters"></div>
-    </div>
-  </div>
-
-
-  <div class="row">
-    <div class="col-md-3">
-      <div class="well" style="overflow:hidden;">
-        <ul class="nav nav-list" id="filter-nav"></ul>
-      </div>
-      <div class="well" style="display:none">
-        <ul class="nav nav-list" id="compare-list"></ul>
+        <div class="col-md-7" id="active-filters"></div>
       </div>
     </div>
-    <div class="col-md-9">
-      <div class="page-header" style="margin:10px 0 0 0; border: none">
-          <div class="row">
-            <div class="col-md-6">
-              <h4 id="results-title">Search Results</h4>
+
+
+    <div class="row">
+      <div class="col-md-3">
+        <div class="well" style="overflow:hidden;">
+          <ul class="nav nav-list" id="filter-nav"></ul>
+        </div>
+        <div class="well" style="display:none">
+          <ul class="nav nav-list" id="compare-list"></ul>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <div class="page-header" style="margin:10px 0 0 0; border: none">
+            <div class="row">
+              <div class="col-md-6">
+                <h4 id="results-title">Search Results</h4>
+              </div>
+              <div class="col-md-6">
+                <ul id="search-paging-btns" class="pagination pull-right" style="margin:0px"></ul>
+              </div>
             </div>
-            <div class="col-md-6">
-              <ul id="search-paging-btns" class="pagination pull-right" style="margin:0px"></ul>
-            </div>
-          </div>
+        </div>
+        <div id="results-panel"></div>
+        <ul id="search-paging-btns-bottom" class="pagination pull-right" style="margin:0px"></ul>
       </div>
-      <div id="results-panel"></div>
-      <ul id="search-paging-btns-bottom" class="pagination pull-right" style="margin:0px"></ul>
     </div>
-  </div>
 
-  <div id="search-footer" style="text-align:center;margin-top: 100px;padding-top: 20px; border-top:1px solid #eee">
-    <div id="current-search-rest-link"></div>
+    <div id="search-footer" style="text-align:center;margin-top: 100px;padding-top: 20px; border-top:1px solid #eee">
+      <div id="current-search-rest-link"></div>
+    </div>
   </div>
 
 </div>

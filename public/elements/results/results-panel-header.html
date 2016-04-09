@@ -10,7 +10,7 @@
       <div class="container-fluid">
        <div class="navbar-header" style="width:100%;margin:0px">
          <a on-click="back" class="navbar-brand visible-xs-inline-block"  style="font-size: 14px; cursor: pointer" >
-          <i class="fa fa-search"></i> Back to Search
+          <i class="fa fa-search"></i>
          </a>
 
          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#ecosis-header-collapse">
@@ -24,7 +24,7 @@
         <div class="collapse navbar-collapse" id="ecosis-header-collapse">
 
           <ul class="nav navbar-nav">
-            <li>
+            <li class="active">
               <a goto="package" on-click="goto" style="cursor:pointer"><i class="fa fa-info-circle"></i> Dataset Information</a>
             </li>
             <li>
@@ -39,8 +39,8 @@
 
           <ul class="nav navbar-nav navbar-right">
             <li>
-              <a on-click="back" style="cursor:pointer" >
-               <i class="fa fa-search"></i> Back to Search
+              <a on-click="back" class="btn btn-link btn-lg" >
+               <i class="fa fa-search"></i>
              </a>
             </li>
           </ul>
@@ -57,6 +57,10 @@
       goto : function(e) {
         var heading = $(e.currentTarget).attr('goto');
         if( !heading || heading == '' ) return;
+
+        $(this).find('li').removeClass('active');
+        $(e.currentTarget).parent().addClass('active');
+
         this.fire('change', heading);
       },
 

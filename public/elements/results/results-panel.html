@@ -13,6 +13,10 @@
       .elabel {
         font-weight: bold;
       }
+
+      h3 small {
+        font-size: 45%;
+      }
     </style>
 
     <results-panel-header on-change="setPanel"></results-panel-header>
@@ -25,10 +29,16 @@
 
       <div id="package">
         <h3 class="page-header" >
-          <i class="fa fa-info-circle"></i>
-          <span itemprop="name">{{result.ecosis.package_title}}</span>
-          <small class="pull-right"><a id="dsLink" target="_blank"><i class="fa fa-globe"></i> Dataset Link</a> |
-          <a id="dsApiLink" target="_blank" itemprop="url"><i class="fa fa-globe"></i> Dataset API Link</a></small>
+          <div class="layout horizontal">
+            <div class="flex">
+              <i class="fa fa-info-circle"></i>
+              <span itemprop="name">{{result.ecosis.package_title}}</span>
+            </div>
+            <div>
+              <small><a id="dsLink" target="_blank"><i class="fa fa-globe"></i> Dataset Link</a> |
+              <a id="dsApiLink" target="_blank" itemprop="url"><i class="fa fa-globe"></i> Dataset API Link</a></small>
+            </div>
+          </div>
         </h3>
 
         <div id="keywords" itemprop="keywords" style="font-size: 20px"></div>
@@ -81,6 +91,9 @@
             <div id="citation"></div>
           </div>
         </div>
+
+        <h4 class="page-header" >Linked Resources</h4>
+        <div id="linkedResources"></div>
 
         <h4 class="page-header">Location</h4>
         <div id="location" style="height:350px"></div>
@@ -141,7 +154,14 @@
         }
 
         this.panels.forEach(function(p){
-          this.$[p].style.display = (p === panel ? 'block' : 'none');
+          if( p === panel ) {
+            this.$[p].style.display = 'block';
+            if( p === 'chart' ) {
+              this.$.viewer.onShow();
+            }
+          } else {
+            this.$[p].style.display = 'none';
+          }
         }.bind(this));
       },
 
@@ -160,24 +180,33 @@
         this.renderLocation();
         this.renderCitation();
         this.renderMetadata();
+        this.renderLinkedResources();
+
+        // show popup for 'all' links
+        $(this).find('.all-filters-link').on('click', function(){
+          ESIS.allFiltersPopup.show($(this).attr('key'), result);
+        });
 
         this.$.viewer.update(result);
       },
 
       renderLinkedResources : function() {
-        if( result.ecosis.linked_data && result.ecosis.linked_data.length > 0 ) {
-          content += '<h4 class="page-header" style="margin-left: 5px; margin-bottom: 0">Linked Resources</h4>'+
-            '<div class="well" style="margin:0"><ul class="list-group">';
+        var content = '';
+        if( this.result.ecosis.linked_data && this.result.ecosis.linked_data.length > 0 ) {
+          content += '<div class="well" style="margin:0"><ul class="list-group">';
 
-          for( var i = 0; i < result.ecosis.linked_data.length; i++ ) {
+          for( var i = 0; i < this.result.ecosis.linked_data.length; i++ ) {
             content +=
               '<li class="list-group-item">' +
-                '<span style="font-weight:bold">'+result.ecosis.linked_data[i].label+':</span> '+
-                '<a href="'+result.ecosis.linked_data[i].url+'" target="_blank">'+result.ecosis.linked_data[i].url+'</a>'+
+                '<span style="font-weight:bold">'+this.result.ecosis.linked_data[i].label+':</span> '+
+                '<a href="'+this.result.ecosis.linked_data[i].url+'" target="_blank">'+this.result.ecosis.linked_data[i].url+'</a>'+
               '</li>';
           }
           content += '</ul></div>';
+        } else {
+          content = 'No linked resources provided.';
         }
+        this.$.linkedResources.innerHTML = content;
       },
 
       renderLocation : function() {

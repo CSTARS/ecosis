@@ -35,7 +35,17 @@
     <div style="margin-bottom: 30px">
       <div class="row" id="spectraSliderRow">
         <div class="col-sm-2">Select</div>
-        <div class="col-sm-10" id="sliderSpectraRoot"></div>
+        <div class="col-sm-10">
+          <div class="layout horizontal">
+            <div>
+              <a class="btn btn-default" on-click="previous" id="previous" style="margin-right: 15px" ><i class="fa fa-arrow-left"></i></a>
+            </div>
+            <div class="flex" id="sliderSpectraRoot"></div>
+            <div>
+              <a class="btn btn-default" on-click="next" id="next" style="margin-left: 15px"><i class="fa fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="row" style="margin-top: 20px" id="filterPanel">
@@ -45,15 +55,9 @@
       </div>
     </div>
 
-    <div class="layout horizontal" style="margin-bottom: 15px">
-      <div>
-        <a class="btn btn-default" on-click="previous" id="previous" style="margin-top: 120px"><i class="fa fa-arrow-left"></i></a>
-      </div>
-      <div class="flex" id="metadataPanel">
-        <h4>Metadata</h4>
-        <div class="attributes" id="attributes"></div>
-      </div>
-      <div class="flex">
+    <div style="margin-bottom: 15px">
+
+      <div >
         <h4>Measurement</h4>
         <div id="hoverInfo" style="position:absolute;z-index:50;padding: 5px; background-color: rgba(255, 255, 255, .8); margin-top:-30px;display:none"></div>
 
@@ -84,8 +88,17 @@
           </div>
         </div>
       </div>
-      <div>
-        <a class="btn btn-default" on-click="next" id="next" style="margin-top: 120px"><i class="fa fa-arrow-right"></i></a>
+    </div>
+
+    <div id="metadataPanel">
+      <h4>Metadata</h4>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="attributes" id="attributes1"></div>
+        </div>
+        <div class="col-md-6">
+          <div class="attributes" id="attributes2"></div>
+        </div>
       </div>
     </div>
 
@@ -105,9 +118,8 @@
       },
 
       attached : function() {
-          $(window).on('resize', function(){
-              this.redraw();
-          }.bind(this));
+        this.resizeTimer = -1;
+        $(window).on('resize', this.resize.bind(this));
 
           this.item = {};
           this.ptRegex1 = /^-?\d+\.?\d*$/;
@@ -119,6 +131,21 @@
           };
 
           this.ignoreList = ['_id', 'datapoints', 'ecosis'];
+      },
+
+      onShow : function() {
+        this.resize();
+      },
+
+      resize : function() {
+        if( this.resizeTimer !== -1 ) {
+          clearTimeout(this.resizeTimer);
+        }
+
+        this.resizeTimer = setTimeout(function(){
+          this.resizeTimer = -1;
+          this.redraw();
+        }.bind(this), 100);
       },
 
       resetSlider : function() {
@@ -185,7 +212,8 @@
           if( !window.google.charts.Line ) return this.setOnloadHandler();
 
           if( !this.chart ) {
-              this.chart = new google.charts.Line(this.$.root);
+              // this.chart = new google.charts.Line(this.$.root);
+              this.chart = new google.visualization.LineChart(this.$.root);
 
               google.visualization.events.addListener(this.chart, 'onmouseover', this.onMouseOverChart.bind(this));
               google.visualization.events.addListener(this.chart, 'onmouseout', this.onMouseOutChart.bind(this));
@@ -305,7 +333,10 @@
       updateAttributes : function() {
         var units = this.packageData.ecosis.spectra_metadata_schema.units || {};
 
-        var table = '<table class="table">';
+        var table1 = '<table class="table">';
+        var table2 = '<table class="table">';
+        var c = 0;
+
         for( var attr in this.item) {
           if( attr == 'ecosis' || attr == '_id' || attr == 'datapoints' ) continue;
 
@@ -314,9 +345,16 @@
             unitLabel = ' <span style="color:#888;font-size:80%">('+units[attr]+')</span>';
           }
 
-          table += '<tr><td><b>'+attr+'</b>'+unitLabel+'</td><td>'+this.item[attr]+'</td></tr>';
+          if( c % 2 === 0 ) {
+            table1 += '<tr><td><b>'+attr.replace(/(-|_)/g,' ')+'</b>'+unitLabel+'</td><td>'+this.item[attr]+'</td></tr>';
+          } else {
+            table2 += '<tr><td><b>'+attr.replace(/(-|_)/g,' ')+'</b>'+unitLabel+'</td><td>'+this.item[attr]+'</td></tr>';
+          }
+          c++;
         }
-        this.$.attributes.innerHTML = table;
+
+        this.$.attributes1.innerHTML = table1+'</table>';
+        this.$.attributes2.innerHTML = table2+'</table>';
       },
 
       previous : function() {
