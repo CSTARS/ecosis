@@ -39916,9 +39916,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div id="package">
         <h3 class="page-header">
           <div class="layout horizontal">
-            <div class="flex">
+            <div class="flex animated">
               <i class="fa fa-info-circle"></i>
-              <span itemprop="name">{{result.ecosis.package_title}}</span>
+              <span itemprop="name">{{result.ecosis.package_title}}</span> <small>Dataset Information</small>
             </div>
             <div>
               <small><a id="dsLink" target="_blank"><i class="fa fa-globe"></i> Dataset Link</a> |
@@ -40000,13 +40000,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
       <div id="chart" style="display:none">
-        <h3 class="page-header"><i class="fa fa-area-chart"></i> <span>{{result.ecosis.package_title}}</span> - Data Viewer</h3>
+        <h3 class="page-header"><i class="fa fa-area-chart"></i> <span>{{result.ecosis.package_title}}</span> <small>Data Viewer</small></h3>
         <spectra-viewer id="viewer" package="{{result.ecosis.package_id}}" total="{{results.ecosis.spectra_count}}">
         </spectra-viewer>
       </div>
 
       <div id="download" style="display:none">
-        <h3 class="page-header"><i class="fa fa-download"></i> <span>{{result.ecosis.package_title}}</span> - Download CSV</h3>
+        <h3 class="page-header"><i class="fa fa-download"></i> <span>{{result.ecosis.package_title}}</span> <small>Download CSV</small></h3>
         <div id="downloaderRoot" class="well">
           <data-downloader package="{{result.ecosis.package_id}}"></data-downloader>
 
