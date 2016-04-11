@@ -496,6 +496,7 @@
       },
 
       initMap : function() {
+        this.layers = [];
         L.Icon.Default.imagePath = '/images';
         this.map = L.map(this.$.location, {scrollWheelZoom : false}).setView([42.065, -111.821], 13);
 

@@ -40382,6 +40382,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       initMap : function() {
+        this.layers = [];
         L.Icon.Default.imagePath = '/images';
         this.map = L.map(this.$.location, {scrollWheelZoom : false}).setView([42.065, -111.821], 13);
 
