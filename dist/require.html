@@ -39444,7 +39444,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       updateAttributes : function() {
-        var units = this.packageData.ecosis.spectra_metadata_schema.units || {};
+        var units = {};
+        if( this.packageData.ecosis.package_schema && this.packageData.ecosis.package_schema.units ) {
+          units = this.packageData.ecosis.package_schema.units;
+        }
 
         var table1 = '<table class="table">';
         var table2 = '<table class="table">';
@@ -40328,10 +40331,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       wrapFilterLinks : function(key, values, icon) {
         if( !values ) {
-          return 'Not Provided';
+          return '<span style="color:#888">Not Provided</span>';
         }
         if( values.length === 0 ) {
-          return 'Not Provided';
+          return '<span style="color:#888">Not Provided</span>';
         }
 
         var links = [];

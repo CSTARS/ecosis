@@ -331,7 +331,10 @@
       },
 
       updateAttributes : function() {
-        var units = this.packageData.ecosis.spectra_metadata_schema.units || {};
+        var units = {};
+        if( this.packageData.ecosis.package_schema && this.packageData.ecosis.package_schema.units ) {
+          units = this.packageData.ecosis.package_schema.units;
+        }
 
         var table1 = '<table class="table">';
         var table2 = '<table class="table">';
