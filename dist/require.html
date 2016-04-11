@@ -40281,7 +40281,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       renderKeywords : function() {
-        if( this.result.Keywords ) {
+        if( this.result.Keywords && this.result.Keywords.length > 0 ) {
           this.$.keywords.innerHTML = this.wrapFilterLinks('Keywords', this.result.Keywords, 'hashtag');
         } else {
           this.$.keywords.innerHTML = '';
