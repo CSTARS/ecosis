@@ -387,7 +387,12 @@
       },
 
       renderKeywords : function() {
-        this.$.keywords.innerHTML = this.wrapFilterLinks('Keywords', this.result.Keywords, 'hashtag');
+        if( this.result.Keywords ) {
+          this.$.keywords.innerHTML = this.wrapFilterLinks('Keywords', this.result.Keywords, 'hashtag');
+        } else {
+          this.$.keywords.innerHTML = '';
+        }
+
 
         var wavelengths = '';
         var schema = this.result.ecosis.spectra_metadata_schema;

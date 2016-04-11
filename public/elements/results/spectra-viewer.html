@@ -9,98 +9,106 @@
         overflow: auto;*/
         margin: 0 15px;
       }
-      .card {
-        margin: 30px 10px 10px 10px;
-        padding: 15px;
-        box-shadow: 0 0 5px #ccc;
-        overflow: visible !important;
+      .section {
+        padding-bottom: 30px;
+        margin-bottom: 30px;
+        border-bottom: 1px dashed #eee;
       }
+
     </style>
 
-    <h5 style="color: #333; margin-bottom: 30px; height: 50px" id="selector" >
-      <span id="countLabel">
-        Spectra
-        <span id="currentSpectra" style="color:#888"></span>
-        of
-        <span id="totalSpectraLabel" style="color:#888"></span>
-      </span>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h5 style="color: #333" id="selector" >
+          <span id="countLabel">
+            Spectra
+            <span id="currentSpectra" style="color:#888"></span>
+            of
+            <span id="totalSpectraLabel" style="color:#888"></span>
+          </span>
 
-      <small id="loadingPanel">Loading...</small>
+          <small id="loadingPanel">Loading...</small>
 
-      <div class="checkbox pull-right" style="margin:0">
-        <label><input type="checkbox" on-click="toggleStats" /> Stats</label>
+          <div class="checkbox pull-right" style="margin:0">
+            <label><input type="checkbox" on-click="toggleStats" /> Stats</label>
+          </div>
+        </h5>
       </div>
-    </h5>
+      <div class="panel-body">
 
-    <div style="margin-bottom: 30px">
-      <div class="row" id="spectraSliderRow">
-        <div class="col-sm-2">Select</div>
-        <div class="col-sm-10">
-          <div class="layout horizontal">
-            <div>
-              <a class="btn btn-default" on-click="previous" id="previous" style="margin-right: 15px" ><i class="fa fa-arrow-left"></i></a>
-            </div>
-            <div class="flex" id="sliderSpectraRoot"></div>
-            <div>
-              <a class="btn btn-default" on-click="next" id="next" style="margin-left: 15px"><i class="fa fa-arrow-right"></i></a>
+        <div class="section">
+          <h4>Select &amp; Filter</h4>
+
+          <div class="row" id="spectraSliderRow">
+            <div class="col-sm-2 col-sm-offset-1">Select</div>
+            <div class="col-sm-8">
+              <div class="layout horizontal">
+                <div>
+                  <a class="btn btn-default" on-click="previous" id="previous" style="margin-right: 15px" ><i class="fa fa-arrow-left"></i></a>
+                </div>
+                <div class="flex" id="sliderSpectraRoot"></div>
+                <div>
+                  <a class="btn btn-default" on-click="next" id="next" style="margin-left: 15px"><i class="fa fa-arrow-right"></i></a>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div class="row" style="margin-top: 20px" id="filterPanel">
-        <div class="col-sm-2">Filter</div>
-        <div class="col-sm-5"><select id="spectraFilterSelector" on-change="setFilterValues" class="form-control"></select></div>
-        <div class="col-sm-5"><select id="spectraFilterValueSelector" on-change="setDsFilter" class="form-control"></select></div>
-      </div>
-    </div>
-
-    <div style="margin-bottom: 15px">
-
-      <div >
-        <h4>Measurement</h4>
-        <div id="hoverInfo" style="position:absolute;z-index:50;padding: 5px; background-color: rgba(255, 255, 255, .8); margin-top:-30px;display:none"></div>
-
-        <div id="root" style="height: 300px; padding: 15px"></div>
-
-        <div style="padding: 0 25px">
-          <div id="sliderRoot"></div>
-          <div class="help-block" style="text-align:center">Filter Wavelength</div>
+          <div class="row" style="margin-top: 20px" id="filterPanel">
+            <div class="col-sm-2 col-sm-offset-1">Filter</div>
+            <div class="col-sm-4 "><select id="spectraFilterSelector" on-change="setFilterValues" class="form-control"></select></div>
+            <div class="col-sm-4 "><select id="spectraFilterValueSelector" on-change="setDsFilter" class="form-control"></select></div>
+          </div>
         </div>
 
-        <div style="margin-top: 50px">
+        <div class="section">
+          <h4>Measurement</h4>
+          <div id="hoverInfo" style="position:absolute;z-index:50;padding: 5px; background-color: rgba(255, 255, 255, .8); margin-top:-30px;display:none"></div>
+
+          <div id="root" style="height: 300px; padding: 15px"></div>
+
+          <div style="padding: 0 25px">
+            <div id="sliderRoot"></div>
+            <div class="help-block" style="text-align:center">Filter Wavelength</div>
+          </div>
+        </div>
+
+        <div id="metadataPanel">
+          <h4>Metadata</h4>
           <div class="row">
-            <div class="col-sm-2">
-              <!-- TODO: implement when paper chart supports
-                <a class="btn btn-default" on-click="print"><i class="fa fa-print"></i> Printable Chart</a>
-              -->
+            <div class="col-md-6">
+              <div class="attributes" id="attributes1"></div>
             </div>
-            <div class="col-sm-10" style="text-align:right">
-              <div>
-                <a class="btn btn-link" id="restLink" target="_blank"><i class="fa fa-link"></i> Spectra API Link</a>
-                <a class="btn btn-link" href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a>
-              </div>
-              <div class="help-block">
-                The API Link shows the HTTP request for rendering the above chart.  For more information
-                see the EcoSIS API documentation.
-              </div>
+            <div class="col-md-6">
+              <div class="attributes" id="attributes2"></div>
             </div>
           </div>
         </div>
+
+      </div>
+      <div class="panel-footer">
+
+        <div class="row">
+          <div class="col-sm-2">
+            <!-- TODO: implement when paper chart supports
+              <a class="btn btn-default" on-click="print"><i class="fa fa-print"></i> Printable Chart</a>
+            -->
+          </div>
+          <div class="col-sm-10" style="text-align:right">
+            <div>
+              <a class="btn btn-link" id="restLink" target="_blank"><i class="fa fa-link"></i> Spectra API Link</a>
+              <a class="btn btn-link" href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a>
+            </div>
+            <div class="help-block">
+              The API Link shows the HTTP request for rendering the above chart.  For more information
+              see the EcoSIS API documentation.
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <div id="metadataPanel">
-      <h4>Metadata</h4>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="attributes" id="attributes1"></div>
-        </div>
-        <div class="col-md-6">
-          <div class="attributes" id="attributes2"></div>
-        </div>
-      </div>
-    </div>
 
   </template>
 
@@ -332,8 +340,8 @@
 
       updateAttributes : function() {
         var units = {};
-        if( this.packageData.ecosis.package_schema && this.packageData.ecosis.package_schema.units ) {
-          units = this.packageData.ecosis.package_schema.units;
+        if( this.packageData.ecosis.spectra_metadata_schema && this.packageData.ecosis.spectra_metadata_schema.units ) {
+          units = this.packageData.ecosis.spectra_metadata_schema.units;
         }
 
         var table1 = '<table class="table">';
