@@ -41,11 +41,12 @@
     .splash {
       background: url(../assets/banner-slim.png) no-repeat center top;
       margin-top: 0px;
-      padding-top: 60px;
+      padding: 60px 0;
+      /*padding-top: 60px;*/
       text-align: center;
-      background-attachment: relative;
+      /*background-attachment: relative;*/
       background-position: center center;
-      min-height: 458px;
+      min-height: 400px;
       width: 100%;
       -webkit-background-size: 100%;
       -moz-background-size: 100%;
@@ -53,8 +54,50 @@
       background-size: 100%;
       -webkit-background-size: cover;
       -moz-background-size: cover;
-      -o-background-size: cover;
+      -o-background-size: cover; */
       /* background-size: cover; */
+    }
+    .splash h1 {
+      color: white;
+      letter-spacing: 10px;
+      text-shadow: 0 0 15px #333;
+      padding-left: 30px;
+      padding-right: 30px;
+    }
+    .splash h1 div {
+      font-size:2em;
+    }
+    .splash h3 {
+      color: white;
+      letter-spacing: 5px;
+      text-shadow: 0 0 15px #333;
+    }
+    .splash-url {
+      letter-spacing: 5px;
+      color:white;
+      margin: 20px 0;
+      padding: 20px 0;
+      border-top: 3px solid white;
+      border-bottom: 3px solid white;
+    }
+
+    @media(max-width: 680px) {
+      .splash h1 {
+        letter-spacing: 5px;
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+      .splash h1 div {
+        font-size:1.5em;
+      }
+      .splash h3 {
+        letter-spacing: 2px;
+      }
+      .splash-url {
+        letter-spacing: 2px;
+        margin: 10px 0;
+        padding: 10px 0;
+      }
     }
   </style>
 
@@ -62,8 +105,19 @@
 <body resolved>
 
 <div id="home" style="display:none;">
-  <!--<div class="splash"></div>-->
-  <img src="../assets/banner-slim.png" style="width:100%"/>
+  <div class="splash">
+    <div class="layout horizontal center-justified">
+      <div class="self-center">
+        <h1><div>EcoSIS</div></h1>
+        <h1 class="splash-url">
+          ecosis.org
+        </h1>
+        <h3>Spectral Library</h3>
+      </div>
+    </div>
+  </div>
+
+  <!--<img src="../assets/banner-slim.png" style="width:100%"/>-->
 
   <home-stats></home-stats>
 
