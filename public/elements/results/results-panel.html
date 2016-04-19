@@ -143,6 +143,8 @@
         this.panels = ['package','download','chart'];
         this.MAX_FILTER_LINKS = 15;
 
+        this.noWrap = ['Citation', 'Citation DOI', 'Funding Source Grant Number'];
+
         $(window).bind('result-update-event', function(e, result){
           this.render(result);
         }.bind(this));
@@ -469,6 +471,10 @@
       },
 
       wrapFilterLink : function(key, value, icon, attributes) {
+        if( this.noWrap.indexOf(key) > -1 ) {
+          return value;
+        }
+
         if( key == 'Website' ) {
           if( !value.match(/^(http|https|ftp)/) ) value = 'http://'+value;
           var link = '<a href="'+value+'" target="_blank"><i class="fa fa-globe"></i> '+value+'</a>';
@@ -480,9 +486,6 @@
           var link = '<a href="mailto:'+value+'" target="_blank"><i class="fa fa-envelope-o"></i> '+value+'</a>';
           return link;
         }
-
-        //if( noLink.indexOf(key) > -1 ) return value;
-        //if( value.length > 80 ) return value;
 
         var q = MQE.getCurrentQuery();
         q.text = '';

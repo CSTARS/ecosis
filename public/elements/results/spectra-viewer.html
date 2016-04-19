@@ -20,18 +20,21 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         <h5 style="color: #333" id="selector" >
-          <span id="countLabel">
-            Spectra
-            <span id="currentSpectra" style="color:#888"></span>
-            of
-            <span id="totalSpectraLabel" style="color:#888"></span>
-          </span>
+          <div class="layout horizontal">
+            <div class="flex">
+              <span id="countLabel">
+                Spectra
+                <span id="currentSpectra" style="color:#888"></span>
+                of
+                <span id="totalSpectraLabel" style="color:#888"></span>
+              </span>
 
-          <small id="loadingPanel">Loading...</small>
+              <small id="loadingPanel">Loading...</small>
+            </div>
 
-          <div class="checkbox pull-right" style="margin:0">
-            <label><input type="checkbox" on-click="toggleStats" /> Stats</label>
-          </div>
+            <div class="checkbox" style="margin:0">
+              <label><input type="checkbox" on-click="toggleStats" /> Stats</label>
+            </div>
         </h5>
       </div>
       <div class="panel-body">
@@ -533,10 +536,12 @@
             this.dt = new google.visualization.DataTable();
             this.dt.addColumn('string', 'Wavelength');
             this.dt.addColumn('number', 'Average');
+            // A column for custom tooltip content
+            this.dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip','p': {'html': true}});
+
             this.dt.addColumn('number', 'Min');
             this.dt.addColumn('number', 'Max');
-            // A column for custom tooltip content
-            this.dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
+
 
             this.dt.addRows(arr);
 
@@ -607,7 +612,7 @@
 
       updateStats : function() {
         this.showingStats = true;
-        this.$.attributes.innerHTML = '';
+        //this.$.attributes.innerHTML = '';
 
         var filters = '';
         if( this.activeFilter ) {
@@ -649,10 +654,11 @@
 
             if( this.ptRegex1.exec(k) || this.ptRegex2.exec(k) ) {
 
-              f = '';
-              for( k2 in v ) f += '<b>'+k2+'</b>: '+v[k2].toFixed(6)+'\n';
+              f = '<div style="padding:5px">';
+              for( k2 in v ) f += '<b>'+k2+'</b>: '+v[k2].toFixed(6)+'<br />';
+              f += '</div>';
 
-              this.dataArray.push([parseFloat(k), v.avg, v.min, v.max, f]);
+              this.dataArray.push([parseFloat(k), v.avg, f, v.min, v.max]);
             }
         }
 
@@ -673,7 +679,7 @@
         if( !this.showingStats ) return;
         if( e.row === undefined ) return;
 
-        var k = this.dataArray[e.row][4];
+        var k = this.dataArray[e.row][2];
         this.$.hoverInfo.innerHTML = k.replace(/\n/g, ', ').replace(/, $/, '');
       }
     });

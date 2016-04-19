@@ -39133,19 +39133,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div class="panel panel-default">
       <div class="panel-heading">
         <h5 style="color: #333" id="selector">
-          <span id="countLabel">
-            Spectra
-            <span id="currentSpectra" style="color:#888"></span>
-            of
-            <span id="totalSpectraLabel" style="color:#888"></span>
-          </span>
+          <div class="layout horizontal">
+            <div class="flex">
+              <span id="countLabel">
+                Spectra
+                <span id="currentSpectra" style="color:#888"></span>
+                of
+                <span id="totalSpectraLabel" style="color:#888"></span>
+              </span>
 
-          <small id="loadingPanel">Loading...</small>
+              <small id="loadingPanel">Loading...</small>
+            </div>
 
-          <div class="checkbox pull-right" style="margin:0">
-            <label><input type="checkbox" on-click="toggleStats"> Stats</label>
-          </div>
-        </h5>
+            <div class="checkbox" style="margin:0">
+              <label><input type="checkbox" on-click="toggleStats"> Stats</label>
+            </div>
+        </div></h5>
       </div>
       <div class="panel-body">
 
@@ -39646,10 +39649,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.dt = new google.visualization.DataTable();
             this.dt.addColumn('string', 'Wavelength');
             this.dt.addColumn('number', 'Average');
+            // A column for custom tooltip content
+            this.dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip','p': {'html': true}});
+
             this.dt.addColumn('number', 'Min');
             this.dt.addColumn('number', 'Max');
-            // A column for custom tooltip content
-            this.dt.addColumn({id: 'tooltip', type: 'string', role: 'tooltip'});
+
 
             this.dt.addRows(arr);
 
@@ -39720,7 +39725,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       updateStats : function() {
         this.showingStats = true;
-        this.$.attributes.innerHTML = '';
+        //this.$.attributes.innerHTML = '';
 
         var filters = '';
         if( this.activeFilter ) {
@@ -39762,10 +39767,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             if( this.ptRegex1.exec(k) || this.ptRegex2.exec(k) ) {
 
-              f = '';
-              for( k2 in v ) f += '<b>'+k2+'</b>: '+v[k2].toFixed(6)+'\n';
+              f = '<div style="padding:5px">';
+              for( k2 in v ) f += '<b>'+k2+'</b>: '+v[k2].toFixed(6)+'<br />';
+              f += '</div>';
 
-              this.dataArray.push([parseFloat(k), v.avg, v.min, v.max, f]);
+              this.dataArray.push([parseFloat(k), v.avg, f, v.min, v.max]);
             }
         }
 
@@ -39786,7 +39792,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if( !this.showingStats ) return;
         if( e.row === undefined ) return;
 
-        var k = this.dataArray[e.row][4];
+        var k = this.dataArray[e.row][2];
         this.$.hoverInfo.innerHTML = k.replace(/\n/g, ', ').replace(/, $/, '');
       }
     });
@@ -40036,6 +40042,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       ready : function() {
         this.panels = ['package','download','chart'];
         this.MAX_FILTER_LINKS = 15;
+
+        this.noWrap = ['Citation', 'Citation DOI', 'Funding Source Grant Number'];
 
         $(window).bind('result-update-event', function(e, result){
           this.render(result);
@@ -40363,6 +40371,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       wrapFilterLink : function(key, value, icon, attributes) {
+        if( this.noWrap.indexOf(key) > -1 ) {
+          return value;
+        }
+
         if( key == 'Website' ) {
           if( !value.match(/^(http|https|ftp)/) ) value = 'http://'+value;
           var link = '<a href="'+value+'" target="_blank"><i class="fa fa-globe"></i> '+value+'</a>';
@@ -40374,9 +40386,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           var link = '<a href="mailto:'+value+'" target="_blank"><i class="fa fa-envelope-o"></i> '+value+'</a>';
           return link;
         }
-
-        //if( noLink.indexOf(key) > -1 ) return value;
-        //if( value.length > 80 ) return value;
 
         var q = MQE.getCurrentQuery();
         q.text = '';
