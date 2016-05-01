@@ -52,9 +52,8 @@ function qs(name, url) {
 		// the polyfill is cause issues with this...
 		window.domready = true;
 
-		if( ESIS.search && ESIS.result ) {
+		if( ESIS.search ) {
 			ESIS.search.init();
-			ESIS.result.init();
 		}
 	}
 

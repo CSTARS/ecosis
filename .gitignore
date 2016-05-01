@@ -5,4 +5,5 @@ public/.tmp
 .DS_Store
 public/bower_components
 npm-debug.log
+.vscode
 *.tgz

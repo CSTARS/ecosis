@@ -352,9 +352,9 @@
         if( !org || org === 'None' ) {
           this.$.organization.style.display = 'none';
           this.$.orgImg.removeAttribute('src');
-          this.$.orgTitle.removeAttribute('href');
-          this.$.orgTitle.removeAttribute('title');
-          this.$.orgTitle.innerHTML = '';
+          this.$.orgName.removeAttribute('href');
+          this.$.orgName.removeAttribute('title');
+          this.$.orgName.innerHTML = '';
           this.$.orgDescription.innerHTML = '';
           this.$.orgMembers.innerHTML = '';
           return;

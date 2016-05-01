@@ -395,9 +395,11 @@ ESIS.search = (function() {
 
   function _updateRestLink() {
     var link = MQE.getRestLink();
-    if( !link.match(/$http.*/) ) {
+    if( !link.match(/$https.*/) ) {
       link = window.location.protocol+'//'+window.location.host+link;
     }
+    link = link.replace(/mqe\/query/,'package/query');
+    
 
     $('#current-search-rest-link').html(
       '<a href="'+link+'" target="_blank"><i class="fa fa-link"></i> Search API Link</a> | '+
