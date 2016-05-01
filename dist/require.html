@@ -39626,6 +39626,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.render(result);
         }.bind(this));
       },
+      
+      attached : function() {
+        if( window.prerender ) {
+          $.get('/package/get',{id : qs('result')}, function(data) {
+              this.parentNode.style.display = 'block';
+              this.render(data);
+            }.bind(this)
+          );
+        }
+      },
 
       setPanel : function(panel) {
         if( typeof panel === 'object' ) {
