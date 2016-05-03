@@ -39620,7 +39620,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.panels = ['package','download','chart'];
         this.MAX_FILTER_LINKS = 15;
 
-        this.noWrap = ['Citation', 'Citation DOI', 'Funding Source Grant Number'];
+        this.noWrap = ['Citation', 'Citation DOI', 'Funding Source Grant Number', 'EcoSIS DOI', 'Light Source Specifications',
+                        'Instrument Serial Number', 'Foreoptic Specifications', 'Processing Information Details'];
 
         $(window).bind('result-update-event', function(e, result){
           this.render(result);
@@ -39755,13 +39756,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       renderCitation : function() {
         var table = '<table class="table">';
-        LIB.schema.Citation.forEach(function(item){
-          table +=
+        
+        // first see if we have a ecosis doi
+        var ecosisDoi;
+        if( this.result.ecosis.doi ) {
+          ecosisDoi = this.result.ecosis.doi;
+        }
+        
+        LIB.schema.Citation.forEach(function(item) {
+          if( item.name === 'Citation DOI' && ecosisDoi ) {
+            table +=
+              '<tr>'+
+                '<td class="elabel">EcoSIS DOI</td>'+
+                '<td>'+this.wrapFilterLinks('EcoSIS DOI', [ecosisDoi])+'</td>'+
+                '<td style="text-align:right"><help-popover description="EcoSIS assigned DOI"></help-popover></td>'
+              '</tr>';
+          } else {
+            table +=
               '<tr>'+
                 '<td class="elabel">'+item.name+'</td>'+
                 '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
                 '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
               '</tr>';
+          }
+          
         }.bind(this));
         this.$.citation.innerHTML = table+'</table>';
       },
@@ -39939,10 +39957,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       wrapFilterLinks : function(key, values, icon) {
         if( !values ) {
-          return '<span style="color:#888">Not Provided</span>';
+          return '<span style="color:#aaa">Not Provided</span>';
         }
         if( values.length === 0 ) {
-          return '<span style="color:#888">Not Provided</span>';
+          return '<span style="color:#aaa">Not Provided</span>';
         }
 
         var links = [];
