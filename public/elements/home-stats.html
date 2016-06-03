@@ -50,7 +50,7 @@
         <div class="col-md-4">
           <h5>Contribute!</h5>
           <div>
-            Want to contribute?  Visit <a href="http://data.ecosis.org">http://data.ecosis.org</a>.
+            Want to contribute?  Visit <a href="http://data.ecosis.org" id="contributeLink">http://data.ecosis.org</a>.
           </div>
         </div>
         <div class="col-md-4">
@@ -79,6 +79,13 @@
         this.stats = {};
         this.top = ['ecosis.organization', 'Keywords', 'Theme'];
         $.get('/stats/home', this.onStatsLoad.bind(this));
+        
+        if( window.location.hostname == 'dev-search.ecospectra.org' ) {
+          $('.sandbox').show();
+          this.$.mainainerLink.setAttribute('href','http://dev-data.ecospectra.org');
+          this.$.contributeLink.innerHTML = 'http://dev-data.ecospectra.org';
+          this.$.contributeLink.setAttribute('href','http://dev-data.ecospectra.org');
+        }
       },
 
       onStatsLoad : function(stats) {
