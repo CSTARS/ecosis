@@ -21,7 +21,7 @@
       "db" : {
         "url_old"         : "mongodb://localhost:27017/ecosis",
         "database"        : "ecosis-dev",
-        "url"             : "mongodb://192.168.1.23:27017/ecosis",
+        "url"             : "mongodb://localhost:27017/ecosis",
 
         "mainCollection"  : "search",
         "spectraCollection" : "spectra",

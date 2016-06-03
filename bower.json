@@ -26,6 +26,7 @@
     "bower-bootstrap-slider": "*",
     "textillate": "*",
     "paper-tabs": "PolymerElements/paper-tabs#~1.0.1",
-    "jquery-jsonview": "~1.2.2"
+    "jquery-jsonview": "~1.2.2",
+    "iron-image": "PolymerElements/iron-image#^1.2.3"
   }
 }

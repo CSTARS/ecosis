@@ -37,76 +37,15 @@
       });
   </script>
 
-  <style>
-    .splash {
-      background: url(../assets/banner-slim.png) no-repeat center top;
-      margin-top: 0px;
-      padding: 60px 0;
-      /*padding-top: 60px;*/
-      text-align: center;
-      /*background-attachment: relative;*/
-      background-position: center center;
-      min-height: 400px;
-      width: 100%;
-      -webkit-background-size: 100%;
-      -moz-background-size: 100%;
-      -o-background-size: 100%;
-      background-size: 100%;
-      -webkit-background-size: cover;
-      -moz-background-size: cover;
-      -o-background-size: cover; */
-      /* background-size: cover; */
-    }
-    .splash h1 {
-      color: white;
-      letter-spacing: 10px;
-      text-shadow: 0 0 15px #333;
-      padding-left: 30px;
-      padding-right: 30px;
-    }
-    .splash h1 div {
-      font-size:2em;
-    }
-    .splash h3 {
-      color: white;
-      letter-spacing: 5px;
-      text-shadow: 0 0 15px #333;
-    }
-    .splash-url {
-      letter-spacing: 5px;
-      color:white;
-      margin: 20px 0;
-      padding: 20px 0;
-      border-top: 3px solid white;
-      border-bottom: 3px solid white;
-    }
-
-    @media(max-width: 680px) {
-      .splash h1 {
-        letter-spacing: 5px;
-        padding-left: 15px;
-        padding-right: 15px;
-      }
-      .splash h1 div {
-        font-size:1.5em;
-      }
-      .splash h3 {
-        letter-spacing: 2px;
-      }
-      .splash-url {
-        letter-spacing: 2px;
-        margin: 10px 0;
-        padding: 10px 0;
-      }
-    }
-  </style>
-
 </head>
 <body resolved>
 
 <div id="home" style="display:none;">
+
   <div class="splash">
-    <div class="layout horizontal center-justified">
+    <iron-image style="height:470px; width:100%; position:absolute; top: 0; left: 0"  placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAJCAYAAAAsCDz7AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AYDAAcsOvwRSAAAAtNJREFUKM8FwctuG1UAgOH/nLl4bNce2/E11CFtUjVtCaqgCgUJ2IBAYod4A4TEA/AAfRcWSOy6ohISd4mCCFUpDW3TNFGcxLEb2+OJ7bmfw/eJm1/c1M3ibdySIFff4+HfHoWuYnaQI++YrG+UsKtQLjnc3z5k43KFiacZDmbc2qryYiemdUmSsw2iMGMyjjkdBoz8kLeutkAVSBddROuT69pyJNMdB7uaEmWaaAJZolGJJl8y+fLOJs8Oj8jHFwnMPufTgLe3uhjZBVLh83j3jEcPpoSxws4Lyi3Jye8xi4Hi9gcrvHi6QLQ/u6brTYtn3+V49UYDaY/Z/y9AKABBNM24/lGeSMHVWyaDA8W773Wo2Sv8+tMTZmlAfzKjUrPpLOf59/uQUS9k4aUgFUhovwOm39P4uxlOscDG+zkWMqW0YWJkJo/vRTh2nufbER9/XsMfpzS7Bne/OULFfXIVxeg0QRmaKIgxHUXvYQAAloAUKpcl9SaY0UuNcDQqDKlVQiZjiRclzLyQrU9rdHiNf/b+YuJlpL7i0S8BxbqBUU5JDHhl06JYhtXlIocnAR9+lSc9s/nx6ykgsF3N8DjDLHcljTWL0bZLmDQYeydEkYAE/vzZp5EeoSoZe3dDltYs1q64DOfnVJs2wshQWjPoKbyzc5aaErck6T3PAIFVgouvw7RvYpZXob3ksH/us/MbjKuK6MBFJopMz5lMBkx7IcISTI4jglnC/ASOt+e0Ny2soka6mkwIHEcSTQ0e/DADAStvWshIkM8HGBj1O+VGmSV3jUEvprueIN0MPw7RC0F0HtN+I4dwFelMkMWwGChUAgkKWYWZp7l0RXD6JOP+tyFpALUbErdr4A8jfC9DttZN3PoCz3iKPxrS/8PCLSg6DZNgX2O0BfMZVJdNCh1B+FKDBAQER5pgV7N8wWD3HlTSa6gMrDY0Vg3iSUyaaqJA8z/OiGDYFjeVWQAAAABJRU5ErkJggg=="
+  sizing="cover" preload fade src="../assets/banner-slim.png"></iron-image>
+    <div class="layout horizontal center-justified" style="position: absolute; width: 100%">
       <div class="self-center">
         <h1><div>EcoSIS</div></h1>
         <h1 class="splash-url">
@@ -117,15 +56,7 @@
     </div>
   </div>
 
-  <!--<img src="../assets/banner-slim.png" style="width:100%"/>-->
-
   <home-stats></home-stats>
-
-  <div style="margin-top:30px; text-align:center; border-top: 1px solid #eee; padding: 25px 5%">
-    Data maintainers, <a id="mainainerLink" href="http://data.ecosis.org">Enter Here</a> |
-    <a href="http://tutorial.ecosis.org" target="_blank">EcoSIS Tutorials</a>
-  </div>
-
 </div>
 
 <div id="search" style="display:none;">
