@@ -222,13 +222,13 @@
   <span class="label label-primary">Loading...</span>
 </div>
 
-<div id="gitInfo" style="padding: 50px 30px; color: #888; font-size: 12px; font-style: italic"></div>
+<div id="gitInfo" style="padding: 50px 30px; color: #888; font-size: 12px; font-style: italic; display:none"></div>
 <script>
   $.get('/git/info', function(resp){
     var html = '';
     if( resp && resp.branch == 'master' ) return;
     for( var key in resp ) html += '<div><b>'+key+':</b> '+resp[key]+'</div>';
-    $('#gitInfo').html(html);
+    $('#gitInfo').html(html).show();
     $('.sandbox').show();
   });
 
