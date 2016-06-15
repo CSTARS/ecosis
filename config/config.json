@@ -20,7 +20,7 @@
       "node" : "node",
       "db" : {
         "url_old"         : "mongodb://localhost:27017/ecosis",
-        "database"        : "ecosis-dev",
+        "database"        : "ecosis",
         "url"             : "mongodb://localhost:27017/ecosis",
 
         "mainCollection"  : "search",
