@@ -8,6 +8,7 @@
     "test": "grunt test",
     "build": "grunt build",
     "dev": "node server.js --dev",
+    "docker": "node server.js --docker",
     "all": "npm run build && npm run test"
   },
   "dependencies": {
