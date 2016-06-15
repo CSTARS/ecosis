@@ -8,7 +8,7 @@ if( window.location.host == 'ecosis.org' ) {
 } else if ( window.location.host == 'dev-search.ecospectra.org' ) {
 	ESIS.ckanHost = 'http://dev-data.ecospectra.org';
 } else {
-	ESIS.ckanHost = 'http://192.168.2.138:5000';
+	ESIS.ckanHost = 'http://localhost:5000';
 }
 
 function qs(name, url) {

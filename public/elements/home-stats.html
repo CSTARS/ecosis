@@ -81,7 +81,6 @@
         $.get('/stats/home', this.onStatsLoad.bind(this));
         
         if( window.location.hostname == 'dev-search.ecospectra.org' ) {
-          $('.sandbox').show();
           this.$.mainainerLink.setAttribute('href','http://dev-data.ecospectra.org');
           this.$.contributeLink.innerHTML = 'http://dev-data.ecospectra.org';
           this.$.contributeLink.setAttribute('href','http://dev-data.ecospectra.org');
@@ -147,8 +146,6 @@
         q.filters = [f];
         return MQE.queryToUrlString(q);
       }
-
-
 
     });
   </script>
