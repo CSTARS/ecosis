@@ -32,7 +32,7 @@ options = {
 
       // command line override of mqe config
       if( config.get('mqe-local') && fs.existsSync(config.get('mqe-local')) ) {
-        config.use(require(config.get('mqe-local')));
+        config.use(JSON.parse( fs.readFileSync(config.get('mqe-local'), 'utf-8') ));
       }
 
       var mqeConfig = config.get('mqe');
