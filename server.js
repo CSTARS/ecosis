@@ -31,7 +31,7 @@ options = {
       }
 
       // command line override of mqe config
-      if( config.get('mqe-local') && fs.fileExistsSync(config.get('mqe-local')) ) {
+      if( config.get('mqe-local') && fs.existsSync(config.get('mqe-local')) ) {
         config.use(require(config.get('mqe-local')));
       }
 
