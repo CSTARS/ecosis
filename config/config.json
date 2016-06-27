@@ -17,9 +17,8 @@
     },
 
     "mqe" : {
-      "node" : "node",
+
       "db" : {
-        "url_old"         : "mongodb://localhost:27017/ecosis",
         "database"        : "ecosis",
         "url"             : "mongodb://localhost:27017/ecosis",
 
@@ -47,15 +46,10 @@
 
       "server" : {
         "host" : "localhost",
-
         "remoteport" : 80,
-
         "localport" : 3000,
-
         "url" : "http://localhost:3000/",
-
         "allowedDomains" : [],
-
         "googleAnalytics" : "UA-60014992-3"
       },
       "rest" : {
@@ -64,8 +58,7 @@
       },
       "ckan" : {
         "server" : "http://192.168.1.23:5000",
-        "server_old" : "http://data.ecospectra.org",
-        "keyFile" : "/etc/node-ckan/ckan-local.json"
+        "server_old" : "http://data.ecospectra.org"
       }
     }
 

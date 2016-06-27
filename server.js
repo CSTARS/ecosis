@@ -2,6 +2,7 @@
 var express = require('express');
 var kraken = require('kraken-js');
 var http = require('http');
+var fs = require('fs');
 
 var mqeLib = require('mongo-query-engine');
 //var mqeLib = require('/Users/jrmerz/dev/cstars/mongo-query-engine');
@@ -30,7 +31,7 @@ options = {
       }
 
       // command line override of mqe config
-      if( config.get('mqe-local') ) {
+      if( config.get('mqe-local') && fs.fileExistsSync(config.get('mqe-local')) ) {
         config.use(require(config.get('mqe-local')));
       }
 
