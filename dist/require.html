@@ -29088,7 +29088,7 @@ if( window.location.host == 'ecosis.org' ) {
 } else if ( window.location.host == 'dev-search.ecospectra.org' ) {
 	ESIS.ckanHost = 'http://dev-data.ecospectra.org';
 } else {
-	ESIS.ckanHost = 'http://192.168.2.138:5000';
+	ESIS.ckanHost = 'http://localhost:5000';
 }
 
 function qs(name, url) {
@@ -40950,7 +40950,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         $.get('/stats/home', this.onStatsLoad.bind(this));
         
         if( window.location.hostname == 'dev-search.ecospectra.org' ) {
-          $('.sandbox').show();
           this.$.mainainerLink.setAttribute('href','http://dev-data.ecospectra.org');
           this.$.contributeLink.innerHTML = 'http://dev-data.ecospectra.org';
           this.$.contributeLink.setAttribute('href','http://dev-data.ecospectra.org');
@@ -41016,8 +41015,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         q.filters = [f];
         return MQE.queryToUrlString(q);
       }
-
-
 
     });
   </script>

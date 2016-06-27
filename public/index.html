@@ -26,6 +26,7 @@
   <script src="js/webcomponents.js"></script>
   <link rel="stylesheet" href="font-awesome/css/font-awesome.css">
   <script type="text/javascript" src="mqe/resources/mqe.js"></script>
+  <script type="text/javascript" src="/conf"></script>
   <link rel="import" href="require.html">
 
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -232,10 +233,13 @@
     $('.sandbox').show();
   });
 
-  if( window.location.hostname == 'dev-search.ecospectra.org' ) {
+  if( !ckan.prod ) {
     $('.sandbox').show();
-    $('#mainainerLink').attr('href','http://dev-data.ecospectra.org');
   }
+  $('#mainainerLink').attr('href', ckan.url);
+  $('#contributeLink')
+    .attr('href', ckan.url)
+    .html(ckan.url);
 </script>
 <script src="/analytics"></script>
 

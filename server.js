@@ -21,6 +21,7 @@ process.on('uncaughtException', function(err) {
 options = {
     onconfig: function (config, next) {
       conf = config;
+      require('./lib/config')(config);
 
       // allow command line switch from serving /dist to /app
       var staticRoot = 'dist';
