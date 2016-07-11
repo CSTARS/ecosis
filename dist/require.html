@@ -29252,8 +29252,20 @@ ESIS.search = (function() {
     $("#search-btn").on('click', function(){
       _search();
     });
-    $("#search-text").on('keypress', function(e){
+    $("#search-text").on('keyup', function(e){
+      if( $("#search-text").val().length > 0 ) {
+        $('#clear-search').show();
+      } else {
+        $('#clear-search').hide();
+      }
+
       if( e.which == 13 ) _search();
+    });
+
+    $('#clear-search').on('click', function(e){
+      $("#search-text").val('');
+      $(this).hide();
+      _search();
     });
   }
 
