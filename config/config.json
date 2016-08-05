@@ -57,7 +57,7 @@
         "query" : "/package/query"
       },
       "ckan" : {
-        "server" : "http://192.168.1.23:5000",
+        "server" : "http://localhost:5000",
         "server_old" : "http://data.ecospectra.org"
       }
     }

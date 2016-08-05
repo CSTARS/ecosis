@@ -40530,12 +40530,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 '<td style="text-align:right"><help-popover description="EcoSIS assigned DOI"></help-popover></td>'
               '</tr>';
           } else {
-            table +=
-              '<tr>'+
-                '<td class="elabel">'+item.name+'</td>'+
-                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
-                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
-              '</tr>';
+            table += this.defaultRowRender(item);
           }
           
         }.bind(this));
@@ -40545,12 +40540,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       renderSpecies : function() {
         var table = '<table class="table">';
         LIB.schema.Species.forEach(function(item){
-          table +=
-              '<tr>'+
-                '<td class="elabel">'+item.name+'</td>'+
-                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
-                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
-              '</tr>';
+          table += this.defaultRowRender(item);
         }.bind(this));
         this.$.species.innerHTML = table+'</table>';
       },
@@ -40560,12 +40550,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         LIB.schema.Theme.forEach(function(item){
           if( item.name === 'Keywords' ) return;
 
-          table +=
-              '<tr>'+
-                '<td class="elabel">'+item.name+'</td>'+
-                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
-                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
-              '</tr>';
+          table += this.defaultRowRender(item);
         }.bind(this));
         this.$.theme.innerHTML = table+'</table>';
       },
@@ -40573,12 +40558,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       renderProcessingInformation : function() {
         var table = '<table class="table">';
         LIB.schema['Processing Information'].forEach(function(item){
-          table +=
-              '<tr>'+
-                '<td class="elabel">'+item.name+'</td>'+
-                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
-                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
-              '</tr>';
+          table += this.defaultRowRender(item);
         }.bind(this));
         this.$.processingInformation.innerHTML = table+'</table>';
       },
@@ -40586,12 +40566,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       renderInsturment : function() {
         var table = '<table class="table">';
         LIB.schema.Instrument.forEach(function(item){
-          table +=
-              '<tr>'+
-                '<td class="elabel">'+item.name+'</td>'+
-                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
-                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
-              '</tr>';
+          table += this.defaultRowRender(item);
         }.bind(this));
         this.$.instrument.innerHTML = table+'</table>';
       },
@@ -40599,12 +40574,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       renderMeasurements : function() {
         var table = '<table class="table">';
         LIB.schema.Measurement.forEach(function(item){
-          table +=
-              '<tr>'+
-                '<td class="elabel">'+item.name+'</td>'+
-                '<td>'+this.wrapFilterLinks(item.name, this.result[item.name])+'</td>'+
-                '<td style="text-align:right">'+(item.description ? '<help-popover description="'+item.description+'"></help-popover>' : '')+'</td>'
-              '</tr>';
+          table += this.defaultRowRender(item);
         }.bind(this));
         this.$.measurements.innerHTML = table+'</table>';
       },
@@ -40644,6 +40614,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else {
           this.$.orgMembers.innerHTML = '';
         }
+      },
+
+      defaultRowRender : function(schemaItem) {
+          var row = 
+            '<tr>'+
+              '<td class="elabel">'+schemaItem.name+'</td>'+
+              '<td>'+this.wrapFilterLinks(schemaItem.name, this.result[schemaItem.name])+'</td>'+
+              '<td style="text-align:right">'+(schemaItem.description ? '<help-popover description="'+schemaItem.description+'"></help-popover>' : '')+'</td>' +
+            '</tr>';
+          
+          if( schemaItem.allowOther && this.result[schemaItem.name+' Other'] ) {
+            row +=
+              '<tr>'+
+                '<td class="elabel">'+schemaItem.name+' Other</td>'+
+                '<td>'+this.wrapFilterLinks(schemaItem.name+' Other', this.result[schemaItem.name+' Other'])+'</td>'+
+                '<td></td>' +
+              '</tr>';
+          }
+
+          return row;
       },
 
       setLinks : function() {
