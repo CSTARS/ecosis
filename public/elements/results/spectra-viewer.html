@@ -78,6 +78,7 @@
 
         <div id="metadataPanel">
           <h4>Metadata</h4>
+          <div id="photoPreview" style="text-align:center"></div>
           <div class="row">
             <div class="col-md-6">
               <div class="attributes" id="attributes1"></div>
@@ -352,7 +353,7 @@
         var c = 0;
 
         for( var attr in this.item) {
-          if( attr == 'ecosis' || attr == '_id' || attr == 'datapoints' ) continue;
+          if( attr == 'ecosis' || attr == '_id' || attr == 'datapoints' || attr == 'photo' ) continue;
 
           var unitLabel = '';
           if( units[attr] ) {
@@ -369,6 +370,25 @@
 
         this.$.attributes1.innerHTML = table1+'</table>';
         this.$.attributes2.innerHTML = table2+'</table>';
+
+        var photoUrl = '';
+        for( var key in this.item ) {
+          if( key.trim().toLowerCase() === 'photo' ) {
+            photoUrl = this.item[key];
+            break;
+          }
+        }
+
+        if( photoUrl ) {
+          this.$.photoPreview.innerHTML = '<img src="'+photoUrl+'" class="img img-thumbnail" style="margin:10px; max-height: 350px" />';
+          $(this.$.photoPreview)
+            .find('img')
+            .on('error', function(){
+              this.$.photoPreview.innerHTML = '<a href="'+photoUrl+'" target="_blank" >Spectra Photo</a>';
+            }.bind(this));
+        } else {
+          this.$.photoPreview.innerHTML = '';
+        }
       },
 
       previous : function() {
