@@ -24,7 +24,7 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
       return callback('Failed to parse filters parameter as JSON');
     }
 
-    var pkg, response, sort, i, data, metadata, units;
+    var pkg, response, sort, i, data, metadata, units, aliases;
 
     collection.findOne(
         { '$or': [{'value.ecosis.package_id': pkgid}, {'value.ecosis.package_name': pkgid}]},
@@ -54,8 +54,15 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
           data = pkg.ecosis.spectra_metadata_schema.wavelengths;
           metadata = pkg.ecosis.spectra_metadata_schema.metadata;
           units = pkg.ecosis.spectra_metadata_schema.units;
+          
+          aliases = pkg.ecosis.spectra_metadata_schema.aliases;
+          var metadataRemoveList = [];
+          if( aliases ) {
+            var tmp = {};
+            for( var key in aliases ) metadataRemoveList.push(aliases[key]);
+          }
 
-          // sort metadat by names
+          // sort metadata by names
           if( includeMetadata ) {
               metadata.sort(function(a,b){
                   if( a > b ) {
@@ -65,6 +72,13 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
                   }
                   return 0;
               });
+
+              for( var i = 0; i < metadataRemoveList.length; i++ ) {
+                var index = metadata.indexOf(metadataRemoveList[i]);
+                if( index > -1 ) {
+                  metadata.splice(index, 1);
+                }
+              }
           }
 
           // sort data by wavelength
@@ -97,6 +111,10 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
           if( includeMetadata && metadata.length > 1 ) {
             response.headers = [];
             metadata.forEach(function(header){
+              if( metadataRemoveList.indexOf(header) > -1 ) {
+                return;
+              }
+
               if( units[header] ) {
                 response.headers.push(header+' ('+units[header]+')');
               } else {
