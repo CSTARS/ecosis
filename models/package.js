@@ -59,7 +59,10 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
           var metadataRemoveList = [];
           if( aliases ) {
             var tmp = {};
-            for( var key in aliases ) metadataRemoveList.push(aliases[key]);
+            for( var key in aliases ) {
+              if( key === aliases[key] ) continue;
+              metadataRemoveList.push(aliases[key]);
+            }
           }
 
           // sort metadata by names
