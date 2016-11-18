@@ -1,6 +1,7 @@
 'use strict';
 
 var csvStringify = require('csv-stringify');
+var BOM = '\uFEFF'; // specify utf-8 file
 
 module.exports = function(model, req, res) {
 
@@ -23,7 +24,7 @@ module.exports = function(model, req, res) {
     res.set('Content-Disposition', 'attachment; filename="'+result.packageName+'.csv"');
 
     csvStringify([result.headers], function(err, output){
-      res.write(output);
+      res.write(BOM + output);
     });
 
     var dataLength = result.data.length;
