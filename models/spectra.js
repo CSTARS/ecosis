@@ -51,13 +51,12 @@ function querySpectra(package_id, filters, start, stop, callback) {
       return callback(err);
     }
 
-
-
     var cursor = spectraCollection.find(query);
     var first = true;
     var stream = cursor.stream();
     stream
       .skip(start)
+      .sort({'ecosis.sort': 1 })
       .limit(stop-start);
 
     callback(null, {
