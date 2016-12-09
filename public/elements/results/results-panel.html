@@ -127,7 +127,7 @@
         <div id="downloaderRoot" class="well">
           <data-downloader package="{{result.ecosis.package_id}}"></data-downloader>
 
-          <h5 style="margin-top: 50px"><i class="fa fa-files-o"></i> Download Individual Package Resources</h5>
+          <h5 style="margin-top: 50px"><i class="fa fa-files-o"></i> Download Original Dataset Resources</h5>
           <ul class="list-group" id="resources"></ul>
         </div>
       </div>
@@ -382,9 +382,13 @@
       },
 
       defaultRowRender : function(schemaItem) {
+          // TODO: fix this in schema
+          var name = schemaItem.name;
+          if( name == 'Citation DOI') name = 'Dataset DOI';
+
           var row = 
             '<tr>'+
-              '<td class="elabel">'+schemaItem.name+'</td>'+
+              '<td class="elabel">'+name+'</td>'+
               '<td>'+this.wrapFilterLinks(schemaItem.name, this.result[schemaItem.name])+'</td>'+
               '<td style="text-align:right">'+(schemaItem.description ? '<help-popover description="'+schemaItem.description+'"></help-popover>' : '')+'</td>' +
             '</tr>';
