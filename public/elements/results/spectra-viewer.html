@@ -625,17 +625,22 @@
               options.vAxis.title = this.ylabel;
           }
 
-          var vLabel = '';
+          var label = '';
           if( this.packageData['Measurement Quantity'] && this.packageData['Measurement Quantity'].length === 1  ) {
-            vLabel = this.packageData['Measurement Quantity'][0];
+            label = this.packageData['Measurement Quantity'][0];
           }
           if( this.packageData['Measurement Units'] && this.packageData['Measurement Units'].length === 1 ) {
-            vLabel += ' ('+this.packageData['Measurement Units'][0]+')';
+            label += ' ('+this.packageData['Measurement Units'][0]+')';
           }
-          options.vAxis.title = vLabel;
+          options.vAxis.title = label;
 
           if( this.packageData['Wavelength Units'] && this.packageData['Wavelength Units'].length === 1  ) {
-            options.hAxis.title = 'Wavelength ('+this.packageData['Wavelength Units'][0]+')';
+            label = this.packageData['Wavelength Units'][0];
+            if( label !== 'other' ) {
+              options.hAxis.title = 'Wavelength ('+label+')';
+            } else if( this.packageData['Wavelength Units Other'] && this.packageData['Wavelength Units Other'].length === 1  ) {
+              options.hAxis.title = 'Wavelength ('+this.packageData['Wavelength Units Other'][0]+')';
+            }
           }
 
 
