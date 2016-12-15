@@ -500,7 +500,13 @@
               }
               this.dataArray.splice(0,0,header);
           } else {
-              this.dataArray.splice(0,0,['Wavelength','Value']);
+
+            var label = 'Value';
+            if( this.packageData['Measurement Quantity'] && this.packageData['Measurement Quantity'].length === 1  ) {
+              label = this.packageData['Measurement Quantity'][0];
+            }
+
+            this.dataArray.splice(0,0,['Wavelength',label]);
           }
 
 
@@ -596,6 +602,15 @@
           if( this.ylabel && this.ylabel != '' ) {
               options.vAxis.title = this.ylabel;
           }
+
+          var vLabel = '';
+          if( this.packageData['Measurement Quantity'] && this.packageData['Measurement Quantity'].length === 1  ) {
+            vLabel = this.packageData['Measurement Quantity'][0];
+          }
+          if( this.packageData['Measurement Units'] && this.packageData['Measurement Units'].length === 1 ) {
+            vLabel += ' ('+this.packageData['Measurement Units'][0]+')';
+          }
+          options.vAxis.title = vLabel;
 
           if( this.packageData['Wavelength Units'] && this.packageData['Wavelength Units'].length === 1  ) {
             options.hAxis.title = 'Wavelength ('+this.packageData['Wavelength Units'][0]+')';
