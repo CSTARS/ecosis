@@ -39949,7 +39949,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               }
               this.dataArray.splice(0,0,header);
           } else {
-              this.dataArray.splice(0,0,['Wavelength','Reflectance']);
+              this.dataArray.splice(0,0,['Wavelength','Value']);
           }
 
 
@@ -40034,6 +40034,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               tooltip: {isHtml: true}
           };
 
+
+
           if( this.label && this.label != '' ) {
               options.title = this.label;
           }
@@ -40044,10 +40046,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               options.vAxis.title = this.ylabel;
           }
 
-          /*options.animation = {
-              duration : 750,
-              easing : 'out'
-          }*/
+          if( this.packageData['Wavelength Units'] && this.packageData['Wavelength Units'].length === 1  ) {
+            options.hAxis.title = 'Wavelength ('+this.packageData['Wavelength Units'][0]+')';
+          }
+
 
           this.chart.draw(this.dt, options);
       },
