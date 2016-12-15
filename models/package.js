@@ -61,6 +61,12 @@ function exportPackage(pkgid, filters, includeMetadata, callback) {
             var tmp = {};
             for( var key in aliases ) {
               if( key === aliases[key] ) continue;
+              
+              // make sure any mapped units are exported
+              if( units[aliases[key]] ) {
+                units[key] = units[aliases[key]];
+              }
+
               metadataRemoveList.push(aliases[key]);
             }
           }

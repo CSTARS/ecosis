@@ -344,8 +344,29 @@
 
       updateAttributes : function() {
         var units = {};
-        if( this.packageData.ecosis.spectra_metadata_schema && this.packageData.ecosis.spectra_metadata_schema.units ) {
-          units = this.packageData.ecosis.spectra_metadata_schema.units;
+        var aliases = {};
+        var metadataRemoveList = [];
+
+        if( this.packageData.ecosis.spectra_metadata_schema ) {
+          if( this.packageData.ecosis.spectra_metadata_schema.units ) {
+            units = this.packageData.ecosis.spectra_metadata_schema.units;
+          }
+          if( this.packageData.ecosis.spectra_metadata_schema.aliases ) {
+            aliases = this.packageData.ecosis.spectra_metadata_schema.aliases;
+          }
+        }
+
+        if( aliases ) {
+          for( var key in aliases ) {
+            if( key === aliases[key] ) continue;
+            
+            // make sure any mapped units are exported
+            if( units[aliases[key]] ) {
+              units[key] = units[aliases[key]];
+            }
+
+            metadataRemoveList.push(aliases[key]);
+          }
         }
 
         var table1 = '<table class="table">';
@@ -353,6 +374,7 @@
         var c = 0;
 
         for( var attr in this.item) {
+          if( metadataRemoveList.indexOf(attr) > -1 ) continue;
           if( attr == 'ecosis' || attr == '_id' || attr == 'datapoints' || attr == 'photo' ) continue;
 
           var unitLabel = '';
