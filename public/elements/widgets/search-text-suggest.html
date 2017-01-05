@@ -92,6 +92,7 @@
 
         var query = MQE.getCurrentQuery();
         query.filters.push(f);
+        query.text = ''; // make sure this is always cleared out.
 
         window.location = MQE.queryToUrlString(query);
       }

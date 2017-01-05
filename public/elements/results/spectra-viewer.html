@@ -40,7 +40,19 @@
       <div class="panel-body">
 
         <div class="section">
-          <h4>Select &amp; Filter</h4>
+          <h4>Measurement</h4>
+          <div id="hoverInfo" style="position:absolute;z-index:50;padding: 5px; background-color: rgba(255, 255, 255, .8); margin-top:-30px;display:none"></div>
+
+          <div id="root" style="height: 300px; padding: 15px"></div>
+
+          <div style="padding: 0 25px">
+            <div id="sliderRoot"></div>
+            <div class="help-block" style="text-align:center">Filter Wavelength</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h4>Select &amp; Filter Spectra</h4>
 
           <div class="row" id="spectraSliderRow">
             <div class="col-sm-2 col-sm-offset-1">Select</div>
@@ -61,18 +73,6 @@
             <div class="col-sm-2 col-sm-offset-1">Filter</div>
             <div class="col-sm-4 "><select id="spectraFilterSelector" on-change="setFilterValues" class="form-control"></select></div>
             <div class="col-sm-4 "><select id="spectraFilterValueSelector" on-change="setDsFilter" class="form-control"></select></div>
-          </div>
-        </div>
-
-        <div class="section">
-          <h4>Measurement</h4>
-          <div id="hoverInfo" style="position:absolute;z-index:50;padding: 5px; background-color: rgba(255, 255, 255, .8); margin-top:-30px;display:none"></div>
-
-          <div id="root" style="height: 300px; padding: 15px"></div>
-
-          <div style="padding: 0 25px">
-            <div id="sliderRoot"></div>
-            <div class="help-block" style="text-align:center">Filter Wavelength</div>
           </div>
         </div>
 
@@ -373,7 +373,21 @@
         var table2 = '<table class="table">';
         var c = 0;
 
-        for( var attr in this.item) {
+        var metadata = {};
+        var spectraSchema = this.packageData.ecosis.spectra_metadata_schema;
+        if( spectraSchema && spectraSchema.metadata ) {
+          spectraSchema.metadata.forEach(function(key) {
+            if( this.item[key] ) {
+              metadata[key] = this.item[key];
+            } else {
+              metadata[key] = '<span style="color:#aaa">Not Provided</span>';
+            }
+          }.bind(this));
+        } else {
+          metadata = this.item;
+        }
+
+        for( var attr in metadata) {
           if( metadataRemoveList.indexOf(attr) > -1 ) continue;
           if( attr == 'ecosis' || attr == '_id' || attr == 'datapoints' || attr == 'photo' ) continue;
 
@@ -383,9 +397,9 @@
           }
 
           if( c % 2 === 0 ) {
-            table1 += '<tr><td><b>'+attr.replace(/(-|_)/g,' ')+'</b>'+unitLabel+'</td><td>'+this.item[attr]+'</td></tr>';
+            table1 += '<tr><td><b>'+attr.replace(/(-|_)/g,' ')+'</b>'+unitLabel+'</td><td>'+metadata[attr]+'</td></tr>';
           } else {
-            table2 += '<tr><td><b>'+attr.replace(/(-|_)/g,' ')+'</b>'+unitLabel+'</td><td>'+this.item[attr]+'</td></tr>';
+            table2 += '<tr><td><b>'+attr.replace(/(-|_)/g,' ')+'</b>'+unitLabel+'</td><td>'+metadata[attr]+'</td></tr>';
           }
           c++;
         }

@@ -61,12 +61,8 @@ ESIS.search = (function() {
     $("#search-btn").on('click', function(){
       _search();
     });
-    $("#search-text").on('keyup', function(e){
-      if( $("#search-text").val().length > 0 ) {
-        $('#clear-search').show();
-      } else {
-        $('#clear-search').hide();
-      }
+    $("#search-text").on('keyup blur', function(e){
+      clearSearchBtn();
 
       if( e.which == 13 ) _search();
     });
@@ -76,6 +72,14 @@ ESIS.search = (function() {
       $(this).hide();
       _search();
     });
+  }
+
+  function clearSearchBtn() {
+    if( $("#search-text").val().length > 0 ) {
+      $('#clear-search').show();
+    } else {
+      $('#clear-search').hide();
+    }
   }
 
   function _search() {
@@ -92,6 +96,7 @@ ESIS.search = (function() {
 
     // make sure text box is always correct
     $("#search-text").val(query.text);
+    clearSearchBtn();
 
     if( query.filters.length == 0 ) return;
 
@@ -490,6 +495,7 @@ ESIS.search = (function() {
   }
 
   return {
-    init : init
+    init : init,
+    clearSearchBtn : clearSearchBtn
   }
 })();
