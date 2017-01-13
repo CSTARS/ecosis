@@ -209,10 +209,16 @@
           content += '<div class="well" style="margin:0"><ul class="list-group">';
 
           for( var i = 0; i < this.result.ecosis.linked_data.length; i++ ) {
+            var url = this.result.ecosis.linked_data[i].url;
+
+            if( url.match(/^10\./) ) {
+              url = 'http://dx.doi.org/'+url;
+            }
+
             content +=
               '<li class="list-group-item">' +
                 '<span style="font-weight:bold">'+this.result.ecosis.linked_data[i].label+':</span> '+
-                '<a href="'+this.result.ecosis.linked_data[i].url+'" target="_blank">'+this.result.ecosis.linked_data[i].url+'</a>'+
+                '<a href="'+url+'" target="_blank">'+this.result.ecosis.linked_data[i].url+'</a>'+
               '</li>';
           }
           content += '</ul></div>';
