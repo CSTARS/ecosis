@@ -45,10 +45,10 @@ module.exports = {
       // local port on machine
       localport : 4003,
 
-      url : 'http://ecospectra.org',
+      url : 'http://ecosis.org',
 
       // remote hosts that are allowed to access this sites mqe
-      allowedDomains : ['localhost','ecospectra.org','data.ecospectra.org'],
+      allowedDomains : ['localhost','ecosis.org','data.ecosis.org'],
 
       googleAnalytics : 'UA-60014992-3',
     },

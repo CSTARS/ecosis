@@ -3,6 +3,7 @@
     <style>
       :host {
         display: block;
+        margin-bottom: 20px;
       }
     </style>
 
@@ -118,10 +119,10 @@
         this.top = ['ecosis.organization', 'Keywords', 'Theme'];
         $.get('/stats/home', this.onStatsLoad.bind(this));
         
-        if( window.location.hostname == 'dev-search.ecospectra.org' ) {
-          this.$.mainainerLink.setAttribute('href','http://dev-data.ecospectra.org');
-          this.$.contributeLink.innerHTML = 'http://dev-data.ecospectra.org';
-          this.$.contributeLink.setAttribute('href','http://dev-data.ecospectra.org');
+        if( window.location.hostname == 'dev-search.ecosis.org' ) {
+          this.$.mainainerLink.setAttribute('href','http://dev-data.ecosis.org');
+          this.$.contributeLink.innerHTML = 'http://dev-data.ecosis.org';
+          this.$.contributeLink.setAttribute('href','http://dev-data.ecosis.org');
         }
       },
 
