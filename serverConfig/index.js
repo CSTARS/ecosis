@@ -45,7 +45,7 @@ module.exports = {
       // local port on machine
       localport : 4003,
 
-      url : 'http://ecosis.org',
+      url : 'https://ecosis.org',
 
       // remote hosts that are allowed to access this sites mqe
       allowedDomains : ['localhost','ecosis.org','data.ecosis.org'],

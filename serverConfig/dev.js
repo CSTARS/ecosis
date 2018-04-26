@@ -7,6 +7,6 @@ if( !config.mqe.ckan ) {
   config.mqe.ckan = {};
 }
 
-config.mqe.ckan.server = 'http://dev-data.ecosis.org';
-config.mqe.server.url = 'http://dev-search.ecosis.org';
+config.mqe.ckan.server = 'https://dev-data.ecosis.org';
+config.mqe.server.url = 'https://dev-search.ecosis.org';
 module.exports = config;

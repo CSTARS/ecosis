@@ -48,7 +48,7 @@
         "host" : "localhost",
         "remoteport" : 80,
         "localport" : 3000,
-        "url" : "http://localhost:3000/",
+        "url" : "http://localhost:3000",
         "allowedDomains" : [],
         "googleAnalytics" : "UA-60014992-3"
       },
