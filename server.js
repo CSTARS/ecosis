@@ -1,11 +1,9 @@
-'use strict';
-var express = require('express');
-var kraken = require('kraken-js');
-var http = require('http');
+const express = require('express');
+const config = require('./lib/config');
+const mqeLib = require('mongo-query-engine');
+
 var fs = require('fs');
 
-var mqeLib = require('mongo-query-engine');
-//var mqeLib = require('/Users/jrmerz/dev/cstars/mongo-query-engine');
 
 var options, app, server, logger, conf;
 
@@ -21,7 +19,7 @@ process.on('uncaughtException', function(err) {
 options = {
     onconfig: function (config, next) {
       conf = config;
-      require('./lib/config')(config);
+
 
       // allow command line switch from serving /dist to /app
       var staticRoot = 'dist';
@@ -35,23 +33,6 @@ options = {
       if( config.get('mqe-local') && fs.existsSync(config.get('mqe-local')) ) {
         config.use(JSON.parse( fs.readFileSync(config.get('mqe-local'), 'utf-8') ));
       }
-
-      var mqeConfig = config.get('mqe');
-
-      if( config.get('docker') ) {
-        mqeConfig.db.url = "mongodb://mongo:27017/ecosis";
-      }
-
-      mqeConfig.rest.getParamParser = function(query) {
-        if( query.id ) {
-          return {'_id': query.id};
-        } else if ( query.package_id ) {
-          return {'_id': query.package_id};
-        } else if ( query.package_name ) {
-          return {'value.ecosis.package_name': query.package_name};
-        }
-        return {'_id': query._id};
-      };
 
       var setup = {
         config: mqeConfig,
