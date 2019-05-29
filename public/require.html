@@ -25,3 +25,18 @@
 <link rel="import" href="elements/results/results-panel.html">
 <link rel="import" href="elements/widgets/search-text-suggest.html">
 <link rel="import" href="elements/home-stats.html">
+
+<script>
+  window.appLoaded = true;
+  var event = new CustomEvent('app-loaded', {});
+  window.dispatchEvent(event);
+
+  var script = document.createElement('script');
+  script.src = '/analytics';
+  document.head.appendChild(script);
+
+  google.setOnLoadCallback(function(){
+    initchart();
+    window.chartReady = true;
+  });
+</script>

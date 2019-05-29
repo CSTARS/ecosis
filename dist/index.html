@@ -27,16 +27,13 @@
   <link rel="stylesheet" href="font-awesome/css/font-awesome.css">
   <script type="text/javascript" src="mqe/resources/mqe.js"></script>
   <script type="text/javascript" src="/conf"></script>
-  <link rel="import" href="require.html">
-
+  
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript">
       google.load('visualization', '1', {packages: ['corechart','line']});
-      google.setOnLoadCallback(function(){
-        initchart();
-        window.chartReady = true;
-      });
   </script>
+
+  <link rel="import" href="require.html">
 
 </head>
 <body resolved>
@@ -226,22 +223,35 @@
 
 <div id="gitInfo" style="padding: 50px 30px; color: #888; font-size: 12px; font-style: italic; display:none"></div>
 <script>
-  $.get('/git/info', function(resp){
-    var html = '';
-    if( resp && resp.branch == 'master' ) return;
-    for( var key in resp ) html += '<div><b>'+key+':</b> '+resp[key]+'</div>';
-    $('#gitInfo').html(html).show();
-    $('.sandbox').show();
-  });
+  function onAppLoaded() {
+    try {
+      $.get('/git/info', function(resp){
+        var html = '';
+        if( resp && resp.branch == 'master' ) return;
+        for( var key in resp ) html += '<div><b>'+key+':</b> '+resp[key]+'</div>';
+        $('#gitInfo').html(html).show();
+        $('.sandbox').show();
+      });
 
-  if( !ckan.prod ) {
-    $('.sandbox').show();
+      if( !ckan.prod ) {
+        $('.sandbox').show();
+      }
+      $('#mainainerLink').attr('href', ckan.url);
+      $('#contributeLink')
+        .attr('href', ckan.url)
+        .html(ckan.url);
+    } catch(e) {
+      console.error(e);
+    }
   }
-  $('#mainainerLink').attr('href', ckan.url);
-  $('#contributeLink')
-    .attr('href', ckan.url)
-    .html(ckan.url);
+
+  if( window.appLoaded ) {
+    onAppLoaded();
+  } else {
+    window.addEventListener('app-loaded', function() {
+      onAppLoaded();
+    });
+  }
 </script>
-<script src="/analytics"></script>
 
 </body></html>
