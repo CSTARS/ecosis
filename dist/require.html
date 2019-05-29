@@ -29078,1638 +29078,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 }( window.jQuery );</script>
 
-<script type="text/javascript">var ESIS = {
-	widgets : {},
-	ckanHost : ''
-};
 
-if( window.location.host == 'ecosis.org' ) {
-	ESIS.ckanHost = 'http://data.ecosis.org';
-} else if ( window.location.host == 'dev-search.ecosis.org' ) {
-	ESIS.ckanHost = 'http://dev-data.ecosis.org';
-} else {
-	ESIS.ckanHost = 'http://localhost:5000';
-}
 
-function qs(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
 
-// init app
-(function() {
 
-	var DEFAULT_PAGE = "home";
-	var validPages = [DEFAULT_PAGE, "search", "result", "all", "edit", "compare", "group"];
 
-	var cPage = "";
-  var firstRender = true;
 
-	$(document).ready(function() {
 
-		// mqe.js handles the hash parsing and fires this event
-		$(window).bind("page-update-event", function(e, hash){
-			if( window.prerender && firstRender ) {
-				firstRender = false;
-				console.log('Ignoring first render');
-				return;
-			}
 
-			_updatePage(hash[0]);
-		});
-
-		init();
-	});
-
-	function init() {
-		MQE.init({defaultPage:DEFAULT_PAGE});
-
-		// the polyfill is cause issues with this...
-		window.domready = true;
-
-		if( ESIS.search ) {
-			ESIS.search.init();
-		}
-	}
-
-	function _updatePage(page) {
-		if( page == cPage ) return;
-
-		$('body').scrollTop(0);
-
-		if( validPages.indexOf(page) == -1 ) page = DEFAULT_PAGE;
-
-		try {
-			if( page !== 'result' ) {
-				document.title = 'EcoSIS - Spectral Library';
-			}
-		} catch(e) {}
-
-		$("#"+cPage).hide();
-		$("#"+page).show();
-
-		cPage = page;
-	}
-
-})();
-
-
-ESIS.labels = {};
-
-ESIS.isMapFilter = function(filter) {
-	if( !filter.$or ) return false;
-	if( filter.$or.length === 0 ) return false;
-
-	var item = filter.$or[0];
-	if( item['ecosis.geojson'] || item['ecosis.spectra_bbox_geojson'] ) {
-		return true;
-	}
-	return false;
-};
-
-ESIS.labels.filters = {
-	"groups" : "Group",
-	"package_title" : "Dataset",
-	"keywords" : "Keywords",
-	"organization" : "Organization"
-};
-ESIS.filters = {
-	"organization" : "ecosis.organization"
-}
-
-// chart stuff
-
-var chartLoadHandlers = [];
-function initchart() {
-	for( var i = 0; i < chartLoadHandlers.length; i++ ) chartLoadHandlers[i]();
-}
-</script>
-<script type="text/javascript">Handlebars.registerHelper('info', function() {
-  return new Handlebars.SafeString(this.info);
-});
-Handlebars.registerHelper('title', function() {
-  return new Handlebars.SafeString(this.title);
-});
-Handlebars.registerHelper('organization', function() {
-  return new Handlebars.SafeString(this.organization);
-});
-
-ESIS.search = (function() {
-
-  // handle bar template layouts
-  var RESULT_TEMPLATE = [
-      '<div class="panel panel-default animated fadeIn">',
-        '<div class="panel-body">',
-          "<div class='row'>",
-            '<div class="col-md-7" style="padding-bottom:10px;">',
-              '<h4><a href="#result/{{_id}}">{{title}}</a></h4>',
-              '<h6>{{organization}}</h6>',
-              '<div>{{description}}</div>'+
-            '</div>',
-            "<div class='col-md-5' style='padding-top:15px'>{{info}}</div>",
-          "</div>",
-        '</div>',
-      "</div>"
-  ].join('');
-  var TITLE_TEMPLATE = "Search Results: <span style='color:#888'>{{start}} to {{end}} of {{total}}</span>";
-
-  // template functions
-  var rowTemplate;
-  var titleTemplate;
-
-  var titleAttr = 'Spectrum Number';
-  var infoAttrs = ['Theme', 'Target Type', 'Common Name'];
-
-  var openFilters = [];
-  var staticFilters = {};
-
-  function init() {
-
-    rowTemplate = Handlebars.compile(RESULT_TEMPLATE);
-    titleTemplate = Handlebars.compile(TITLE_TEMPLATE);
-
-    $(window).bind("search-start-event", function(e, results){
-      _loading(true);
-    });
-
-    $(window).bind("search-update-event", function(e, results){
-      _loading(false);
-      _updateResultsTitle(results);
-      _updateResults(results);
-      _updateFilters(results); // this should always be before adding active filters
-      _updateActiveFilters(results);
-      _updatePaging(results);
-      _updateRestLink();
-      //_updateDownloadLinks();
-    });
-
-    // set search handlers
-    $("#search-btn").on('click', function(){
-      _search();
-    });
-    $("#search-text").on('keyup blur', function(e){
-      clearSearchBtn();
-
-      if( e.which == 13 ) _search();
-    });
-
-    $('#clear-search').on('click', function(e){
-      $("#search-text").val('');
-      $(this).hide();
-      _search();
-    });
-  }
-
-  function clearSearchBtn() {
-    if( $("#search-text").val().length > 0 ) {
-      $('#clear-search').show();
-    } else {
-      $('#clear-search').hide();
-    }
-  }
-
-  function _search() {
-    var query = MQE.getCurrentQuery();
-    query.page = 0;
-    query.text = $("#search-text").val();
-    window.location = MQE.queryToUrlString(query);
-  }
-
-
-  function _updateActiveFilters() {
-    var panel = $("#active-filters").html("");
-    var query = MQE.getCurrentQuery();
-
-    // make sure text box is always correct
-    $("#search-text").val(query.text);
-    clearSearchBtn();
-
-    if( query.filters.length == 0 ) return;
-
-    panel.append('<div class="help-block" style="margin-top: 0">You are currently searching for:</h6>');
-
-    for( var i = 0; i < query.filters.length; i++ ) {
-      // get query copy and splice array
-      var tmpQuery = MQE.getCurrentQuery();
-      tmpQuery.page = 0;
-
-      tmpQuery.filters.splice(i,1);
-
-      var f = "";
-      var key = "";
-
-      for( var j in query.filters[i] ) {
-        key = j;
-
-
-        var existsFilter = _isExistsFilter(query.filters[i][j], j) // see if it's a static filter
-        if( existsFilter ){
-          f = 'Exists: '+existsFilter;
-        } else if( typeof query.filters[i][j] == 'object' ) {
-          if( staticFilters[j] ) {
-            // grab label from static filter
-            f = staticFilters[j].label;
-            // also, make sure to check it's check box
-            $("#static-filter-"+j).prop('checked', true);
-          } else {
-            f = j+': '+JSON.stringify(query.filters[i][j]);
-          }
-
-        } else {
-          f = query.filters[i][j];
-        }
-      }
-
-      if( key == 'ecosis.geojson' ) {
-        var btn = '<div class="btn-group" style="margin:0 5px 5px 0; text-transform:none"><a class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" href="#"> Location Filter'+
-                ' <span class="caret"></span></a><ul class="dropdown-menu" style="z-index:2000">' +
-                '<li><a href="'+MQE.queryToUrlString(tmpQuery)+'" ><i class="icon-remove"></i> Remove</a></li>' +
-                '<li><a id="geo-filter-edit"><i class="icon-edit"></i> Edit</a></li>' +
-                '</ul></div>';
-        btn = $(btn);
-        panel.append(btn);
-        btn.find("#geo-filter-edit").on('click', function(){
-          ESIS.map.show();
-        });
-
-      } else {
-        var label = key;
-        if( key.match('\.') ) {
-          label = key.split('.').pop();
-        }
-
-        panel.append(
-          $('<a href="' +
-            MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"') +
-            '" style="margin:0 5px 5px 0;text-transform:none" class="btn btn-primary btn-sm">'+
-            '<i class="fa fa-times" style="color:white"></i> <span style="text-transform:capitalize">'+label+'</span>: '+f+'</a>'))
-      }
-
-    }
-
-  }
-
-  function _updateFilters(results) {
-    var panel = $("#filter-nav").html("");
-
-    // add the title
-    panel.append($('<li class="nav-header page-header" style="margin:0">Narrow Your Search</li>'));
-    panel.append($('<li class="divider"></li>'));
-
-    var numFilters = MQE.getCurrentQuery().filters.length;
-
-    // add filter blocks
-    var c = 0;
-    for( var key in results.filters ) {
-      if( results.filters[key].length == 0 ) continue;
-
-
-      var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
-
-      var title = $("<li><a id='filter-block-title-"+key.replace(/\s/g,"_")+"' class='search-block-title'>"+label+"</a></li>");
-
-      var display = "";
-
-      if( openFilters.indexOf(key) > -1 ) display = "style='display:block'"
-
-      var block = $("<ul id='filter-block-"+key.replace(/\s/g,"_")+"' class='filter-block' "+display+"></ul>");
-
-      var added = false;
-      for( var i = 0; i < results.filters[key].length; i++ ) {
-        var item = results.filters[key][i];
-        if( _hasFilterSimple(key, item.filter) ) continue;
-
-        var query = MQE.getCurrentQuery();
-        query.page = 0;
-
-        var filter = {};
-        filter[ESIS.filters[key] ? ESIS.filters[key] : key] = item.filter;
-        query.filters.push(filter);
-
-        block.append($('<li><a href="'+MQE.queryToUrlString(query).replace(/"/g,'\\"')+'">'+item.filter+' ('+item.count+')</a></li>'));
-        added = true;
-      }
-
-      if( added ) {
-        title.append(block);
-        panel.append(title);
-        c++;
-      }
-    }
-
-    // append location filter
-    if( !_queryHasFilter(MQE.getCurrentQuery(), 'ecosis.geojson') ) {
-      panel.append($('<li><a id="filter-block-title-geo" style="cursor:pointer;font-weight:bold">Location</a></li>'));
-      $("#filter-block-title-geo").on('click', function(){
-        ESIS.map.show();
-      });
-
-      $('#search-text').removeAttr('disabled').attr('placeholder','Keywords');
-      $('#search-btn').removeClass('disabled');
-
-      c++;
-    } else {
-      $('#search-text').attr('disabled','').attr('placeholder','Not supported with location filter');
-      $('#search-btn').addClass('disabled');
-    }
-
-    panel.append($('<li><a id="filter-block-title-custom" style="cursor:pointer;font-weight:bold">Custom Filter</a></li>'));
-    $("#filter-block-title-custom").on('click', function(){
-      ESIS.customFiltersPopup.show();
-    });
-    c++;
-
-
-    if( c == 0 ) {
-      panel.append($("<div>No filters available for this search</div>"));
-      return;
-    }
-
-    // add hide/show handlers for the blocks
-    $(".search-block-title").on('click', function(e){
-      var id = e.target.id.replace(/filter-block-title-/, '');
-      var panel = $("#filter-block-"+id);
-
-      if( panel.css("display") == "none" ) {
-        panel.show('blind');
-        openFilters.push(id);
-      } else {
-        panel.hide('blind');
-        openFilters.splice(openFilters.indexOf(id),1);
-      }
-    });
-  }
-
-  function _updatePaging(results) {
-    var tmpQuery = MQE.getCurrentQuery();
-    var numPages = Math.ceil( parseInt(results.total) / tmpQuery.itemsPerPage );
-    var cPage = Math.floor( parseInt(results.start+1) / tmpQuery.itemsPerPage );
-
-    var buttons = [];
-
-    // going to show 7 buttons
-    var startBtn = cPage - 3;
-    var endBtn = cPage + 3;
-
-    if( endBtn > numPages ) {
-      startBtn = numPages-7;
-      endBtn = numPages;
-    }
-    if( startBtn < 0 ) {
-      startBtn = 0;
-      endBtn = 6;
-      if( endBtn > numPages ) endBtn = numPages;
-    }
-
-    var panel = $("#search-paging-btns");
-    panel.html("");
-    var bpanel = $("#search-paging-btns-bottom");
-    bpanel.html("");
-
-    // add back button
-    if( cPage != 0 ) {
-      tmpQuery.page = cPage-1;
-      panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
-      bpanel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
-    }
-
-    for( var i = startBtn; i < endBtn; i++ ) {
-      var label = i+1;
-      tmpQuery.page = i;
-      var btn = $('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">'+label+'</a></li>');
-      if( cPage == i ) btn.addClass('active');
-      panel.append(btn);
-
-      btn = $('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">'+label+'</a></li>');
-      if( cPage == i ) btn.addClass('active');
-      bpanel.append(btn);
-    }
-
-    // add next button
-    if(  cPage != numPages-1 && numPages != 0 ) {
-      tmpQuery.page = cPage+1;
-      panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
-      bpanel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
-    }
-
-  }
-
-  function _updateResultsTitle(results) {
-    var end = results.stop;
-    if( results.total < end ) end = results.total;
-
-    var start = parseInt(results.start)+1;
-    if( end == 0 ) start = 0;
-
-    $("#results-title").html(titleTemplate({
-      start : start,
-      end   : end,
-      total : results.total
-    }));
-  }
-
-  function _updateResults(results) {
-    var panel = $("#results-panel").html("");
-
-    if( results.items.length == 0 ) {
-      panel.append("<div style='font-style:italic;color:#999;padding:15px 10px'>No results found for your current search.</div>");
-      return;
-    }
-
-    //ESIS.chart.clearSearchCharts();
-    for( var i = 0; i < results.items.length; i++ ) {
-      var item = results.items[i];
-      var info = _getInfo(item);
-
-      panel.append(rowTemplate({
-        _id     : item._id,
-        title   : _getTitle(item),
-        organization   : _getOrganization(item),
-        description : _getDescription(item),
-        info    : info
-      }));
-    //  ESIS.chart.addSearchChart(item, $('#'+item._id+'-chart'));
-
-    }
-    //ESIS.chart.redrawSearchCharts(true);
-  }
-
-  function _getTitle(item) {
-    var count = ' <small>('+(item.ecosis.spectra_count || 0)+')</small>';
-
-    if( item.ecosis.package_title ) return item.ecosis.package_title+count;
-    if( item.ecosis.package_name ) return item.ecosis.package_name+count;
-    return 'No Title'+count;
-  }
-
-  function _getDescription(item) {
-    if( item.ecosis.description ) {
-      if( item.ecosis.description.length > 300 ) {
-        return item.ecosis.description.substr(0, 300)+'...';
-      }
-      return item.ecosis.description;
-    }
-    return 'No description provided';
-  }
-
-  function _getOrganization(item) {
-    if( !item.ecosis.organization ) return '';
-    if( item.ecosis.organization == '' || item.ecosis.organization == 'None' ) return '';
-
-    var link = '<a href="'+_createFilterUrl('ecosis.organization', item.ecosis.organization)+'">';
-    /*if( item.ecosis.organization_image_url ) {
-      link += '<img class="img-thumbnail" src="'+ESIS.ckanHost+item.ecosis.organization_image_url+'" border=0  style="width:32px" /> ';
-    }*/
-    link += item.ecosis.organization+'</a><br /><br />';
-
-    return link;
-  }
-
-  function _getInfo(item) {
-    var info = "<ul>";
-
-    for( var i = 0; i < infoAttrs.length; i++ ) {
-      if( item[infoAttrs[i]] ) {
-        var arr = item[infoAttrs[i]];
-        var key = infoAttrs[i];
-        var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
-
-        info += "<li><b>"+label+": </b>";
-        for( var j = 0; j < arr.length; j++ ) {
-          if( _hasFilter(item,arr[j]) ) info += arr[j];
-          else info += '<a href="'+_createFilterUrl(key, arr[j])+'">'+arr[j]+'</a>';
-
-          if( j == 5 && j != arr.length - 1 ) {
-            info += ' ...';
-            break;
-          }
-          if( j < arr.length-1 ) info += ', ';
-
-        }
-        info += '</li>';
-      }
-    }
-
-
-
-    info += "</ul>";
-    return info;
-  }
-
-  function _updateRestLink() {
-    var link = MQE.getRestLink();
-    if( !link.match(/$https.*/) ) {
-      link = window.location.protocol+'//'+window.location.host+link;
-    }
-    link = link.replace(/mqe\/query/,'package/query');
-    
-
-    $('#current-search-rest-link').html(
-      '<a href="'+link+'" target="_blank"><i class="fa fa-link"></i> Search API Link</a> | '+
-      '<a href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a> | '+
-      '<a href="http://tutorial.ecosis.org" target="_blank"><i class="fa fa-question-circle"></i> EcoSIS Tutorials</a>'+
-      '<br /> <span style="color:#888;font-size:11px;font-style:italic">'+ decodeURIComponent(link)+'</span>'
-    );
-  }
-
-  function  _hasFilterSimple(key, value) {
-    if( ESIS.filters[key] ) key = ESIS.filters[key];
-
-    var filter = {};
-    var tmpQuery = MQE.getCurrentQuery();
-
-    for( var i = 0; i < tmpQuery.filters.length; i++ ) {
-      if( tmpQuery.filters[i][key] && tmpQuery.filters[i][key] == value ) return true;
-    }
-
-    return false;
-  }
-
-  function _hasFilter(item, key) {
-    var filter = {};
-    var tmpQuery = MQE.getCurrentQuery();
-    filter[key] = item[key];
-    for( var i = 0; i < tmpQuery.filters.length; i++ ) {
-      if( tmpQuery.filters[i][key] && tmpQuery.filters[i][key] == item[key] ) return true;
-    }
-    return false;
-  }
-
-  function _isExistsFilter(item, key) {
-    if( key == '$or' ) {
-      for( var i = 0; i < item.length; i++ ) {
-        var f = item[i];
-        if( f['value.ecosis.spectra_schema.data'] ) {
-          return f['value.ecosis.spectra_schema.data'];
-        } else if ( f['value.ecosis.spectra_schema.metadata'] ) {
-          return f['value.ecosis.spectra_schema.metadata'];
-        }
-      }
-    }
-
-    return null;
-  }
-
-  function _queryHasFilter(query, key, value) {
-    for( var i = 0; i < query.filters.length; i++ ) {
-      if( query.filters[i][key] && value == null ) return true;
-      if(  query.filters[i][key] && query.filters[i][key] == value ) return true;
-    }
-    return false;
-  }
-
-  function _createFilterUrl(key, value) {
-    var tmpQuery = MQE.getCurrentQuery();
-    var filter = {};
-    filter[ESIS.filters[key] ? ESIS.filters[key] : key] = value;
-    tmpQuery.page = 0;
-    tmpQuery.filters.push(filter);
-    return MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"');
-  }
-
-
-  function _loading(loading) {
-    if( loading ) {
-      $('#loading').show();
-    } else {
-      $('#loading').hide();
-    }
-  }
-
-  if( window.domready ) {
-    init();
-  }
-
-  return {
-    init : init,
-    clearSearchBtn : clearSearchBtn
-  }
-})();
-</script>
-<script type="text/javascript">ESIS.map = (function() {
-  var map;
-  //var centerMarker;
-  var circle;
-  //var r = 16093; // default to 10 miles
-  var r = 844906; // 525 miles
-  var ll = null;
-
-  var markers = [];
-  var previewQueryTimer = -1;
-  var host = null;
-
-  function init(chost) {
-      host = chost;
-      ll = new google.maps.LatLng(39.251, -97.850);
-    $("#geo-filter").modal({show:false});
-    if( !_addPreviewSearch() ) $("#geo-filter-current-matches-outer").css("visibility","hidden");
-  }
-
-  function show() {
-    $("#geo-filter").modal('show');
-
-    // first time, let the popup show, then init map
-    if( !map ) {
-      setTimeout(function(){
-        _initMap();
-      },500);
-    } else {
-      _updateLL();
-      setTimeout(function(){
-        map.invalidateSize();
-        //TODO
-        //google.maps.event.trigger(map, "resize");
-      },500);
-    }
-  }
-
-  function _updateLL() {
-    ll = map.getCenter();
-
-    // update radius
-    var b = map.getBounds();
-    if( b ) {
-      var ll1 = L.latLng(b.getNorthEast().lat, ll.lng);
-      var ll2 = L.latLng(b.getSouthWest().lat, ll.lng);
-
-      var d = ll1.distanceTo(ll2);
-      r = (d / 2) * .75;
-    }
-
-    circle.setRadius(r);
-    circle.setLatLng(ll);
-
-    //try {
-    //  centerMarker.setLatLng(ll);
-    //} catch(e) {}
-
-    $("#geo-filter-current-lat").html(ll.lat.toFixed(3));
-    $("#geo-filter-current-lng").html(ll.lng.toFixed(3));
-    $("#geo-filter-current-radius").html(Math.round(r * .000621371)+" miles");
-
-    // now do a quick search, if not IE8
-    if( !_addPreviewSearch() ) return;
-
-
-    if( previewQueryTimer != -1 ) clearTimeout(previewQueryTimer);
-    for (var i = 0; i < markers.length; i++ ) markers[i].setMap(null);
-    markers = [];
-    $("#geo-filter-current-matches").html("Loading...");
-
-    previewQueryTimer = setTimeout(function(){
-      var query = MQE.getCurrentQuery();
-
-      // if there is already a map filter, remove it, this is an edit
-      for( var i = 0; i < query.filters.length; i++ ) {
-        if( query.filters[i]['ecosis.geojson'] ) {
-          query.filters.splice(i, 1);
-          break;
-        }
-      }
-
-      query.filters.push({
-        'ecosis.geojson' : {
-          $near: {
-             $geometry: {
-                type: "Point" ,
-                coordinates: [ ll.lng, ll.lat ]
-             },
-             $maxDistance: r
-          }
-        }
-      });
-
-      $.ajax({
-        url : (host ? host : '')+'/geo/preview?filters='+encodeURIComponent(JSON.stringify(query.filters)),
-        success : function(resp) {
-          $("#geo-filter-current-matches").html('<span class="text-primary">'+resp.count+'</span>');
-        }
-      });
-    },300);
-
-  }
-
-  function _initMap() {
-
-    // set geo filter map
-    /*var mapOptions = {
-        center : new google.maps.LatLng(39.251, -97.850),
-        zoom : 4,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    map = new google.maps.Map($("#geo-filter-map")[0],  mapOptions);
-
-    centerMarker = new google.maps.Marker({
-      map  : map,
-      position : map.getCenter(),
-      title : 'Center'
-    });
-
-    // Add circle overlay and bind to marker
-    circle = new google.maps.Circle({
-      map : map,
-      radius : r,
-      fillColor : '#AA0000'
-    });
-    circle.bindTo('center', centerMarker, 'position');
-
-    google.maps.event.addListener(map, 'bounds_changed', _updateLL);*/
-
-    map = L.map($("#geo-filter-map")[0]).setView([39.251, -97.850], 4);
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    console.log(r);
-    circle = L.circle([39.251, -97.850], r, {
-      fillColor : '#AA0000'
-    }).addTo(map);
-
-    //try {
-    //  centerMarker = L.marker([39.251, -97.850]).addTo(map);
-    //} catch(e) {}
-
-    map.on('zoomend', _updateLL);
-    map.on('moveend', _updateLL);
-
-    _updateLL();
-
-    $("#geo-filter-select").on('click', function(){
-      var ll = map.getCenter();
-      var query = MQE.getCurrentQuery();
-      query.page = 0;
-
-      // no text filters allowed
-      query.text = '';
-
-      // if there is already a map filter, remove it, this is an edit
-      for( var i = 0; i < query.filters.length; i++ ) {
-        if( query.filters[i]['ecosis.geojson'] ) {
-          query.filters.splice(i, 1);
-          break;
-        }
-      }
-
-      // $near is not allowed w/ text filter right now so using this
-      // http://docs.mongodb.org/manual/reference/operator/centerSphere/#op._S_centerSphere
-      query.filters.push({
-        'ecosis.geojson' : {
-          $near: {
-             $geometry: {
-                type: "Point" ,
-                coordinates: [ ll.lng, ll.lat ]
-             },
-             $maxDistance: r
-          }
-        }
-      });
-      $("#geo-filter").modal('hide');
-      window.location = MQE.queryToUrlString(query);
-    });
-
-    // set geolocate functionality
-    if ( navigator.geolocation ) {
-      $("#geo-filter-geolocate").on('click', function(){
-        $(this).addClass("disabled").html('Locating...');
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-              $("#geo-filter-geolocate").removeClass("disabled").html('Locate Me');
-              map.setView(L.latLng(position.coords.latitude, position.coords.longitude));
-            },
-            function(error) {
-              $("#geo-filter-geolocate").removeClass("disabled").html('Locate Me');
-              switch (error.code) {
-                case error.PERMISSION_DENIED:
-                  alert("User denied the request for Geolocation.");
-                  break;
-                case error.POSITION_UNAVAILABLE:
-                  alert("Location information is unavailable.");
-                  break;
-                case error.TIMEOUT:
-                  alert("The request to get user location timed out.");
-                  break;
-                case error.UNKNOWN_ERROR:
-                  alert("An unknown error occurred.");
-                  break;
-              }
-            }
-        );
-      });
-    } else {
-      $("#geo-filter-geolocate").remove();
-    }
-  }
-
-  function _addPreviewSearch() {
-    if( window.navigator.userAgent.match(/MSIE\s[78]/) ) return false;
-    return true;
-  }
-
-
-  return {
-    show : show,
-    init : init
-  }
-
-})();
-</script>
-<script type="text/javascript">ESIS.allFiltersPopup = (function() {
-
-
-  var popup;
-
-  function init() {
-     popup = $('#all-filters-popup');
-     popup.modal({show: false});
-  }
-
-
-  function show(key, result) {
-    var results = result[key];
-    results.sort();
-
-    var html = '';
-    for( var i = 0; i < results.length; i++ ) {
-      html += '<div>'+wrap(key, results[i], true)+'</div>';
-    }
-
-
-    popup.find('.modal-title').text(key);
-    popup.find('.modal-body').html(html);
-
-    popup.find('a').on('click', hide);
-
-    popup.modal('show');
-  }
-
-  function hide() {
-    popup.modal('hide');
-  }
-
-  function wrap(key, value, icon) {
-    var q = MQE.getCurrentQuery();
-    q.text = '';
-    q.page = 0;
-
-    var f = {};
-    f[key] = value;
-    q.filters = [f];
-
-    return '<a href="'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'" style="white-space:normal">'+
-          (icon ? '<i class="fa fa-plus-circle"></i> ' : '')+value+'</a>';
-  }
-
-  $(document).ready(init);
-
-  return {
-    show : show,
-    hide : hide
-  }
-
-})();
-</script>
-<script type="text/javascript">ESIS.customFiltersPopup = (function() {
-  var popup;
-
-  function init() {
-     popup = $('#custom-filters-popup');
-     popup.modal({show: false});
-
-     $('#set-custom-filter').on('click', setFilter)
-     $('#inputCustomFilter').on('keypress', function(e){
-       if( e.which == 13 ) setFilter();
-     });
-  }
-
-  function show() {
-    popup.modal('show');
-  }
-
-  function hide() {
-    popup.modal('hide');
-  }
-
-  function setFilter() {
-    var value = $('#inputCustomFilter').val();
-    if( value == "" ) return;
-
-    parts = value.split(',');
-    var filters = [];
-    for( var i = 0; i < parts.length; i++ ) {
-      parts[i] = parts[i].trim();
-
-      // TODO: how do we want to handle values.
-      if( parts[i][0] == '^' ) {
-        var dataField = {}, metadataField = {}, exists = {};
-        var field = parts[i].replace(/\^/, '').trim();
-
-        dataField['value.ecosis.spectra_metadata_schema.data'] = field;
-        metadataField['value.ecosis.spectra_metadata_schema.metadata'] = field;
-
-        exists['value.'+field] = {'$exists' : true};
-
-        filters.push({
-          '$or' : [
-            dataField,
-            metadataField,
-            exists
-          ]
-        });
-
-      } else if( parts[i].indexOf('=') > -1 ) {
-        var p = parts[i].split('='), f;
-        var field = p[0].trim();
-        var value = p[1].trim().toLowerCase();
-
-        var f = {};
-        f[field] = value;
-
-        filters.push(f);
-      }
-    }
-
-    if( filters.length == 0 ) {
-      alert('No filters detected in: "'+parts.join(', ')+'"');
-      return;
-    }
-
-    var q = MQE.getCurrentQuery();
-    q.page = 0;
-    for( var i = 0; i < filters.length; i++ ) {
-      q.filters.push(filters[i]);
-    }
-
-    $('#inputCustomFilter').val('');
-    hide();
-    window.location = MQE.queryToUrlString(q);
-  }
-
-  $(document).ready(init);
-
-  return {
-    hide : hide,
-    show : show
-  }
-})()
-</script>
-<script type="text/javascript">(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.LIB = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports = {
-  ldjson : require('./prerender/ldjson'),
-  schema : require('./schema')
-};
-
-},{"./prerender/ldjson":2,"./schema":3}],2:[function(require,module,exports){
-'use strict';
-
-module.exports = function(item, url) {
-  url = 'http://ecosis.org';
-
-  var result = {
-    title : item.ecosis.package_title,
-    description : item.ecosis.description,
-    ldjson : null
-  };
-
-  var ldjson = {
-    '@context': 'http://schema.org',
-    '@type': 'Dataset',
-    name : item.ecosis.package_title,
-    datePublished : item.ecosis.created,
-    description : item.ecosis.description,
-    url : url+'/#result/'+item.ecosis.package_id,
-    genre : 'spectroscopy',
-    provider : {
-      '@type' : 'Organization',
-      email : 'info@ecosis.org',
-      url : 'http://ecosis.org',
-      name : 'EcoSIS',
-      description : 'Ecosystem Spectral Information System'
-    },
-    "includedInDataCatalog":{
-      '@type':"DataCatalog",
-      name:'EcoSIS'
-    },
-    publisher : {
-      '@type' : 'Organization',
-      name : item.ecosis.organization
-    },
-    distribution : {
-      '@type': 'DataDownload',
-      name : item.ecosis.package_name+'.csv',
-      contentUrl : url+'/package/export?package_id='+item.ecosis.package_id+'&metadata=true',
-      fileFormat : 'text/csv',
-      encodingFormat : 'CSV'
-    }
-  };
-
-  result.ldjson = ldjson;
-
-  if( item.Website ) {
-    ldjson.publisher.url = item.Website[0];
-  }
-  if( item.Author ) {
-    ldjson.author = {
-      '@type' : 'Person',
-      name : item.Author[0]
-    };
-    if( item['Author Email'] ) {
-      ldjson.author.email = item['Author Email'][0];
-    }
-  }
-  if( item.Keywords ) {
-    result.keywords = item.Keywords.join(', ');
-    ldjson.keywords = item.Keywords;
-  }
-  if( item.ecosis.organization_info ) {
-    ldjson.publisher.image = item.ecosis.organization_info.logo;
-    ldjson.publisher.description = item.ecosis.organization_info.description;
-  }
-
-  return result;
-};
-
-},{}],3:[function(require,module,exports){
-module.exports={
-  "Measurement": [
-    {
-      "name": "Acquisition Method",
-      "level": 1,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Contact",
-        "Other",
-        "Pixel",
-        "Proximal"
-      ],
-      "description": "Minimum measurement unit for your spectra (i.e. contact probe, proximal with X-degree foreoptic, pixel, other).",
-      "allowOther": true
-    },
-    {
-      "name": "Sample Platform",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Airplane",
-        "Boom",
-        "Satellite",
-        "Tower",
-        "UAV"
-      ],
-      "description": "Platform from which the spectral measurements were made (e.g. handheld, boom, tram, UAV).",
-      "allowOther": false
-    },
-    {
-      "name": "Measurement Venue",
-      "level": 2,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Greenhouse",
-        "Laboratory",
-        "Other",
-        "Outdoor"
-      ],
-      "description": "Setting in which the spectral measurements were made.",
-      "allowOther": true
-    },
-    {
-      "name": "Target Type",
-      "level": 1,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Animal",
-        "Bark",
-        "Branch",
-        "Canopy",
-        "Flower",
-        "Leaf",
-        "Mineral",
-        "NPV",
-        "Other",
-        "Reference",
-        "Rock",
-        "Soil",
-        "Water"
-      ],
-      "description": "Describes the target that was measured.",
-      "allowOther": true
-    },
-    {
-      "name": "Measurement Quantity",
-      "level": 1,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Absorptance",
-        "DN",
-        "Index",
-        "Other",
-        "Radiance",
-        "Reflectance",
-        "Transflectance",
-        "Transmittance"
-      ],
-      "description": "Scale for spectral instensity (e.g. DN, radiance, irradiance, reflectance)",
-      "allowOther": true
-    },
-    {
-      "name": "Index Name",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "Measurement quantity's index name.  Please provide if Measurement Quantity = \"Index\"",
-      "allowOther": false
-    },
-    {
-      "name": "Measurement Units",
-      "level": 2,
-      "input": "controlled-single",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "%",
-        "W/m^2",
-        "W/m^2/Hz",
-        "W/m^2/nm",
-        "W/m^2/um",
-        "W/sr/m^2"
-      ],
-      "description": "Measuremnt units",
-      "allowOther": false
-    },
-    {
-      "name": "Wavelength Units",
-      "level": 2,
-      "input": "controlled-single",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Other",
-        "Unitless",
-        "nm",
-        "um"
-      ],
-      "description": "Wavelength units (e.g. nm, um, Hz)",
-      "allowOther": true
-    },
-    {
-      "name": "Target Status",
-      "level": 1,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Dried",
-        "Fresh",
-        "Green",
-        "Ground",
-        "Liquid",
-        "Live",
-        "Other",
-        "Panel",
-        "Standard"
-      ],
-      "description": "State of the measurement target.",
-      "allowOther": true
-    },
-    {
-      "name": "Light Source",
-      "level": 1,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Lamp",
-        "Laser",
-        "Other",
-        "Sun"
-      ],
-      "description": "Description of the light source used for your spectral measurements",
-      "allowOther": true
-    },
-    {
-      "name": "Light Source Specifications",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Foreoptic Type",
-      "level": 1,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Bare Fiber",
-        "Contact Probe",
-        "Cosine Diffuser",
-        "Foreoptic",
-        "Gershon Tube",
-        "Integrating Sphere",
-        "Leaf Clip",
-        "None",
-        "Other"
-      ],
-      "description": "Description of the foreoptic used to make your spectral measurement",
-      "allowOther": true
-    },
-    {
-      "name": "Foreoptic Field of View",
-      "level": 2,
-      "input": "text",
-      "units": "integer degrees",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Foreoptic Specifications",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    }
-  ],
-  "Processing Information": [
-    {
-      "name": "Processing Averaged",
-      "level": 2,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "No",
-        "Yes"
-      ],
-      "description": "Is the measurement an average of multiple measurements?",
-      "allowOther": false
-    },
-    {
-      "name": "Processing Interpolated",
-      "level": 2,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "No",
-        "Yes"
-      ],
-      "description": "Is the measurement interpolated?",
-      "allowOther": false
-    },
-    {
-      "name": "Processing Resampled",
-      "level": 2,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "No",
-        "Yes"
-      ],
-      "description": "Is the measurement resampled? (e.g. are multiple wavelengths averaged?)",
-      "allowOther": false
-    },
-    {
-      "name": "Processing Information Details",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "Other details about processing are provided here.",
-      "allowOther": false
-    }
-  ],
-  "Instrument": [
-    {
-      "name": "Instrument Manufacturer",
-      "level": 1,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "Spectrometer manufacturer.",
-      "allowOther": false
-    },
-    {
-      "name": "Instrument Model",
-      "level": 1,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "Spectrometer model.",
-      "allowOther": false
-    },
-    {
-      "name": "Instrument Serial Number",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    }
-  ],
-  "Theme": [
-    {
-      "name": "Theme",
-      "level": 1,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Agriculture",
-        "Biochemistry",
-        "Ecology",
-        "Forest",
-        "Global Change",
-        "Land Cover",
-        "Other",
-        "Phenology",
-        "Physiology",
-        "Urban",
-        "Water Quality"
-      ],
-      "description": "Research context for the the spectral measurements.",
-      "allowOther": true
-    },
-    {
-      "name": "Keywords",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Ecosystem Type",
-      "level": 2,
-      "input": "controlled",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": [
-        "Aquatic",
-        "Coastal",
-        "Crops",
-        "Forest",
-        "Grassland",
-        "Wetland"
-      ],
-      "description": "",
-      "allowOther": false
-    }
-  ],
-  "Location": [
-    {
-      "name": "Latitude",
-      "level": 1,
-      "input": "latlng",
-      "units": "decimal degree",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Longitude",
-      "level": 1,
-      "input": "latlng",
-      "units": "decimal degree",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "geojson",
-      "level": 1,
-      "input": "geojson",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Location Name",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    }
-  ],
-  "Date": [
-    {
-      "name": "Sample Collection Date",
-      "level": 1,
-      "input": "date",
-      "units": "ISO Date ",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Measurement Date",
-      "level": 2,
-      "input": "date",
-      "units": "ISO Date ",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Phenological Status",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    }
-  ],
-  "Species": [
-    {
-      "name": "Common Name",
-      "level": 1,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "Common name of the target that was measured.",
-      "allowOther": false
-    },
-    {
-      "name": "Latin Genus",
-      "level": 1,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "Latin genus of the target that was measured.",
-      "allowOther": false
-    },
-    {
-      "name": "Latin Species",
-      "level": 1,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "Latin species of the target that was measured.",
-      "allowOther": false
-    },
-    {
-      "name": "USDA Symbol",
-      "level": 1,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "USDA code of the target that was measured.",
-      "allowOther": false
-    },
-    {
-      "name": "Vegetation Type",
-      "level": 1,
-      "input": "text",
-      "units": "",
-      "spectraLevel": true,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    }
-  ],
-  "Citation": [
-    {
-      "name": "Citation",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Citation DOI",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Website",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Author",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Author Email",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Maintainer",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Maintainer Email",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Funding Source",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    },
-    {
-      "name": "Funding Source Grant Number",
-      "level": 2,
-      "input": "text",
-      "units": "",
-      "spectraLevel": false,
-      "vocabulary": null,
-      "description": "",
-      "allowOther": false
-    }
-  ]
-}
-},{}]},{},[1])(1)
-});
-//# sourceMappingURL=data:application/json;charset:utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm5vZGVfbW9kdWxlcy9icm93c2VyLXBhY2svX3ByZWx1ZGUuanMiLCJsaWIvaW5kZXguanMiLCJsaWIvcHJlcmVuZGVyL2xkanNvbi5qcyIsImxpYi9zY2hlbWEuanNvbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtBQ0FBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7O0FDSkE7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBOztBQ3BFQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBIiwiZmlsZSI6ImdlbmVyYXRlZC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzQ29udGVudCI6WyIoZnVuY3Rpb24gZSh0LG4scil7ZnVuY3Rpb24gcyhvLHUpe2lmKCFuW29dKXtpZighdFtvXSl7dmFyIGE9dHlwZW9mIHJlcXVpcmU9PVwiZnVuY3Rpb25cIiYmcmVxdWlyZTtpZighdSYmYSlyZXR1cm4gYShvLCEwKTtpZihpKXJldHVybiBpKG8sITApO3ZhciBmPW5ldyBFcnJvcihcIkNhbm5vdCBmaW5kIG1vZHVsZSAnXCIrbytcIidcIik7dGhyb3cgZi5jb2RlPVwiTU9EVUxFX05PVF9GT1VORFwiLGZ9dmFyIGw9bltvXT17ZXhwb3J0czp7fX07dFtvXVswXS5jYWxsKGwuZXhwb3J0cyxmdW5jdGlvbihlKXt2YXIgbj10W29dWzFdW2VdO3JldHVybiBzKG4/bjplKX0sbCxsLmV4cG9ydHMsZSx0LG4scil9cmV0dXJuIG5bb10uZXhwb3J0c312YXIgaT10eXBlb2YgcmVxdWlyZT09XCJmdW5jdGlvblwiJiZyZXF1aXJlO2Zvcih2YXIgbz0wO288ci5sZW5ndGg7bysrKXMocltvXSk7cmV0dXJuIHN9KSIsIm1vZHVsZS5leHBvcnRzID0ge1xuICBsZGpzb24gOiByZXF1aXJlKCcuL3ByZXJlbmRlci9sZGpzb24nKSxcbiAgc2NoZW1hIDogcmVxdWlyZSgnLi9zY2hlbWEnKVxufTtcbiIsIid1c2Ugc3RyaWN0JztcblxubW9kdWxlLmV4cG9ydHMgPSBmdW5jdGlvbihpdGVtLCB1cmwpIHtcbiAgdXJsID0gJ2h0dHA6Ly9lY29zaXMub3JnJztcblxuICB2YXIgcmVzdWx0ID0ge1xuICAgIHRpdGxlIDogaXRlbS5lY29zaXMucGFja2FnZV90aXRsZSxcbiAgICBkZXNjcmlwdGlvbiA6IGl0ZW0uZWNvc2lzLmRlc2NyaXB0aW9uLFxuICAgIGxkanNvbiA6IG51bGxcbiAgfTtcblxuICB2YXIgbGRqc29uID0ge1xuICAgICdAY29udGV4dCc6ICdodHRwOi8vc2NoZW1hLm9yZycsXG4gICAgJ0B0eXBlJzogJ0RhdGFzZXQnLFxuICAgIG5hbWUgOiBpdGVtLmVjb3Npcy5wYWNrYWdlX3RpdGxlLFxuICAgIGRhdGVQdWJsaXNoZWQgOiBpdGVtLmVjb3Npcy5jcmVhdGVkLFxuICAgIGRlc2NyaXB0aW9uIDogaXRlbS5lY29zaXMuZGVzY3JpcHRpb24sXG4gICAgdXJsIDogdXJsKycvI3Jlc3VsdC8nK2l0ZW0uZWNvc2lzLnBhY2thZ2VfaWQsXG4gICAgZ2VucmUgOiAnc3BlY3Ryb3Njb3B5JyxcbiAgICBwcm92aWRlciA6IHtcbiAgICAgICdAdHlwZScgOiAnT3JnYW5pemF0aW9uJyxcbiAgICAgIGVtYWlsIDogJ2luZm9AZWNvc2lzLm9yZycsXG4gICAgICB1cmwgOiAnaHR0cDovL2Vjb3Npcy5vcmcnLFxuICAgICAgbmFtZSA6ICdFY29TSVMnLFxuICAgICAgZGVzY3JpcHRpb24gOiAnRWNvc3lzdGVtIFNwZWN0cmFsIEluZm9ybWF0aW9uIFN5c3RlbSdcbiAgICB9LFxuICAgIFwiaW5jbHVkZWRJbkRhdGFDYXRhbG9nXCI6e1xuICAgICAgJ0B0eXBlJzpcIkRhdGFDYXRhbG9nXCIsXG4gICAgICBuYW1lOidFY29TSVMnXG4gICAgfSxcbiAgICBwdWJsaXNoZXIgOiB7XG4gICAgICAnQHR5cGUnIDogJ09yZ2FuaXphdGlvbicsXG4gICAgICBuYW1lIDogaXRlbS5lY29zaXMub3JnYW5pemF0aW9uXG4gICAgfSxcbiAgICBkaXN0cmlidXRpb24gOiB7XG4gICAgICAnQHR5cGUnOiAnRGF0YURvd25sb2FkJyxcbiAgICAgIG5hbWUgOiBpdGVtLmVjb3Npcy5wYWNrYWdlX25hbWUrJy5jc3YnLFxuICAgICAgY29udGVudFVybCA6IHVybCsnL3BhY2thZ2UvZXhwb3J0P3BhY2thZ2VfaWQ9JytpdGVtLmVjb3Npcy5wYWNrYWdlX2lkKycmbWV0YWRhdGE9dHJ1ZScsXG4gICAgICBmaWxlRm9ybWF0IDogJ3RleHQvY3N2JyxcbiAgICAgIGVuY29kaW5nRm9ybWF0IDogJ0NTVidcbiAgICB9XG4gIH07XG5cbiAgcmVzdWx0LmxkanNvbiA9IGxkanNvbjtcblxuICBpZiggaXRlbS5XZWJzaXRlICkge1xuICAgIGxkanNvbi5wdWJsaXNoZXIudXJsID0gaXRlbS5XZWJzaXRlWzBdO1xuICB9XG4gIGlmKCBpdGVtLkF1dGhvciApIHtcbiAgICBsZGpzb24uYXV0aG9yID0ge1xuICAgICAgJ0B0eXBlJyA6ICdQZXJzb24nLFxuICAgICAgbmFtZSA6IGl0ZW0uQXV0aG9yWzBdXG4gICAgfTtcbiAgICBpZiggaXRlbVsnQXV0aG9yIEVtYWlsJ10gKSB7XG4gICAgICBsZGpzb24uYXV0aG9yLmVtYWlsID0gaXRlbVsnQXV0aG9yIEVtYWlsJ11bMF07XG4gICAgfVxuICB9XG4gIGlmKCBpdGVtLktleXdvcmRzICkge1xuICAgIHJlc3VsdC5rZXl3b3JkcyA9IGl0ZW0uS2V5d29yZHMuam9pbignLCAnKTtcbiAgICBsZGpzb24ua2V5d29yZHMgPSBpdGVtLktleXdvcmRzO1xuICB9XG4gIGlmKCBpdGVtLmVjb3Npcy5vcmdhbml6YXRpb25faW5mbyApIHtcbiAgICBsZGpzb24ucHVibGlzaGVyLmltYWdlID0gaXRlbS5lY29zaXMub3JnYW5pemF0aW9uX2luZm8ubG9nbztcbiAgICBsZGpzb24ucHVibGlzaGVyLmRlc2NyaXB0aW9uID0gaXRlbS5lY29zaXMub3JnYW5pemF0aW9uX2luZm8uZGVzY3JpcHRpb247XG4gIH1cblxuICByZXR1cm4gcmVzdWx0O1xufTtcbiIsIm1vZHVsZS5leHBvcnRzPXtcbiAgXCJNZWFzdXJlbWVudFwiOiBbXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiQWNxdWlzaXRpb24gTWV0aG9kXCIsXG4gICAgICBcImxldmVsXCI6IDEsXG4gICAgICBcImlucHV0XCI6IFwiY29udHJvbGxlZFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBbXG4gICAgICAgIFwiQ29udGFjdFwiLFxuICAgICAgICBcIk90aGVyXCIsXG4gICAgICAgIFwiUGl4ZWxcIixcbiAgICAgICAgXCJQcm94aW1hbFwiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIk1pbmltdW0gbWVhc3VyZW1lbnQgdW5pdCBmb3IgeW91ciBzcGVjdHJhIChpLmUuIGNvbnRhY3QgcHJvYmUsIHByb3hpbWFsIHdpdGggWC1kZWdyZWUgZm9yZW9wdGljLCBwaXhlbCwgb3RoZXIpLlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IHRydWVcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIlNhbXBsZSBQbGF0Zm9ybVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkFpcnBsYW5lXCIsXG4gICAgICAgIFwiQm9vbVwiLFxuICAgICAgICBcIlNhdGVsbGl0ZVwiLFxuICAgICAgICBcIlRvd2VyXCIsXG4gICAgICAgIFwiVUFWXCJcbiAgICAgIF0sXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiUGxhdGZvcm0gZnJvbSB3aGljaCB0aGUgc3BlY3RyYWwgbWVhc3VyZW1lbnRzIHdlcmUgbWFkZSAoZS5nLiBoYW5kaGVsZCwgYm9vbSwgdHJhbSwgVUFWKS5cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTWVhc3VyZW1lbnQgVmVudWVcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkXCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IFtcbiAgICAgICAgXCJHcmVlbmhvdXNlXCIsXG4gICAgICAgIFwiTGFib3JhdG9yeVwiLFxuICAgICAgICBcIk90aGVyXCIsXG4gICAgICAgIFwiT3V0ZG9vclwiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlNldHRpbmcgaW4gd2hpY2ggdGhlIHNwZWN0cmFsIG1lYXN1cmVtZW50cyB3ZXJlIG1hZGUuXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogdHJ1ZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiVGFyZ2V0IFR5cGVcIixcbiAgICAgIFwibGV2ZWxcIjogMSxcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkXCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IFtcbiAgICAgICAgXCJBbmltYWxcIixcbiAgICAgICAgXCJCYXJrXCIsXG4gICAgICAgIFwiQnJhbmNoXCIsXG4gICAgICAgIFwiQ2Fub3B5XCIsXG4gICAgICAgIFwiRmxvd2VyXCIsXG4gICAgICAgIFwiTGVhZlwiLFxuICAgICAgICBcIk1pbmVyYWxcIixcbiAgICAgICAgXCJOUFZcIixcbiAgICAgICAgXCJPdGhlclwiLFxuICAgICAgICBcIlJlZmVyZW5jZVwiLFxuICAgICAgICBcIlJvY2tcIixcbiAgICAgICAgXCJTb2lsXCIsXG4gICAgICAgIFwiV2F0ZXJcIlxuICAgICAgXSxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJEZXNjcmliZXMgdGhlIHRhcmdldCB0aGF0IHdhcyBtZWFzdXJlZC5cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiB0cnVlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJNZWFzdXJlbWVudCBRdWFudGl0eVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImNvbnRyb2xsZWRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkFic29ycHRhbmNlXCIsXG4gICAgICAgIFwiRE5cIixcbiAgICAgICAgXCJJbmRleFwiLFxuICAgICAgICBcIk90aGVyXCIsXG4gICAgICAgIFwiUmFkaWFuY2VcIixcbiAgICAgICAgXCJSZWZsZWN0YW5jZVwiLFxuICAgICAgICBcIlRyYW5zZmxlY3RhbmNlXCIsXG4gICAgICAgIFwiVHJhbnNtaXR0YW5jZVwiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlNjYWxlIGZvciBzcGVjdHJhbCBpbnN0ZW5zaXR5IChlLmcuIEROLCByYWRpYW5jZSwgaXJyYWRpYW5jZSwgcmVmbGVjdGFuY2UpXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogdHJ1ZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiSW5kZXggTmFtZVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJNZWFzdXJlbWVudCBxdWFudGl0eSdzIGluZGV4IG5hbWUuICBQbGVhc2UgcHJvdmlkZSBpZiBNZWFzdXJlbWVudCBRdWFudGl0eSA9IFxcXCJJbmRleFxcXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTWVhc3VyZW1lbnQgVW5pdHNcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkLXNpbmdsZVwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBbXG4gICAgICAgIFwiJVwiLFxuICAgICAgICBcIlcvbV4yXCIsXG4gICAgICAgIFwiVy9tXjIvSHpcIixcbiAgICAgICAgXCJXL21eMi9ubVwiLFxuICAgICAgICBcIlcvbV4yL3VtXCIsXG4gICAgICAgIFwiVy9zci9tXjJcIlxuICAgICAgXSxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJNZWFzdXJlbW50IHVuaXRzXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIldhdmVsZW5ndGggVW5pdHNcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkLXNpbmdsZVwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBbXG4gICAgICAgIFwiT3RoZXJcIixcbiAgICAgICAgXCJVbml0bGVzc1wiLFxuICAgICAgICBcIm5tXCIsXG4gICAgICAgIFwidW1cIlxuICAgICAgXSxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJXYXZlbGVuZ3RoIHVuaXRzIChlLmcuIG5tLCB1bSwgSHopXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogdHJ1ZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiVGFyZ2V0IFN0YXR1c1wiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImNvbnRyb2xsZWRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkRyaWVkXCIsXG4gICAgICAgIFwiRnJlc2hcIixcbiAgICAgICAgXCJHcmVlblwiLFxuICAgICAgICBcIkdyb3VuZFwiLFxuICAgICAgICBcIkxpcXVpZFwiLFxuICAgICAgICBcIkxpdmVcIixcbiAgICAgICAgXCJPdGhlclwiLFxuICAgICAgICBcIlBhbmVsXCIsXG4gICAgICAgIFwiU3RhbmRhcmRcIlxuICAgICAgXSxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJTdGF0ZSBvZiB0aGUgbWVhc3VyZW1lbnQgdGFyZ2V0LlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IHRydWVcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIkxpZ2h0IFNvdXJjZVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImNvbnRyb2xsZWRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkxhbXBcIixcbiAgICAgICAgXCJMYXNlclwiLFxuICAgICAgICBcIk90aGVyXCIsXG4gICAgICAgIFwiU3VuXCJcbiAgICAgIF0sXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiRGVzY3JpcHRpb24gb2YgdGhlIGxpZ2h0IHNvdXJjZSB1c2VkIGZvciB5b3VyIHNwZWN0cmFsIG1lYXN1cmVtZW50c1wiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IHRydWVcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIkxpZ2h0IFNvdXJjZSBTcGVjaWZpY2F0aW9uc1wiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiRm9yZW9wdGljIFR5cGVcIixcbiAgICAgIFwibGV2ZWxcIjogMSxcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkXCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IFtcbiAgICAgICAgXCJCYXJlIEZpYmVyXCIsXG4gICAgICAgIFwiQ29udGFjdCBQcm9iZVwiLFxuICAgICAgICBcIkNvc2luZSBEaWZmdXNlclwiLFxuICAgICAgICBcIkZvcmVvcHRpY1wiLFxuICAgICAgICBcIkdlcnNob24gVHViZVwiLFxuICAgICAgICBcIkludGVncmF0aW5nIFNwaGVyZVwiLFxuICAgICAgICBcIkxlYWYgQ2xpcFwiLFxuICAgICAgICBcIk5vbmVcIixcbiAgICAgICAgXCJPdGhlclwiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIkRlc2NyaXB0aW9uIG9mIHRoZSBmb3Jlb3B0aWMgdXNlZCB0byBtYWtlIHlvdXIgc3BlY3RyYWwgbWVhc3VyZW1lbnRcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiB0cnVlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJGb3Jlb3B0aWMgRmllbGQgb2YgVmlld1wiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJpbnRlZ2VyIGRlZ3JlZXNcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiRm9yZW9wdGljIFNwZWNpZmljYXRpb25zXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfVxuICBdLFxuICBcIlByb2Nlc3NpbmcgSW5mb3JtYXRpb25cIjogW1xuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIlByb2Nlc3NpbmcgQXZlcmFnZWRcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkXCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IFtcbiAgICAgICAgXCJOb1wiLFxuICAgICAgICBcIlllc1wiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIklzIHRoZSBtZWFzdXJlbWVudCBhbiBhdmVyYWdlIG9mIG11bHRpcGxlIG1lYXN1cmVtZW50cz9cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiUHJvY2Vzc2luZyBJbnRlcnBvbGF0ZWRcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkXCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IFtcbiAgICAgICAgXCJOb1wiLFxuICAgICAgICBcIlllc1wiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIklzIHRoZSBtZWFzdXJlbWVudCBpbnRlcnBvbGF0ZWQ/XCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIlByb2Nlc3NpbmcgUmVzYW1wbGVkXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwiY29udHJvbGxlZFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBbXG4gICAgICAgIFwiTm9cIixcbiAgICAgICAgXCJZZXNcIlxuICAgICAgXSxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJJcyB0aGUgbWVhc3VyZW1lbnQgcmVzYW1wbGVkPyAoZS5nLiBhcmUgbXVsdGlwbGUgd2F2ZWxlbmd0aHMgYXZlcmFnZWQ/KVwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJQcm9jZXNzaW5nIEluZm9ybWF0aW9uIERldGFpbHNcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiBmYWxzZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIk90aGVyIGRldGFpbHMgYWJvdXQgcHJvY2Vzc2luZyBhcmUgcHJvdmlkZWQgaGVyZS5cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH1cbiAgXSxcbiAgXCJJbnN0cnVtZW50XCI6IFtcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJJbnN0cnVtZW50IE1hbnVmYWN0dXJlclwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJTcGVjdHJvbWV0ZXIgbWFudWZhY3R1cmVyLlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJJbnN0cnVtZW50IE1vZGVsXCIsXG4gICAgICBcImxldmVsXCI6IDEsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlNwZWN0cm9tZXRlciBtb2RlbC5cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiSW5zdHJ1bWVudCBTZXJpYWwgTnVtYmVyXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfVxuICBdLFxuICBcIlRoZW1lXCI6IFtcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJUaGVtZVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImNvbnRyb2xsZWRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkFncmljdWx0dXJlXCIsXG4gICAgICAgIFwiQmlvY2hlbWlzdHJ5XCIsXG4gICAgICAgIFwiRWNvbG9neVwiLFxuICAgICAgICBcIkZvcmVzdFwiLFxuICAgICAgICBcIkdsb2JhbCBDaGFuZ2VcIixcbiAgICAgICAgXCJMYW5kIENvdmVyXCIsXG4gICAgICAgIFwiT3RoZXJcIixcbiAgICAgICAgXCJQaGVub2xvZ3lcIixcbiAgICAgICAgXCJQaHlzaW9sb2d5XCIsXG4gICAgICAgIFwiVXJiYW5cIixcbiAgICAgICAgXCJXYXRlciBRdWFsaXR5XCJcbiAgICAgIF0sXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiUmVzZWFyY2ggY29udGV4dCBmb3IgdGhlIHRoZSBzcGVjdHJhbCBtZWFzdXJlbWVudHMuXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogdHJ1ZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiS2V5d29yZHNcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiBmYWxzZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJFY29zeXN0ZW0gVHlwZVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcImNvbnRyb2xsZWRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkFxdWF0aWNcIixcbiAgICAgICAgXCJDb2FzdGFsXCIsXG4gICAgICAgIFwiQ3JvcHNcIixcbiAgICAgICAgXCJGb3Jlc3RcIixcbiAgICAgICAgXCJHcmFzc2xhbmRcIixcbiAgICAgICAgXCJXZXRsYW5kXCJcbiAgICAgIF0sXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9XG4gIF0sXG4gIFwiTG9jYXRpb25cIjogW1xuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIkxhdGl0dWRlXCIsXG4gICAgICBcImxldmVsXCI6IDEsXG4gICAgICBcImlucHV0XCI6IFwibGF0bG5nXCIsXG4gICAgICBcInVuaXRzXCI6IFwiZGVjaW1hbCBkZWdyZWVcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTG9uZ2l0dWRlXCIsXG4gICAgICBcImxldmVsXCI6IDEsXG4gICAgICBcImlucHV0XCI6IFwibGF0bG5nXCIsXG4gICAgICBcInVuaXRzXCI6IFwiZGVjaW1hbCBkZWdyZWVcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiZ2VvanNvblwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImdlb2pzb25cIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTG9jYXRpb24gTmFtZVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IGZhbHNlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IG51bGwsXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9XG4gIF0sXG4gIFwiRGF0ZVwiOiBbXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiU2FtcGxlIENvbGxlY3Rpb24gRGF0ZVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImRhdGVcIixcbiAgICAgIFwidW5pdHNcIjogXCJJU08gRGF0ZSBcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTWVhc3VyZW1lbnQgRGF0ZVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcImRhdGVcIixcbiAgICAgIFwidW5pdHNcIjogXCJJU08gRGF0ZSBcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiUGhlbm9sb2dpY2FsIFN0YXR1c1wiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH1cbiAgXSxcbiAgXCJTcGVjaWVzXCI6IFtcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJDb21tb24gTmFtZVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJDb21tb24gbmFtZSBvZiB0aGUgdGFyZ2V0IHRoYXQgd2FzIG1lYXN1cmVkLlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJMYXRpbiBHZW51c1wiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJMYXRpbiBnZW51cyBvZiB0aGUgdGFyZ2V0IHRoYXQgd2FzIG1lYXN1cmVkLlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJMYXRpbiBTcGVjaWVzXCIsXG4gICAgICBcImxldmVsXCI6IDEsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIkxhdGluIHNwZWNpZXMgb2YgdGhlIHRhcmdldCB0aGF0IHdhcyBtZWFzdXJlZC5cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiVVNEQSBTeW1ib2xcIixcbiAgICAgIFwibGV2ZWxcIjogMSxcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IG51bGwsXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiVVNEQSBjb2RlIG9mIHRoZSB0YXJnZXQgdGhhdCB3YXMgbWVhc3VyZWQuXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIlZlZ2V0YXRpb24gVHlwZVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH1cbiAgXSxcbiAgXCJDaXRhdGlvblwiOiBbXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiQ2l0YXRpb25cIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiBmYWxzZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJDaXRhdGlvbiBET0lcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiBmYWxzZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJXZWJzaXRlXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogZmFsc2UsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiQXV0aG9yXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogZmFsc2UsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiQXV0aG9yIEVtYWlsXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogZmFsc2UsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTWFpbnRhaW5lclwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IGZhbHNlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IG51bGwsXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIk1haW50YWluZXIgRW1haWxcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiBmYWxzZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJGdW5kaW5nIFNvdXJjZVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IGZhbHNlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IG51bGwsXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIkZ1bmRpbmcgU291cmNlIEdyYW50IE51bWJlclwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IGZhbHNlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IG51bGwsXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9XG4gIF1cbn0iXX0=
-</script>
 
 
 </head><body><div hidden="" by-vulcanize=""><!--
@@ -41174,6 +39550,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }.bind(this)
           );
         }
+
+        if( window.firstResult ) {
+          this.render(window.firstResult);
+        }
       },
 
       setPanel : function(panel) {
@@ -41859,6 +40239,1636 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </script>
 </dom-module>
 <script>
+$(window).one('result-update-event', function(e, result){
+  window.firstResult = result;
+}.bind(this));
+</script><script type="text/javascript">var ESIS = {
+	widgets : {},
+	ckanHost : ''
+};
+
+if( window.location.host == 'ecosis.org' ) {
+	ESIS.ckanHost = 'http://data.ecosis.org';
+} else if ( window.location.host == 'dev-search.ecosis.org' ) {
+	ESIS.ckanHost = 'http://dev-data.ecosis.org';
+} else {
+	ESIS.ckanHost = 'http://localhost:5000';
+}
+
+function qs(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+// init app
+(function() {
+
+	var DEFAULT_PAGE = "home";
+	var validPages = [DEFAULT_PAGE, "search", "result", "all", "edit", "compare", "group"];
+
+	var cPage = "";
+  var firstRender = true;
+
+	$(document).ready(function() {
+
+		// mqe.js handles the hash parsing and fires this event
+		$(window).bind("page-update-event", function(e, hash){
+			if( window.prerender && firstRender ) {
+				firstRender = false;
+				console.log('Ignoring first render');
+				return;
+			}
+
+			_updatePage(hash[0]);
+		});
+
+		init();
+	});
+
+	function init() {
+		MQE.init({defaultPage:DEFAULT_PAGE});
+
+		// the polyfill is cause issues with this...
+		window.domready = true;
+
+		if( ESIS.search ) {
+			ESIS.search.init();
+		}
+	}
+
+	function _updatePage(page) {
+		if( page == cPage ) return;
+
+		$('body').scrollTop(0);
+
+		if( validPages.indexOf(page) == -1 ) page = DEFAULT_PAGE;
+
+		try {
+			if( page !== 'result' ) {
+				document.title = 'EcoSIS - Spectral Library';
+			}
+		} catch(e) {}
+
+		$("#"+cPage).hide();
+		$("#"+page).show();
+
+		cPage = page;
+	}
+
+})();
+
+
+ESIS.labels = {};
+
+ESIS.isMapFilter = function(filter) {
+	if( !filter.$or ) return false;
+	if( filter.$or.length === 0 ) return false;
+
+	var item = filter.$or[0];
+	if( item['ecosis.geojson'] || item['ecosis.spectra_bbox_geojson'] ) {
+		return true;
+	}
+	return false;
+};
+
+ESIS.labels.filters = {
+	"groups" : "Group",
+	"package_title" : "Dataset",
+	"keywords" : "Keywords",
+	"organization" : "Organization"
+};
+ESIS.filters = {
+	"organization" : "ecosis.organization"
+}
+
+// chart stuff
+
+var chartLoadHandlers = [];
+function initchart() {
+	for( var i = 0; i < chartLoadHandlers.length; i++ ) chartLoadHandlers[i]();
+}
+</script><script type="text/javascript">Handlebars.registerHelper('info', function() {
+  return new Handlebars.SafeString(this.info);
+});
+Handlebars.registerHelper('title', function() {
+  return new Handlebars.SafeString(this.title);
+});
+Handlebars.registerHelper('organization', function() {
+  return new Handlebars.SafeString(this.organization);
+});
+
+ESIS.search = (function() {
+
+  // handle bar template layouts
+  var RESULT_TEMPLATE = [
+      '<div class="panel panel-default animated fadeIn">',
+        '<div class="panel-body">',
+          "<div class='row'>",
+            '<div class="col-md-7" style="padding-bottom:10px;">',
+              '<h4><a href="#result/{{_id}}">{{title}}</a></h4>',
+              '<h6>{{organization}}</h6>',
+              '<div>{{description}}</div>'+
+            '</div>',
+            "<div class='col-md-5' style='padding-top:15px'>{{info}}</div>",
+          "</div>",
+        '</div>',
+      "</div>"
+  ].join('');
+  var TITLE_TEMPLATE = "Search Results: <span style='color:#888'>{{start}} to {{end}} of {{total}}</span>";
+
+  // template functions
+  var rowTemplate;
+  var titleTemplate;
+
+  var titleAttr = 'Spectrum Number';
+  var infoAttrs = ['Theme', 'Target Type', 'Common Name'];
+
+  var openFilters = [];
+  var staticFilters = {};
+
+  function init() {
+
+    rowTemplate = Handlebars.compile(RESULT_TEMPLATE);
+    titleTemplate = Handlebars.compile(TITLE_TEMPLATE);
+
+    $(window).bind("search-start-event", function(e, results){
+      _loading(true);
+    });
+
+    $(window).bind("search-update-event", function(e, results){
+      _loading(false);
+      _updateResultsTitle(results);
+      _updateResults(results);
+      _updateFilters(results); // this should always be before adding active filters
+      _updateActiveFilters(results);
+      _updatePaging(results);
+      _updateRestLink();
+      //_updateDownloadLinks();
+    });
+
+    // set search handlers
+    $("#search-btn").on('click', function(){
+      _search();
+    });
+    $("#search-text").on('keyup blur', function(e){
+      clearSearchBtn();
+
+      if( e.which == 13 ) _search();
+    });
+
+    $('#clear-search').on('click', function(e){
+      $("#search-text").val('');
+      $(this).hide();
+      _search();
+    });
+  }
+
+  function clearSearchBtn() {
+    if( $("#search-text").val().length > 0 ) {
+      $('#clear-search').show();
+    } else {
+      $('#clear-search').hide();
+    }
+  }
+
+  function _search() {
+    var query = MQE.getCurrentQuery();
+    query.page = 0;
+    query.text = $("#search-text").val();
+    window.location = MQE.queryToUrlString(query);
+  }
+
+
+  function _updateActiveFilters() {
+    var panel = $("#active-filters").html("");
+    var query = MQE.getCurrentQuery();
+
+    // make sure text box is always correct
+    $("#search-text").val(query.text);
+    clearSearchBtn();
+
+    if( query.filters.length == 0 ) return;
+
+    panel.append('<div class="help-block" style="margin-top: 0">You are currently searching for:</h6>');
+
+    for( var i = 0; i < query.filters.length; i++ ) {
+      // get query copy and splice array
+      var tmpQuery = MQE.getCurrentQuery();
+      tmpQuery.page = 0;
+
+      tmpQuery.filters.splice(i,1);
+
+      var f = "";
+      var key = "";
+
+      for( var j in query.filters[i] ) {
+        key = j;
+
+
+        var existsFilter = _isExistsFilter(query.filters[i][j], j) // see if it's a static filter
+        if( existsFilter ){
+          f = 'Exists: '+existsFilter;
+        } else if( typeof query.filters[i][j] == 'object' ) {
+          if( staticFilters[j] ) {
+            // grab label from static filter
+            f = staticFilters[j].label;
+            // also, make sure to check it's check box
+            $("#static-filter-"+j).prop('checked', true);
+          } else {
+            f = j+': '+JSON.stringify(query.filters[i][j]);
+          }
+
+        } else {
+          f = query.filters[i][j];
+        }
+      }
+
+      if( key == 'ecosis.geojson' ) {
+        var btn = '<div class="btn-group" style="margin:0 5px 5px 0; text-transform:none"><a class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" href="#"> Location Filter'+
+                ' <span class="caret"></span></a><ul class="dropdown-menu" style="z-index:2000">' +
+                '<li><a href="'+MQE.queryToUrlString(tmpQuery)+'" ><i class="icon-remove"></i> Remove</a></li>' +
+                '<li><a id="geo-filter-edit"><i class="icon-edit"></i> Edit</a></li>' +
+                '</ul></div>';
+        btn = $(btn);
+        panel.append(btn);
+        btn.find("#geo-filter-edit").on('click', function(){
+          ESIS.map.show();
+        });
+
+      } else {
+        var label = key;
+        if( key.match('\.') ) {
+          label = key.split('.').pop();
+        }
+
+        panel.append(
+          $('<a href="' +
+            MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"') +
+            '" style="margin:0 5px 5px 0;text-transform:none" class="btn btn-primary btn-sm">'+
+            '<i class="fa fa-times" style="color:white"></i> <span style="text-transform:capitalize">'+label+'</span>: '+f+'</a>'))
+      }
+
+    }
+
+  }
+
+  function _updateFilters(results) {
+    var panel = $("#filter-nav").html("");
+
+    // add the title
+    panel.append($('<li class="nav-header page-header" style="margin:0">Narrow Your Search</li>'));
+    panel.append($('<li class="divider"></li>'));
+
+    var numFilters = MQE.getCurrentQuery().filters.length;
+
+    // add filter blocks
+    var c = 0;
+    for( var key in results.filters ) {
+      if( results.filters[key].length == 0 ) continue;
+
+
+      var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
+
+      var title = $("<li><a id='filter-block-title-"+key.replace(/\s/g,"_")+"' class='search-block-title'>"+label+"</a></li>");
+
+      var display = "";
+
+      if( openFilters.indexOf(key) > -1 ) display = "style='display:block'"
+
+      var block = $("<ul id='filter-block-"+key.replace(/\s/g,"_")+"' class='filter-block' "+display+"></ul>");
+
+      var added = false;
+      for( var i = 0; i < results.filters[key].length; i++ ) {
+        var item = results.filters[key][i];
+        if( _hasFilterSimple(key, item.filter) ) continue;
+
+        var query = MQE.getCurrentQuery();
+        query.page = 0;
+
+        var filter = {};
+        filter[ESIS.filters[key] ? ESIS.filters[key] : key] = item.filter;
+        query.filters.push(filter);
+
+        block.append($('<li><a href="'+MQE.queryToUrlString(query).replace(/"/g,'\\"')+'">'+item.filter+' ('+item.count+')</a></li>'));
+        added = true;
+      }
+
+      if( added ) {
+        title.append(block);
+        panel.append(title);
+        c++;
+      }
+    }
+
+    // append location filter
+    if( !_queryHasFilter(MQE.getCurrentQuery(), 'ecosis.geojson') ) {
+      panel.append($('<li><a id="filter-block-title-geo" style="cursor:pointer;font-weight:bold">Location</a></li>'));
+      $("#filter-block-title-geo").on('click', function(){
+        ESIS.map.show();
+      });
+
+      $('#search-text').removeAttr('disabled').attr('placeholder','Keywords');
+      $('#search-btn').removeClass('disabled');
+
+      c++;
+    } else {
+      $('#search-text').attr('disabled','').attr('placeholder','Not supported with location filter');
+      $('#search-btn').addClass('disabled');
+    }
+
+    panel.append($('<li><a id="filter-block-title-custom" style="cursor:pointer;font-weight:bold">Custom Filter</a></li>'));
+    $("#filter-block-title-custom").on('click', function(){
+      ESIS.customFiltersPopup.show();
+    });
+    c++;
+
+
+    if( c == 0 ) {
+      panel.append($("<div>No filters available for this search</div>"));
+      return;
+    }
+
+    // add hide/show handlers for the blocks
+    $(".search-block-title").on('click', function(e){
+      var id = e.target.id.replace(/filter-block-title-/, '');
+      var panel = $("#filter-block-"+id);
+
+      if( panel.css("display") == "none" ) {
+        panel.show('blind');
+        openFilters.push(id);
+      } else {
+        panel.hide('blind');
+        openFilters.splice(openFilters.indexOf(id),1);
+      }
+    });
+  }
+
+  function _updatePaging(results) {
+    var tmpQuery = MQE.getCurrentQuery();
+    var numPages = Math.ceil( parseInt(results.total) / tmpQuery.itemsPerPage );
+    var cPage = Math.floor( parseInt(results.start+1) / tmpQuery.itemsPerPage );
+
+    var buttons = [];
+
+    // going to show 7 buttons
+    var startBtn = cPage - 3;
+    var endBtn = cPage + 3;
+
+    if( endBtn > numPages ) {
+      startBtn = numPages-7;
+      endBtn = numPages;
+    }
+    if( startBtn < 0 ) {
+      startBtn = 0;
+      endBtn = 6;
+      if( endBtn > numPages ) endBtn = numPages;
+    }
+
+    var panel = $("#search-paging-btns");
+    panel.html("");
+    var bpanel = $("#search-paging-btns-bottom");
+    bpanel.html("");
+
+    // add back button
+    if( cPage != 0 ) {
+      tmpQuery.page = cPage-1;
+      panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
+      bpanel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#171;</a></li>'));
+    }
+
+    for( var i = startBtn; i < endBtn; i++ ) {
+      var label = i+1;
+      tmpQuery.page = i;
+      var btn = $('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">'+label+'</a></li>');
+      if( cPage == i ) btn.addClass('active');
+      panel.append(btn);
+
+      btn = $('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">'+label+'</a></li>');
+      if( cPage == i ) btn.addClass('active');
+      bpanel.append(btn);
+    }
+
+    // add next button
+    if(  cPage != numPages-1 && numPages != 0 ) {
+      tmpQuery.page = cPage+1;
+      panel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
+      bpanel.append($('<li><a href="'+MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"')+'">&#187;</a></li>'));
+    }
+
+  }
+
+  function _updateResultsTitle(results) {
+    var end = results.stop;
+    if( results.total < end ) end = results.total;
+
+    var start = parseInt(results.start)+1;
+    if( end == 0 ) start = 0;
+
+    $("#results-title").html(titleTemplate({
+      start : start,
+      end   : end,
+      total : results.total
+    }));
+  }
+
+  function _updateResults(results) {
+    var panel = $("#results-panel").html("");
+
+    if( results.items.length == 0 ) {
+      panel.append("<div style='font-style:italic;color:#999;padding:15px 10px'>No results found for your current search.</div>");
+      return;
+    }
+
+    //ESIS.chart.clearSearchCharts();
+    for( var i = 0; i < results.items.length; i++ ) {
+      var item = results.items[i];
+      var info = _getInfo(item);
+
+      panel.append(rowTemplate({
+        _id     : item._id,
+        title   : _getTitle(item),
+        organization   : _getOrganization(item),
+        description : _getDescription(item),
+        info    : info
+      }));
+    //  ESIS.chart.addSearchChart(item, $('#'+item._id+'-chart'));
+
+    }
+    //ESIS.chart.redrawSearchCharts(true);
+  }
+
+  function _getTitle(item) {
+    var count = ' <small>('+(item.ecosis.spectra_count || 0)+')</small>';
+
+    if( item.ecosis.package_title ) return item.ecosis.package_title+count;
+    if( item.ecosis.package_name ) return item.ecosis.package_name+count;
+    return 'No Title'+count;
+  }
+
+  function _getDescription(item) {
+    if( item.ecosis.description ) {
+      if( item.ecosis.description.length > 300 ) {
+        return item.ecosis.description.substr(0, 300)+'...';
+      }
+      return item.ecosis.description;
+    }
+    return 'No description provided';
+  }
+
+  function _getOrganization(item) {
+    if( !item.ecosis.organization ) return '';
+    if( item.ecosis.organization == '' || item.ecosis.organization == 'None' ) return '';
+
+    var link = '<a href="'+_createFilterUrl('ecosis.organization', item.ecosis.organization)+'">';
+    /*if( item.ecosis.organization_image_url ) {
+      link += '<img class="img-thumbnail" src="'+ESIS.ckanHost+item.ecosis.organization_image_url+'" border=0  style="width:32px" /> ';
+    }*/
+    link += item.ecosis.organization+'</a><br /><br />';
+
+    return link;
+  }
+
+  function _getInfo(item) {
+    var info = "<ul>";
+
+    for( var i = 0; i < infoAttrs.length; i++ ) {
+      if( item[infoAttrs[i]] ) {
+        var arr = item[infoAttrs[i]];
+        var key = infoAttrs[i];
+        var label = ESIS.labels.filters[key] ? ESIS.labels.filters[key] : key;
+
+        info += "<li><b>"+label+": </b>";
+        for( var j = 0; j < arr.length; j++ ) {
+          if( _hasFilter(item,arr[j]) ) info += arr[j];
+          else info += '<a href="'+_createFilterUrl(key, arr[j])+'">'+arr[j]+'</a>';
+
+          if( j == 5 && j != arr.length - 1 ) {
+            info += ' ...';
+            break;
+          }
+          if( j < arr.length-1 ) info += ', ';
+
+        }
+        info += '</li>';
+      }
+    }
+
+
+
+    info += "</ul>";
+    return info;
+  }
+
+  function _updateRestLink() {
+    var link = MQE.getRestLink();
+    if( !link.match(/$https.*/) ) {
+      link = window.location.protocol+'//'+window.location.host+link;
+    }
+    link = link.replace(/mqe\/query/,'package/query');
+    
+
+    $('#current-search-rest-link').html(
+      '<a href="'+link+'" target="_blank"><i class="fa fa-link"></i> Search API Link</a> | '+
+      '<a href="http://cstars.github.io/ecosis/" target="_blank"><i class="fa fa-book"></i> EcoSIS API Documentation</a> | '+
+      '<a href="http://tutorial.ecosis.org" target="_blank"><i class="fa fa-question-circle"></i> EcoSIS Tutorials</a>'+
+      '<br /> <span style="color:#888;font-size:11px;font-style:italic">'+ decodeURIComponent(link)+'</span>'
+    );
+  }
+
+  function  _hasFilterSimple(key, value) {
+    if( ESIS.filters[key] ) key = ESIS.filters[key];
+
+    var filter = {};
+    var tmpQuery = MQE.getCurrentQuery();
+
+    for( var i = 0; i < tmpQuery.filters.length; i++ ) {
+      if( tmpQuery.filters[i][key] && tmpQuery.filters[i][key] == value ) return true;
+    }
+
+    return false;
+  }
+
+  function _hasFilter(item, key) {
+    var filter = {};
+    var tmpQuery = MQE.getCurrentQuery();
+    filter[key] = item[key];
+    for( var i = 0; i < tmpQuery.filters.length; i++ ) {
+      if( tmpQuery.filters[i][key] && tmpQuery.filters[i][key] == item[key] ) return true;
+    }
+    return false;
+  }
+
+  function _isExistsFilter(item, key) {
+    if( key == '$or' ) {
+      for( var i = 0; i < item.length; i++ ) {
+        var f = item[i];
+        if( f['value.ecosis.spectra_schema.data'] ) {
+          return f['value.ecosis.spectra_schema.data'];
+        } else if ( f['value.ecosis.spectra_schema.metadata'] ) {
+          return f['value.ecosis.spectra_schema.metadata'];
+        }
+      }
+    }
+
+    return null;
+  }
+
+  function _queryHasFilter(query, key, value) {
+    for( var i = 0; i < query.filters.length; i++ ) {
+      if( query.filters[i][key] && value == null ) return true;
+      if(  query.filters[i][key] && query.filters[i][key] == value ) return true;
+    }
+    return false;
+  }
+
+  function _createFilterUrl(key, value) {
+    var tmpQuery = MQE.getCurrentQuery();
+    var filter = {};
+    filter[ESIS.filters[key] ? ESIS.filters[key] : key] = value;
+    tmpQuery.page = 0;
+    tmpQuery.filters.push(filter);
+    return MQE.queryToUrlString(tmpQuery).replace(/"/g,'\\"');
+  }
+
+
+  function _loading(loading) {
+    if( loading ) {
+      $('#loading').show();
+    } else {
+      $('#loading').hide();
+    }
+  }
+
+  if( window.domready ) {
+    init();
+  }
+
+  return {
+    init : init,
+    clearSearchBtn : clearSearchBtn
+  }
+})();
+</script><script type="text/javascript">ESIS.map = (function() {
+  var map;
+  //var centerMarker;
+  var circle;
+  //var r = 16093; // default to 10 miles
+  var r = 844906; // 525 miles
+  var ll = null;
+
+  var markers = [];
+  var previewQueryTimer = -1;
+  var host = null;
+
+  function init(chost) {
+      host = chost;
+      ll = new google.maps.LatLng(39.251, -97.850);
+    $("#geo-filter").modal({show:false});
+    if( !_addPreviewSearch() ) $("#geo-filter-current-matches-outer").css("visibility","hidden");
+  }
+
+  function show() {
+    $("#geo-filter").modal('show');
+
+    // first time, let the popup show, then init map
+    if( !map ) {
+      setTimeout(function(){
+        _initMap();
+      },500);
+    } else {
+      _updateLL();
+      setTimeout(function(){
+        map.invalidateSize();
+        //TODO
+        //google.maps.event.trigger(map, "resize");
+      },500);
+    }
+  }
+
+  function _updateLL() {
+    ll = map.getCenter();
+
+    // update radius
+    var b = map.getBounds();
+    if( b ) {
+      var ll1 = L.latLng(b.getNorthEast().lat, ll.lng);
+      var ll2 = L.latLng(b.getSouthWest().lat, ll.lng);
+
+      var d = ll1.distanceTo(ll2);
+      r = (d / 2) * .75;
+    }
+
+    circle.setRadius(r);
+    circle.setLatLng(ll);
+
+    //try {
+    //  centerMarker.setLatLng(ll);
+    //} catch(e) {}
+
+    $("#geo-filter-current-lat").html(ll.lat.toFixed(3));
+    $("#geo-filter-current-lng").html(ll.lng.toFixed(3));
+    $("#geo-filter-current-radius").html(Math.round(r * .000621371)+" miles");
+
+    // now do a quick search, if not IE8
+    if( !_addPreviewSearch() ) return;
+
+
+    if( previewQueryTimer != -1 ) clearTimeout(previewQueryTimer);
+    for (var i = 0; i < markers.length; i++ ) markers[i].setMap(null);
+    markers = [];
+    $("#geo-filter-current-matches").html("Loading...");
+
+    previewQueryTimer = setTimeout(function(){
+      var query = MQE.getCurrentQuery();
+
+      // if there is already a map filter, remove it, this is an edit
+      for( var i = 0; i < query.filters.length; i++ ) {
+        if( query.filters[i]['ecosis.geojson'] ) {
+          query.filters.splice(i, 1);
+          break;
+        }
+      }
+
+      query.filters.push({
+        'ecosis.geojson' : {
+          $near: {
+             $geometry: {
+                type: "Point" ,
+                coordinates: [ ll.lng, ll.lat ]
+             },
+             $maxDistance: r
+          }
+        }
+      });
+
+      $.ajax({
+        url : (host ? host : '')+'/geo/preview?filters='+encodeURIComponent(JSON.stringify(query.filters)),
+        success : function(resp) {
+          $("#geo-filter-current-matches").html('<span class="text-primary">'+resp.count+'</span>');
+        }
+      });
+    },300);
+
+  }
+
+  function _initMap() {
+
+    // set geo filter map
+    /*var mapOptions = {
+        center : new google.maps.LatLng(39.251, -97.850),
+        zoom : 4,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    map = new google.maps.Map($("#geo-filter-map")[0],  mapOptions);
+
+    centerMarker = new google.maps.Marker({
+      map  : map,
+      position : map.getCenter(),
+      title : 'Center'
+    });
+
+    // Add circle overlay and bind to marker
+    circle = new google.maps.Circle({
+      map : map,
+      radius : r,
+      fillColor : '#AA0000'
+    });
+    circle.bindTo('center', centerMarker, 'position');
+
+    google.maps.event.addListener(map, 'bounds_changed', _updateLL);*/
+
+    map = L.map($("#geo-filter-map")[0]).setView([39.251, -97.850], 4);
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    console.log(r);
+    circle = L.circle([39.251, -97.850], r, {
+      fillColor : '#AA0000'
+    }).addTo(map);
+
+    //try {
+    //  centerMarker = L.marker([39.251, -97.850]).addTo(map);
+    //} catch(e) {}
+
+    map.on('zoomend', _updateLL);
+    map.on('moveend', _updateLL);
+
+    _updateLL();
+
+    $("#geo-filter-select").on('click', function(){
+      var ll = map.getCenter();
+      var query = MQE.getCurrentQuery();
+      query.page = 0;
+
+      // no text filters allowed
+      query.text = '';
+
+      // if there is already a map filter, remove it, this is an edit
+      for( var i = 0; i < query.filters.length; i++ ) {
+        if( query.filters[i]['ecosis.geojson'] ) {
+          query.filters.splice(i, 1);
+          break;
+        }
+      }
+
+      // $near is not allowed w/ text filter right now so using this
+      // http://docs.mongodb.org/manual/reference/operator/centerSphere/#op._S_centerSphere
+      query.filters.push({
+        'ecosis.geojson' : {
+          $near: {
+             $geometry: {
+                type: "Point" ,
+                coordinates: [ ll.lng, ll.lat ]
+             },
+             $maxDistance: r
+          }
+        }
+      });
+      $("#geo-filter").modal('hide');
+      window.location = MQE.queryToUrlString(query);
+    });
+
+    // set geolocate functionality
+    if ( navigator.geolocation ) {
+      $("#geo-filter-geolocate").on('click', function(){
+        $(this).addClass("disabled").html('Locating...');
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+              $("#geo-filter-geolocate").removeClass("disabled").html('Locate Me');
+              map.setView(L.latLng(position.coords.latitude, position.coords.longitude));
+            },
+            function(error) {
+              $("#geo-filter-geolocate").removeClass("disabled").html('Locate Me');
+              switch (error.code) {
+                case error.PERMISSION_DENIED:
+                  alert("User denied the request for Geolocation.");
+                  break;
+                case error.POSITION_UNAVAILABLE:
+                  alert("Location information is unavailable.");
+                  break;
+                case error.TIMEOUT:
+                  alert("The request to get user location timed out.");
+                  break;
+                case error.UNKNOWN_ERROR:
+                  alert("An unknown error occurred.");
+                  break;
+              }
+            }
+        );
+      });
+    } else {
+      $("#geo-filter-geolocate").remove();
+    }
+  }
+
+  function _addPreviewSearch() {
+    if( window.navigator.userAgent.match(/MSIE\s[78]/) ) return false;
+    return true;
+  }
+
+
+  return {
+    show : show,
+    init : init
+  }
+
+})();
+</script><script type="text/javascript">ESIS.allFiltersPopup = (function() {
+
+
+  var popup;
+
+  function init() {
+     popup = $('#all-filters-popup');
+     popup.modal({show: false});
+  }
+
+
+  function show(key, result) {
+    var results = result[key];
+    results.sort();
+
+    var html = '';
+    for( var i = 0; i < results.length; i++ ) {
+      html += '<div>'+wrap(key, results[i], true)+'</div>';
+    }
+
+
+    popup.find('.modal-title').text(key);
+    popup.find('.modal-body').html(html);
+
+    popup.find('a').on('click', hide);
+
+    popup.modal('show');
+  }
+
+  function hide() {
+    popup.modal('hide');
+  }
+
+  function wrap(key, value, icon) {
+    var q = MQE.getCurrentQuery();
+    q.text = '';
+    q.page = 0;
+
+    var f = {};
+    f[key] = value;
+    q.filters = [f];
+
+    return '<a href="'+MQE.queryToUrlString(q)+'" title="Filter by '+key+'='+value+'" style="white-space:normal">'+
+          (icon ? '<i class="fa fa-plus-circle"></i> ' : '')+value+'</a>';
+  }
+
+  $(document).ready(init);
+
+  return {
+    show : show,
+    hide : hide
+  }
+
+})();
+</script><script type="text/javascript">ESIS.customFiltersPopup = (function() {
+  var popup;
+
+  function init() {
+     popup = $('#custom-filters-popup');
+     popup.modal({show: false});
+
+     $('#set-custom-filter').on('click', setFilter)
+     $('#inputCustomFilter').on('keypress', function(e){
+       if( e.which == 13 ) setFilter();
+     });
+  }
+
+  function show() {
+    popup.modal('show');
+  }
+
+  function hide() {
+    popup.modal('hide');
+  }
+
+  function setFilter() {
+    var value = $('#inputCustomFilter').val();
+    if( value == "" ) return;
+
+    parts = value.split(',');
+    var filters = [];
+    for( var i = 0; i < parts.length; i++ ) {
+      parts[i] = parts[i].trim();
+
+      // TODO: how do we want to handle values.
+      if( parts[i][0] == '^' ) {
+        var dataField = {}, metadataField = {}, exists = {};
+        var field = parts[i].replace(/\^/, '').trim();
+
+        dataField['value.ecosis.spectra_metadata_schema.data'] = field;
+        metadataField['value.ecosis.spectra_metadata_schema.metadata'] = field;
+
+        exists['value.'+field] = {'$exists' : true};
+
+        filters.push({
+          '$or' : [
+            dataField,
+            metadataField,
+            exists
+          ]
+        });
+
+      } else if( parts[i].indexOf('=') > -1 ) {
+        var p = parts[i].split('='), f;
+        var field = p[0].trim();
+        var value = p[1].trim().toLowerCase();
+
+        var f = {};
+        f[field] = value;
+
+        filters.push(f);
+      }
+    }
+
+    if( filters.length == 0 ) {
+      alert('No filters detected in: "'+parts.join(', ')+'"');
+      return;
+    }
+
+    var q = MQE.getCurrentQuery();
+    q.page = 0;
+    for( var i = 0; i < filters.length; i++ ) {
+      q.filters.push(filters[i]);
+    }
+
+    $('#inputCustomFilter').val('');
+    hide();
+    window.location = MQE.queryToUrlString(q);
+  }
+
+  $(document).ready(init);
+
+  return {
+    hide : hide,
+    show : show
+  }
+})()
+</script><script type="text/javascript">(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.LIB = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+module.exports = {
+  ldjson : require('./prerender/ldjson'),
+  schema : require('./schema')
+};
+
+},{"./prerender/ldjson":2,"./schema":3}],2:[function(require,module,exports){
+'use strict';
+
+module.exports = function(item, url) {
+  url = 'http://ecosis.org';
+
+  var result = {
+    title : item.ecosis.package_title,
+    description : item.ecosis.description,
+    ldjson : null
+  };
+
+  var ldjson = {
+    '@context': 'http://schema.org',
+    '@type': 'Dataset',
+    name : item.ecosis.package_title,
+    datePublished : item.ecosis.created,
+    description : item.ecosis.description,
+    url : url+'/#result/'+item.ecosis.package_id,
+    genre : 'spectroscopy',
+    provider : {
+      '@type' : 'Organization',
+      email : 'info@ecosis.org',
+      url : 'http://ecosis.org',
+      name : 'EcoSIS',
+      description : 'Ecosystem Spectral Information System'
+    },
+    "includedInDataCatalog":{
+      '@type':"DataCatalog",
+      name:'EcoSIS'
+    },
+    publisher : {
+      '@type' : 'Organization',
+      name : item.ecosis.organization
+    },
+    distribution : {
+      '@type': 'DataDownload',
+      name : item.ecosis.package_name+'.csv',
+      contentUrl : url+'/package/export?package_id='+item.ecosis.package_id+'&metadata=true',
+      fileFormat : 'text/csv',
+      encodingFormat : 'CSV'
+    }
+  };
+
+  result.ldjson = ldjson;
+
+  if( item.Website ) {
+    ldjson.publisher.url = item.Website[0];
+  }
+  if( item.Author ) {
+    ldjson.author = {
+      '@type' : 'Person',
+      name : item.Author[0]
+    };
+    if( item['Author Email'] ) {
+      ldjson.author.email = item['Author Email'][0];
+    }
+  }
+  if( item.Keywords ) {
+    result.keywords = item.Keywords.join(', ');
+    ldjson.keywords = item.Keywords;
+  }
+  if( item.ecosis.organization_info ) {
+    ldjson.publisher.image = item.ecosis.organization_info.logo;
+    ldjson.publisher.description = item.ecosis.organization_info.description;
+  }
+
+  return result;
+};
+
+},{}],3:[function(require,module,exports){
+module.exports={
+  "Measurement": [
+    {
+      "name": "Acquisition Method",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Contact",
+        "Other",
+        "Pixel",
+        "Proximal"
+      ],
+      "description": "Minimum measurement unit for your spectra (i.e. contact probe, proximal with X-degree foreoptic, pixel, other).",
+      "allowOther": true
+    },
+    {
+      "name": "Sample Platform",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Airplane",
+        "Boom",
+        "Satellite",
+        "Tower",
+        "UAV"
+      ],
+      "description": "Platform from which the spectral measurements were made (e.g. handheld, boom, tram, UAV).",
+      "allowOther": false
+    },
+    {
+      "name": "Measurement Venue",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Greenhouse",
+        "Laboratory",
+        "Other",
+        "Outdoor"
+      ],
+      "description": "Setting in which the spectral measurements were made.",
+      "allowOther": true
+    },
+    {
+      "name": "Target Type",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Animal",
+        "Bark",
+        "Branch",
+        "Canopy",
+        "Flower",
+        "Leaf",
+        "Mineral",
+        "NPV",
+        "Other",
+        "Reference",
+        "Rock",
+        "Soil",
+        "Water"
+      ],
+      "description": "Describes the target that was measured.",
+      "allowOther": true
+    },
+    {
+      "name": "Measurement Quantity",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Absorptance",
+        "DN",
+        "Index",
+        "Other",
+        "Radiance",
+        "Reflectance",
+        "Transflectance",
+        "Transmittance"
+      ],
+      "description": "Scale for spectral instensity (e.g. DN, radiance, irradiance, reflectance)",
+      "allowOther": true
+    },
+    {
+      "name": "Index Name",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "Measurement quantity's index name.  Please provide if Measurement Quantity = \"Index\"",
+      "allowOther": false
+    },
+    {
+      "name": "Measurement Units",
+      "level": 2,
+      "input": "controlled-single",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "%",
+        "W/m^2",
+        "W/m^2/Hz",
+        "W/m^2/nm",
+        "W/m^2/um",
+        "W/sr/m^2"
+      ],
+      "description": "Measuremnt units",
+      "allowOther": false
+    },
+    {
+      "name": "Wavelength Units",
+      "level": 2,
+      "input": "controlled-single",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Other",
+        "Unitless",
+        "nm",
+        "um"
+      ],
+      "description": "Wavelength units (e.g. nm, um, Hz)",
+      "allowOther": true
+    },
+    {
+      "name": "Target Status",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Dried",
+        "Fresh",
+        "Green",
+        "Ground",
+        "Liquid",
+        "Live",
+        "Other",
+        "Panel",
+        "Standard"
+      ],
+      "description": "State of the measurement target.",
+      "allowOther": true
+    },
+    {
+      "name": "Light Source",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Lamp",
+        "Laser",
+        "Other",
+        "Sun"
+      ],
+      "description": "Description of the light source used for your spectral measurements",
+      "allowOther": true
+    },
+    {
+      "name": "Light Source Specifications",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Foreoptic Type",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Bare Fiber",
+        "Contact Probe",
+        "Cosine Diffuser",
+        "Foreoptic",
+        "Gershon Tube",
+        "Integrating Sphere",
+        "Leaf Clip",
+        "None",
+        "Other"
+      ],
+      "description": "Description of the foreoptic used to make your spectral measurement",
+      "allowOther": true
+    },
+    {
+      "name": "Foreoptic Field of View",
+      "level": 2,
+      "input": "text",
+      "units": "integer degrees",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Foreoptic Specifications",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Processing Information": [
+    {
+      "name": "Processing Averaged",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "No",
+        "Yes"
+      ],
+      "description": "Is the measurement an average of multiple measurements?",
+      "allowOther": false
+    },
+    {
+      "name": "Processing Interpolated",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "No",
+        "Yes"
+      ],
+      "description": "Is the measurement interpolated?",
+      "allowOther": false
+    },
+    {
+      "name": "Processing Resampled",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "No",
+        "Yes"
+      ],
+      "description": "Is the measurement resampled? (e.g. are multiple wavelengths averaged?)",
+      "allowOther": false
+    },
+    {
+      "name": "Processing Information Details",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "Other details about processing are provided here.",
+      "allowOther": false
+    }
+  ],
+  "Instrument": [
+    {
+      "name": "Instrument Manufacturer",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "Spectrometer manufacturer.",
+      "allowOther": false
+    },
+    {
+      "name": "Instrument Model",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "Spectrometer model.",
+      "allowOther": false
+    },
+    {
+      "name": "Instrument Serial Number",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Theme": [
+    {
+      "name": "Theme",
+      "level": 1,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Agriculture",
+        "Biochemistry",
+        "Ecology",
+        "Forest",
+        "Global Change",
+        "Land Cover",
+        "Other",
+        "Phenology",
+        "Physiology",
+        "Urban",
+        "Water Quality"
+      ],
+      "description": "Research context for the the spectral measurements.",
+      "allowOther": true
+    },
+    {
+      "name": "Keywords",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Ecosystem Type",
+      "level": 2,
+      "input": "controlled",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": [
+        "Aquatic",
+        "Coastal",
+        "Crops",
+        "Forest",
+        "Grassland",
+        "Wetland"
+      ],
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Location": [
+    {
+      "name": "Latitude",
+      "level": 1,
+      "input": "latlng",
+      "units": "decimal degree",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Longitude",
+      "level": 1,
+      "input": "latlng",
+      "units": "decimal degree",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "geojson",
+      "level": 1,
+      "input": "geojson",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Location Name",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Date": [
+    {
+      "name": "Sample Collection Date",
+      "level": 1,
+      "input": "date",
+      "units": "ISO Date ",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Measurement Date",
+      "level": 2,
+      "input": "date",
+      "units": "ISO Date ",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Phenological Status",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Species": [
+    {
+      "name": "Common Name",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "Common name of the target that was measured.",
+      "allowOther": false
+    },
+    {
+      "name": "Latin Genus",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "Latin genus of the target that was measured.",
+      "allowOther": false
+    },
+    {
+      "name": "Latin Species",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "Latin species of the target that was measured.",
+      "allowOther": false
+    },
+    {
+      "name": "USDA Symbol",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "USDA code of the target that was measured.",
+      "allowOther": false
+    },
+    {
+      "name": "Vegetation Type",
+      "level": 1,
+      "input": "text",
+      "units": "",
+      "spectraLevel": true,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ],
+  "Citation": [
+    {
+      "name": "Citation",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Citation DOI",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Website",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Author",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Author Email",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Maintainer",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Maintainer Email",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Funding Source",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    },
+    {
+      "name": "Funding Source Grant Number",
+      "level": 2,
+      "input": "text",
+      "units": "",
+      "spectraLevel": false,
+      "vocabulary": null,
+      "description": "",
+      "allowOther": false
+    }
+  ]
+}
+},{}]},{},[1])(1)
+});
+//# sourceMappingURL=data:application/json;charset:utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm5vZGVfbW9kdWxlcy9icm93c2VyLXBhY2svX3ByZWx1ZGUuanMiLCJsaWIvaW5kZXguanMiLCJsaWIvcHJlcmVuZGVyL2xkanNvbi5qcyIsImxpYi9zY2hlbWEuanNvbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtBQ0FBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7O0FDSkE7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBOztBQ3BFQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBIiwiZmlsZSI6ImdlbmVyYXRlZC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzQ29udGVudCI6WyIoZnVuY3Rpb24gZSh0LG4scil7ZnVuY3Rpb24gcyhvLHUpe2lmKCFuW29dKXtpZighdFtvXSl7dmFyIGE9dHlwZW9mIHJlcXVpcmU9PVwiZnVuY3Rpb25cIiYmcmVxdWlyZTtpZighdSYmYSlyZXR1cm4gYShvLCEwKTtpZihpKXJldHVybiBpKG8sITApO3ZhciBmPW5ldyBFcnJvcihcIkNhbm5vdCBmaW5kIG1vZHVsZSAnXCIrbytcIidcIik7dGhyb3cgZi5jb2RlPVwiTU9EVUxFX05PVF9GT1VORFwiLGZ9dmFyIGw9bltvXT17ZXhwb3J0czp7fX07dFtvXVswXS5jYWxsKGwuZXhwb3J0cyxmdW5jdGlvbihlKXt2YXIgbj10W29dWzFdW2VdO3JldHVybiBzKG4/bjplKX0sbCxsLmV4cG9ydHMsZSx0LG4scil9cmV0dXJuIG5bb10uZXhwb3J0c312YXIgaT10eXBlb2YgcmVxdWlyZT09XCJmdW5jdGlvblwiJiZyZXF1aXJlO2Zvcih2YXIgbz0wO288ci5sZW5ndGg7bysrKXMocltvXSk7cmV0dXJuIHN9KSIsIm1vZHVsZS5leHBvcnRzID0ge1xuICBsZGpzb24gOiByZXF1aXJlKCcuL3ByZXJlbmRlci9sZGpzb24nKSxcbiAgc2NoZW1hIDogcmVxdWlyZSgnLi9zY2hlbWEnKVxufTtcbiIsIid1c2Ugc3RyaWN0JztcblxubW9kdWxlLmV4cG9ydHMgPSBmdW5jdGlvbihpdGVtLCB1cmwpIHtcbiAgdXJsID0gJ2h0dHA6Ly9lY29zaXMub3JnJztcblxuICB2YXIgcmVzdWx0ID0ge1xuICAgIHRpdGxlIDogaXRlbS5lY29zaXMucGFja2FnZV90aXRsZSxcbiAgICBkZXNjcmlwdGlvbiA6IGl0ZW0uZWNvc2lzLmRlc2NyaXB0aW9uLFxuICAgIGxkanNvbiA6IG51bGxcbiAgfTtcblxuICB2YXIgbGRqc29uID0ge1xuICAgICdAY29udGV4dCc6ICdodHRwOi8vc2NoZW1hLm9yZycsXG4gICAgJ0B0eXBlJzogJ0RhdGFzZXQnLFxuICAgIG5hbWUgOiBpdGVtLmVjb3Npcy5wYWNrYWdlX3RpdGxlLFxuICAgIGRhdGVQdWJsaXNoZWQgOiBpdGVtLmVjb3Npcy5jcmVhdGVkLFxuICAgIGRlc2NyaXB0aW9uIDogaXRlbS5lY29zaXMuZGVzY3JpcHRpb24sXG4gICAgdXJsIDogdXJsKycvI3Jlc3VsdC8nK2l0ZW0uZWNvc2lzLnBhY2thZ2VfaWQsXG4gICAgZ2VucmUgOiAnc3BlY3Ryb3Njb3B5JyxcbiAgICBwcm92aWRlciA6IHtcbiAgICAgICdAdHlwZScgOiAnT3JnYW5pemF0aW9uJyxcbiAgICAgIGVtYWlsIDogJ2luZm9AZWNvc2lzLm9yZycsXG4gICAgICB1cmwgOiAnaHR0cDovL2Vjb3Npcy5vcmcnLFxuICAgICAgbmFtZSA6ICdFY29TSVMnLFxuICAgICAgZGVzY3JpcHRpb24gOiAnRWNvc3lzdGVtIFNwZWN0cmFsIEluZm9ybWF0aW9uIFN5c3RlbSdcbiAgICB9LFxuICAgIFwiaW5jbHVkZWRJbkRhdGFDYXRhbG9nXCI6e1xuICAgICAgJ0B0eXBlJzpcIkRhdGFDYXRhbG9nXCIsXG4gICAgICBuYW1lOidFY29TSVMnXG4gICAgfSxcbiAgICBwdWJsaXNoZXIgOiB7XG4gICAgICAnQHR5cGUnIDogJ09yZ2FuaXphdGlvbicsXG4gICAgICBuYW1lIDogaXRlbS5lY29zaXMub3JnYW5pemF0aW9uXG4gICAgfSxcbiAgICBkaXN0cmlidXRpb24gOiB7XG4gICAgICAnQHR5cGUnOiAnRGF0YURvd25sb2FkJyxcbiAgICAgIG5hbWUgOiBpdGVtLmVjb3Npcy5wYWNrYWdlX25hbWUrJy5jc3YnLFxuICAgICAgY29udGVudFVybCA6IHVybCsnL3BhY2thZ2UvZXhwb3J0P3BhY2thZ2VfaWQ9JytpdGVtLmVjb3Npcy5wYWNrYWdlX2lkKycmbWV0YWRhdGE9dHJ1ZScsXG4gICAgICBmaWxlRm9ybWF0IDogJ3RleHQvY3N2JyxcbiAgICAgIGVuY29kaW5nRm9ybWF0IDogJ0NTVidcbiAgICB9XG4gIH07XG5cbiAgcmVzdWx0LmxkanNvbiA9IGxkanNvbjtcblxuICBpZiggaXRlbS5XZWJzaXRlICkge1xuICAgIGxkanNvbi5wdWJsaXNoZXIudXJsID0gaXRlbS5XZWJzaXRlWzBdO1xuICB9XG4gIGlmKCBpdGVtLkF1dGhvciApIHtcbiAgICBsZGpzb24uYXV0aG9yID0ge1xuICAgICAgJ0B0eXBlJyA6ICdQZXJzb24nLFxuICAgICAgbmFtZSA6IGl0ZW0uQXV0aG9yWzBdXG4gICAgfTtcbiAgICBpZiggaXRlbVsnQXV0aG9yIEVtYWlsJ10gKSB7XG4gICAgICBsZGpzb24uYXV0aG9yLmVtYWlsID0gaXRlbVsnQXV0aG9yIEVtYWlsJ11bMF07XG4gICAgfVxuICB9XG4gIGlmKCBpdGVtLktleXdvcmRzICkge1xuICAgIHJlc3VsdC5rZXl3b3JkcyA9IGl0ZW0uS2V5d29yZHMuam9pbignLCAnKTtcbiAgICBsZGpzb24ua2V5d29yZHMgPSBpdGVtLktleXdvcmRzO1xuICB9XG4gIGlmKCBpdGVtLmVjb3Npcy5vcmdhbml6YXRpb25faW5mbyApIHtcbiAgICBsZGpzb24ucHVibGlzaGVyLmltYWdlID0gaXRlbS5lY29zaXMub3JnYW5pemF0aW9uX2luZm8ubG9nbztcbiAgICBsZGpzb24ucHVibGlzaGVyLmRlc2NyaXB0aW9uID0gaXRlbS5lY29zaXMub3JnYW5pemF0aW9uX2luZm8uZGVzY3JpcHRpb247XG4gIH1cblxuICByZXR1cm4gcmVzdWx0O1xufTtcbiIsIm1vZHVsZS5leHBvcnRzPXtcbiAgXCJNZWFzdXJlbWVudFwiOiBbXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiQWNxdWlzaXRpb24gTWV0aG9kXCIsXG4gICAgICBcImxldmVsXCI6IDEsXG4gICAgICBcImlucHV0XCI6IFwiY29udHJvbGxlZFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBbXG4gICAgICAgIFwiQ29udGFjdFwiLFxuICAgICAgICBcIk90aGVyXCIsXG4gICAgICAgIFwiUGl4ZWxcIixcbiAgICAgICAgXCJQcm94aW1hbFwiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIk1pbmltdW0gbWVhc3VyZW1lbnQgdW5pdCBmb3IgeW91ciBzcGVjdHJhIChpLmUuIGNvbnRhY3QgcHJvYmUsIHByb3hpbWFsIHdpdGggWC1kZWdyZWUgZm9yZW9wdGljLCBwaXhlbCwgb3RoZXIpLlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IHRydWVcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIlNhbXBsZSBQbGF0Zm9ybVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkFpcnBsYW5lXCIsXG4gICAgICAgIFwiQm9vbVwiLFxuICAgICAgICBcIlNhdGVsbGl0ZVwiLFxuICAgICAgICBcIlRvd2VyXCIsXG4gICAgICAgIFwiVUFWXCJcbiAgICAgIF0sXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiUGxhdGZvcm0gZnJvbSB3aGljaCB0aGUgc3BlY3RyYWwgbWVhc3VyZW1lbnRzIHdlcmUgbWFkZSAoZS5nLiBoYW5kaGVsZCwgYm9vbSwgdHJhbSwgVUFWKS5cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTWVhc3VyZW1lbnQgVmVudWVcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkXCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IFtcbiAgICAgICAgXCJHcmVlbmhvdXNlXCIsXG4gICAgICAgIFwiTGFib3JhdG9yeVwiLFxuICAgICAgICBcIk90aGVyXCIsXG4gICAgICAgIFwiT3V0ZG9vclwiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlNldHRpbmcgaW4gd2hpY2ggdGhlIHNwZWN0cmFsIG1lYXN1cmVtZW50cyB3ZXJlIG1hZGUuXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogdHJ1ZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiVGFyZ2V0IFR5cGVcIixcbiAgICAgIFwibGV2ZWxcIjogMSxcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkXCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IFtcbiAgICAgICAgXCJBbmltYWxcIixcbiAgICAgICAgXCJCYXJrXCIsXG4gICAgICAgIFwiQnJhbmNoXCIsXG4gICAgICAgIFwiQ2Fub3B5XCIsXG4gICAgICAgIFwiRmxvd2VyXCIsXG4gICAgICAgIFwiTGVhZlwiLFxuICAgICAgICBcIk1pbmVyYWxcIixcbiAgICAgICAgXCJOUFZcIixcbiAgICAgICAgXCJPdGhlclwiLFxuICAgICAgICBcIlJlZmVyZW5jZVwiLFxuICAgICAgICBcIlJvY2tcIixcbiAgICAgICAgXCJTb2lsXCIsXG4gICAgICAgIFwiV2F0ZXJcIlxuICAgICAgXSxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJEZXNjcmliZXMgdGhlIHRhcmdldCB0aGF0IHdhcyBtZWFzdXJlZC5cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiB0cnVlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJNZWFzdXJlbWVudCBRdWFudGl0eVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImNvbnRyb2xsZWRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkFic29ycHRhbmNlXCIsXG4gICAgICAgIFwiRE5cIixcbiAgICAgICAgXCJJbmRleFwiLFxuICAgICAgICBcIk90aGVyXCIsXG4gICAgICAgIFwiUmFkaWFuY2VcIixcbiAgICAgICAgXCJSZWZsZWN0YW5jZVwiLFxuICAgICAgICBcIlRyYW5zZmxlY3RhbmNlXCIsXG4gICAgICAgIFwiVHJhbnNtaXR0YW5jZVwiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlNjYWxlIGZvciBzcGVjdHJhbCBpbnN0ZW5zaXR5IChlLmcuIEROLCByYWRpYW5jZSwgaXJyYWRpYW5jZSwgcmVmbGVjdGFuY2UpXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogdHJ1ZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiSW5kZXggTmFtZVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJNZWFzdXJlbWVudCBxdWFudGl0eSdzIGluZGV4IG5hbWUuICBQbGVhc2UgcHJvdmlkZSBpZiBNZWFzdXJlbWVudCBRdWFudGl0eSA9IFxcXCJJbmRleFxcXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTWVhc3VyZW1lbnQgVW5pdHNcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkLXNpbmdsZVwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBbXG4gICAgICAgIFwiJVwiLFxuICAgICAgICBcIlcvbV4yXCIsXG4gICAgICAgIFwiVy9tXjIvSHpcIixcbiAgICAgICAgXCJXL21eMi9ubVwiLFxuICAgICAgICBcIlcvbV4yL3VtXCIsXG4gICAgICAgIFwiVy9zci9tXjJcIlxuICAgICAgXSxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJNZWFzdXJlbW50IHVuaXRzXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIldhdmVsZW5ndGggVW5pdHNcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkLXNpbmdsZVwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBbXG4gICAgICAgIFwiT3RoZXJcIixcbiAgICAgICAgXCJVbml0bGVzc1wiLFxuICAgICAgICBcIm5tXCIsXG4gICAgICAgIFwidW1cIlxuICAgICAgXSxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJXYXZlbGVuZ3RoIHVuaXRzIChlLmcuIG5tLCB1bSwgSHopXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogdHJ1ZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiVGFyZ2V0IFN0YXR1c1wiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImNvbnRyb2xsZWRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkRyaWVkXCIsXG4gICAgICAgIFwiRnJlc2hcIixcbiAgICAgICAgXCJHcmVlblwiLFxuICAgICAgICBcIkdyb3VuZFwiLFxuICAgICAgICBcIkxpcXVpZFwiLFxuICAgICAgICBcIkxpdmVcIixcbiAgICAgICAgXCJPdGhlclwiLFxuICAgICAgICBcIlBhbmVsXCIsXG4gICAgICAgIFwiU3RhbmRhcmRcIlxuICAgICAgXSxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJTdGF0ZSBvZiB0aGUgbWVhc3VyZW1lbnQgdGFyZ2V0LlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IHRydWVcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIkxpZ2h0IFNvdXJjZVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImNvbnRyb2xsZWRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkxhbXBcIixcbiAgICAgICAgXCJMYXNlclwiLFxuICAgICAgICBcIk90aGVyXCIsXG4gICAgICAgIFwiU3VuXCJcbiAgICAgIF0sXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiRGVzY3JpcHRpb24gb2YgdGhlIGxpZ2h0IHNvdXJjZSB1c2VkIGZvciB5b3VyIHNwZWN0cmFsIG1lYXN1cmVtZW50c1wiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IHRydWVcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIkxpZ2h0IFNvdXJjZSBTcGVjaWZpY2F0aW9uc1wiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiRm9yZW9wdGljIFR5cGVcIixcbiAgICAgIFwibGV2ZWxcIjogMSxcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkXCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IFtcbiAgICAgICAgXCJCYXJlIEZpYmVyXCIsXG4gICAgICAgIFwiQ29udGFjdCBQcm9iZVwiLFxuICAgICAgICBcIkNvc2luZSBEaWZmdXNlclwiLFxuICAgICAgICBcIkZvcmVvcHRpY1wiLFxuICAgICAgICBcIkdlcnNob24gVHViZVwiLFxuICAgICAgICBcIkludGVncmF0aW5nIFNwaGVyZVwiLFxuICAgICAgICBcIkxlYWYgQ2xpcFwiLFxuICAgICAgICBcIk5vbmVcIixcbiAgICAgICAgXCJPdGhlclwiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIkRlc2NyaXB0aW9uIG9mIHRoZSBmb3Jlb3B0aWMgdXNlZCB0byBtYWtlIHlvdXIgc3BlY3RyYWwgbWVhc3VyZW1lbnRcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiB0cnVlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJGb3Jlb3B0aWMgRmllbGQgb2YgVmlld1wiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJpbnRlZ2VyIGRlZ3JlZXNcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiRm9yZW9wdGljIFNwZWNpZmljYXRpb25zXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfVxuICBdLFxuICBcIlByb2Nlc3NpbmcgSW5mb3JtYXRpb25cIjogW1xuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIlByb2Nlc3NpbmcgQXZlcmFnZWRcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkXCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IFtcbiAgICAgICAgXCJOb1wiLFxuICAgICAgICBcIlllc1wiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIklzIHRoZSBtZWFzdXJlbWVudCBhbiBhdmVyYWdlIG9mIG11bHRpcGxlIG1lYXN1cmVtZW50cz9cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiUHJvY2Vzc2luZyBJbnRlcnBvbGF0ZWRcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJjb250cm9sbGVkXCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IFtcbiAgICAgICAgXCJOb1wiLFxuICAgICAgICBcIlllc1wiXG4gICAgICBdLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIklzIHRoZSBtZWFzdXJlbWVudCBpbnRlcnBvbGF0ZWQ/XCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIlByb2Nlc3NpbmcgUmVzYW1wbGVkXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwiY29udHJvbGxlZFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBbXG4gICAgICAgIFwiTm9cIixcbiAgICAgICAgXCJZZXNcIlxuICAgICAgXSxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJJcyB0aGUgbWVhc3VyZW1lbnQgcmVzYW1wbGVkPyAoZS5nLiBhcmUgbXVsdGlwbGUgd2F2ZWxlbmd0aHMgYXZlcmFnZWQ/KVwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJQcm9jZXNzaW5nIEluZm9ybWF0aW9uIERldGFpbHNcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiBmYWxzZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIk90aGVyIGRldGFpbHMgYWJvdXQgcHJvY2Vzc2luZyBhcmUgcHJvdmlkZWQgaGVyZS5cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH1cbiAgXSxcbiAgXCJJbnN0cnVtZW50XCI6IFtcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJJbnN0cnVtZW50IE1hbnVmYWN0dXJlclwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJTcGVjdHJvbWV0ZXIgbWFudWZhY3R1cmVyLlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJJbnN0cnVtZW50IE1vZGVsXCIsXG4gICAgICBcImxldmVsXCI6IDEsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlNwZWN0cm9tZXRlciBtb2RlbC5cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiSW5zdHJ1bWVudCBTZXJpYWwgTnVtYmVyXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfVxuICBdLFxuICBcIlRoZW1lXCI6IFtcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJUaGVtZVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImNvbnRyb2xsZWRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkFncmljdWx0dXJlXCIsXG4gICAgICAgIFwiQmlvY2hlbWlzdHJ5XCIsXG4gICAgICAgIFwiRWNvbG9neVwiLFxuICAgICAgICBcIkZvcmVzdFwiLFxuICAgICAgICBcIkdsb2JhbCBDaGFuZ2VcIixcbiAgICAgICAgXCJMYW5kIENvdmVyXCIsXG4gICAgICAgIFwiT3RoZXJcIixcbiAgICAgICAgXCJQaGVub2xvZ3lcIixcbiAgICAgICAgXCJQaHlzaW9sb2d5XCIsXG4gICAgICAgIFwiVXJiYW5cIixcbiAgICAgICAgXCJXYXRlciBRdWFsaXR5XCJcbiAgICAgIF0sXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiUmVzZWFyY2ggY29udGV4dCBmb3IgdGhlIHRoZSBzcGVjdHJhbCBtZWFzdXJlbWVudHMuXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogdHJ1ZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiS2V5d29yZHNcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiBmYWxzZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJFY29zeXN0ZW0gVHlwZVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcImNvbnRyb2xsZWRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogW1xuICAgICAgICBcIkFxdWF0aWNcIixcbiAgICAgICAgXCJDb2FzdGFsXCIsXG4gICAgICAgIFwiQ3JvcHNcIixcbiAgICAgICAgXCJGb3Jlc3RcIixcbiAgICAgICAgXCJHcmFzc2xhbmRcIixcbiAgICAgICAgXCJXZXRsYW5kXCJcbiAgICAgIF0sXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9XG4gIF0sXG4gIFwiTG9jYXRpb25cIjogW1xuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIkxhdGl0dWRlXCIsXG4gICAgICBcImxldmVsXCI6IDEsXG4gICAgICBcImlucHV0XCI6IFwibGF0bG5nXCIsXG4gICAgICBcInVuaXRzXCI6IFwiZGVjaW1hbCBkZWdyZWVcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTG9uZ2l0dWRlXCIsXG4gICAgICBcImxldmVsXCI6IDEsXG4gICAgICBcImlucHV0XCI6IFwibGF0bG5nXCIsXG4gICAgICBcInVuaXRzXCI6IFwiZGVjaW1hbCBkZWdyZWVcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiZ2VvanNvblwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImdlb2pzb25cIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTG9jYXRpb24gTmFtZVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IGZhbHNlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IG51bGwsXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9XG4gIF0sXG4gIFwiRGF0ZVwiOiBbXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiU2FtcGxlIENvbGxlY3Rpb24gRGF0ZVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcImRhdGVcIixcbiAgICAgIFwidW5pdHNcIjogXCJJU08gRGF0ZSBcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTWVhc3VyZW1lbnQgRGF0ZVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcImRhdGVcIixcbiAgICAgIFwidW5pdHNcIjogXCJJU08gRGF0ZSBcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiUGhlbm9sb2dpY2FsIFN0YXR1c1wiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH1cbiAgXSxcbiAgXCJTcGVjaWVzXCI6IFtcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJDb21tb24gTmFtZVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJDb21tb24gbmFtZSBvZiB0aGUgdGFyZ2V0IHRoYXQgd2FzIG1lYXN1cmVkLlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJMYXRpbiBHZW51c1wiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJMYXRpbiBnZW51cyBvZiB0aGUgdGFyZ2V0IHRoYXQgd2FzIG1lYXN1cmVkLlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJMYXRpbiBTcGVjaWVzXCIsXG4gICAgICBcImxldmVsXCI6IDEsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogdHJ1ZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIkxhdGluIHNwZWNpZXMgb2YgdGhlIHRhcmdldCB0aGF0IHdhcyBtZWFzdXJlZC5cIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiVVNEQSBTeW1ib2xcIixcbiAgICAgIFwibGV2ZWxcIjogMSxcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiB0cnVlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IG51bGwsXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiVVNEQSBjb2RlIG9mIHRoZSB0YXJnZXQgdGhhdCB3YXMgbWVhc3VyZWQuXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIlZlZ2V0YXRpb24gVHlwZVwiLFxuICAgICAgXCJsZXZlbFwiOiAxLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IHRydWUsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH1cbiAgXSxcbiAgXCJDaXRhdGlvblwiOiBbXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiQ2l0YXRpb25cIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiBmYWxzZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJDaXRhdGlvbiBET0lcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiBmYWxzZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJXZWJzaXRlXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogZmFsc2UsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiQXV0aG9yXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogZmFsc2UsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiQXV0aG9yIEVtYWlsXCIsXG4gICAgICBcImxldmVsXCI6IDIsXG4gICAgICBcImlucHV0XCI6IFwidGV4dFwiLFxuICAgICAgXCJ1bml0c1wiOiBcIlwiLFxuICAgICAgXCJzcGVjdHJhTGV2ZWxcIjogZmFsc2UsXG4gICAgICBcInZvY2FidWxhcnlcIjogbnVsbCxcbiAgICAgIFwiZGVzY3JpcHRpb25cIjogXCJcIixcbiAgICAgIFwiYWxsb3dPdGhlclwiOiBmYWxzZVxuICAgIH0sXG4gICAge1xuICAgICAgXCJuYW1lXCI6IFwiTWFpbnRhaW5lclwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IGZhbHNlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IG51bGwsXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIk1haW50YWluZXIgRW1haWxcIixcbiAgICAgIFwibGV2ZWxcIjogMixcbiAgICAgIFwiaW5wdXRcIjogXCJ0ZXh0XCIsXG4gICAgICBcInVuaXRzXCI6IFwiXCIsXG4gICAgICBcInNwZWN0cmFMZXZlbFwiOiBmYWxzZSxcbiAgICAgIFwidm9jYWJ1bGFyeVwiOiBudWxsLFxuICAgICAgXCJkZXNjcmlwdGlvblwiOiBcIlwiLFxuICAgICAgXCJhbGxvd090aGVyXCI6IGZhbHNlXG4gICAgfSxcbiAgICB7XG4gICAgICBcIm5hbWVcIjogXCJGdW5kaW5nIFNvdXJjZVwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IGZhbHNlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IG51bGwsXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9LFxuICAgIHtcbiAgICAgIFwibmFtZVwiOiBcIkZ1bmRpbmcgU291cmNlIEdyYW50IE51bWJlclwiLFxuICAgICAgXCJsZXZlbFwiOiAyLFxuICAgICAgXCJpbnB1dFwiOiBcInRleHRcIixcbiAgICAgIFwidW5pdHNcIjogXCJcIixcbiAgICAgIFwic3BlY3RyYUxldmVsXCI6IGZhbHNlLFxuICAgICAgXCJ2b2NhYnVsYXJ5XCI6IG51bGwsXG4gICAgICBcImRlc2NyaXB0aW9uXCI6IFwiXCIsXG4gICAgICBcImFsbG93T3RoZXJcIjogZmFsc2VcbiAgICB9XG4gIF1cbn0iXX0=
+</script><script>
   window.appLoaded = true;
   var event = new CustomEvent('app-loaded', {});
   window.dispatchEvent(event);

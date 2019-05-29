@@ -159,6 +159,10 @@
             }.bind(this)
           );
         }
+
+        if( window.firstResult ) {
+          this.render(window.firstResult);
+        }
       },
 
       setPanel : function(panel) {
