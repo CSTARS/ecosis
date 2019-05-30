@@ -1,10 +1,11 @@
-'use strict';
-
-var exportIgnoreList = ['_id', 'datapoints', 'ecosis'];
-var collection = global.setup.collection;
-var spectraCollection = global.setup.spectraCollection;
+const mongo = require('../lib/mongo');
 
 class PackageModel {
+
+  async count(query) {
+    let collection = await mongo.packagesCollection();
+    return collection.count(query);
+  }
 
   async get(pkgIdOrName) {
     var filters = {};
@@ -21,6 +22,7 @@ class PackageModel {
     ]}
   
     logger.info('Querying main collection: '+JSON.stringify(options));
+    let collection = await mongo.packagesCollection();
     let result = await collection.findOne(query, filters);
     if( !result ) throw new Error('Unknown package: '+pkgIdOrName);
     

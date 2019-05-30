@@ -1,8 +1,42 @@
 'use strict';
 
-var helpers = require('../lib/helpers');
+const mongo = require('../lib/mongo');
+
+var helpers = require('../lib/utils');
 var collection = global.setup.collection;
 var spectraCollection = global.setup.spectraCollection;
+
+class SpectraModel {
+
+  /**
+   * @method getSpatialLocations
+   * @description given a package name or id, get all geojson
+   * for spectra in package
+   *
+   * @param {String} pkgNameOrId 
+   * 
+   * @returns {Promise} resolves to Array
+   */
+  async getSpatialLocations(pkgNameOrId) {
+    let pkgId = await mongo.getPackageId(pkgNameOrId);
+    let collection = await mongo.spectraCollection();
+
+    let results = collection.find(
+      {
+        'ecosis.package_id': pkgId,
+        'ecosis.geojson' : {
+          '$exists' : true
+        }
+      },{
+        'ecosis.geojson': 1
+      }).toArray();
+    
+    return results.map(result => result.ecosis.geojson);
+  }
+
+}
+
+module.exports = new SpectraModel();
 
 module.exports = function() {
     return {
