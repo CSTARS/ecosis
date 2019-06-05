@@ -48,29 +48,25 @@ router.get('/search', async (req, res) => {
   }
 });
 
-router.get('/stats', function(req, res){
-  res.set('Content-Type', 'application/json');
+router.get('/stats', async (req, res) => {
+  let pkgid = req.query.package_id;
+  let filters = req.query.filters;
 
-  var pkgid = req.query.package_id;
-  var filters = req.query.filters;
-
-  model.stats(pkgid, filters, function(err, result){
-    if( err ) {
-      res.send({error: true, message: err});
-    }
-    res.send(result);
-  });
+  try {
+    res.json(await model.stats(pkgid, filters));
+  } catch(e) {
+    handleError(res, e);
+  }
 });
 
-router.get('/count', function(req, res) {
-  res.set('Content-Type', 'application/json');
+router.get('/count', async (req, res) => {
+  let filters = req.query.filters;
 
-  model.count(function(err, count){
-    if( err ) {
-      res.send({error: true, message: err});
-    }
-    res.send({count: count});
-  });
+  try {
+    res.json({count: await model.count(filters)});
+  } catch(e) {
+    handleError(res, e);
+  }
 });
 
 module.exports = router;

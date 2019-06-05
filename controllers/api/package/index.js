@@ -16,10 +16,10 @@ router.get('/:packageId/export', (req, res) => {
 });
 
 router.get('/count', (req, res) => {
-  search(req.query, res);
+  count(req.query, res);
 });
 router.post('/count', (req, res) => {
-  search(req.body, res);
+  count(req.body, res);
 });
 async function count(params, res) {
   try {

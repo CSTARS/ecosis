@@ -160,3 +160,5 @@ class PackageSearchModel {
   }
 
 }
+
+module.exports = new PackageSearchModel();

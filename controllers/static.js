@@ -4,6 +4,7 @@ const fs = require('fs');
 const spaMiddleware = require('@ucd-lib/spa-router-middleware');
 const config = require('../lib/config');
 const jsonld = require('../lib/ldjson');
+const gitInfo = require('../lib/git-info');
 const package = require('../models/package');
 
 // const authUtils = require('./auth');
@@ -35,7 +36,8 @@ module.exports = (app) => {
     getConfig : async (req, res) => {
       return {
         ckanUrl : config.ckan.url,
-        serverEnv : config.server.env
+        serverEnv : config.server.env,
+        git : await gitInfo()
       }
     },
     template : async (req, res) => {

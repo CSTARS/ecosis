@@ -1,56 +1,55 @@
-'use strict';
+const mongo = require('../lib/mongo');
 
-var usdaCollection = global.setup.usdaCollection;
+class UsdaModel {
 
-module.exports = function() {
-    return {
-        name: 'usda',
-        search : search,
-        get : get
-    };
-};
-
-function search(query, callback) {
-  if( !query ) {
-    return callback('No query provided.  /usda/search?q=[search text]');
+  constructor() {
+    this.init();
   }
 
-  query = {
-      $text : {
-          $search : query
+  async init() {
+    // make sure indexes are good
+    let collection = await mongo.usdaCollection();
+    collection.ensureIndex(
+      {
+        Category : 'text',
+        'Scientific Name' : 'text',
+        'Genus' : 'text',
+        'Accepted Symbol' : 'text',
+        'Common Name' : 'text'
+      },
+      {w: 1},
+      function(err) {
+        // TODO
+        // if( err ) {
+        //   global.setup.logger.info(err);
+        // }
       }
-  };
-
-  usdaCollection
-    .find(query, {score: { $meta: 'textScore' }, _id: 0})
-    .sort({ score: { $meta: 'textScore' } })
-    .limit(100)
-    .toArray(callback);
-}
-
-function get(code, callback) {
-  if( !code ) {
-    return callback('No code provided. /usda/get?code=[usda code]');
+    );
   }
 
-  var query = {'Accepted Symbol' : code.toUpperCase()};
+  async get(code) {
+    if( !code ) throw new Error('No code provided');
+    var code = {'Accepted Symbol' : code.trim().toUpperCase()};
+  
+    let collection = await mongo.usdaCollection();
+    return collection.findOne(query, {_id: 0});
+  }
+  
+  async search(query={}) {
+    query = {
+      $text : {
+        $search : query
+      }
+    };
+    
+    let collection = await mongo.usdaCollection();
+    return collection
+      .find(query, {score: { $meta: 'textScore' }, _id: 0})
+      .sort({ score: { $meta: 'textScore' } })
+      .limit(100)
+      .toArray();
+  }
 
-  usdaCollection.findOne(query, {_id: 0}, callback);
 }
 
-// make sure indexes are good
-usdaCollection.ensureIndex(
-  {
-    Category : 'text',
-    'Scientific Name' : 'text',
-    'Genus' : 'text',
-    'Accepted Symbol' : 'text',
-    'Common Name' : 'text'
-  },
-  {w: 1},
-  function(err) {
-    if( err ) {
-      global.setup.logger.info(err);
-    }
-  }
-);
+module.exports = new UsdaModel();
