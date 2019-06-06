@@ -1,6 +1,6 @@
 var router = require('express').Router();
 
-router.use('/geo', require('./geo'));
+//router.use('/geo', require('./geo'));
 router.use('/spectra', require('./spectra'));
 router.use('/package', require('./package'));
 router.use('/stats', require('./stats'));

@@ -1,6 +1,7 @@
 'use strict';
 
 const mongo = require('../lib/mongo');
+const logger = require('../lib/logger');
 
 class PackageKeywordSuggest {
 
@@ -21,7 +22,7 @@ class PackageKeywordSuggest {
       {w: 1},
       function(err) {
         if( err ) {
-          global.setup.logger.info(err);
+          // logger.info(err);
         }
       }
     );

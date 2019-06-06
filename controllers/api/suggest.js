@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const model = require('.././models/suggest');
+const model = require('../../models/suggest');
 const handleError = require('../utils/handle-error');
 
 router.get('/', async (req, res) => {
@@ -9,3 +9,5 @@ router.get('/', async (req, res) => {
     handleError(res, e);
   }
 });
+
+module.exports = router;

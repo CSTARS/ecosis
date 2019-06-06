@@ -6,32 +6,19 @@ class GeoModel {
     return collection.count(query);
   }
 
-  getSpectraLocations(package_id, callback) {
-    spectraCollection.find({
-      'ecosis.package_id':package_id,
-      'ecosis.geojson' : {
-        '$exists' : true
-      }
-    },{
-      'ecosis.geojson': 1
-    }).toArray(function(err, result){
-      if( err ) {
-        return callback(err);
-      }
-  
-      var arr = [];
-      for( var i = 0; i < result.length; i++ ) {
-        arr.push(result[i].ecosis.geojson);
-      }
-      callback(null, arr);
-    });
+  async getSpectraLocations(package_id) {
+    let collection = await mongo.spectraCollection();
+    let results = await collection.find({
+        'ecosis.package_id': package_id,
+        'ecosis.geojson' : {
+          '$exists' : true
+        }
+      },{
+        'ecosis.geojson': 1
+      }).toArray();
+
+    return results.map(result => result.ecosis.geojson);
   }
 }
 
-module.exports = function GeoModel() {
-    return {
-        name: 'geo',
-        count : getCount,
-        getSpectraLocations : getSpectraLocations
-    };
-};
+module.exports = new GeoModel();

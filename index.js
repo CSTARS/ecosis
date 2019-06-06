@@ -3,6 +3,7 @@ const config = require('./lib/config');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const logger = require('./lib/logger');
 
 const app = express();
 
@@ -29,23 +30,23 @@ app.use(bodyParser.json());
 /**
  * Register Controllers
  */
-app.use('/api', require('./controllers'));
+app.use('/api', require('./controllers/api'));
 // app.use('/_version', require('./controllers/version'));
 
 /**
  * setup ark/doi proxy
  */
-require('./lib/identifier')(app);
+// require('./lib/identifier')(app);
 
 /**
  * setup sitemap
  */
-require('./models/sitemap').middleware(app);
+// require('./models/sitemap').middleware(app);
 
 /**
  * setup static routes
  */
-require('./lib/static')(app);
+require('./controllers/static')(app);
  
 app.listen(8000, () => {
   logger.info('server ready on port 8000, using: '+config.server.assets);

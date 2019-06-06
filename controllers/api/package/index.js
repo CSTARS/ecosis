@@ -2,18 +2,7 @@ const router = require('express').Router();
 const model = require('../../../models/package');
 const handleError = require('../../utils/handle-error');
 var packageExport = require('./export');
-
-router.get('/:packageId', async (req, res) => {
-  try {
-    res.json(await model.get(req.params.packageId));
-  } catch(e) {
-    handleError(res, e);
-  }
-});
-
-router.get('/:packageId/export', (req, res) => {
-  packageExport(model, req, res);
-});
+const search = require('../../../models/search');
 
 router.get('/count', (req, res) => {
   count(req.query, res);
@@ -30,18 +19,30 @@ async function count(params, res) {
 }
 
 router.get('/search', (req, res) => {
-  search(req.query, res);
+  searchFn(req.query, res);
 });
 router.post('/search', (req, res) => {
-  search(req.body, res);
+  searchFn(req.body, res);
 });
-async function search(params, res) {
+async function searchFn(params, res) {
   try {
-    res.json(await model.search(params));
+    res.json(await search.run(params));
   } catch(e) {
     handleError(res, e);
   }
 }
+
+router.get('/:packageId', async (req, res) => {
+  try {
+    res.json(await model.get(req.params.packageId));
+  } catch(e) {
+    handleError(res, e);
+  }
+});
+
+router.get('/:packageId/export', (req, res) => {
+  packageExport(model, req, res);
+});
 
 
 module.exports = router;

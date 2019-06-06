@@ -9,3 +9,5 @@ router.get('/home', async (req, res) => {
     handleError(res, e);
   }
 });
+
+module.exports = router;

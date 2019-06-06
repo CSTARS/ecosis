@@ -72,7 +72,7 @@ class SpectraModel {
     return {count, stream, messages, start, stop};
   }
 
-  _stats(pkgid, filters, resolve, reject) {
+  async _stats(pkgid, filters, resolve, reject) {
     if( pkgid === null ) {
       return reject(new Error('package_id is required'));
     }

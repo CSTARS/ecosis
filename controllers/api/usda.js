@@ -2,7 +2,7 @@ const router = require('express').Router();
 const model = require('../../models/usda');
 const handleError = require('../utils/handle-error');
 
-router.get('/search', function(req, res){
+router.get('/search', async (req, res) => {
   try {
     res.json(await model.search(req.query.q));
   } catch(e) {
@@ -10,10 +10,12 @@ router.get('/search', function(req, res){
   }
 });
 
-router.get('/:code', function(req, res){
+router.get('/:code', async (req, res) => {
   try {
     res.json(await model.get(req.params.code));
   } catch(e) {
     handleError(res, e);
   }
 });
+
+module.exports = router;

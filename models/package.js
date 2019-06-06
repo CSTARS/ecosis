@@ -1,4 +1,6 @@
 const mongo = require('../lib/mongo');
+const config = require('../lib/config');
+const logger = require('../lib/logger');
 
 class PackageModel {
 
@@ -9,9 +11,9 @@ class PackageModel {
 
   async get(pkgIdOrName) {
     var filters = {};
-    if( config.db.blacklist ) {
-      for( var i = 0; i < config.db.blacklist.length; i++ ) {
-        filters[(config.db.isMapReduce ? 'value.' : '') + config.db.blacklist[i]] = 0;
+    if( config.mongo.blacklist ) {
+      for( var i = 0; i < config.mongo.blacklist.length; i++ ) {
+        filters[(config.db.isMapReduce ? 'value.' : '') + config.mongo.blacklist[i]] = 0;
       }
     }
 
@@ -21,7 +23,7 @@ class PackageModel {
       {'value.ecosis.package_name': pkgIdOrName}
     ]}
   
-    logger.info('Querying main collection: '+JSON.stringify(options));
+    logger.info('Querying main collection: '+JSON.stringify(query));
     let collection = await mongo.packagesCollection();
     let result = await collection.findOne(query, filters);
     if( !result ) throw new Error('Unknown package: '+pkgIdOrName);

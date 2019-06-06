@@ -1,16 +1,22 @@
 const mongo = require('../lib/mongo');
-const mapreduce = require('../lib/mongo/search-map-reduce');
+const config = require('../lib/config');
+const mapReduce = require('../lib/mongo/search-map-reduce');
+const logger = require('../lib/logger');
 
 class PackageSearchModel {
 
   async run(appQuery) {
     var response = {
       total   : 0,
-      start   : query.start,
-      stop     : query.stop,
+      start   : appQuery.start,
+      stop     : appQuery.stop,
       items   : [],
       filters : {}
     }
+
+    if( !appQuery.filters ) appQuery.filters = [];
+    if( !appQuery.start ) appQuery.start = 0;
+    if( !appQuery.stop ) appQuery.stop = 10;
 
     let query = this.appQueryToMongoQuery(appQuery);
   
@@ -24,34 +30,37 @@ class PackageSearchModel {
     // actually run mongo query
     let items = await this._rangedQuery(query, appQuery);
 
-    if( config.db.isMapReduce ) {
+    if( config.mongo.isMapReduce ) {
       this._flattenMapreduce(items);
     }
 
     response.items = items;
+    return response;
   }
 
   // find a sorted range of responsed without returned the entire dataset
-  _rangedQuery(mongoQuery, appQuery) {
+  async _rangedQuery(mongoQuery, appQuery) {
     var filters = {};
 
-    if( config.db.searchWhitelist ) {
+    if( config.mongo.searchWhitelist ) {
       filters._id = 1;
-      for( var i = 0; i < config.db.searchWhitelist.length; i++ ) {
-        filters[(config.db.isMapReduce ? 'value.' : '') + config.db.searchWhitelist[i]] = 1;
+      for( var i = 0; i < config.mongo.searchWhitelist.length; i++ ) {
+        filters[(config.mongo.isMapReduce ? 'value.' : '') + config.mongo.searchWhitelist[i]] = 1;
       }
     } else if (appQuery.projection) {
       filters = appQuery.projection;
     }
 
-    if( config.db.blacklist ) {
-      for( var i = 0; i < config.db.blacklist.length; i++ ) {
-        filters[(config.db.isMapReduce ? 'value.' : '') + config.db.blacklist[i]] = 0;
+    if( config.mongo.blacklist ) {
+      for( var i = 0; i < config.mongo.blacklist.length; i++ ) {
+        filters[(config.mongo.isMapReduce ? 'value.' : '') + config.mongo.blacklist[i]] = 0;
       }
     }
 
     // if we are setting a text sort, this needs to be included
-    let sort = getSortObject(filters);
+    let sort = this.getSortObject(filters);
+    
+    let collection = await mongo.packagesCollection();
     let cur = collection.find(mongoQuery, filters);
     if( sort ) cur.sort(sort);
 
@@ -65,17 +74,17 @@ class PackageSearchModel {
     var sort = {};
     var hasSort = false;
   
-    if( config.db.useMongoTextScore ) {
+    if( config.mongo.useMongoTextScore ) {
       filter.mongoTextScore = { $meta: "textScore" }
       sort.mongoTextScore = { $meta: "textScore" };
       hasSort = true;
     }
   
-    if( config.db.sortBy && config.db.sortOrder == "desc" ) {
-      sort[config.db.sortBy] = -1;
+    if( config.mongo.sortBy && config.mongo.sortOrder == "desc" ) {
+      sort[config.mongo.sortBy] = -1;
       hasSort = true;
-    } else if ( config.db.sortBy ) {
-      sort[config.db.sortBy] = 1;
+    } else if ( config.mongo.sortBy ) {
+      sort[config.mongo.sortBy] = 1;
       hasSort = true;
     }
   
@@ -104,7 +113,9 @@ class PackageSearchModel {
   }
 
   appQueryToMongoQuery(query) {
-    if( config.db.isMapReduce ) {
+    if( !query.filters ) query.filters = [];
+
+    if( config.mongo.isMapReduce ) {
       var obj, i;
       for( i = 0; i < query.filters.length; i++ ) {
         obj = {};
@@ -132,11 +143,11 @@ class PackageSearchModel {
   
     // set geo filter if it exits
     // if so, remove from $and array and set as top level filter option
-    if( config.db.geoFilter ) {
-      config.db.geoFilter.forEach(function(geoFilter){
+    if( config.mongo.geoFilter ) {
+      config.mongo.geoFilter.forEach(function(geoFilter){
         for( var i = 0; i < query.filters.length; i++ ) {
           if( query.filters[i][geoFilter] ) {
-            options[(config.db.isMapReduce ? 'value.' : '') + geoFilter] = query.filters[i][geoFilter];
+            options[(config.mongo.isMapReduce ? 'value.' : '') + geoFilter] = query.filters[i][geoFilter];
             query.filters.splice(i, 1);
             break;
           }
