@@ -33,14 +33,14 @@ module.exports = (app) => {
     htmlFile : path.join(assetsDir, 'index.html'),
     isRoot : true,
     appRoutes : config.server.appRoutes,
-    getConfig : async (req, res) => {
-      return {
+    getConfig : async (req, res, next) => {
+      return next({
         ckanUrl : config.ckan.url,
         serverEnv : config.server.env,
         git : await gitInfo()
-      }
+      });
     },
-    template : async (req, res) => {
+    template : async (req, res, next) => {
       let jsonld = '';
       let isDataset = false;
 
@@ -50,24 +50,24 @@ module.exports = (app) => {
       }
 
       if( !isDataset ) {
-        return {jsonld, bundle};
+        return next({jsonld, bundle});
       }
 
       try {
         let pkg = await package.get(parts[1]);
         let jsonld = JSON.stringify(ldjson(pkg, config.server.url), '  ', '  ');
     
-        return {
+        return next({
           jsonld, bundle
-        }
+        });
       } catch(e) {
         console.log(e);
-        return {
+        return next({
           jsonld, bundle,
           title : 'Server Error',
           description : 'Invalid URL: '+req.originalUrl,
           keywords : ''
-        }
+        });
       }
     }
   });

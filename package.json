@@ -5,11 +5,8 @@
   "author": "jrmerz",
   "main": "index.js",
   "scripts": {
-    "test": "grunt test",
-    "build": "grunt build",
-    "dev": "node server.js --dev",
-    "docker": "node server.js --docker --mqe-local=mqe-local.json",
-    "all": "npm run build && npm run test"
+    "watch": "cd client && webpack --config webpack-watch.config.js --watch",
+    "dist": "cd client && webpack --config webpack-dist.config.js"
   },
   "dependencies": {
     "@ucd-lib/spa-router-middleware": "^0.1.0",
@@ -20,5 +17,10 @@
     "csv-stringify": "^5.3.0",
     "express": "^4.17.1",
     "mongodb": "^3.2.7"
+  },
+  "devDependencies": {
+    "@ucd-lib/cork-app-build": "^0.1.5",
+    "webpack": "^4.33.0",
+    "webpack-cli": "^3.3.3"
   }
 }
