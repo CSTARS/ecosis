@@ -1,6 +1,8 @@
 import { LitElement } from 'lit-element';
 import render from "./ecosis-search.tpl.js"
 
+// main library
+import "../lib"
 
 export default class EcosisSearch extends LitElement {
 
@@ -13,6 +15,9 @@ export default class EcosisSearch extends LitElement {
   constructor() {
     super();
     this.render = render.bind(this);
+
+    // google.charts.load('current', {packages: ['corechart']});
+    // google.charts.setOnLoadCallback(drawChart);
   }
 
 }
