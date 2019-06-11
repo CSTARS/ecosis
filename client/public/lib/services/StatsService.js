@@ -4,6 +4,7 @@ const StatsStore = require('../stores/StatsStore');
 class StatsService extends BaseService {
 
   constructor() {
+    super();
     this.BASE_URL = '/api/stats';
     this.store = StatsStore;
   }

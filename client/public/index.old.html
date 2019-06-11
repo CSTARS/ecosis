@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <title>EcoSIS - Spectral Library</title>
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="shortcut icon" href="assets/favicon.ico" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#63A442">
+
+  <meta name="description" content="EcoSIS, Ecological Spectral Information System, Spectral Library">
+  <meta name="keywords" content="EcoSIS, Ecological, Spectral, Library">
+
+  <link rel="icon" sizes="192x192" href="/assets/icon_192.png">
+  <link rel="icon" sizes="128x128" href="/assets/icon_128.png">
+  <link rel="apple-touch-icon" sizes="128x128" href="/assets/icon_128.png">
+  <link rel="apple-touch-icon-precomposed" sizes="128x128" href="/assets/icon_128.png">
+
+
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+  {{config}}
+
+  {{bundle}}
+
+  <!-- <script src="js/webcomponents.js"></script>
+  <link rel="stylesheet" href="font-awesome/css/font-awesome.css">
+  <script type="text/javascript" src="mqe/resources/mqe.js"></script>
+  <script type="text/javascript" src="/conf"></script> -->
+  
+
+
+  <!-- <link rel="import" href="require.html"> -->
+
+</head>
+<body resolved>
+
+<div id="home" style="display:none;">
+
+  <div class="splash">
+    <iron-image style="height:470px; width:100%; position:absolute; top: 0; left: 0"  placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAJCAYAAAAsCDz7AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AYDAAcsOvwRSAAAAtNJREFUKM8FwctuG1UAgOH/nLl4bNce2/E11CFtUjVtCaqgCgUJ2IBAYod4A4TEA/AAfRcWSOy6ohISd4mCCFUpDW3TNFGcxLEb2+OJ7bmfw/eJm1/c1M3ibdySIFff4+HfHoWuYnaQI++YrG+UsKtQLjnc3z5k43KFiacZDmbc2qryYiemdUmSsw2iMGMyjjkdBoz8kLeutkAVSBddROuT69pyJNMdB7uaEmWaaAJZolGJJl8y+fLOJs8Oj8jHFwnMPufTgLe3uhjZBVLh83j3jEcPpoSxws4Lyi3Jye8xi4Hi9gcrvHi6QLQ/u6brTYtn3+V49UYDaY/Z/y9AKABBNM24/lGeSMHVWyaDA8W773Wo2Sv8+tMTZmlAfzKjUrPpLOf59/uQUS9k4aUgFUhovwOm39P4uxlOscDG+zkWMqW0YWJkJo/vRTh2nufbER9/XsMfpzS7Bne/OULFfXIVxeg0QRmaKIgxHUXvYQAAloAUKpcl9SaY0UuNcDQqDKlVQiZjiRclzLyQrU9rdHiNf/b+YuJlpL7i0S8BxbqBUU5JDHhl06JYhtXlIocnAR9+lSc9s/nx6ykgsF3N8DjDLHcljTWL0bZLmDQYeydEkYAE/vzZp5EeoSoZe3dDltYs1q64DOfnVJs2wshQWjPoKbyzc5aaErck6T3PAIFVgouvw7RvYpZXob3ksH/us/MbjKuK6MBFJopMz5lMBkx7IcISTI4jglnC/ASOt+e0Ny2soka6mkwIHEcSTQ0e/DADAStvWshIkM8HGBj1O+VGmSV3jUEvprueIN0MPw7RC0F0HtN+I4dwFelMkMWwGChUAgkKWYWZp7l0RXD6JOP+tyFpALUbErdr4A8jfC9DttZN3PoCz3iKPxrS/8PCLSg6DZNgX2O0BfMZVJdNCh1B+FKDBAQER5pgV7N8wWD3HlTSa6gMrDY0Vg3iSUyaaqJA8z/OiGDYFjeVWQAAAABJRU5ErkJggg=="
+  sizing="cover" preload fade src="/assets/banner-slim.png"></iron-image>
+    <div class="layout horizontal center-justified" style="position: absolute; width: 100%">
+      <div class="self-center">
+        <h1><div>EcoSIS</div></h1>
+        <h1 class="splash-url">
+          ecosis.org
+        </h1>
+        <h3>Spectral Library</h3>
+      </div>
+    </div>
+  </div>
+
+  <home-stats></home-stats>
+</div>
+
+<div id="search" style="display:none;">
+  <div class="page-header" style="margin:15px">
+    <div class="row">
+      <div class="col-md-9">
+        <h4>EcoSIS Spectral Library <span class="sandbox">Sandbox</span></h4>
+      </div>
+      <div class="col-md-3">
+        <a class='btn btn-primary pull-right' href="/#home" style="margin:5px">
+          <i class="fa fa-home"></i> Home
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="well">
+      <div class="row">
+        <div class="col-md-5" >
+
+          <div class="layout horizontal">
+            <div class="flex">
+                <input id="search-text" type="text" class="form-control" placeholder="Keywords" style="background-color: white;" >
+                <search-text-suggest></search-text-suggest>
+            </div>
+            <div>
+              <a class="btn btn-primary" style="display:none;margin-left: 5px" id="clear-search"><i class="fa fa-times"></i></a>
+              <button id="search-btn" class="btn btn-default" type="button" style="margin-left:5px"><i class="fa fa-search"></i> Search</button>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-md-7" id="active-filters"></div>
+      </div>
+    </div>
+
+
+    <div class="row">
+      <div class="col-md-3">
+        <div class="well" style="overflow:hidden;">
+          <ul class="nav nav-list" id="filter-nav"></ul>
+        </div>
+        <div class="well" style="display:none">
+          <ul class="nav nav-list" id="compare-list"></ul>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <div class="page-header" style="margin:10px 0 0 0; border: none">
+            <div class="row">
+              <div class="col-md-6">
+                <h4 id="results-title">Search Results</h4>
+              </div>
+              <div class="col-md-6">
+                <ul id="search-paging-btns" class="pagination pull-right" style="margin:0px"></ul>
+              </div>
+            </div>
+        </div>
+        <div id="results-panel"></div>
+        <ul id="search-paging-btns-bottom" class="pagination pull-right" style="margin:0px"></ul>
+      </div>
+    </div>
+
+    <div id="search-footer" style="text-align:center;margin-top: 100px;padding-top: 20px; border-top:1px solid #eee">
+      <div id="current-search-rest-link"></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="result" style="display:none">
+  <results-panel></results-panel>
+</div>
+
+
+<div class="modal fade" id="all-filters-popup">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="custom-filters-popup">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title">Create Custom Filter</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <label for="inputCustomFilter" class="col-lg-2 control-label">Filter</label>
+            <div class="col-lg-10">
+              <input type="text" class="form-control" id="inputCustomFilter" placeholder="Custom Filter">
+              <div class="help-block">
+                Create custom filter using the following expression.
+                <ul>
+                  <li><b>Equals:</b> <i>Attribute Name</i>=<i>Value</i>  <br />Ex: Latin Genus=Acer
+                  </li>
+                  <li><b>Has Attribute:</b> ^<i>Attribute Name</i>  <br />Ex: ^Light Source</li>
+                  <li><b>With Regex:</b> <i>Attribute Name</i>=<i>/regular expression/</i>  <br />Ex: Common Name=/maple$/
+                    <br />Do not apply flags (e.g. /maple$/i with 'i' being the case insensitive flag).  'i' is applied by default.
+                  </li>
+                  <li><b>Multiple Expressions:</b> <i>Attribute Name</i>=<i>Value</i>, ^<i>Attribute Name</i>  <br />Ex: Latin Genus=Acer, ^Nitrogen</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="set-custom-filter">Set</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="geo-filter">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3><i class="icon-globe"></i> Filter By Location</h3>
+      </div>
+      <div class="modal-body">
+    	<div id="geo-filter-body">
+    		<div id="geo-filter-map" style="height:300px;width:100%;border:1px solid #ccc"></div>
+    		<div>
+    			<table class="table">
+    				<tr><td>Latitude: </td><td id="geo-filter-current-lat"></td>
+    						<td>Longitude: </td><td id="geo-filter-current-lng"></td>
+    				</tr>
+    				<tr><td>Radius: </td><td id="geo-filter-current-radius"></td>
+    					<td id="geo-filter-current-matches-outer">Matches: </td><td id="geo-filter-current-matches" style="width:225px"></td>
+    				</tr>
+    			</table>
+    		</div>
+    		<div class="help-block" style="font-style:italic">
+    			*Datasets without geographic location information will not be included in your search results when the geographic
+    			filter is applied.
+    		</div>
+    	</div>
+      </div>
+      <div class="modal-footer">
+      	<a class="btn btn-primary pull-left" id="geo-filter-select"><i class="icon-filter"></i> Set Filter</a>
+      	<a class="btn btn-success pull-left" id="geo-filter-geolocate"><i class="icon-screenshot"></i> Locate Me</a>
+        <a class="btn pull-right" data-dismiss="modal" >Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="loading" style="display:none; position:fixed; top:0px; text-align:center; width:100%;" class="animated fadeInDown">
+  <span class="label label-primary">Loading...</span>
+</div>
+
+<div id="gitInfo" style="padding: 50px 30px; color: #888; font-size: 12px; font-style: italic; display:none"></div>
+<script>
+  function onAppLoaded() {
+    try {
+      $.get('/git/info', function(resp){
+        var html = '';
+        if( resp && resp.branch == 'master' ) return;
+        for( var key in resp ) html += '<div><b>'+key+':</b> '+resp[key]+'</div>';
+        $('#gitInfo').html(html).show();
+        $('.sandbox').show();
+      });
+
+      if( !ckan.prod ) {
+        $('.sandbox').show();
+      }
+      $('#mainainerLink').attr('href', ckan.url);
+      $('#contributeLink')
+        .attr('href', ckan.url)
+        .html(ckan.url);
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  if( window.appLoaded ) {
+    onAppLoaded();
+  } else {
+    window.addEventListener('app-loaded', function() {
+      onAppLoaded();
+    });
+  }
+</script>
+
+</body></html>

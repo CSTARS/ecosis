@@ -5,6 +5,8 @@ const StatsStore = require('../stores/StatsStore');
 class StatsModel extends BaseModel {
 
   constructor() {
+    super();
+    
     this.service = StatsService;
     this.store = StatsStore;
     this.register('StatsModel');

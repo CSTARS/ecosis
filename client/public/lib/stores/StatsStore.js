@@ -3,6 +3,8 @@ const {BaseStore} = require('@ucd-lib/cork-app-utils');
 class StatsStore extends BaseStore {
 
   constructor() {
+    super();
+
     this.data = {};
     this.events = {
       STATS_UPDATE : 'stats-update'

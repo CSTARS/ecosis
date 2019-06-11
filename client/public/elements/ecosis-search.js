@@ -4,11 +4,17 @@ import render from "./ecosis-search.tpl.js"
 // main library
 import "../lib"
 
-export default class EcosisSearch extends LitElement {
+// polymer
+import "@polymer/iron-pages"
+
+import "./pages/home/app-page-home"
+
+export default class EcosisSearch extends Mixin(LitElement)
+  .with(LitCorkUtils) {
 
   static get properties() {
     return {
-      
+      page : {type: String}
     }
   }
 
@@ -16,8 +22,7 @@ export default class EcosisSearch extends LitElement {
     super();
     this.render = render.bind(this);
 
-    // google.charts.load('current', {packages: ['corechart']});
-    // google.charts.setOnLoadCallback(drawChart);
+    this.page = 'home';
   }
 
 }

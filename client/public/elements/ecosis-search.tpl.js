@@ -9,4 +9,11 @@ return html`
   }
 </style>  
 
+<iron-pages 
+  selected-attribute="active"
+  attr-for-selected="page" 
+  selected="${this.page}">
+  <app-page-home page="home"></app-page-home>
+</iron-pages>
+
 `;}
