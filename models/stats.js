@@ -19,7 +19,9 @@ class StatsModel {
       result[keyword] = await this._getTopKeywords(keyword);
     }
     result.lastAdded = await this._getLastAdded();
-    result.spectraCount = await this._getCount()
+    result.spectraCount = await this._getCount();
+
+    return result;
   }
 
   async _getTopKeywords(key) {
@@ -41,19 +43,22 @@ class StatsModel {
 
   async _getLastAdded() {
     let collection = await mongo.packagesCollection();
-    let result = collection
+    let result = await collection
       .find({}, {
-        'value.ecosis.package_id' : 1,
-        'value.ecosis.package_title' : 1,
-        'value.ecosis.description' : 1,
-        'value.ecosis.organization' : 1,
-        'value.ecosis.created' : 1,
-        'value.Theme' : 1,
-        'value.Keywords' : 1
+        projection : {
+          'value.ecosis.package_id' : 1,
+          'value.ecosis.package_title' : 1,
+          'value.ecosis.description' : 1,
+          'value.ecosis.organization' : 1,
+          'value.ecosis.created' : 1,
+          'value.Theme' : 1,
+          'value.Keywords' : 1
+        }
       })
       .sort({'value.ecosis.created': -1})
       .limit(3)
       .toArray();
+    console.log(result);
 
     return result.map(r => {
       return r.value;

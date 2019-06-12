@@ -7,6 +7,7 @@ import "../lib"
 // polymer
 import "@polymer/iron-pages"
 
+import "./styles/custom-properties"
 import "./pages/home/app-page-home"
 
 export default class EcosisSearch extends Mixin(LitElement)

@@ -8,3 +8,5 @@ npm-debug.log
 mqe-local.json
 .vscode
 *.tgz
+
+start-db.sh

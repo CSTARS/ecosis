@@ -35,6 +35,35 @@ export default html`
   p {
       margin: 0 0 11.5px;
   }
+  
+  /* EcoSML */
+  paper-button {
+    color: white;
+    background-color : var(--default-primary-color);
+    border: 1px solid var(--default-primary-color);
+  }
+
+  button, a.btn {
+    border-radius: 0;
+    border: 1px solid var(--default-primary-color);
+    background-color : var(--default-primary-color);
+    color: white;
+    padding: 15px;
+    font-weight: var(--app-font-weight-heavy);
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  button.inverse, a.btn.inverse {
+    border-radius: 0;
+    border: 0;
+    border: 1px solid var(--app-light-gray);
+    background-color : var(--app-extra-light-gray);
+    color: var(--app-dark-blue);
+    padding: 15px;
+    font-weight: var(--app-font-weight-heavy);
+    font-size: 14px;
+  }
 
   [hidden] {
     display: none !important;

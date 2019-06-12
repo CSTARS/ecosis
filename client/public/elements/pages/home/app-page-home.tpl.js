@@ -102,11 +102,14 @@ ${sharedStyles}
     <p id="count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
   </p>
 
-  <p><a href="/#search" class="btn btn-primary btn-lg" role="button"><i class="fa fa-search"></i>  Find Spectra</a></p>
-  
-    <div style="margin-top:30px; text-align:center; padding: 25px 5%">
-      Data maintainers, add or edit spectra <a id="mainainerLink" href="http://data.ecosis.org">here.</a>
-    </div>
+  <p><a href="/search" class="btn" role="button"><i class="fa fa-search"></i>  Find Spectra</a></p>
+
+  <div style="margin-top:30px; text-align:center; padding: 25px 5% 5px 5%">
+    Data maintainers, add or edit spectra <a id="mainainerLink" href="http://data.ecosis.org">here.</a>
+  </div>
+  <div style="text-align:center; padding: 0 5%">
+    Looking for spectra data models? Check out <a href="http://ecosml.org">EcoSML.</a>
+  </div>
 
 </div>
 
@@ -115,15 +118,27 @@ ${sharedStyles}
     <div class="row">
       <div class="col-sm-4">
         <h4>Top Organizations</h4>
-        <div id="organization"></div>
+        <div id="organization">
+          ${this.organizations.map(item => html`
+            <div>${item.value} ${item.count}</div>
+          `)}
+        </div>
       </div>
       <div class="col-sm-4">
         <h4>Top Keywords</h4>
-        <div id="Keywords"></div>
+        <div id="Keywords">
+          ${this.keywords.map(item => html`
+            <div>${item.value} ${item.count}</div>
+          `)}
+        </div>
       </div>
       <div class="col-sm-4">
         <h4>Top Themes</h4>
-        <div id="Theme"></div>
+        <div id="Theme">
+          ${this.themes.map(item => html`
+            <div>${item.value} ${item.count}</div>
+          `)}
+        </div>
       </div>
     </div>
   </div>
