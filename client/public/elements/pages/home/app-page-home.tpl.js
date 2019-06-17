@@ -75,6 +75,47 @@ ${sharedStyles}
     padding: 100px 0 50px 0;
     border-bottom: 1px solid #eee;
   }
+
+  .stats-container {
+    background: #f8f8f8; 
+    padding: 25px 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .max-width {
+    max-width: 750px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .stats-container-inner {
+    display: flex;
+  }
+
+  @media(max-width: 678px) {
+    .stats-container-inner {
+      display: block;
+    }
+  }
+
+  .stat-container {
+    flex: 1;
+    margin: 5px;
+  }
+
+  .stat-container > div {
+    background-color: white;
+    border-left: 1px solid #eee;
+    border-top: 1px solid #eee;
+    border-right: 1px solid #eee;
+  }
+
+  .stat-container > div > div {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
 </style>  
 
 <div class="splash">
@@ -113,10 +154,10 @@ ${sharedStyles}
 
 </div>
 
-<div style="background: #f8f8f8; padding: 25px 0">
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-4">
+<div class="stats-container">
+  <div class="max-width">
+    <div class="stats-container-inner">
+      <div class="stat-container">
         <h4>Top Organizations</h4>
         <div id="organization">
           ${this.organizations.map(item => html`
@@ -124,7 +165,7 @@ ${sharedStyles}
           `)}
         </div>
       </div>
-      <div class="col-sm-4">
+      <div class="stat-container">
         <h4>Top Keywords</h4>
         <div id="Keywords">
           ${this.keywords.map(item => html`
@@ -132,7 +173,7 @@ ${sharedStyles}
           `)}
         </div>
       </div>
-      <div class="col-sm-4">
+      <div class="stat-container">
         <h4>Top Themes</h4>
         <div id="Theme">
           ${this.themes.map(item => html`
