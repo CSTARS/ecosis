@@ -10,8 +10,27 @@ class SearchModel extends BaseModel {
 
     this.store = SearchStore;
     this.service = SearchService;
+    this.service.setModel(this);
+
+    this.HASH_SEARCH_ORDER = ['text','filters','page','itemsPerPage'];
       
     this.register('SearchModel');
+  }
+
+  async search(query={}, name='main') {
+    try {
+      await this.service.search(query, name);
+    } catch(e) {}
+
+    return this.store.data.search[name];
+  }
+
+  async suggest(text, name='main') {
+    try {
+      await this.service.suggest(text, name);
+    } catch(e) {}
+
+    return this.store.data.suggest[name];
   }
 
   getDefaultSearch() {
@@ -24,10 +43,10 @@ class SearchModel extends BaseModel {
   }
 
   getRestParams(query) {
-		return  {
-      text : encodeURIComponent(query.text),
-			filters : JSON.stringify(query.filters || []),
-			start : query.page*query.itemsPerPage,
+    return  {
+      text : encodeURIComponent(query.text || ''),
+      filters : JSON.stringify(query.filters || []),
+      start : query.page*query.itemsPerPage,
       stop : ((query.page+1)*query.itemsPerPage)
     }
   }
@@ -38,54 +57,61 @@ class SearchModel extends BaseModel {
     for( let key in query ) {
       str += key+'='+encodeURIComponent(query[key]);
     }
-    return query;
+    return str;
   }
 
   getQueryFromUrl(path) {
-		var search = this.getDefaultSearch();
+    let search = this.getDefaultSearch();
+    if( typeof path === 'string' ) {
+      path = path.replace(/^\//, '').replace(/\/$/, '').split('/');
+    }
 
-		for( var i = 1; i < hash.length; i++ ) {
-			if( hash[i].length > 0 ) {
-				search[HASH_SEARCH_ORDER[i-1]] = hash[i];
-			}
-		}
+    path.forEach((item, i) => {
+      if( !item ) return;
+      search[this.HASH_SEARCH_ORDER[i]] = item;
+    });
 
-		try {
-			if( typeof search.filters == 'string' ) {
-				search.filters = JSON.parse(search.filters);
-			}
-		} catch (e) {
-			console.log(e);
-		}
+    try {
+      if( typeof search.filters === 'string' ) {
+        search.filters = JSON.parse(search.filters);
+      }
+    } catch (e) {
+      console.error(e);
+    }
 
-		for( var i = 0; i < DEFAULT_SEARCH.filters.length; i++ ) {
-			var f = DEFAULT_SEARCH.filters[i];
-			var key = "";
-			for( key in f ) break;
+    // for( var i = 0; i < DEFAULT_SEARCH.filters.length; i++ ) {
+    //   var f = DEFAULT_SEARCH.filters[i];
+    //   var key = "";
+    //   for( key in f ) break;
 
-			var found = false;
-			for( var j = 0; j < search.filters.length; j++ ) {
-				if( search.filters[j][key] == f[key] ) {
-					found = true;
-					break;
-				}
-			}
-			if( !found ) search.filters.push(f);
-		}
+    //   var found = false;
+    //   for( var j = 0; j < search.filters.length; j++ ) {
+    //     if( search.filters[j][key] == f[key] ) {
+    //       found = true;
+    //       break;
+    //     }
+    //   }
+    //   if( !found ) search.filters.push(f);
+    // }
 
-		try {
-			if( typeof search.page == 'string' ) {
-				search.page = parseInt(search.page);
-			}
-			if( typeof search.itemsPerPage == 'string' ) {
-				search.itemsPerPage = parseInt(search.itemsPerPage);
-			}
-		} catch(e) {
-			console.log(e);
-		}
+    try {
+      if( typeof search.page === 'string' ) {
+        search.page = parseInt(search.page);
+      }
+    } catch(e) {
+      console.error(e);
+    }
 
-		return search;
-	}
+    try {
+      if( typeof search.itemsPerPage === 'string' ) {
+        search.itemsPerPage = parseInt(search.itemsPerPage);
+      }
+    } catch(e) {
+      console.error(e);
+    }
+
+    return search;
+  }
 
 
 }
