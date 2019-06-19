@@ -6,11 +6,19 @@ class PackageStore extends BaseStore {
     super();
 
     this.data = {
-      package : {}
+      currentSearchId : 0,
+      package : {},
+      stats : {},
+      search : {},
+      suggest : {},
+      count : {}
     };
     this.events = {
       PACKAGE_UPDATE : 'package-update',
-      STATS_UPDATE : 'stats-update'
+      STATS_UPDATE : 'stats-update',
+      PACKAGE_SEARCH_UPDATE : 'package-search-update',
+      PACKAGE_COUNT_UPDATE : 'package-count-update',
+      KEYWORD_SUGGEST_UPDATE : 'keyword-suggest-update'
     };
   }
 
@@ -42,30 +50,111 @@ class PackageStore extends BaseStore {
   }
 
   // STATS
-  setStatsLoading(request) {
+  setStatsLoading(id, request) {
     this._setStatsState({
       state: this.STATE.LOADING,
-      request
+      id, request
     });
   }
 
   setStatsLoaded(payload) {
     this._setStatsState({
       state: this.STATE.LOADED,
-      payload
+      id, payload
     });
   }
 
   setStatsError(error) {
     this._setStatsState({
       state: this.STATE.ERROR,
-      error
+      id, error
     });
   }
 
   _setStatsState(state) {
-    this.data.stats = state;
+    this.data.stats[state.id] = state;
     this.emit(this.events.STATS_UPDATE, state);
+  }
+
+  // SUGGEST
+  setSuggestLoading(request, metadata) {
+    this._setSuggestState({
+      state : this.STATE.LOADING,
+      request, metadata
+    });
+  }
+
+  setSuggestLoaded(payload, metadata) {
+    this._setSuggestState({
+      state : this.STATE.LOADED,
+      payload, metadata
+    });
+  }
+
+  setSuggestError(error, metadata) {
+    this._setSuggestState({
+      state : this.STATE.ERROR,
+      error, metadata
+    });
+  }
+
+  _setSuggestState(state) {
+    this.state.suggest[state.metadata.name] = state;
+    this.emit(this.events.KEYWORD_SUGGEST_UPDATE, state);
+  }
+
+  // SEARCH
+  setSearchLoading(request, metadata) {
+    this._setSearchState({
+      state : this.STATE.LOADING,
+      request, metadata
+    });
+  }
+
+  setSearchLoaded(payload, metadata) {
+    this._setSearchState({
+      state : this.STATE.LOADED,
+      payload, metadata
+    });
+  }
+
+  setSearchError(error, metadata) {
+    this._setSearchState({
+      state : this.STATE.ERROR,
+      error, metadata
+    });
+  }
+
+  _setSearchState(state) {
+    this.state.search[state.metadata.name] = state;
+    this.emit(this.events.PACKAGE_SEARCH_UPDATE, state);
+  }
+
+  // COUNT
+  setCountLoading(request, metadata) {
+    this._setCountState({
+      state : this.STATE.LOADING,
+      request, metadata
+    });
+  }
+
+  setCountLoaded(payload, metadata) {
+    this._setCountState({
+      state : this.STATE.LOADED,
+      payload, metadata
+    });
+  }
+
+  setCountError(error, metadata) {
+    this._setCountState({
+      state : this.STATE.ERROR,
+      error, metadata
+    });
+  }
+
+  _setCountState(state) {
+    this.state.search[state.metadata.name] = state;
+    this.emit(this.events.PACKAGE_COUNT_UPDATE, state);
   }
 
 

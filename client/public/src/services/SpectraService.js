@@ -8,14 +8,16 @@ class SpectraService extends BaseService {
     this.store = SpectraStore;
   }
 
-  search(query, name) {
+  search(query, packageId, name) {
     let searchId = this.store.data.currentSearchId;
     this.store.data.currentSearchId++;
     let params = this.model.getRestParamsStr(query);
-    let path = `/api/spectra/search?${params}`;
+
+
+    let path = `/api/spectra/search${packageId ? '/'+packageId : ''}?${params}`;
 
     let metadata = {
-      searchId, query, path, name
+      searchId, query, path, name, packageId
     };
 
     return this.request({
@@ -27,14 +29,14 @@ class SpectraService extends BaseService {
     });
   }
 
-  count(query, name) {
+  count(query, packageId, name) {
     let searchId = this.store.data.currentSearchId;
     this.store.data.currentSearchId++;
     let params = this.model.getRestParamsStr(query);
-    let path = `/api/spectra/count?${params}`;
+    let path = `/api/spectra/count${packageId ? '/'+packageId : ''}?${params}`;
 
     let metadata = {
-      searchId, query, path, name
+      searchId, query, path, name, packageId
     };
 
     return this.request({
@@ -46,14 +48,14 @@ class SpectraService extends BaseService {
     });
   }
 
-  stats() {
+  stats(packageId) {
     return this.request({
-      url : `/api/spectra/stats`,
+      url : `/api/spectra/stats/${packageId}`,
       json : true,
-      checkCached : () => this.store.data.stats,
-      onLoading : request => this.store.setStatsLoading(request),
-      onLoad : response => this.store.setStatsLoaded(response.body),
-      onError : error => this.store.setStatsError(error)
+      checkCached : () => this.store.data.stats[packageId],
+      onLoading : request => this.store.setStatsLoading(packageId, request),
+      onLoad : response => this.store.setStatsLoaded(packageId, response.body),
+      onError : error => this.store.setStatsError(packageId, error)
     });
   }
 

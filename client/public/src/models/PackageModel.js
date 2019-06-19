@@ -1,6 +1,7 @@
 const {BaseModel} = require('@ucd-lib/cork-app-utils');
 const PackageService = require('../services/PackageService');
 const PackageStore = require('../stores/PackageStore');
+const utils = require('../lib/search-utils');
 
 class PackageModel extends BaseModel {
 
@@ -9,6 +10,7 @@ class PackageModel extends BaseModel {
 
     this.store = PackageStore;
     this.service = PackageService;
+    this.utils = utils;
       
     this.register('PackageModel');
   }
@@ -36,6 +38,31 @@ class PackageModel extends BaseModel {
 
     return this.store.data.stats;
   }
+
+  async search(query={}, name='main') {
+    try {
+      await this.service.search(query, name);
+    } catch(e) {}
+
+    return this.store.data.search[name];
+  }
+
+  async count(query={}, name='main') {
+    try {
+      await this.service.count(query, name);
+    } catch(e) {}
+
+    return this.store.data.count[name];
+  }
+
+  async suggest(text, name='main') {
+    try {
+      await this.service.suggest(text, name);
+    } catch(e) {}
+
+    return this.store.data.suggest[name];
+  }
+
 
 }
 

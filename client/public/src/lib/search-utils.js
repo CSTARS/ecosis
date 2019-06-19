@@ -1,43 +1,7 @@
-const {BaseModel} = require('@ucd-lib/cork-app-utils');
-const SearchService = require('../services/SearchService');
-const SearchStore = require('../stores/SearchStore');
-
-class SearchModel extends BaseModel {
+class SearchUtils {
 
   constructor() {
-    super();
-
-    this.store = SearchStore;
-    this.service = SearchService;
-    this.service.setModel(this);
-
     this.HASH_SEARCH_ORDER = ['text','filters','page','itemsPerPage'];
-      
-    this.register('SearchModel');
-  }
-
-  async search(query={}, name='main') {
-    try {
-      await this.service.search(query, name);
-    } catch(e) {}
-
-    return this.store.data.search[name];
-  }
-
-  async count(query={}, name='main') {
-    try {
-      await this.service.count(query, name);
-    } catch(e) {}
-
-    return this.store.data.count[name];
-  }
-
-  async suggest(text, name='main') {
-    try {
-      await this.service.suggest(text, name);
-    } catch(e) {}
-
-    return this.store.data.suggest[name];
   }
 
   getDefaultSearch() {
@@ -119,8 +83,6 @@ class SearchModel extends BaseModel {
 
     return search;
   }
-
-
 }
 
-module.exports = new SearchModel();
+module.exports = new SearchUtils();

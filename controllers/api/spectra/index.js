@@ -4,11 +4,17 @@ const mongo = require('../../../lib/mongo');
 const handleError = require('../../utils/handle-error');
 const utils = require('../../../lib/utils');
 
+router.get('/search/:package_id', async (req, res) => {
+  search(req.params.package_id, req, res);
+});
 router.get('/search', async (req, res) => {
+  search(null, req, res);
+});
+
+async function search(package_id, req, res) {
   res.set('Content-Type', 'application/json');
   
   var filters = req.query.filters;
-  var package_id = req.query.package_id; // optional
   var start = parseInt(req.query.start);
   var stop = parseInt(req.query.stop);
 
@@ -46,7 +52,7 @@ router.get('/search', async (req, res) => {
   } catch(e) {
     handleError(res, e);
   }
-});
+}
 
 router.get('/stats', async (req, res) => {
   let pkgid = req.query.package_id;
