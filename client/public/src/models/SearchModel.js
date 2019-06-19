@@ -1,7 +1,6 @@
 const {BaseModel} = require('@ucd-lib/cork-app-utils');
 const SearchService = require('../services/SearchService');
 const SearchStore = require('../stores/SearchStore');
-const clone = require('clone');
 
 class SearchModel extends BaseModel {
 
@@ -23,6 +22,14 @@ class SearchModel extends BaseModel {
     } catch(e) {}
 
     return this.store.data.search[name];
+  }
+
+  async count(query={}, name='main') {
+    try {
+      await this.service.count(query, name);
+    } catch(e) {}
+
+    return this.store.data.count[name];
   }
 
   async suggest(text, name='main') {

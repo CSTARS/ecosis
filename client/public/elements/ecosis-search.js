@@ -2,7 +2,7 @@ import { LitElement } from 'lit-element';
 import render from "./ecosis-search.tpl.js"
 
 // main library
-import "../lib"
+import "../src"
 
 // polymer
 import "@polymer/iron-pages"

@@ -8,11 +8,13 @@ class SearchStore extends BaseStore {
     this.data = {
       currentSearchId : 0,
       search : {},
-      suggest : {}
+      suggest : {},
+      count : {}
     };
     this.events = {
-      SEARCH_UPDATE : 'search-update',
-      SUGGEST_UPDATE : 'suggest-update'
+      PACKAGE_SEARCH_UPDATE : 'package-search-update',
+      PACKAGE_COUNT_UPDATE : 'package-count-update',
+      KEYWORD_SUGGEST_UPDATE : 'keyword-suggest-update'
     };
   }
 
@@ -40,7 +42,7 @@ class SearchStore extends BaseStore {
 
   _setSuggestState(state) {
     this.state.suggest[state.metadata.name] = state;
-    this.emit(this.events.SUGGEST_UPDATE, state);
+    this.emit(this.events.KEYWORD_SUGGEST_UPDATE, state);
   }
 
   // SEARCH
@@ -67,7 +69,34 @@ class SearchStore extends BaseStore {
 
   _setSearchState(state) {
     this.state.search[state.metadata.name] = state;
-    this.emit(this.events.SEARCH_UPDATE, state);
+    this.emit(this.events.PACKAGE_SEARCH_UPDATE, state);
+  }
+
+  // COUNT
+  setCountLoading(request, metadata) {
+    this._setCountState({
+      state : this.STATE.LOADING,
+      request, metadata
+    });
+  }
+
+  setCountLoaded(payload, metadata) {
+    this._setCountState({
+      state : this.STATE.LOADED,
+      payload, metadata
+    });
+  }
+
+  setCountError(error, metadata) {
+    this._setCountState({
+      state : this.STATE.ERROR,
+      error, metadata
+    });
+  }
+
+  _setCountState(state) {
+    this.state.search[state.metadata.name] = state;
+    this.emit(this.events.PACKAGE_COUNT_UPDATE, state);
   }
 
 }
