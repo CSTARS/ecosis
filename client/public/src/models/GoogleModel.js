@@ -13,6 +13,12 @@ class GoogleModel extends BaseModel {
     this.register('GoogleModel');
   }
 
+  /**
+   * @method loadCharts
+   * @description load google charts corechart
+   * 
+   * @returns {Promise} resolves to state object
+   */
   async loadCharts() {
     let state = this.store.data.charts;
 

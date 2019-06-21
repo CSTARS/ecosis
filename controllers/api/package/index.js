@@ -3,6 +3,7 @@ const model = require('../../../models/package');
 const handleError = require('../../utils/handle-error');
 var packageExport = require('./export');
 const search = require('../../../models/search');
+const stats = require('../../../models/stats');
 
 router.get('/count', (req, res) => {
   count(req.query, res);
@@ -31,6 +32,14 @@ async function searchFn(params, res) {
     handleError(res, e);
   }
 }
+
+router.get('/stats', async (req, res) => {
+  try {
+    res.json(await stats.home());
+  } catch(e) {
+    handleError(res, e);
+  }
+});
 
 router.get('/:packageId', async (req, res) => {
   try {

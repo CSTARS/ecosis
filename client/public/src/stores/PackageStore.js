@@ -15,7 +15,7 @@ class PackageStore extends BaseStore {
     };
     this.events = {
       PACKAGE_UPDATE : 'package-update',
-      STATS_UPDATE : 'stats-update',
+      PACKAGE_STATS_UPDATE : 'package-stats-update',
       PACKAGE_SEARCH_UPDATE : 'package-search-update',
       PACKAGE_COUNT_UPDATE : 'package-count-update',
       KEYWORD_SUGGEST_UPDATE : 'keyword-suggest-update'

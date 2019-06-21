@@ -9,6 +9,11 @@ class GoogleService extends BaseService {
   }
 
   loadCharts() {
+    if( typeof window === 'undefined' ) throw new Error('You are not in a browser!');
+    if( !window.google || !window.google.charts ) {
+      throw new Error('The base Google Charts script has not been loaded');
+    }
+
     let p = new Promise((resolve, reject) => {
       this.store.chartsLoading(p);
       google.charts.load('current', {packages: ['corechart']});
