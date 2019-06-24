@@ -9,6 +9,7 @@ import "@polymer/iron-pages"
 
 import "./styles/custom-properties"
 import "./pages/home/app-page-home"
+import "./app-header"
 
 export default class EcosisSearch extends Mixin(LitElement)
   .with(LitCorkUtils) {

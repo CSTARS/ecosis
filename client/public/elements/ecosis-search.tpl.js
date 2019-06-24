@@ -9,6 +9,7 @@ return html`
   }
 </style>  
 
+<app-header></app-header>
 <iron-pages 
   selected-attribute="active"
   attr-for-selected="page" 

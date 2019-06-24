@@ -27,7 +27,7 @@ export default class AppPageHome extends Mixin(LitElement)
     this.themes = [];
     this.lastAdded = [];
 
-    this._injectModel('StatsModel');
+    this._injectModel('PackageModel');
   }
 
 
@@ -40,7 +40,7 @@ export default class AppPageHome extends Mixin(LitElement)
   async _onActiveChanged() {
     if( !this.active ) return;
 
-    let stats = await this.StatsModel.get();
+    let stats = await this.PackageModel.stats();
     stats = stats.payload;
     this.lastAdded = stats.lastAdded;
     this.organizations = stats['ecosis.organization'];

@@ -2,31 +2,6 @@ const mongo = require('../lib/mongo');
 
 class UsdaModel {
 
-  constructor() {
-    this.init();
-  }
-
-  async init() {
-    // make sure indexes are good
-    let collection = await mongo.usdaCollection();
-    collection.ensureIndex(
-      {
-        Category : 'text',
-        'Scientific Name' : 'text',
-        'Genus' : 'text',
-        'Accepted Symbol' : 'text',
-        'Common Name' : 'text'
-      },
-      {w: 1},
-      function(err) {
-        // TODO
-        // if( err ) {
-        //   global.setup.logger.info(err);
-        // }
-      }
-    );
-  }
-
   async get(code) {
     if( !code ) throw new Error('No code provided');
     var code = {'Accepted Symbol' : code.trim().toUpperCase()};

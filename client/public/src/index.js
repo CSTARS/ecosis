@@ -1,4 +1,5 @@
 module.exports = {
-  StatsModel : require('./models/StatsModel'),
+  SpectraModel : require('./models/SpectraModel'),
+  PackageModel : require('./models/PackageModel'),
   GoogleModel : require('./models/GoogleModel')
 }

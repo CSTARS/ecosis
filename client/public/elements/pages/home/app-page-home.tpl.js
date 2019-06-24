@@ -1,13 +1,52 @@
 import { html } from 'lit-element';
-import sharedStyles from "../../styles/shared-styles"
+import {litCss, sharedStylesHtml} from 'ecosis-client-commons'
+
 
 export default function render() { 
 return html`
 
-${sharedStyles}
+${litCss(sharedStylesHtml)}
 <style>
   :host {
     display: block;
+  }
+
+  .root {
+    display: flex;
+    justify-content: center;
+  }
+  .root.column {
+    flex-direction: column;
+  }
+  .root > div {
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .row {
+    display: flex;
+    margin-bottom: 35px;
+  }
+
+  .row > * {
+    flex : 1;
+    padding: 10px;
+  }
+
+  .count-label {
+    background: #eee;
+    border-radius: 20px;
+    padding: 1px 5px;
+    font-size: 13px;
+  }
+
+  .stat-row {
+    padding: 3px;
+    display: flex;
+  }
+
+  .stat-row > div:first-child {
+    flex: 1;
   }
 
   .splash {
@@ -71,9 +110,7 @@ ${sharedStyles}
   .jumbotron {
     margin-bottom : 0; 
     text-align : center;
-    background-color : white; 
     padding: 100px 0 50px 0;
-    border-bottom: 1px solid #eee;
   }
 
   .stats-container {
@@ -118,7 +155,7 @@ ${sharedStyles}
 
 </style>  
 
-<div class="splash">
+<!-- <div class="splash">
   <iron-image 
     style="height:470px; width:100%; position:absolute; top: 0; left: 0"  
     placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAJCAYAAAAsCDz7AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AYDAAcsOvwRSAAAAtNJREFUKM8FwctuG1UAgOH/nLl4bNce2/E11CFtUjVtCaqgCgUJ2IBAYod4A4TEA/AAfRcWSOy6ohISd4mCCFUpDW3TNFGcxLEb2+OJ7bmfw/eJm1/c1M3ibdySIFff4+HfHoWuYnaQI++YrG+UsKtQLjnc3z5k43KFiacZDmbc2qryYiemdUmSsw2iMGMyjjkdBoz8kLeutkAVSBddROuT69pyJNMdB7uaEmWaaAJZolGJJl8y+fLOJs8Oj8jHFwnMPufTgLe3uhjZBVLh83j3jEcPpoSxws4Lyi3Jye8xi4Hi9gcrvHi6QLQ/u6brTYtn3+V49UYDaY/Z/y9AKABBNM24/lGeSMHVWyaDA8W773Wo2Sv8+tMTZmlAfzKjUrPpLOf59/uQUS9k4aUgFUhovwOm39P4uxlOscDG+zkWMqW0YWJkJo/vRTh2nufbER9/XsMfpzS7Bne/OULFfXIVxeg0QRmaKIgxHUXvYQAAloAUKpcl9SaY0UuNcDQqDKlVQiZjiRclzLyQrU9rdHiNf/b+YuJlpL7i0S8BxbqBUU5JDHhl06JYhtXlIocnAR9+lSc9s/nx6ykgsF3N8DjDLHcljTWL0bZLmDQYeydEkYAE/vzZp5EeoSoZe3dDltYs1q64DOfnVJs2wshQWjPoKbyzc5aaErck6T3PAIFVgouvw7RvYpZXob3ksH/us/MbjKuK6MBFJopMz5lMBkx7IcISTI4jglnC/ASOt+e0Ny2soka6mkwIHEcSTQ0e/DADAStvWshIkM8HGBj1O+VGmSV3jUEvprueIN0MPw7RC0F0HtN+I4dwFelMkMWwGChUAgkKWYWZp7l0RXD6JOP+tyFpALUbErdr4A8jfC9DttZN3PoCz3iKPxrS/8PCLSg6DZNgX2O0BfMZVJdNCh1B+FKDBAQER5pgV7N8wWD3HlTSa6gMrDY0Vg3iSUyaaqJA8z/OiGDYFjeVWQAAAABJRU5ErkJggg=="
@@ -136,7 +173,7 @@ ${sharedStyles}
       <h3>Spectral Library</h3>
     </div>
   </div>
-</div>
+</div> -->
 
 <div class="jumbotron" style="">
   <p>Welcome to the EcoSIS Spectral Library<span class="sandbox" style="font-weight:bold">&nbsp;Sandbox</span>, a useful tool for finding spectral data. <br />
@@ -154,34 +191,45 @@ ${sharedStyles}
 
 </div>
 
-<div class="stats-container">
-  <div class="max-width">
-    <div class="stats-container-inner">
-      <div class="stat-container">
-        <h4>Top Organizations</h4>
+<div class="root">
+  <div class="main-panel">
+
+    <div class="row">
+      <div>
+        <h2 class="uheader blue">Top Organizations</h2>
         <div id="organization">
           ${this.organizations.map(item => html`
-            <div>${item.value} ${item.count}</div>
+            <div class="stat-row">
+              <div>${item.value}</div> 
+              <div><span class="count-label">${item.count}</span></div>
+            </div>
           `)}
         </div>
       </div>
-      <div class="stat-container">
-        <h4>Top Keywords</h4>
+      <div>
+        <h2 class="uheader green">Top Keywords</h2>
         <div id="Keywords">
           ${this.keywords.map(item => html`
-            <div>${item.value} ${item.count}</div>
+            <div class="stat-row">
+              <div>${item.value}</div>
+              <div><span class="count-label">${item.count}</span></div>
+            </div>
           `)}
         </div>
       </div>
-      <div class="stat-container">
-        <h4>Top Themes</h4>
+      <div>
+        <h2 class="uheader lightblue">Top Themes</h2>
         <div id="Theme">
           ${this.themes.map(item => html`
-            <div>${item.value} ${item.count}</div>
+            <div class="stat-row">
+              <div>${item.value}</div> 
+              <div><span class="count-label">${item.count}</span></div>
+            </div>
           `)}
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
