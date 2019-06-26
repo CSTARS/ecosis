@@ -31,6 +31,14 @@ class SearchUtils {
     return str;
   }
 
+  getUrlPathFromQuery(query={}) {
+    return '/search/'+
+      encodeURIComponent(query.text || '') + '/' +
+      encodeURIComponent(JSON.stringify(query.filters || [])) + '/' +
+      (query.page || 0) + '/' +
+      (query.itemsPerPage || 6)
+  }
+
   getQueryFromUrl(path) {
     let search = this.getDefaultSearch();
     if( typeof path === 'string' ) {

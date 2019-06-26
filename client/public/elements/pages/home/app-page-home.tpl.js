@@ -153,6 +153,7 @@ ${litCss(sharedStylesHtml)}
     border-bottom: 1px solid #eee;
   }
 
+
 </style>  
 
 <!-- <div class="splash">
@@ -175,18 +176,18 @@ ${litCss(sharedStylesHtml)}
   </div>
 </div> -->
 
+<app-search-header></app-search-header>
+
 <div class="jumbotron" style="">
   <p>Welcome to the EcoSIS Spectral Library<span class="sandbox" style="font-weight:bold">&nbsp;Sandbox</span>, a useful tool for finding spectral data. <br />
     <p id="count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
   </p>
 
-  <p><a href="/search" class="btn" role="button"><i class="fa fa-search"></i>  Find Spectra</a></p>
-
   <div style="margin-top:30px; text-align:center; padding: 25px 5% 5px 5%">
-    Data maintainers, add or edit spectra <a id="mainainerLink" href="http://data.ecosis.org">here.</a>
+    Data maintainers, add or edit spectra at <a id="mainainerLink" highlight href="http://data.ecosis.org">data.ecosis.org.</a>
   </div>
   <div style="text-align:center; padding: 0 5%">
-    Looking for spectra data models? Check out <a href="http://ecosml.org">EcoSML.</a>
+    Looking for spectra data models? Check out <a highlight href="http://ecosml.org">EcoSML.</a>
   </div>
 
 </div>
@@ -200,7 +201,7 @@ ${litCss(sharedStylesHtml)}
         <div id="organization">
           ${this.organizations.map(item => html`
             <div class="stat-row">
-              <div>${item.value}</div> 
+              <div><a href="${item.link}">${item.value}</a></div> 
               <div><span class="count-label">${item.count}</span></div>
             </div>
           `)}
@@ -211,7 +212,7 @@ ${litCss(sharedStylesHtml)}
         <div id="Keywords">
           ${this.keywords.map(item => html`
             <div class="stat-row">
-              <div>${item.value}</div>
+              <div><a href="${item.link}">${item.value}</a></div>
               <div><span class="count-label">${item.count}</span></div>
             </div>
           `)}
@@ -222,7 +223,7 @@ ${litCss(sharedStylesHtml)}
         <div id="Theme">
           ${this.themes.map(item => html`
             <div class="stat-row">
-              <div>${item.value}</div> 
+              <div><a href="${item.link}">${item.value}</a></div> 
               <div><span class="count-label">${item.count}</span></div>
             </div>
           `)}
@@ -230,6 +231,42 @@ ${litCss(sharedStylesHtml)}
       </div>
     </div>
 
+  </div>
+</div>
+
+<div class="root">
+  <div class="main-panel" style="display: flex">
+    <div style="flex: 1">
+
+      <h5 style="border-bottom: 1px solid #eee; padding-bottom: 5px">Sponsor</h5>
+
+      <div style="display:flex">
+        <div>
+          <a href="https://www.nasa.gov/">
+            <img class="media-object" src="/assets/NASA_logo.png" style="max-width: 96px" alt="NASA Logo">
+          </a>
+        </div>
+        <div>
+          <h2 style="margin:0"><a href="https://www.nasa.gov/" target="_blank">NASA</a></h2>
+          <b>Program:</b> Research Opportunities in Space and Earth Sciences<br />
+          <b>Grant Number:</b> NNX13AK85A
+        </div>
+      </div>
+    </div>
+    <div style="width:25px"></div>
+    <div style="flex: 1">
+
+      <h5 style="border-bottom: 1px solid #eee; padding-bottom: 5px">Executive Team</h5>
+      <div>
+        <a href="http://labs.russell.wisc.edu/townsend/" target="_blanl">University of Wisconsin - Madison, EnSpec</a><br />
+        <a href="http://www.cstars.ucdavis.edu/" target="_blanl">University of California - Davis, CSTARS</a><br />
+        <a href="https://sites.google.com/site/ucsbviperlab/" target="_blanl">University of California - Santa Barabara, VIPER Lab</a><br />
+        <a href="http://ursa.utah.edu/index.php" target="_blanl">University of Utah, URSA</a><br />
+        <a href="http://www.calmit.unl.edu/" target="_blanl">University of Nebraska - Lincoln, CALMIT</a><br />
+        <a href="http://www.jpl.nasa.gov/" target="_blanl">NASA, JPL</a><br />
+        <a href="http://www.neonscience.org/science-design/collection-methods/airborne-remote-sensing" target="_blanl">NEON</a>
+      </div>
+    </div>
   </div>
 </div>
 

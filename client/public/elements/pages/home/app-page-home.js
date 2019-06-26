@@ -3,6 +3,7 @@ import render from "./app-page-home.tpl.js"
 
 import "@polymer/iron-image"
 import "@polymer/paper-button"
+import "../../app-search-header"
 
 export default class AppPageHome extends Mixin(LitElement)
   .with(LitCorkUtils) {
@@ -43,9 +44,20 @@ export default class AppPageHome extends Mixin(LitElement)
     let stats = await this.PackageModel.stats();
     stats = stats.payload;
     this.lastAdded = stats.lastAdded;
-    this.organizations = stats['ecosis.organization'];
-    this.keywords = stats.Keywords;
-    this.themes = stats.Theme;
+
+    this.organizations = stats['ecosis.organization']
+      .map(item => this._appendLink(item, 'ecosis.organization'));
+    this.keywords = stats.Keywords
+      .map(item => this._appendLink(item, 'Keywords'));
+    this.themes = stats.Theme
+      .map(item => this._appendLink(item, 'Theme'));
+  }
+
+  _appendLink(item, category) {
+    let q = this.PackageModel.utils.getDefaultSearch();
+    q.filters.push({[category]: item.value});
+    item.link = this.PackageModel.utils.getUrlPathFromQuery(q);
+    return item;
   }
 
 

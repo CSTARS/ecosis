@@ -9,6 +9,7 @@
   "author": "jrmerz@gmail.com",
   "license": "MIT",
   "dependencies": {
+    "@polymer/iron-icons": "^3.0.1",
     "@polymer/iron-image": "^3.0.2",
     "@polymer/iron-pages": "^3.0.1",
     "@polymer/paper-button": "^3.0.1",
