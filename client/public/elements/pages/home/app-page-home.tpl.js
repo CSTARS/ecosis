@@ -23,16 +23,6 @@ ${litCss(sharedStylesHtml)}
     max-width: 1200px;
   }
 
-  .row {
-    display: flex;
-    margin-bottom: 35px;
-  }
-
-  .row > * {
-    flex : 1;
-    padding: 10px;
-  }
-
   .count-label {
     background: #eee;
     border-radius: 20px;
@@ -178,18 +168,22 @@ ${litCss(sharedStylesHtml)}
 
 <app-search-header></app-search-header>
 
-<div class="jumbotron" style="">
-  <p>Welcome to the EcoSIS Spectral Library<span class="sandbox" style="font-weight:bold">&nbsp;Sandbox</span>, a useful tool for finding spectral data. <br />
-    <p id="count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
-  </p>
+<div class="root">
+  <div style="margin: 15px; text-align: center">
+    <h1 style="margin-bottom: 0; line-height: 36px">Ecological Spectral Information System</h1>
 
-  <div style="margin-top:30px; text-align:center; padding: 25px 5% 5px 5%">
-    Data maintainers, add or edit spectra at <a id="mainainerLink" highlight href="http://data.ecosis.org">data.ecosis.org.</a>
-  </div>
-  <div style="text-align:center; padding: 0 5%">
-    Looking for spectra data models? Check out <a highlight href="http://ecosml.org">EcoSML.</a>
-  </div>
+    <div>
+      Welcome to the EcoSIS <span class="sandbox" style="font-weight:bold">&nbsp;Sandbox</span>, a useful tool for finding spectral data. <br />
+      <p id="count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
+    </div>
 
+    <div style="margin-top:30px; color: var(--secondary-text-color)">
+      Data maintainers, add or edit spectra at <a id="mainainerLink" highlight href="http://data.ecosis.org">data.ecosis.org.</a>
+    </div>
+    <div style="color: var(--secondary-text-color)">
+      Looking for spectra data models? Check out <a highlight href="http://ecosml.org">EcoSML.</a>
+    </div>
+  </div>
 </div>
 
 <div class="root">
@@ -235,36 +229,70 @@ ${litCss(sharedStylesHtml)}
 </div>
 
 <div class="root">
-  <div class="main-panel" style="display: flex">
-    <div style="flex: 1">
+  <div class="main-panel">
 
-      <h5 style="border-bottom: 1px solid #eee; padding-bottom: 5px">Sponsor</h5>
-
-      <div style="display:flex">
-        <div>
-          <a href="https://www.nasa.gov/">
-            <img class="media-object" src="/assets/NASA_logo.png" style="max-width: 96px" alt="NASA Logo">
-          </a>
+    <div class="row">
+      <div>
+        <h2 class="uheader blue">Recently Added</h2>
+        <div id="organization">
+          ${this.lastAdded.map(pkg => html`
+            <div>
+              <div><a href="${item.link}">${pkg.ecosis.package_title}</a></div> 
+              <div>${pkg.ecosis.package_title}</div>
+            </div>
+          `)}
         </div>
-        <div>
-          <h2 style="margin:0"><a href="https://www.nasa.gov/" target="_blank">NASA</a></h2>
-          <b>Program:</b> Research Opportunities in Space and Earth Sciences<br />
-          <b>Grant Number:</b> NNX13AK85A
+      </div>
+
+      <div>
+        <h2 class="uheader lightblue">Top Themes</h2>
+        <div id="Theme">
+          ${this.themes.map(item => html`
+            <div class="stat-row">
+              <div><a href="${item.link}">${item.value}</a></div> 
+              <div><span class="count-label">${item.count}</span></div>
+            </div>
+          `)}
         </div>
       </div>
     </div>
-    <div style="width:25px"></div>
-    <div style="flex: 1">
 
-      <h5 style="border-bottom: 1px solid #eee; padding-bottom: 5px">Executive Team</h5>
-      <div>
-        <a href="http://labs.russell.wisc.edu/townsend/" target="_blanl">University of Wisconsin - Madison, EnSpec</a><br />
-        <a href="http://www.cstars.ucdavis.edu/" target="_blanl">University of California - Davis, CSTARS</a><br />
-        <a href="https://sites.google.com/site/ucsbviperlab/" target="_blanl">University of California - Santa Barabara, VIPER Lab</a><br />
-        <a href="http://ursa.utah.edu/index.php" target="_blanl">University of Utah, URSA</a><br />
-        <a href="http://www.calmit.unl.edu/" target="_blanl">University of Nebraska - Lincoln, CALMIT</a><br />
-        <a href="http://www.jpl.nasa.gov/" target="_blanl">NASA, JPL</a><br />
-        <a href="http://www.neonscience.org/science-design/collection-methods/airborne-remote-sensing" target="_blanl">NEON</a>
+  </div>
+</div>
+
+<div class="root">
+  <div class="main-panel">
+    <div class="row">
+      <div style="flex: 1">
+
+        <h5 style="border-bottom: 1px solid #eee; padding-bottom: 5px">Sponsor</h5>
+
+        <div style="display:flex">
+          <div>
+            <a href="https://www.nasa.gov/">
+              <img class="media-object" src="/assets/NASA_logo.png" style="max-width: 96px" alt="NASA Logo">
+            </a>
+          </div>
+          <div>
+            <h2 style="margin:0"><a href="https://www.nasa.gov/" target="_blank">NASA</a></h2>
+            <b>Program:</b> Research Opportunities in Space and Earth Sciences<br />
+            <b>Grant Number:</b> NNX13AK85A
+          </div>
+        </div>
+      </div>
+      <div style="width:25px; flex: 0"></div>
+      <div style="flex: 1">
+
+        <h5 style="border-bottom: 1px solid #eee; padding-bottom: 5px">Executive Team</h5>
+        <div>
+          <a href="http://labs.russell.wisc.edu/townsend/" target="_blanl">University of Wisconsin - Madison, EnSpec</a><br />
+          <a href="http://www.cstars.ucdavis.edu/" target="_blanl">University of California - Davis, CSTARS</a><br />
+          <a href="https://sites.google.com/site/ucsbviperlab/" target="_blanl">University of California - Santa Barabara, VIPER Lab</a><br />
+          <a href="http://ursa.utah.edu/index.php" target="_blanl">University of Utah, URSA</a><br />
+          <a href="http://www.calmit.unl.edu/" target="_blanl">University of Nebraska - Lincoln, CALMIT</a><br />
+          <a href="http://www.jpl.nasa.gov/" target="_blanl">NASA, JPL</a><br />
+          <a href="http://www.neonscience.org/science-design/collection-methods/airborne-remote-sensing" target="_blanl">NEON</a>
+        </div>
       </div>
     </div>
   </div>

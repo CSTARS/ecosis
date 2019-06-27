@@ -17,7 +17,7 @@ return html`
     display: block;
     width: 100%;
     padding: 5px;
-    font-size: 26px;
+    font-size: 22px;
     margin: 15px 0;
     height: 42px;
     background: #eee;
@@ -28,7 +28,8 @@ return html`
   button {
     margin: 15px 0;
     color : white;
-    background: var(--default-primary-color);
+    background: var(--light-primary-color);
+    border: 1px solid var(--light-primary-color);
     height: 42px;
     padding: 0 15px;
     border-left: none;
@@ -38,7 +39,7 @@ return html`
 
 <div class="root">
   <div style="flex:.66">
-    <input type="text" id="input" on-keypress="_onKeyPress"/>
+    <input type="text" placeholder="Search Spectra" id="input" on-keypress="_onKeyPress"/>
   </div>
   <div>
     <button on-click="_onButtonClick">
