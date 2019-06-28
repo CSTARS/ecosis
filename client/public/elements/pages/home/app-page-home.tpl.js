@@ -143,6 +143,17 @@ ${litCss(sharedStylesHtml)}
     border-bottom: 1px solid #eee;
   }
 
+  #recently-added h3 {
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 2px;
+    line-height: 26px;
+  }
+
+  .footer h3 {
+    font-weight: bold;
+    margin-top: 0;
+  }
 
 </style>  
 
@@ -173,15 +184,17 @@ ${litCss(sharedStylesHtml)}
     <h1 style="margin-bottom: 0; line-height: 36px">Ecological Spectral Information System</h1>
 
     <div>
-      Welcome to the EcoSIS <span class="sandbox" style="font-weight:bold">&nbsp;Sandbox</span>, a useful tool for finding spectral data. <br />
+      Welcome to the EcoSIS<span class="sandbox" style="font-weight:bold">&nbsp;Sandbox</span>, a useful tool for finding spectral data. <br />
       <p id="count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
     </div>
 
+    <div>${this.spectraCount} and counting.</div>
+
     <div style="margin-top:30px; color: var(--secondary-text-color)">
-      Data maintainers, add or edit spectra at <a id="mainainerLink" highlight href="http://data.ecosis.org">data.ecosis.org.</a>
+      Data maintainers, add or edit spectra at <a id="mainainerLink" highlight href="http://data.ecosis.org">data.ecosis.org</a>.
     </div>
     <div style="color: var(--secondary-text-color)">
-      Looking for spectra data models? Check out <a highlight href="http://ecosml.org">EcoSML.</a>
+      Looking for spectra data models? Check out <a highlight href="http://ecosml.org">ecosml.org</a>.
     </div>
   </div>
 </div>
@@ -231,41 +244,28 @@ ${litCss(sharedStylesHtml)}
 <div class="root">
   <div class="main-panel">
 
-    <div class="row">
-      <div>
-        <h2 class="uheader blue">Recently Added</h2>
-        <div id="organization">
-          ${this.lastAdded.map(pkg => html`
-            <div>
-              <div><a href="${item.link}">${pkg.ecosis.package_title}</a></div> 
-              <div>${pkg.ecosis.package_title}</div>
-            </div>
-          `)}
-        </div>
-      </div>
-
-      <div>
-        <h2 class="uheader lightblue">Top Themes</h2>
-        <div id="Theme">
-          ${this.themes.map(item => html`
-            <div class="stat-row">
-              <div><a href="${item.link}">${item.value}</a></div> 
-              <div><span class="count-label">${item.count}</span></div>
-            </div>
-          `)}
-        </div>
+    <div>
+      <h2 class="uheader lightgreen">Recently Added</h2>
+      <div id="recently-added">
+        ${this.lastAdded.map(pkg => html`
+          <div>
+            <h3><a href="/package/${pkg.ecosis.package_name}">${pkg.ecosis.package_title}</a></h3> 
+            <div style="font-style:italic"><a href="${pkg.ecosis.organization_link}">${pkg.ecosis.organization}</a></div>
+            <div style="color: var(--text-light-color)">${pkg.ecosis.short_description}</div>
+          </div>
+        `)}
       </div>
     </div>
 
   </div>
 </div>
 
-<div class="root">
+<div class="root footer">
   <div class="main-panel">
     <div class="row">
       <div style="flex: 1">
 
-        <h5 style="border-bottom: 1px solid #eee; padding-bottom: 5px">Sponsor</h5>
+        <h3>Sponsor</h3>
 
         <div style="display:flex">
           <div>
@@ -283,7 +283,7 @@ ${litCss(sharedStylesHtml)}
       <div style="width:25px; flex: 0"></div>
       <div style="flex: 1">
 
-        <h5 style="border-bottom: 1px solid #eee; padding-bottom: 5px">Executive Team</h5>
+        <h3>Executive Team</h3>
         <div>
           <a href="http://labs.russell.wisc.edu/townsend/" target="_blanl">University of Wisconsin - Madison, EnSpec</a><br />
           <a href="http://www.cstars.ucdavis.edu/" target="_blanl">University of California - Davis, CSTARS</a><br />

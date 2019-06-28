@@ -48,6 +48,7 @@ class StatsModel {
         projection : {
           'value.ecosis.package_id' : 1,
           'value.ecosis.package_title' : 1,
+          'value.ecosis.package_name' : 1,
           'value.ecosis.description' : 1,
           'value.ecosis.organization' : 1,
           'value.ecosis.created' : 1,
