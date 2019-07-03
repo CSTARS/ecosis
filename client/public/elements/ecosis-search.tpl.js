@@ -33,6 +33,7 @@ return html`
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: hidden;
   }
 
   .menu[open-menu] {
