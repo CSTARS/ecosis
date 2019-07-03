@@ -38,45 +38,8 @@ ${litCss(sharedStylesHtml)}
     <span id="titleExtra"></span> 
     <small>Ecological Spectral Information System</small>
   </div>
-  <div style="position:relative; padding-left: 15px">
-    <paper-icon-button inverse icon="more-vert" on-click="_onMenuIconClicked"></paper-icon-button>
-    
-    <div id="menu" hidden="[[!menuActive]]">
-      <a href="/" >
-        <iron-icon icon="home"></iron-icon> 
-        <span>Home</span>
-      </a>
-      <a href="/search" >
-        <iron-icon icon="search"></iron-icon> 
-        <span>Search</span>
-      </a>
-      <a href="https://data.ecosis.org" target="_blank" hidden$="[[!loggedIn]]">
-        <iron-icon icon="add"></iron-icon> 
-        <span>Create/Edit Package</span>
-      </a>
-      <a href="https://ecosml.org" target="_blank" hidden$="[[!loggedIn]]">
-        <iron-icon icon="add"></iron-icon> 
-        <span>Spectral Models</span>
-      </a>
-      <a href="https://github.com/EcoSIS/ecosml-webapp/issues/new/choose" target="_blank">
-        <iron-icon icon="bug-report"></iron-icon> 
-        <span>Report Issue</span>
-      </a>
-      <a href="/about" >
-        <iron-icon icon="info"></iron-icon> 
-        <span>About</span>
-      </a>
-    </div>
-  </div>
   <div class="btns">
-    <a href="/">
-      <iron-icon icon="home"></iron-icon> 
-      <span>Home</span>
-    </a>
-    <a href="/search" >
-      <iron-icon icon="search"></iron-icon> 
-      <span>Search</span>
-    </a>
+    <paper-icon-button icon="more-vert" @click="${this._onMenuIconClick}"></paper-icon-button>
   </div>
 </div>
 

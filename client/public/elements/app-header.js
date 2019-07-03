@@ -1,6 +1,7 @@
 import { LitElement } from 'lit-element';
 import render from "./app-header.tpl.js"
 
+import "@polymer/paper-icon-button"
 
 export default class AppHeader extends LitElement {
 
@@ -13,6 +14,12 @@ export default class AppHeader extends LitElement {
   constructor() {
     super();
     this.render = render.bind(this);
+  }
+
+  _onMenuIconClick() {
+    this.dispatchEvent(
+      new CustomEvent('open-menu')
+    );
   }
 
 }

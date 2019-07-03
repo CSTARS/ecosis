@@ -16,7 +16,8 @@ export default class EcosisSearch extends Mixin(LitElement)
 
   static get properties() {
     return {
-      page : {type: String}
+      page : {type: String},
+      openMenu : {type: Boolean}
     }
   }
 
@@ -24,7 +25,13 @@ export default class EcosisSearch extends Mixin(LitElement)
     super();
     this.render = render.bind(this);
 
+    this.openMenu = false;
     this.page = 'home';
+  }
+
+  _onOpenMenu() {
+    this.openMenu = !this.openMenu;
+    console.log('here');
   }
 
 }
