@@ -35,6 +35,7 @@ module.exports = (app) => {
     appRoutes : config.server.appRoutes,
     getConfig : async (req, res, next) => {
       return next({
+        appRoutes : config.server.appRoutes,
         ckanUrl : config.ckan.url,
         serverEnv : config.server.env,
         git : await gitInfo()

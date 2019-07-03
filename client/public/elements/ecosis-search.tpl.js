@@ -57,6 +57,7 @@ return html`
   }
 </style>  
 
+<app-route .appRoutes="${this.appRoutes}"></app-route>
 <app-header @open-menu="${this._onOpenMenu}"></app-header>
 <div style="position: relative">
   <div class="menu" ?open-menu="${this.openMenu}">
@@ -89,6 +90,7 @@ return html`
     attr-for-selected="page" 
     selected="${this.page}">
     <app-page-home page="home"></app-page-home>
+    <app-page-search page="search"></app-page-search>
   </iron-pages>
 </div>
 
