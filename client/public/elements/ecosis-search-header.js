@@ -1,6 +1,5 @@
-import { LitElement } from 'lit-element';
+import { LitElement, html } from 'lit-element';
 import render from "./ecosis-search-header.tpl.js"
-
 
 export default class EcosisSearchHeader extends Mixin(LitElement)
   .with(LitCorkUtils) {
@@ -19,6 +18,8 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
 
     this.page = 'home';
     this.suggestions = [];
+    this.filters = [];
+    this.text = '';
 
     this._injectModel('AppStateModel', 'PackageModel');
   }
@@ -104,8 +105,8 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
    * @param {Object} e 
    */
   _onPackageSearchUpdate(e) {
-    this.text = e.metadata.text;
-    this.filters = e.metadata.filters;
+    this.text = e.metadata.query.text;
+    this.filters = e.metadata.query.filters;
   }
 
 

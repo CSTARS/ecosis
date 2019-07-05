@@ -3,6 +3,7 @@ const model = require('../../../models/package');
 const handleError = require('../../utils/handle-error');
 var packageExport = require('./export');
 const search = require('../../../models/search');
+const utils = require('../../../lib/search');
 const stats = require('../../../models/stats');
 
 router.get('/count', (req, res) => {
@@ -27,6 +28,7 @@ router.post('/search', (req, res) => {
 });
 async function searchFn(params, res) {
   try {
+    params = utils.reqQueryParser(params);
     res.json(await search.run(params));
   } catch(e) {
     handleError(res, e);

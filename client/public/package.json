@@ -19,6 +19,6 @@
     "@ucd-lib/cork-app-state": "^1.0.0",
     "@ucd-lib/cork-app-utils": "^4.2.3",
     "clone": "^2.1.2",
-    "lit-element": "^2.1.0"
+    "lit-element": "^2.2.0"
   }
 }

@@ -1,9 +1,8 @@
-import { LitElement } from 'lit-element';
+import { LitElement, html } from 'lit-element';
 import render from "./app-page-home.tpl.js"
 
 import "@polymer/iron-image"
 import "@polymer/paper-button"
-// import "../../app-search-header"
 
 export default class AppPageHome extends Mixin(LitElement)
   .with(LitCorkUtils) {
@@ -32,12 +31,12 @@ export default class AppPageHome extends Mixin(LitElement)
     this._injectModel('PackageModel');
   }
 
-
   updated(changedProperties) {
     if( changedProperties.has('active') ) {
       this._onActiveChanged();
     }
   }
+
 
   async _onActiveChanged() {
     if( !this.active ) return;
@@ -82,3 +81,4 @@ export default class AppPageHome extends Mixin(LitElement)
 }
 
 customElements.define('app-page-home', AppPageHome);
+

@@ -9,7 +9,9 @@ return html`
   }
 </style>
 
-<app-search-header 
+<app-search-header
+  .text="${this.text}"
+  .filters="${this.filters}"
   .suggestions="${this.suggestions}"
   @keyup="${this._onInputKeyup}"
   @text-search="${this._onTextSearch}"

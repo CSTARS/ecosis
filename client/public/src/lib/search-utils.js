@@ -24,11 +24,11 @@ class SearchUtils {
   
   getRestParamsStr(query) {
     query = this.getRestParams(query);
-    let str = '';
+    let params = [];
     for( let key in query ) {
-      str += key+'='+encodeURIComponent(query[key]);
+      params.push(key+'='+encodeURIComponent(query[key]));
     }
-    return str.join('&');
+    return params.join('&');
   }
 
   getUrlPathFromQuery(query={}) {
@@ -42,12 +42,11 @@ class SearchUtils {
   getQueryFromUrl(path) {
     let search = this.getDefaultSearch();
     if( typeof path === 'string' ) {
-      path = path.replace(/^\/search\//i, '')
+      path = path.replace(/^\/search/i, '')
                 .replace(/^\//, '')
                 .replace(/\/$/, '')
                 .split('/');
     }
-    path = path.filter(part => part !== '');
 
     path.forEach((item, i) => {
       if( !item ) return;

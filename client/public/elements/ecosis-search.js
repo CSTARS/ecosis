@@ -32,7 +32,7 @@ export default class EcosisSearch extends Mixin(LitElement)
 
     this.appRoutes = APP_CONFIG.appRoutes;
     this.openMenu = false;
-    this.page = 'home';
+    this.page = '';
 
     this._injectModel('AppStateModel');
   }

@@ -80,7 +80,9 @@ class PackageModel extends BaseModel {
   async search(query={}, name='main') {
     try {
       await this.service.search(query, name);
-    } catch(e) {}
+    } catch(e) {
+      console.error(e);
+    }
 
     return this.store.data.search[name];
   }

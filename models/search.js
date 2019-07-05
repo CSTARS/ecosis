@@ -3,13 +3,15 @@ const config = require('../lib/config');
 const mapReduce = require('../lib/mongo/search-map-reduce');
 const logger = require('../lib/logger');
 
+const REGEX_MATCH = /^\/.*\/$/;
+
 class PackageSearchModel {
 
   async run(appQuery) {
     var response = {
       total   : 0,
       start   : appQuery.start,
-      stop     : appQuery.stop,
+      stop    : appQuery.stop,
       items   : [],
       filters : {}
     }
@@ -25,7 +27,7 @@ class PackageSearchModel {
 
     // get total for query
     let collection = await mongo.packagesCollection();
-    response.total = await collection.count();
+    response.total = await collection.count(query);
 
     // actually run mongo query
     let items = await this._rangedQuery(query, appQuery);
@@ -42,13 +44,10 @@ class PackageSearchModel {
   async _rangedQuery(mongoQuery, appQuery) {
     var filters = {};
 
-    if( config.mongo.searchWhitelist ) {
-      filters._id = 1;
-      for( var i = 0; i < config.mongo.searchWhitelist.length; i++ ) {
-        filters[(config.mongo.isMapReduce ? 'value.' : '') + config.mongo.searchWhitelist[i]] = 1;
-      }
-    } else if (appQuery.projection) {
+    if (appQuery.projection) {
       filters = appQuery.projection;
+    } else if( config.mongo.searchProjection ) {
+      filters = config.mongo.searchProjection;
     }
 
     if( config.mongo.blacklist ) {
@@ -61,7 +60,7 @@ class PackageSearchModel {
     let sort = this.getSortObject(filters);
     
     let collection = await mongo.packagesCollection();
-    let cur = collection.find(mongoQuery, filters);
+    let cur = collection.find(mongoQuery, {fields: filters});
     if( sort ) cur.sort(sort);
 
     return cur
@@ -123,7 +122,7 @@ class PackageSearchModel {
   
           // check for regex
           var value = query.filters[i][key];
-          if( typeof value === 'string' && value.match(regexMatch) ) {
+          if( typeof value === 'string' && value.match(REGEX_MATCH) ) {
             try {
               value = new RegExp(value.replace(/\//g, ''), 'i');
             } catch(e) {}
