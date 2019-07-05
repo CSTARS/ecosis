@@ -126,7 +126,7 @@ class PackageStore extends BaseStore {
   }
 
   _setSearchState(state) {
-    this.state.search[state.metadata.name] = state;
+    this.data.search[state.metadata.name] = state;
     this.emit(this.events.PACKAGE_SEARCH_UPDATE, state);
   }
 

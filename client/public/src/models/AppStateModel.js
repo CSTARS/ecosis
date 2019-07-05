@@ -11,9 +11,11 @@ class AppStateModelImpl extends AppStateModel {
 
   set(state={}) {
     if( state.location &&
-        state.location.path ) {
-      state.page = state.location.path.length ? state.location.path[0] : 'home'; 
+        state.location.path &&
+        state.location.path.length ) {
+      state.page = state.location.path[0]; 
     }
+    if( !state.page ) state.page = 'home';
 
     super.set(state);
   }

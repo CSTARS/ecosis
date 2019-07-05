@@ -3,6 +3,7 @@ import render from "./ecosis-search.tpl.js"
 
 // main library
 import "../src"
+import "ecosis-client-commons"
 
 // polymer
 import "@polymer/iron-pages"
@@ -12,6 +13,7 @@ import "./styles/custom-properties"
 import "./pages/home/app-page-home"
 import "./pages/search/app-page-search"
 import "./app-header"
+import "./ecosis-search-header"
 
 export default class EcosisSearch extends Mixin(LitElement)
   .with(LitCorkUtils) {
@@ -37,6 +39,7 @@ export default class EcosisSearch extends Mixin(LitElement)
 
   _onAppStateUpdate(e) {
     this.page = e.page;
+    this.openMenu = false;
   }
 
   _onOpenMenu() {

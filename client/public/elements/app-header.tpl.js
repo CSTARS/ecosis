@@ -8,6 +8,10 @@ ${litCss(sharedStylesHtml)}
 <style>
   :host {
     display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 10;
   }
 
   .header {

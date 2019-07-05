@@ -157,8 +157,6 @@ ${litCss(sharedStylesHtml)}
 
 </style>  
 
-<app-search-header></app-search-header>
-
 <div class="root">
   <div style="margin: 15px; text-align: center">
     <h1 style="margin-bottom: 0; line-height: 36px">Ecological Spectral Information System</h1>

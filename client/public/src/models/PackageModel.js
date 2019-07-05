@@ -2,6 +2,7 @@ const {BaseModel} = require('@ucd-lib/cork-app-utils');
 const PackageService = require('../services/PackageService');
 const PackageStore = require('../stores/PackageStore');
 const utils = require('../lib/search-utils');
+const clone = require('clone');
 
 class PackageModel extends BaseModel {
 
@@ -11,6 +12,12 @@ class PackageModel extends BaseModel {
     this.store = PackageStore;
     this.service = PackageService;
     this.utils = utils;
+
+    this.EventBus.on('app-state-update', e => {
+      if( e.page === 'search' ) {
+        this.search(utils.getQueryFromUrl(window.location.pathname));
+      }
+    });
       
     this.register('PackageModel');
   }
@@ -76,6 +83,14 @@ class PackageModel extends BaseModel {
     } catch(e) {}
 
     return this.store.data.search[name];
+  }
+
+  getCurrentSearchQuery(name='main') {
+    let state = this.store.data.search[name];
+    if( state && state.metadata && state.metadata.query ) {
+      return clone(state.metadata.query);
+    }
+    return utils.getDefaultSearch();
   }
 
   /**

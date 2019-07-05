@@ -3,7 +3,7 @@ import render from "./app-page-home.tpl.js"
 
 import "@polymer/iron-image"
 import "@polymer/paper-button"
-import "../../app-search-header"
+// import "../../app-search-header"
 
 export default class AppPageHome extends Mixin(LitElement)
   .with(LitCorkUtils) {

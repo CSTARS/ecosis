@@ -8,13 +8,19 @@ return html`
     display: block;
   }
 
-  iron-pages {
+  .menu-root {
+    min-height: 100%;
+    padding-top: 61px;
+    box-sizing: border-box;
+  }
+
+  .main-content {
     will-change: transition;
     transform: translate(0px, 0px);
     transition: transform 250ms ease-out;
   }
 
-  iron-pages[open-menu] {
+  .main-content[open-menu] {
     transform: translate(-150px, 0px);
   }
 
@@ -24,7 +30,7 @@ return html`
     transform: translate(150px, 0px);
     z-index: 0;
     position: absolute;
-    top: 0;
+    top: 61px;
     right: 0;
     bottom: 0;
     width: 150px;
@@ -33,7 +39,7 @@ return html`
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden;
+    overflow-x: hidden;
   }
 
   .menu[open-menu] {
@@ -59,7 +65,7 @@ return html`
 
 <app-route .appRoutes="${this.appRoutes}"></app-route>
 <app-header @open-menu="${this._onOpenMenu}"></app-header>
-<div style="position: relative">
+<div class="menu-root">
   <div class="menu" ?open-menu="${this.openMenu}">
     <a href="/">
       <div>
@@ -71,11 +77,11 @@ return html`
       <iron-icon icon="search"></iron-icon> 
       <span>Search</span>
     </a>
-    <a href="https://data.ecosis.org" target="_blank" hidden$="[[!loggedIn]]">
+    <a href="https://data.ecosis.org" target="_blank">
       <iron-icon icon="create"></iron-icon> 
       <span>Create/Edit</span>
     </a>
-    <a href="https://ecosml.org" target="_blank" hidden$="[[!loggedIn]]">
+    <a href="https://ecosml.org" target="_blank">
       <iron-icon icon="code"></iron-icon> 
       <span>Models</span>
     </a>
@@ -84,14 +90,16 @@ return html`
       <span>Report Issue</span>
     </a>
   </div>
-  <iron-pages 
-    ?open-menu="${this.openMenu}"
-    selected-attribute="active"
-    attr-for-selected="page" 
-    selected="${this.page}">
-    <app-page-home page="home"></app-page-home>
-    <app-page-search page="search"></app-page-search>
-  </iron-pages>
+  <div class="main-content" ?open-menu="${this.openMenu}">
+    <ecosis-search-header></ecosis-search-header>
+    <iron-pages 
+      selected-attribute="active"
+      attr-for-selected="page" 
+      selected="${this.page}">
+      <app-page-home page="home"></app-page-home>
+      <app-page-search page="search"></app-page-search>
+    </iron-pages>
+  </div>
 </div>
 
 

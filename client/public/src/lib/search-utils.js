@@ -28,7 +28,7 @@ class SearchUtils {
     for( let key in query ) {
       str += key+'='+encodeURIComponent(query[key]);
     }
-    return str;
+    return str.join('&');
   }
 
   getUrlPathFromQuery(query={}) {
@@ -42,12 +42,16 @@ class SearchUtils {
   getQueryFromUrl(path) {
     let search = this.getDefaultSearch();
     if( typeof path === 'string' ) {
-      path = path.replace(/^\//, '').replace(/\/$/, '').split('/');
+      path = path.replace(/^\/search\//i, '')
+                .replace(/^\//, '')
+                .replace(/\/$/, '')
+                .split('/');
     }
+    path = path.filter(part => part !== '');
 
     path.forEach((item, i) => {
       if( !item ) return;
-      search[this.HASH_SEARCH_ORDER[i]] = item;
+      search[this.HASH_SEARCH_ORDER[i]] = decodeURIComponent(item);
     });
 
     try {
