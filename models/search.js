@@ -171,4 +171,16 @@ class PackageSearchModel {
 
 }
 
+// replace ISO dates strings with date objects
+var dateRegex = /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:.*Z/;
+function findDates(obj) {
+  for( var key in obj ) {
+    if( typeof obj[key] == 'object' ) {
+      findDates(obj[key]);
+    } else if ( typeof obj[key] == 'string' && obj[key].match(dateRegex) ) {
+      obj[key] = new Date(obj[key]);
+    }
+  }
+}
+
 module.exports = new PackageSearchModel();

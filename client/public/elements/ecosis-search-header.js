@@ -106,7 +106,11 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
    */
   _onPackageSearchUpdate(e) {
     this.text = e.metadata.query.text;
-    this.filters = e.metadata.query.filters;
+    this.filters = e.metadata.query.filters.map(filter => {
+      let key = Object.keys(filter);
+      if( key.length === 0 ) return filter; // badness
+      return {key: key[0], value: filter[key[0]]};
+    });
   }
 
 

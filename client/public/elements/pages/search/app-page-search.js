@@ -1,6 +1,8 @@
 import { LitElement } from 'lit-element';
 import render from "./app-page-search.tpl.js"
 
+import "./app-search-result"
+
 export default class AppPageSearch extends Mixin(LitElement)
   .with(LitCorkUtils) {
 
@@ -18,12 +20,18 @@ export default class AppPageSearch extends Mixin(LitElement)
     super();
     this.render = render.bind(this);
 
-    this._injectModel('PackageModel');
+    this._injectModel('PackageModel', 'AppStateModel');
 
     this.results = [];
     this.showNoResults = false;
   }
 
+  /**
+   * @method _onPackageSearchUpdate
+   * @description bound to PackageModel package-search-update event
+   * 
+   * @param {Object} e 
+   */
   _onPackageSearchUpdate(e) {
     if( e.state !== 'loaded' ) return;
     this.results = e.payload.items;
@@ -33,8 +41,18 @@ export default class AppPageSearch extends Mixin(LitElement)
     this.currentIndex = e.payload.start;
   }
 
+  /**
+   * @method _onPaginationNav
+   * @description bound to app-search-pagination ele nav event
+   * 
+   * @param {Object} e 
+   */
   _onPaginationNav(e) {
-    console.log(e);
+    let query = this.PackageModel.getCurrentSearchQuery();
+    query.page = e.detail.page-1;
+    this.AppStateModel.setLocation(
+      this.PackageModel.utils.getUrlPathFromQuery(query)
+    );
   }
 
 }

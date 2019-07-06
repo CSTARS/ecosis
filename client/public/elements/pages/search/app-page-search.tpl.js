@@ -1,8 +1,10 @@
 import { html } from 'lit-element';
+import {litCss, sharedStylesHtml} from 'ecosis-client-commons'
 
 export default function render() { 
 return html`
 
+${litCss(sharedStylesHtml)}
 <style>
   :host {
     display: block;
@@ -29,9 +31,10 @@ return html`
 
       </app-search-pagination>
     </div>
-    <div ?hidden="${!this.results.length}">
+    <div class="main-panel" ?hidden="${!this.results.length}">
+
       ${this.results.map(result => {
-        return html`<div>${result.ecosis.package_title}</div>`;
+        return html`<app-search-result .package="${result}"></app-search-result>`;
       })}
     </div>
     <div ?hidden="${this.showNoResults}">
