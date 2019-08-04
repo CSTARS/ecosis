@@ -231,13 +231,31 @@ ${litCss(sharedStylesHtml)}
   </div>
 </div>
 
-<div class="root">
-  <div style="margin: 15px; text-align: center">
-    <div style="margin-top:30px; color: var(--secondary-text-color)">
-      Data maintainers, add or edit spectra at <a id="mainainerLink" highlight href="http://data.ecosis.org">data.ecosis.org</a>.
-    </div>
-    <div style="color: var(--secondary-text-color)">
-      Looking for spectra data models? Check out <a highlight href="http://ecosml.org">ecosml.org</a>.
+<div class="root footer">
+  <div class="main-panel">
+    <div class="row">
+      <div style="flex: 1">
+        <h3 class="uheader blue">Contribute!</h3>
+        <div>Data maintainers, add or edit spectra at <a id="mainainerLink" highlight href="http://data.ecosis.org">data.ecosis.org</a>.</div>
+      
+        <h3 class="uheader lightblue" style="margin-top: 35px;">Data Models</h3>
+        <div>
+          Looking for spectra data models? Check out <a highlight href="http://ecosml.org">ecosml.org</a>.
+        </div>
+      </div>
+      <div style="flex: 1">
+        <h3 class="uheader green">Need Help?</h3>
+        <div style="margin-bottom: 15px;">Visit the <a href="http://tutorial.ecosis.org/" highlight>EcoSIS Tutorials</a>. Or Contact:</div>
+        <div style="margin-bottom: 10px; line-height: 22px;">
+          <div><a href="mailto:info@ecosis.org" highlight>info@ecosis.org</a></div>
+          <div>General EcoSIS questions and program information.</div>
+        </div>
+        <div style="line-height: 22px">
+          <div><a href="mailto:help@ecosis.org" highlight>help@ecosis.org</a></div>
+          <div>Technical help questions for EcoSIS applications and tools.</div>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>

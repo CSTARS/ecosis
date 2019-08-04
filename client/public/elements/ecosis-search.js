@@ -22,6 +22,7 @@ export default class EcosisSearch extends Mixin(LitElement)
     return {
       page : {type: String},
       openMenu : {type: Boolean},
+      anchorTabIndex : {type: Number},
       appRoutes : {type: Array}
     }
   }
@@ -44,6 +45,12 @@ export default class EcosisSearch extends Mixin(LitElement)
 
   _onOpenMenu() {
     this.openMenu = !this.openMenu;
+  }
+
+  updated(props) {
+    if( props.has('openMenu') ) {
+      this.anchorTabIndex = this.openMenu ? 1 : -1;
+    }
   }
 
 }

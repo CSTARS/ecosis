@@ -1,8 +1,10 @@
 import { html } from 'lit-element';
+import {litCss, sharedStylesHtml} from 'ecosis-client-commons'
 
 export default function render() { 
 return html`
 
+${litCss(sharedStylesHtml)}
 <style>
   :host {
     display: block;
@@ -67,25 +69,25 @@ return html`
 <app-header @open-menu="${this._onOpenMenu}"></app-header>
 <div class="menu-root">
   <div class="menu" ?open-menu="${this.openMenu}">
-    <a href="/">
+    <a href="/" tabindex="${this.anchorTabIndex}">
       <div>
         <iron-icon icon="home"></iron-icon> 
       </div>
       <span>Home</span>
     </a>
-    <a href="/search" >
+    <a href="/search" tabindex="${this.anchorTabIndex}">
       <iron-icon icon="search"></iron-icon> 
       <span>Search</span>
     </a>
-    <a href="https://data.ecosis.org" target="_blank">
+    <a href="https://data.ecosis.org" target="_blank" tabindex="${this.anchorTabIndex}">
       <iron-icon icon="create"></iron-icon> 
       <span>Create/Edit</span>
     </a>
-    <a href="https://ecosml.org" target="_blank">
+    <a href="https://ecosml.org" target="_blank" tabindex="${this.anchorTabIndex}">
       <iron-icon icon="code"></iron-icon> 
       <span>Models</span>
     </a>
-    <a href="https://github.com/EcoSIS/ecosml-webapp/issues/new/choose" target="_blank">
+    <a href="https://github.com/EcoSIS/ecosml-webapp/issues/new/choose" target="_blank" tabindex="${this.anchorTabIndex}">
       <iron-icon icon="bug-report"></iron-icon> 
       <span>Report Issue</span>
     </a>

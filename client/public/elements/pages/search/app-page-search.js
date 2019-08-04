@@ -2,6 +2,7 @@ import { LitElement } from 'lit-element';
 import render from "./app-page-search.tpl.js"
 
 import "./app-search-result"
+import "./app-location-filter"
 
 export default class AppPageSearch extends Mixin(LitElement)
   .with(LitCorkUtils) {
@@ -9,10 +10,12 @@ export default class AppPageSearch extends Mixin(LitElement)
   static get properties() {
     return {
       results : {type: Array},
+      filters : {type: Array},
       showNoResults : {type: Boolean},
       itemsPerPage : {type: Number},
       currentIndex : {type: Number},
-      total : {type: Number}
+      total : {type: Number},
+      mobileFiltersOpen : {type: Boolean}
     }
   }
 
@@ -23,7 +26,14 @@ export default class AppPageSearch extends Mixin(LitElement)
     this._injectModel('PackageModel', 'AppStateModel');
 
     this.results = [];
+    this.filters = [];
     this.showNoResults = false;
+    this.mobileFiltersOpen = false;
+
+    window.addEventListener('resize', () => {
+      let w = window.innerWidth;
+      if( this.mobileFiltersOpen && w > 768 ) this.mobileFiltersOpen = false;
+    });
   }
 
   /**
@@ -39,6 +49,21 @@ export default class AppPageSearch extends Mixin(LitElement)
     this.total = e.payload.total;
     this.itemsPerPage = e.payload.stop - e.payload.start;
     this.currentIndex = e.payload.start;
+
+    let filters = [];
+    for( let name in e.payload.filters ) {
+      filters.push({
+        name, 
+        values : e.payload.filters[name].map(item => {
+          return {
+            label : item.filter,
+            count : item.count
+          }
+        })
+      })
+    }
+
+    this.filters = filters;
   }
 
   /**
@@ -53,6 +78,20 @@ export default class AppPageSearch extends Mixin(LitElement)
     this.AppStateModel.setLocation(
       this.PackageModel.utils.getUrlPathFromQuery(query)
     );
+  }
+
+  /**
+   * @method _onOpenLocationClicked
+   * @description bound to click event of location filter button
+   * 
+   * @param {Object} e
+   */
+  _onOpenLocationClicked(e) {
+    document.querySelector('#locationPopup').open();
+  }
+
+  _toggleMobileFilters() {
+    this.mobileFiltersOpen = !this.mobileFiltersOpen;
   }
 
 }
