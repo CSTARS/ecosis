@@ -16,6 +16,8 @@ class PackageModel extends BaseModel {
     this.EventBus.on('app-state-update', e => {
       if( e.page === 'search' ) {
         this.search(utils.getQueryFromUrl(window.location.pathname));
+      } else if( e.page === 'package' ) {
+        this.get(e.location.path[1]);
       }
     });
       

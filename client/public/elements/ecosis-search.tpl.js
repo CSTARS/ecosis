@@ -100,6 +100,7 @@ ${litCss(sharedStylesHtml)}
       selected="${this.page}">
       <app-page-home page="home"></app-page-home>
       <app-page-search page="search"></app-page-search>
+      <app-page-result page="package"></app-page-result>
     </iron-pages>
   </div>
 </div>

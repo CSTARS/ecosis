@@ -15,7 +15,11 @@ class AppStateModelImpl extends AppStateModel {
         state.location.path.length ) {
       state.page = state.location.path[0]; 
     }
+
     if( !state.page ) state.page = 'home';
+    if( state.page === 'package' && state.location.path.length <= 1) {
+      return this.setWindowLocation('');
+    }
 
     super.set(state);
   }

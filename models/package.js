@@ -28,13 +28,15 @@ class PackageModel {
     let result = await collection.findOne(query, filters);
     if( !result ) throw new Error('Unknown package: '+pkgIdOrName);
     
-    var item = result[0];
-    if( config.db.isMapReduce ) {
-      item = { _id : result[0]._id };
-      for( var key in result[0].value ) {
-        item[key] = result[0].value[key];
+    let item = {};
+    if( config.mongo.isMapReduce ) {
+      item = { _id : result._id };
+      for( var key in result.value ) {
+        item[key] = result.value[key];
       }
     }
+
+    
 
     logger.info('Main collection query success');
     return item;
