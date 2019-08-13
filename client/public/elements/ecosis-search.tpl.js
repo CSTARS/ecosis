@@ -11,15 +11,21 @@ ${litCss(sharedStylesHtml)}
   }
 
   .menu-root {
-    min-height: 100%;
-    padding-top: 61px;
+    height: 100vh;
     box-sizing: border-box;
+    position: relative;
   }
 
   .main-content {
     will-change: transition;
     transform: translate(0px, 0px);
     transition: transform 250ms ease-out;
+    position: absolute;
+    top: 61px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
   }
 
   .main-content[open-menu] {
