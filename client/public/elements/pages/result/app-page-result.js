@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit-element'
 import render from "./app-page-result.tpl.js"
-import clone from "clone"
-
+import clone from 'clone'
+import 'leaflet'
 
 export default class AppPageResult extends Mixin(LitElement)
   .with(LitCorkUtils) {
@@ -34,7 +34,24 @@ export default class AppPageResult extends Mixin(LitElement)
       processingInformationDetails : {type: Array},
       instrumentManufacturer : {type: Array},
       instrumentModel : {type: Array},
-      instrumentSerialNumber : {type: Array}
+      instrumentSerialNumber : {type: Array},
+      commonName : {type: Array},
+      latinGenus : {type: Array},
+      latinSpecies : {type: Array},
+      usdaSymbol : {type: Array},
+      vegetationType : {type: Array},
+      citation : {type: String},
+      datasetDoi : {type: String},
+      website : {type: String},
+      author : {type : Array},
+      authorEmail : {type: Array},
+      maintainer : {type : Array},
+      maintainerEmail : {type: Array},
+      fundingSource : {type : Array},
+      fundingSourceGrantNumber : {type: Array},
+      linkedResources : {type: Array},
+      hasGeometry : {type: Boolean},
+      apiLink : {type: String}
     }
   }
 
@@ -72,6 +89,12 @@ export default class AppPageResult extends Mixin(LitElement)
     this.reset(pkg);
   }
 
+  updated(props) {
+    if( props.has('hasGeometry') && this.hasGeometry ) {
+      this._renderMap();
+    }
+  }
+
   /**
    * @method _createHtmlLink
    * @description render for values.  Link will be a filtered search filtering
@@ -84,16 +107,16 @@ export default class AppPageResult extends Mixin(LitElement)
    * @returns {Object} lit-html template
    */
   _createHtmlLink(filter, value, label) {
-    if( !value ) return html`<span>Not Provided</span> `;
+    if( !value ) return this._createNotProvidedLabel();
     let query = this.PackageModel.utils.getDefaultSearch();
     query.filters.push({[filter]: value});
     query = this.PackageModel.utils.getUrlPathFromQuery(query);
     label = label || value;
-    return html`<a href="${query}" highlight>${label}</a> `;
+    return html`<a href="${query}" title="Filter by ${filter} = ${value}" highlight>${label}</a> `;
   }
 
   _createHtmlLinks(filter, values, labelFn) {
-    if( !values ) return html`<span class="not-provided">Not Provided</span> `;
+    if( !values ) return this._createNotProvidedLabel();
     if( !Array.isArray(values) ) values = [values];
     if( !labelFn ) labelFn = v => v;
 
@@ -106,20 +129,63 @@ export default class AppPageResult extends Mixin(LitElement)
       return {query: q, value: labelFn(value)};
     });
 
-    return html`${values.map((item, i) => {
+    return html`<div class="links-list">${values.map((item, i) => {
       if( i < values.length-1 ) {
-        return html`<a href="${item.query}" highlight>${item.value}</a>, `;
+        return html`<a href="${item.query}" title="Filter by ${filter} = ${item.value}" highlight>${item.value}</a>, `;
       }
-      return html`<a href="${item.query}" highlight>${item.value}</a>`;
-    })} `;
+      return html`<a href="${item.query}" title="Filter by ${filter} = ${item.value}" highlight>${item.value}</a>`;
+    })}</div> `;
+  }
+
+  _createExternalLink(urls) {
+    if( !urls ) return this._createNotProvidedLabel();
+
+    return html`<div class="links-list">${urls.map((url, i) => {
+      if( !url.match(/^http/) ) {
+        url = 'http://'+url;
+      }
+
+      if( i < urls.length-1 ) {
+        return html`<a href="${url}" target="_blank" highlight>${url}</a>, `;
+      }
+      return html`<a href="${url}" target="_blank" highlight>${url}</a>`;
+    })}</div> `;
+  }
+
+  _createEmailLink(emails) {
+    if( !emails ) return this._createNotProvidedLabel();
+
+    return html`<div class="links-list">${emails.map((email, i) => {
+      if( i < emails.length-1 ) {
+        return html`<a href="mailto:${email}" highlight>${email}</a>, `;
+      }
+      return html`<a href="mailto:${email}" highlight>${email}</a>`;
+    })}</div> `;
+  }
+
+  _createHTMLText(text) {
+    if( !text ) return this._createNotProvidedLabel();
+    return text;
+  }
+
+  _createNotProvidedLabel() {
+    return html`<span class="not-provided">Not Provided</span> `;
   }
 
   reset(pkg) {
     if( !pkg ) {
       pkg = {ecosis : {
-        spectra_metadata_schema : {}
+        spectra_metadata_schema : {},
+        linked_data : []
       }};
     }
+
+    // clean duplicates... bug where some get through from data editor
+    for( let key in pkg ) {
+      if( !Array.isArray(pkg[key]) ) continue;
+      pkg[key] = pkg[key].filter((item, index) => pkg[key].indexOf(item) === index);
+    }
+
     this.package = pkg;
     console.log(this.package);
 
@@ -176,6 +242,82 @@ export default class AppPageResult extends Mixin(LitElement)
     this.instrumentManufacturer = pkg['Instrument Manufacturer'];
     this.instrumentModel = pkg['Instrument Model'];
     this.instrumentSerialNumber = pkg['Instrument Serial Number'];
+
+    // Species
+    this.commonName = pkg['Common Name'];
+    this.latinGenus = pkg['Latin Genus'];
+    this.latinSpecies = pkg['Latin Species'];
+    this.usdaSymbol = pkg['USDA Symbol'];
+    this.vegetationType = pkg['Vegetation Type'];
+
+    // Citation
+    this.citation = pkg['Citation'];
+    this._renderDatasetDoi(pkg);
+    this.website = pkg['Website'];
+    this.author = pkg['Author'];
+    this.authorEmail = pkg['Author Email'];
+    this.maintainer = pkg['Maintainer'];
+    this.maintainerEmail = pkg['Maintainer Email'];
+    this.fundingSource = pkg['Funding Source'];
+    this.fundingSourceGrantNumber = pkg['Funding Source Grant Number'];
+
+    // Linked Resources
+    pkg.ecosis.linked_data.forEach(item => {
+      if( item.url.match(/^10\./) ) item.url = 'https://doi.org/'+item.url;
+    });
+    this.linkedResources = pkg.ecosis.linked_data;
+
+    this.hasGeometry = pkg.ecosis.geojson || pkg.ecosis.spectra_bbox_geojson ? true : false;
+
+    this.apiLink = window.location.protocol+'//'+window.location.host+'/api/package/'+encodeURI(pkg.ecosis.package_name);
+  }
+
+  _renderDatasetDoi(pkg) {
+    this.datasetDoiLabel = 'Dataset DOI';
+    if( pkg.ecosis.doi ) {
+      this.datasetDoiLabel = 'EcoSIS DOI';
+      this.datasetDoi = html`<a href="https://doi.org/${pkg.ecosis.doi}" target="_blank">${pkg.ecosis.doi}</a>`;
+    } else if( pkg['Citation DOI'] ) {
+      this.datasetDoi = html`<a href="https://doi.org/${pkg['Citation DOI'][0]}" target="_blank">${pkg['Citation DOI'][0]}</a>`;
+    } else {
+      this.datasetDoi = this._createNotProvidedLabel();
+    }
+  }
+
+  _initMap() {
+    this.layers = [];
+    // L.Icon.Default.imagePath = '/images';
+    this.mapEle = this.shadowRoot.querySelector('#map');
+    this.map = L.map(this.mapEle, {scrollWheelZoom : false}).setView([42.065, -111.821], 13);
+    // add an OpenStreetMap tile layer
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(this.map);
+  }
+
+  _renderMap() {
+    if( !this.map ) {
+      this._initMap();
+    } else {
+      this.layers.forEach(function(layer){
+        if( !layer ) return;
+        this.map.removeLayer(layer);
+      }.bind(this));
+    }
+
+    this.layers = [];
+    if( this.package.ecosis.geojson ) {
+      this.layers.push(L.geoJson(this.package.ecosis.geojson).addTo(this.map));
+    }
+    if( this.package.ecosis.spectra_bbox_geojson ) {
+      this.layers.push(L.geoJson(this.package.ecosis.spectra_bbox_geojson).addTo(this.map));
+    }
+
+    this.map.invalidateSize();
+    setTimeout(() => {
+      this.map.invalidateSize();
+      this.map.fitBounds(this.layers[this.layers.length-1].getBounds());
+    }, 100);
   }
 
   async loadOrganization(id) {

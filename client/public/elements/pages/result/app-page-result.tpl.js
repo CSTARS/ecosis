@@ -1,10 +1,11 @@
 import { html } from 'lit-element';
 import {litCss, sharedStylesHtml} from 'ecosis-client-commons'
-
+import leafletCss from "leaflet/dist/leaflet.css"
 
 export default function render() { 
 return html`
 
+<style>${leafletCss}</style>
 ${litCss(sharedStylesHtml)}
 <style>
   :host {
@@ -22,7 +23,7 @@ ${litCss(sharedStylesHtml)}
   }
 
   h2.top-pad {
-    margin-top: 25px;
+    margin-top: 30px;
   }
 
   .root {
@@ -54,16 +55,18 @@ ${litCss(sharedStylesHtml)}
     display: flex;
   }
 
-  .row {
-    display: flex;
-  }
-
-  .row > div {
-    flex: 1;
-  }
-
   .row table {
     width: 100%
+  }
+
+  .row table td:first-child {
+    font-weight: bold;
+    white-space: nowrap;
+    padding-right: 5px;
+  }
+
+  .row table td:nth-child(2) {
+    font-size: 14px;
   }
 
   .row table td:nth-child(3) {
@@ -78,14 +81,41 @@ ${litCss(sharedStylesHtml)}
     font-weight: bold;
   }
 
+  .links-list {
+    max-height: 68px;
+    overflow-y: auto;
+  }
 
-  @media(max-width: 768px) {
-    .row {
-      display: block;
-    }
+  .not-provided {
+    color: var(--secondary-text-color);
+  }
+
+  .linked-resource {
+    margin-bottom: 20px;
+  }
+  .linked-resource:last-child {
+    margin-bottom: 0px;
+  }
+  .linked-resource > div:first-child {
+    font-weight: bold;
+  }
+
+  #map {
+    height: 350px;
   }
 
   @media(max-width: 768px) {
+    h2.no-flex-top-pad {
+      margin-top: 30px;
+    }
+
+    .row {
+      display: block;
+    }
+    .row > * {
+      padding: 0;
+    }
+
     .org-small {
       display: block;
     }
@@ -133,7 +163,7 @@ ${litCss(sharedStylesHtml)}
   </div>
 </div>
 
-<div ?hidden="${!this.organizationName}" class="root">
+<div class="root">
   <div class="main-panel">
 
     <div class="row">
@@ -182,7 +212,7 @@ ${litCss(sharedStylesHtml)}
           </tr>
           <tr>
             <td>Light Source Specifications</td>
-            <td>${this.lightSourceSpecifications}</td>
+            <td>${this._createHTMLText(this.lightSourceSpecifications)}</td>
             <td><paper-icon-button icon="info"></paper-icon-button></td>
           </tr>
           <tr>
@@ -197,13 +227,13 @@ ${litCss(sharedStylesHtml)}
           </tr>
           <tr>
             <td>Foreoptic Specifications</td>
-            <td>${this.foreopticSpecifications}</td>
+            <td>${this._createHTMLText(this.foreopticSpecifications)}</td>
             <td><paper-icon-button icon="info"></paper-icon-button></td>
           </tr>
         </table>
       </div>
       <div>
-        <h2 class="uheader lightblue">Theme</h2>
+        <h2 class="uheader lightblue no-flex-top-pad">Theme</h2>
         <table>
           <tr>
             <td>Theme</td>
@@ -255,7 +285,7 @@ ${litCss(sharedStylesHtml)}
           </tr>
           <tr>
             <td>Instrument Serial Number</td>
-            <td>${this.instrumentSerialNumber}</td>
+            <td>${this._createHTMLText(this.instrumentSerialNumber)}</td>
             <td><paper-icon-button icon="info"></paper-icon-button></td>
           </tr>
         </table>
@@ -265,4 +295,148 @@ ${litCss(sharedStylesHtml)}
   </div>
 </div>
 
+<div class="root">
+  <div class="main-panel">
+
+    <div class="row">
+      <div>
+        <h2 class="uheader blue">Species</h2>
+        <table>
+          <tr>
+            <td>Common Name</td>
+            <td>${this._createHtmlLinks('Common Name', this.commonName)}</td>
+            <td><paper-icon-button icon="info"></paper-icon-button></td>
+          </tr>
+          <tr>
+            <td>Latin Genus</td>
+            <td>${this._createHtmlLinks('Latin Genus', this.latinGenus)}</td>
+            <td><paper-icon-button icon="info"></paper-icon-button></td>
+          </tr>
+          <tr>
+            <td>Latin Species</td>
+            <td>${this._createHtmlLinks('Latin Species', this.latinSpecies)}</td>
+            <td><paper-icon-button icon="info"></paper-icon-button></td>
+          </tr>
+          <tr>
+            <td>USDA Symbol</td>
+            <td>${this._createHtmlLinks('USDA Symbol', this.usdaSymbol)}</td>
+            <td><paper-icon-button icon="info"></paper-icon-button></td>
+          </tr>
+          <tr>
+            <td>Vegetation Type</td>
+            <td>${this._createHtmlLinks('Vegetation Type', this.vegetationType)}</td>
+            <td><paper-icon-button icon="info"></paper-icon-button></td>
+          </tr>
+        </table>
+
+      </div>
+      <div>
+
+        <h2 class="uheader lightblue no-flex-top-pad">Citation</h2>
+          <table>
+            <tr>
+              <td>Citation</td>
+              <td>${this._createHTMLText(this.citation)}</td>
+              <td><paper-icon-button icon="info"></paper-icon-button></td>
+            </tr>
+            <tr>
+              <td>${this.datasetDoiLabel}</td>
+              <td>${this.datasetDoi}</td>
+              <td><paper-icon-button icon="info"></paper-icon-button></td>
+            </tr>
+            <tr>
+              <td>Website</td>
+              <td>${this._createExternalLink(this.website)}</td>
+              <td><paper-icon-button icon="info"></paper-icon-button></td>
+            </tr>
+            <tr>
+              <td>Author</td>
+              <td>${this._createHtmlLinks('Author', this.author)}</td>
+              <td><paper-icon-button icon="info"></paper-icon-button></td>
+            </tr>
+            <tr>
+              <td>Author Email</td>
+              <td>${this._createEmailLink(this.authorEmail)}</td>
+              <td><paper-icon-button icon="info"></paper-icon-button></td>
+            </tr>
+            <tr>
+              <td>Maintainer</td>
+              <td>${this._createHtmlLinks('Maintainer', this.maintainer)}</td>
+              <td><paper-icon-button icon="info"></paper-icon-button></td>
+            </tr>
+            <tr>
+              <td>Maintainer Email</td>
+              <td>${this._createEmailLink(this.maintainerEmail)}</td>
+              <td><paper-icon-button icon="info"></paper-icon-button></td>
+            </tr>
+            <tr>
+              <td>Funding Source</td>
+              <td>${this._createHtmlLinks('Funding Source', this.fundingSource)}</td>
+              <td><paper-icon-button icon="info"></paper-icon-button></td>
+            </tr>
+            <tr>
+              <td>Funding Source Grant Number</td>
+              <td>${this._createHTMLText(this.fundingSourceGrantNumber)}</td>
+              <td><paper-icon-button icon="info"></paper-icon-button></td>
+            </tr>
+          </table>
+        </h2>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="root">
+  <div class="main-panel">
+    <h2 class="uheader lightgreen">Linked Resources</h2>
+    <div ?hidden="${this.linkedResources.length}">
+      ${this._createNotProvidedLabel()}
+    </div>
+    <div ?hidden="${!this.linkedResources.length}">
+      ${this.linkedResources.map(item => html`
+        <div class="linked-resource">
+          <div>${item.label}</div>
+          <div><a href="${item.url}" target="_blank" highlight>${item.url}</a></div>
+        </div>
+      `)}
+    </div>
+  </div>
+</div>
+
+
+<div class="root">
+  <div class="main-panel">
+    <h2 class="uheader lightgreen">Location</h2>
+    <div ?hidden="${this.hasGeometry}">
+      ${this._createNotProvidedLabel()}
+    </div>
+    <div ?hidden="${!this.hasGeometry}" id="map"></div>
+  </div>
+</div>
+
+<div class="root">
+  <div class="main-panel">
+    <h2 class="uheader lightgreen">API Link</h2>
+    <div><a href="${this.apiLink}" target="_blank" highlight>${this.apiLink}</a></div>
+  </div>
+</div>
+
+<div class="root">
+  <div style="padding: 75px 15px 40px 15px">
+    <div itemtype="http://schema.org/Organization" itemprop="provider">
+      <h2 itemprop="name" style="margin-bottom: 0px">EcoSIS</h2>
+      <div class="help-block" style="margin-bottom: 0px" itemprop="description">Ecosystem Spectral Information System</div>
+      <div>
+        <a href="https://ecosis.org" itemprop="url" highlight>https://ecosis.org</a> |
+        <a href="http://cstars.github.io/ecosis/" target="_blank" highlight>EcoSIS API Documentation</a> |
+        <a href="mailto:info@ecosis.org" itemprop="email" highlight>info@ecosis.org</a> |
+        <a href="mailto:help@ecosis.org" highlight>help@ecosis.org</a>
+
+      </div>
+    </div>
+  </div>
+</div>
 `;}
