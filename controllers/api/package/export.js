@@ -5,14 +5,7 @@ var BOM = '\uFEFF'; // specify utf-8 file
 
 module.exports = function(model, req, res) {
 
-  var pkgid = null;
-  if( req.query.package_id ) {
-    pkgid = req.query.package_id;
-  } else if( req.query.id ) {
-    pkgid = req.query.id;
-  } else if( req.query.package_name ) {
-    pkgid = req.query.package_name;
-  }
+  var pkgid = req.params.packageId;
 
   var filters = req.query.filters;
   var includeMetadata = req.query.metadata ? (req.query.metadata.toLowerCase() === 'true') : false;
