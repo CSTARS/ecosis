@@ -34,7 +34,7 @@ ${litCss(sharedStylesHtml)}
   }
 
   @media(max-width: 768px) {
-    h2.no-flex-top-pad {
+    h3.no-flex-top-pad {
       margin-top: 30px;
     }
 
@@ -65,7 +65,7 @@ ${litCss(sharedStylesHtml)}
       </div>
       
       <div>
-        <h3 class="uheader blue">Download original dataset resources</h3>
+        <h3 class="uheader blue no-flex-top-pad">Download original dataset resources</h3>
         ${this.resources.map(resource => html`
           <div><a href="${resource.url}" target="_blank" highlight><iron-icon icon="file-download"></iron-icon> ${resource.name}</a></div>
         `)}

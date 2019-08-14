@@ -150,9 +150,9 @@ export default class AppPackageMetadata extends Mixin(LitElement)
       }
 
       if( i < urls.length-1 ) {
-        return html`<a href="${url}" target="_blank" highlight>${url}</a>, `;
+        return html`<a href="${url}" style="word-break: break-all;" target="_blank" highlight>${url}</a>, `;
       }
-      return html`<a href="${url}" target="_blank" highlight>${url}</a>`;
+      return html`<a href="${url}" style="word-break: break-all;" target="_blank" highlight>${url}</a>`;
     })}</div> `;
   }
 

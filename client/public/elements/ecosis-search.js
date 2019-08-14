@@ -36,7 +36,22 @@ export default class EcosisSearch extends Mixin(LitElement)
     this.openMenu = false;
     this.page = '';
 
+    window.addEventListener('click', e => {
+      if( !this.openMenu ) return;
+      if( !e.composedPath ) {
+        return console.warn('Browser does not support event.path');
+      }
+      if( e.composedPath().indexOf(this.menuEle) > -1) return;
+      if( e.composedPath().indexOf(this.appHeaderEle) > -1) return;
+      this.openMenu = false;
+    });
+
     this._injectModel('AppStateModel');
+  }
+
+  firstUpdated() {
+    this.menuEle = this.shadowRoot.querySelector('.menu');
+    this.appHeaderEle = this.shadowRoot.querySelector('app-header');
   }
 
   _onAppStateUpdate(e) {

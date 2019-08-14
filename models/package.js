@@ -51,7 +51,7 @@ class PackageModel {
       filters = JSON.parse(filters);
     }
 
-
+    let collection = await mongo.packagesCollection();
     let result = await collection.findOne(
         { '$or': [
           {'value.ecosis.package_id': pkgid}, 
@@ -167,6 +167,7 @@ class PackageModel {
       query.$and = filters;
     }
 
+    let spectraCollection = await mongo.spectraCollection();
     var cursor = spectraCollection.find(query);
     if( sort ) {
       cursor.sort({'ecosis.sort': 1});

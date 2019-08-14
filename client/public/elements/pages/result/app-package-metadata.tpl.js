@@ -398,7 +398,7 @@ ${litCss(sharedStylesHtml)}
       ${this.linkedResources.map(item => html`
         <div class="linked-resource">
           <div>${item.label}</div>
-          <div><a href="${item.url}" target="_blank" highlight>${item.url}</a></div>
+          <div><a href="${item.url}" style="word-break: break-all;" target="_blank" highlight>${item.url}</a></div>
         </div>
       `)}
     </div>
@@ -408,7 +408,7 @@ ${litCss(sharedStylesHtml)}
 
 <div class="root">
   <div class="main-panel">
-    <h2 class="uheader lightgreen">Location</h2>
+    <h2 class="uheader lightblue">Location</h2>
     <div ?hidden="${this.hasGeometry}">
       ${this._createNotProvidedLabel()}
     </div>
@@ -418,7 +418,7 @@ ${litCss(sharedStylesHtml)}
 
 <div class="root">
   <div class="main-panel">
-    <h2 class="uheader lightgreen">API Link</h2>
+    <h2 class="uheader blue">API Link</h2>
     <div><a href="${this.apiLink}" target="_blank" highlight>${this.apiLink}</a></div>
   </div>
 </div>

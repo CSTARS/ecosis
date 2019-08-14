@@ -94,6 +94,10 @@ export default class AppPageSearch extends Mixin(LitElement)
     this.mobileFiltersOpen = !this.mobileFiltersOpen;
   }
 
+  _onItemSelected(e) {
+    console.log(e);
+  }
+
 }
 
 customElements.define('app-page-search', AppPageSearch);

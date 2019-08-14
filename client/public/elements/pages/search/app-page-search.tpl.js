@@ -15,6 +15,10 @@ ${litCss(sharedStylesHtml)}
     position: relative;
   }
 
+  .filters {
+
+  }
+
   .filters-border {
     border-radius: 0 3px 3px 0;
     border-top: 1px solid #ddd;
@@ -52,10 +56,35 @@ ${litCss(sharedStylesHtml)}
     background-color: white;
     padding-left: 5px;
     border-radius: 0 0 3px 0;
+    min-width: 250px;
+  }
+
+  .no-results {
+    padding: 50px;
+    text-align: center;
+  }
+
+  @keyframes slidein {
+    from {
+      left: -260px;
+    }
+    to {
+      left: 0px;
+    }
+  }
+
+  @keyframes fadein {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   @media(max-width: 768px) {
     .filters {
+      animation: 300ms slidein;
       display: none;
       position: absolute;
       top: 0;
@@ -72,6 +101,7 @@ ${litCss(sharedStylesHtml)}
     }
 
     .filters-background {
+      animation: 300ms fadein;
       display: none;
       position: absolute;
       top: 0;
@@ -120,6 +150,7 @@ ${litCss(sharedStylesHtml)}
     <div class="filters-border">
       ${this.filters.map((item, index) => 
         html`<app-filter-panel 
+          @item-selected="${this._onItemSelected}"
           radius=${index === 0 ? "0 3px 0 0" : ""}
           .filter="${item.name}" 
           .values="${item.values}">
@@ -137,12 +168,11 @@ ${litCss(sharedStylesHtml)}
     </div>
     <div style="text-align:center">
       <app-search-pagination 
-      text-mode 
-      items-per-page="${this.itemsPerPage}"
-      current-index="${this.currentIndex}"
-      total-results="${this.total}"
-      @nav="${this._onPaginationNav}">
-
+        text-mode 
+        items-per-page="${this.itemsPerPage}"
+        current-index="${this.currentIndex}"
+        total-results="${this.total}"
+        @nav="${this._onPaginationNav}">
       </app-search-pagination>
     </div>
     <div class="main-panel" ?hidden="${!this.results.length}">
@@ -151,7 +181,7 @@ ${litCss(sharedStylesHtml)}
         return html`<app-search-result .package="${result}"></app-search-result>`;
       })}
     </div>
-    <div ?hidden="${this.showNoResults}">
+    <div class="no-results" ?hidden="${this.showNoResults}">
       No Search Results Found
     </div>
     <div style="text-align:center">
