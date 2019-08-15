@@ -1,7 +1,17 @@
+let FILTER_LABEL_MAP = {};
+if( typeof APP_CONFIG !== 'undefined' ) {
+  FILTER_LABEL_MAP = APP_CONFIG.filterLabelMap;
+}
+
 class SearchUtils {
 
   constructor() {
     this.HASH_SEARCH_ORDER = ['text','filters','page','itemsPerPage'];
+  }
+
+  getFilterLabel(filter) {
+    if( FILTER_LABEL_MAP[filter] ) return FILTER_LABEL_MAP[filter];
+    return filter;
   }
 
   getDefaultSearch() {

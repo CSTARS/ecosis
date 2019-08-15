@@ -38,6 +38,7 @@ module.exports = (app) => {
         appRoutes : config.server.appRoutes,
         ckanUrl : config.ckan.url,
         serverEnv : config.server.env,
+        filterLabelMap : config.mongo.filterLabelMap,
         git : await gitInfo()
       });
     },

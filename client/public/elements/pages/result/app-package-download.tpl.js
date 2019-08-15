@@ -60,7 +60,7 @@ ${litCss(sharedStylesHtml)}
         <div><a href="${this.downloadLink}" target="_blank" highlight><iron-icon icon="file-download"></iron-icon> Download Dataset</a></div>
         <div class="options">
           <div><input type="checkbox" id="include-metadata" @change="${this._onMetadataInputChange}"/></div>
-          <div>&nbsp;<label for="include-metadata">Include Linked Ancillary Metadata</label></div>
+          <div>&nbsp;<label for="include-metadata">Include linked ancillary metadata in download</label></div>
         </div>
       </div>
       

@@ -28,8 +28,9 @@ ${litCss(sharedStylesHtml)}
 
   .filters-title {
     display: flex;
-    padding: 10px;
+    padding: 16px;
     align-items: center;
+    font-weight: bold;
   }
 
   .filters-title paper-icon-button {
@@ -54,7 +55,7 @@ ${litCss(sharedStylesHtml)}
     font-weight: bold;
     position: relative;
     background-color: white;
-    padding-left: 5px;
+    padding-left: 15px;
     border-radius: 0 0 3px 0;
     min-width: 250px;
   }
@@ -153,6 +154,7 @@ ${litCss(sharedStylesHtml)}
           @item-selected="${this._onItemSelected}"
           radius=${index === 0 ? "0 3px 0 0" : ""}
           .filter="${item.name}" 
+          .label="${item.label}"
           .values="${item.values}">
           </app-filter-panel>`
       )}
@@ -168,6 +170,7 @@ ${litCss(sharedStylesHtml)}
     </div>
     <div style="text-align:center">
       <app-search-pagination 
+        style="padding-top: 7px"
         text-mode 
         items-per-page="${this.itemsPerPage}"
         current-index="${this.currentIndex}"
@@ -186,6 +189,7 @@ ${litCss(sharedStylesHtml)}
     </div>
     <div style="text-align:center">
       <app-search-pagination
+        style="padding: 10px 0 25px 0"
         items-per-page="${this.itemsPerPage}"
         current-index="${this.currentIndex}"
         total-results="${this.total}"

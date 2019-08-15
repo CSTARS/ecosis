@@ -54,6 +54,7 @@ export default class AppPageSearch extends Mixin(LitElement)
     for( let name in e.payload.filters ) {
       filters.push({
         name, 
+        label : this.PackageModel.utils.getFilterLabel(name),
         values : e.payload.filters[name].map(item => {
           return {
             label : item.filter,
@@ -95,7 +96,10 @@ export default class AppPageSearch extends Mixin(LitElement)
   }
 
   _onItemSelected(e) {
-    console.log(e);
+    e = e.detail;
+    let query = this.PackageModel.utils.getDefaultSearch();
+    query.filters.push({[e.filter]: e.value.label});
+    this.AppStateModel.setLocation(this.PackageModel.utils.getUrlPathFromQuery(query));
   }
 
 }
