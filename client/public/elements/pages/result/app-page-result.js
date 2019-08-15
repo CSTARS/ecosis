@@ -18,14 +18,14 @@ export default class AppPageResult extends Mixin(LitElement)
   constructor() {
     super();
     this.render = render.bind(this);
-    this.view = 'download';
+    this.view = 'metadata';
 
     this._injectModel('AppStateModel');
   }
 
   _onAppStateUpdate(e) {
     if( e.page === this.page ) return;
-    this.view = 'download';
+    this.view = 'metadata';
     this.page = e.page;
   }
 

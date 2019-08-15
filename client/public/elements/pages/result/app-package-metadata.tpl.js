@@ -172,62 +172,62 @@ ${litCss(sharedStylesHtml)}
           <tr>
             <td>Acquisition Method</td>
             <td>${this._createHtmlLinks('Acquisition Method', this.acquisitionMethod)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Acquisition Method"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Sample Platform</td>
             <td>${this._createHtmlLinks('Sample Platform', this.samplePlatform)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Sample Platform"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Measurement Venue</td>
             <td>${this._createHtmlLinks('Measurement Venue', this.measurementVenue)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Measurement Venue"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Target Type</td>
             <td>${this._createHtmlLinks('Target Type', this.targetType)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Target Type"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Measurement Quantity</td>
             <td>${this._createHtmlLinks('Measurement Quantity', this.measurementQuantity)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Measurement Quantity"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Index Name</td>
             <td>${this._createHtmlLinks('Index Name', this.indexName)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Index Name"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Target Status</td>
             <td>${this._createHtmlLinks('Target Status', this.targetStatus)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Target Status"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Light Source</td>
             <td>${this._createHtmlLinks('Light Source', this.lightSource)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Light Source"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Light Source Specifications</td>
             <td>${this._createHTMLText(this.lightSourceSpecifications)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Light Source Specifications"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Foreoptic Type</td>
             <td>${this._createHtmlLinks('Foreoptic Type', this.foreopticType)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Foreoptic Type"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Foreoptic Field of View</td>
             <td>${this._createHtmlLinks('Foreoptic Field of View', this.foreopticFieldOfView)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter=""></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Foreoptic Specifications</td>
             <td>${this._createHTMLText(this.foreopticSpecifications)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Foreoptic Specifications"></app-attr-info-popup></td>
           </tr>
         </table>
       </div>
@@ -237,12 +237,12 @@ ${litCss(sharedStylesHtml)}
           <tr>
             <td>Theme</td>
             <td>${this._createHtmlLinks('Theme', this.theme)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Theme"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Ecosystem Type</td>
             <td>${this._createHtmlLinks('Ecosystem Type', this.ecosystemType)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Ecosystem Type"></app-attr-info-popup></td>
           </tr>
         </table>
 
@@ -251,22 +251,22 @@ ${litCss(sharedStylesHtml)}
           <tr>
             <td>Processing Averaged</td>
             <td>${this._createHtmlLinks('Processing Averaged', this.processingAveraged)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Processing Averaged"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Processing Interpolated</td>
             <td>${this._createHtmlLinks('Processing Interpolated', this.processingInterpolated)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Processing Interpolated"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Processing Resampled</td>
             <td>${this._createHtmlLinks('Processing Resampled', this.processingResampled)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Processing Resampled"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Processing Information Details</td>
             <td>${this._createHtmlLinks('Processing Information Details', this.processingInformationDetails)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Processing Information Details"></app-attr-info-popup></td>
           </tr>
         </table>
 
@@ -275,17 +275,17 @@ ${litCss(sharedStylesHtml)}
           <tr>
             <td>Instrument Manufacturer</td>
             <td>${this._createHtmlLinks('Instrument Manufacturer', this.instrumentManufacturer)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Instrument Manufacturer"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Instrument Model</td>
             <td>${this._createHtmlLinks('Instrument Model', this.instrumentModel)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Instrument Model"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Instrument Serial Number</td>
             <td>${this._createHTMLText(this.instrumentSerialNumber)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Instrument Serial Number"></app-attr-info-popup></td>
           </tr>
         </table>
       </div>
@@ -304,27 +304,27 @@ ${litCss(sharedStylesHtml)}
           <tr>
             <td>Common Name</td>
             <td>${this._createHtmlLinks('Common Name', this.commonName)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Common Name"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Latin Genus</td>
             <td>${this._createHtmlLinks('Latin Genus', this.latinGenus)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Latin Genus"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Latin Species</td>
             <td>${this._createHtmlLinks('Latin Species', this.latinSpecies)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Latin Species"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>USDA Symbol</td>
             <td>${this._createHtmlLinks('USDA Symbol', this.usdaSymbol)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="USDA Symbol"></app-attr-info-popup></td>
           </tr>
           <tr>
             <td>Vegetation Type</td>
             <td>${this._createHtmlLinks('Vegetation Type', this.vegetationType)}</td>
-            <td><paper-icon-button icon="info"></paper-icon-button></td>
+            <td><app-attr-info-popup filter="Vegetation Type"></app-attr-info-popup></td>
           </tr>
         </table>
 
@@ -336,47 +336,47 @@ ${litCss(sharedStylesHtml)}
             <tr>
               <td>Citation</td>
               <td>${this._createHTMLText(this.citation)}</td>
-              <td><paper-icon-button icon="info"></paper-icon-button></td>
+              <td><app-attr-info-popup filter="Citation"></app-attr-info-popup></td>
             </tr>
             <tr>
               <td>${this.datasetDoiLabel}</td>
               <td>${this.datasetDoi}</td>
-              <td><paper-icon-button icon="info"></paper-icon-button></td>
+              <td><app-attr-info-popup filter=""></app-attr-info-popup></td>
             </tr>
             <tr>
               <td>Website</td>
               <td>${this._createExternalLink(this.website)}</td>
-              <td><paper-icon-button icon="info"></paper-icon-button></td>
+              <td><app-attr-info-popup filter="Citation DOI"></app-attr-info-popup></td>
             </tr>
             <tr>
               <td>Author</td>
               <td>${this._createHtmlLinks('Author', this.author)}</td>
-              <td><paper-icon-button icon="info"></paper-icon-button></td>
+              <td><app-attr-info-popup filter="Author"></app-attr-info-popup></td>
             </tr>
             <tr>
               <td>Author Email</td>
               <td>${this._createEmailLink(this.authorEmail)}</td>
-              <td><paper-icon-button icon="info"></paper-icon-button></td>
+              <td><app-attr-info-popup filter="Author Email"></app-attr-info-popup></td>
             </tr>
             <tr>
               <td>Maintainer</td>
               <td>${this._createHtmlLinks('Maintainer', this.maintainer)}</td>
-              <td><paper-icon-button icon="info"></paper-icon-button></td>
+              <td><app-attr-info-popup filter="Maintainer"></app-attr-info-popup></td>
             </tr>
             <tr>
               <td>Maintainer Email</td>
               <td>${this._createEmailLink(this.maintainerEmail)}</td>
-              <td><paper-icon-button icon="info"></paper-icon-button></td>
+              <td><app-attr-info-popup filter="Maintainer Email"></app-attr-info-popup></td>
             </tr>
             <tr>
               <td>Funding Source</td>
               <td>${this._createHtmlLinks('Funding Source', this.fundingSource)}</td>
-              <td><paper-icon-button icon="info"></paper-icon-button></td>
+              <td><app-attr-info-popup filter="Funding Source"></app-attr-info-popup></td>
             </tr>
             <tr>
               <td style="white-space:normal">Funding Source Grant Number</td>
               <td>${this._createHTMLText(this.fundingSourceGrantNumber)}</td>
-              <td><paper-icon-button icon="info"></paper-icon-button></td>
+              <td><app-attr-info-popup filter="Funding Source Grant Number"></app-attr-info-popup></td>
             </tr>
           </table>
         </h2>

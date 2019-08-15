@@ -6,6 +6,7 @@ const config = require('../lib/config');
 const jsonld = require('../lib/ldjson');
 const gitInfo = require('../lib/git-info');
 const package = require('../models/package');
+const schema = require('../lib/schema');
 
 // const authUtils = require('./auth');
 // const records = require('../models/records');
@@ -39,7 +40,8 @@ module.exports = (app) => {
         ckanUrl : config.ckan.url,
         serverEnv : config.server.env,
         filterLabelMap : config.mongo.filterLabelMap,
-        git : await gitInfo()
+        git : await gitInfo(),
+        schema
       });
     },
     template : async (req, res, next) => {

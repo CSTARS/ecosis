@@ -52,6 +52,16 @@ export default class AppPageSearch extends Mixin(LitElement)
 
     let filters = [];
     for( let name in e.payload.filters ) {
+      if( e.payload.filters[name].length === 0 ) continue;
+
+      e.payload.filters[name].sort((a, b) => {
+        if( a.count > b.count ) return -1;
+        if( a.count < b.count ) return 1;
+        if( a.filter > b.filter ) return 1;
+        if( a.filter < b.filter ) return -1;
+        return 0;
+      });
+
       filters.push({
         name, 
         label : this.PackageModel.utils.getFilterLabel(name),
@@ -97,7 +107,7 @@ export default class AppPageSearch extends Mixin(LitElement)
 
   _onItemSelected(e) {
     e = e.detail;
-    let query = this.PackageModel.utils.getDefaultSearch();
+    let query = this.PackageModel.getCurrentSearchQuery();
     query.filters.push({[e.filter]: e.value.label});
     this.AppStateModel.setLocation(this.PackageModel.utils.getUrlPathFromQuery(query));
   }

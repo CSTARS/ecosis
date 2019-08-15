@@ -53,6 +53,10 @@ ${litCss(sharedStylesHtml)}
   .filter-filters {
     margin-bottom: 15px;
   }
+
+  .filter {
+    font-style: italic;
+  }
 </style>  
 
 <h2 class="uheader green"><a href="/package/${this.package.ecosis.package_name}">${this.package.ecosis.package_title}</a></h2>

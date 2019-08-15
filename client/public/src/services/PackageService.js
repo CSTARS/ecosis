@@ -45,7 +45,16 @@ class PackageService extends BaseService {
       url : path,
       json : true,
       onLoading : request => this.store.setSearchLoading(request, metadata),
-      onLoad : response => this.store.setSearchLoaded(response.body, metadata),
+      onLoad : response => {
+        // remove filters we queried for
+        response = response.body;
+        for( let key in response.filters ) {
+          response.filters[key] = response.filters[key].filter(item => !query.filters.find(f => {
+            return (f[key] && f[key] === item.filter);
+          }));
+        }
+        this.store.setSearchLoaded(response, metadata);
+      },
       onError : error => this.store.setSearchError(error, metadata)
     });
   }

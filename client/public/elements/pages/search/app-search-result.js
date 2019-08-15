@@ -69,7 +69,7 @@ export default class AppSearchResult extends Mixin(LitElement)
             let q = this.PackageModel.utils.getDefaultSearch();
             q.filters.push({[filterName]: filter});
             let link = this.PackageModel.utils.getUrlPathFromQuery(q);
-            return html`<a href="${link}">${filter}</a>${i < len-1 ? ',' : ''} `;
+            return html`<a href="${link}" class="filter">${filter}</a>${i < len-1 ? ',' : ''} `;
           })
       }
       if( len > 5 ) {

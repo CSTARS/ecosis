@@ -10,6 +10,14 @@ class AppStateModelImpl extends AppStateModel {
   }
 
   set(state={}) {
+    // redirect old ecosis hash paths
+    if( window.location.hash ) {
+      let hashParts = window.location.hash.replace(/^#?/, '').split('/');
+      if( hashParts[0] === 'result' ) hashParts[0] = 'package'
+      if( hashParts[0] === 'home' ) hashParts = [];
+      return this.setLocation('/'+hashParts.join('/'));
+    }
+
     if( state.location &&
         state.location.path &&
         state.location.path.length ) {
@@ -18,7 +26,7 @@ class AppStateModelImpl extends AppStateModel {
 
     if( !state.page ) state.page = 'home';
     if( state.page === 'package' && state.location.path.length <= 1) {
-      return this.setWindowLocation('');
+      return this.setLocation('');
     }
 
     super.set(state);

@@ -3,6 +3,8 @@ import render from "./app-package-metadata.tpl.js"
 import clone from 'clone'
 import 'leaflet'
 
+import './app-attr-info-popup'
+
 export default class AppPackageMetadata extends Mixin(LitElement)
   .with(LitCorkUtils) {
 
