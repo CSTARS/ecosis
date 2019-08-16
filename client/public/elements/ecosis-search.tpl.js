@@ -89,11 +89,11 @@ ${litCss(sharedStylesHtml)}
       <iron-icon icon="create"></iron-icon> 
       <span>Create/Edit</span>
     </a>
-    <a href="https://ecosml.org" target="_blank" tabindex="${this.anchorTabIndex}">
+    <a href="${APP_CONFIG.ecosmlUrl}" target="_blank" tabindex="${this.anchorTabIndex}">
       <iron-icon icon="code"></iron-icon> 
       <span>Models</span>
     </a>
-    <a href="https://github.com/EcoSIS/ecosml-webapp/issues/new/choose" target="_blank" tabindex="${this.anchorTabIndex}">
+    <a href="https://github.com/CSTARS/ecosis/issues/new" target="_blank" tabindex="${this.anchorTabIndex}">
       <iron-icon icon="bug-report"></iron-icon> 
       <span>Report Issue</span>
     </a>

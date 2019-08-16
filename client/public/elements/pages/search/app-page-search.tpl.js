@@ -199,4 +199,20 @@ ${litCss(sharedStylesHtml)}
   </div>
 </div>
 
+<div class="root">
+  <div style="padding: 75px 15px 40px 15px">
+    <div itemtype="http://schema.org/Organization" itemprop="provider">
+      <h2 itemprop="name" style="margin-bottom: 0px">EcoSIS</h2>
+      <div class="help-block" style="margin-bottom: 0px" itemprop="description">Ecosystem Spectral Information System</div>
+      <div>
+        <a href="https://ecosis.org" itemprop="url" highlight>https://ecosis.org</a> |
+        <a href="http://cstars.github.io/ecosis/" target="_blank" highlight>EcoSIS API Documentation</a> |
+        <a href="mailto:info@ecosis.org" itemprop="email" highlight>info@ecosis.org</a> |
+        <a href="mailto:help@ecosis.org" highlight>help@ecosis.org</a>
+
+      </div>
+    </div>
+  </div>
+</div>
+
 `;}

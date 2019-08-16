@@ -99,7 +99,7 @@ class PackageStore extends BaseStore {
   }
 
   _setSuggestState(state) {
-    this.state.suggest[state.metadata.name] = state;
+    this.data.suggest[state.metadata.name] = state;
     this.emit(this.events.KEYWORD_SUGGEST_UPDATE, state);
   }
 

@@ -8,23 +8,15 @@ class PackageKeywordSuggest {
 
   async suggest(query) {
     query = new RegExp('^'+query, 'i');
-    let collection = await mongo.packagesCollection()
+    let collection = await mongo.suggestCollection()
 
-    collection
+    let result = await collection
       .find({'value.value': query})
       .sort({'value.count': -1})
       .limit(25)
-      .toArray(function(err, result){
-        if( err ) {
-          return callback(err);
-        }
-  
-        result = result.map(function(item) {
-          return item.value;
-        });
-  
-        callback(null, result);
-      });
+      .toArray();
+
+    return result.map(item => item.value);
   }
 
 }

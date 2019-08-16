@@ -20,6 +20,7 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
     this.suggestions = [];
     this.filters = [];
     this.text = '';
+    this.suggestTimer = -1;
 
     this._injectModel('AppStateModel', 'PackageModel');
   }
@@ -38,7 +39,31 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
    * @param {Object} e 
    */
   _onInputKeyup(e) {
-    
+    this._bufferedSuggest(e.currentTarget.value);
+  }
+
+  _bufferedSuggest(text) {
+    if( this.suggestTimer !== -1 ) clearTimeout(this.suggestTimer);
+    this.suggestTimer = setTimeout(() => {
+      this.suggestTimer = -1;
+      this.PackageModel.suggest(text);
+    }, 100);
+  }
+
+  _onKeywordSuggestUpdate(e) {
+    if( e.state === 'loading' ) {
+      this.currentSuggestId = e.metadata.searchId;
+    }
+    if( e.state === 'loaded' && this.currentSuggestId === e.metadata.searchId ) {
+      this.renderSuggestions(e.payload);
+    }
+  }
+
+  renderSuggestions(suggestions) {
+    this.suggestions = suggestions.map(item => {
+      item.label = item.value;
+      return item;
+    });
   }
 
   /**

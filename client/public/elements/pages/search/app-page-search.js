@@ -84,6 +84,7 @@ export default class AppPageSearch extends Mixin(LitElement)
    * @param {Object} e 
    */
   _onPaginationNav(e) {
+    console.log(e);
     let query = this.PackageModel.getCurrentSearchQuery();
     query.page = e.detail.page-1;
     this.AppStateModel.setLocation(

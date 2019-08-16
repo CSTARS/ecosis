@@ -39,6 +39,7 @@ module.exports = (app) => {
       return next({
         appRoutes : config.server.appRoutes,
         ckanUrl : config.ckan.url,
+        ecosmlUrl : config.ecosml.url,
         serverEnv : config.server.env,
         filterLabelMap : config.mongo.filterLabelMap,
         git : await gitInfo(),
