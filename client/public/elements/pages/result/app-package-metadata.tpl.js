@@ -131,7 +131,7 @@ ${litCss(sharedStylesHtml)}
 
 <div class="root">
   <div class="main-panel">
-    <div class="keywords">${this._createHtmlLinks('Keyword', this.keywords, v => '#'+v)}</div>
+    <div class="keywords">${this._createHtmlLinks('Keywords', this.keywords, v => '#'+v)}</div>
     <div class="description">${this.description}</div>
     <div>Spectra Count: <span class="spectra-count">${this.spectraCount} <span>${this.spectraWavelengths}</span></span></div>
   </div>

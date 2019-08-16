@@ -3,9 +3,10 @@ const path = require('path');
 const fs = require('fs');
 const spaMiddleware = require('@ucd-lib/spa-router-middleware');
 const config = require('../lib/config');
-const jsonld = require('../lib/ldjson');
+const jsonldTransform = require('../lib/ldjson');
 const gitInfo = require('../lib/git-info');
 const package = require('../models/package');
+const organization = require('../models/organization');
 const schema = require('../lib/schema');
 
 // const authUtils = require('./auth');
@@ -46,20 +47,22 @@ module.exports = (app) => {
     },
     template : async (req, res, next) => {
       let jsonld = '';
-      let isDataset = false;
+      let isPackage = false;
 
       let parts = req.originalUrl.split('/').filter(p => p ? true : false);
-      if( parts[0] === 'dataset' ) {
-        isDataset = true;
+      if( parts[0] === 'package' ) {
+        isPackage = true;
       }
 
-      if( !isDataset ) {
+      if( !isPackage ) {
         return next({jsonld, bundle});
       }
 
       try {
         let pkg = await package.get(parts[1]);
-        let jsonld = JSON.stringify(ldjson(pkg, config.server.url), '  ', '  ');
+        pkg.ecosis.organization_info = await organization.get(pkg.ecosis.organization_id);
+
+        let jsonld = JSON.stringify(jsonldTransform(pkg, config.server.url), '  ', '  ');
     
         return next({
           jsonld, bundle

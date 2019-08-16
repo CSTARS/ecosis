@@ -16,12 +16,14 @@ return html`
     display: none;
     position: absolute;
     z-index: 1000;
-    top: 10px;
+    top: 2px;
     right: 0px;
-    border: 1px solid #ccc;
-    background-color: white;
-    padding: 10px;
-    max-width: 150px;
+    border: 1px solid white;
+    color: white;
+    background-color: rgba(0,0,0,.9);
+    padding: 8px;
+    width: 250px;
+    border-radius: 3px;
     font-size: 14px;
   }
   .popup[showing] {

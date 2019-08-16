@@ -4,6 +4,7 @@ import render from "./ecosis-search.tpl.js"
 // main library
 import "../src"
 import "ecosis-client-commons"
+import {jsonldTransform} from "../src"
 
 // polymer
 import "@polymer/iron-pages"
@@ -46,17 +47,35 @@ export default class EcosisSearch extends Mixin(LitElement)
       this.openMenu = false;
     });
 
-    this._injectModel('AppStateModel');
+    this._injectModel('AppStateModel', 'PackageModel', 'OrganizationModel');
   }
 
   firstUpdated() {
     this.menuEle = this.shadowRoot.querySelector('.menu');
     this.appHeaderEle = this.shadowRoot.querySelector('app-header');
+    this.mainEle = this.shadowRoot.querySelector('.main-content');
+    this.seo = document.querySelector('#seo-jsonld');
   }
 
-  _onAppStateUpdate(e) {
+  async _onAppStateUpdate(e) {
     this.page = e.page;
     this.openMenu = false;
+
+    this.mainEle.scrollTo(0, 0);
+
+    try {
+      if( this.page !== 'package' ) {
+        this.seo.innerHTML = '';
+      } else {
+        let pkg = await this.PackageModel.get(e.location.path[1]);
+        pkg = pkg.payload;
+        let org = await this.OrganizationModel.get(pkg.ecosis.organization_id);
+        pkg.organization_info = org.payload;
+        this.seo.innerHTML = JSON.stringify(jsonldTransform(pkg), '  ', '  ');
+      }
+    } catch(e) {
+      console.error('Failed to set jsonld seo tag', e);
+    }
   }
 
   _onOpenMenu() {

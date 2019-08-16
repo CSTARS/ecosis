@@ -19,12 +19,18 @@ export default class AppAttrInfoPopup extends LitElement {
 
     window.addEventListener('click', e => {
       if( !this.showing ) return;
-      if( e.composedPath().indexOf(this) > -1 ) return;
+      if( this.justClicked ) {
+        this.justClicked = false;
+        return;
+      }
+      if( e.composedPath().indexOf(this.popup) > -1 ) return;
       this.showing = false;
     });
   }
 
   firstUpdated() {
+    this.popup = this.shadowRoot.querySelector('.popup');
+
     if( !APP_CONFIG ) return this.hide();
     if( !APP_CONFIG.schema ) return this.hide();
 
@@ -40,6 +46,8 @@ export default class AppAttrInfoPopup extends LitElement {
   }
 
   _onClick() {
+    if( this.showing ) return;
+    this.justClicked = true;
     this.showing = true;
   }
 
