@@ -39,6 +39,12 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
    * @param {Object} e 
    */
   _onInputKeyup(e) {
+    if( e.which === 27 ) return;
+    if( !e.currentTarget.value ) {
+      if( this.suggestTimer !== -1 ) clearTimeout(this.suggestTimer);
+      this.suggestions = [];
+      return;
+    }
     this._bufferedSuggest(e.currentTarget.value);
   }
 
@@ -61,7 +67,7 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
 
   renderSuggestions(suggestions) {
     this.suggestions = suggestions.map(item => {
-      item.label = item.value;
+      item.label =  html`<span style="font-size: 18px">${item.value}</span> <span style="font-size: 12px; color: #aaa">${this.PackageModel.utils.getFilterLabel(item.key)}</span>`;
       return item;
     });
   }
@@ -85,12 +91,16 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
    * @param {Object} e 
    */
   _onSuggestionSelected(e) {
+    this.text = '';
+    this.suggestions = [];
+
     let query = this.PackageModel.getCurrentSearchQuery();
     let filterStr = JSON.stringify({[e.detail.key]: e.detail.value});
     
     let index = query.filters.findIndex(filter => (JSON.stringify(filter) === filterStr));
     if( index !== -1 ) return console.warn('Filter already in search', e.detail);
     
+    query.text = '';
     query.filters.push({[e.detail.key]: e.detail.value});
     this._search(query);
   }
