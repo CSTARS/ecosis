@@ -42,6 +42,7 @@ module.exports = (app) => {
         ecosmlUrl : config.ecosml.url,
         serverEnv : config.server.env,
         filterLabelMap : config.mongo.filterLabelMap,
+        geoFilter : config.mongo.geoFilter,
         git : await gitInfo(),
         schema
       });

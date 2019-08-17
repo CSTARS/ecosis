@@ -14,7 +14,8 @@ router.post('/count', (req, res) => {
 });
 async function count(params, res) {
   try {
-    res.json(await model.count(params));
+    params = utils.reqQueryParser(params);
+    res.json({count: await search.count(params)});
   } catch(e) {
     handleError(res, e);
   }

@@ -3,7 +3,8 @@ import render from "./app-location-filter.tpl.js"
 
 import "leaflet"
 
-export default class AppLocationFilter extends LitElement {
+export default class AppLocationFilter extends Mixin(LitElement)
+  .with(LitCorkUtils) {
 
   static get properties() {
     return {
@@ -20,6 +21,10 @@ export default class AppLocationFilter extends LitElement {
 
     this.r = 844906; // 525 miles
     this.matches = '0';
+
+    this.queryName = 'geoPreview';
+
+    this._injectModel('PackageModel');
   }
 
   _onOpen() {
@@ -53,7 +58,7 @@ export default class AppLocationFilter extends LitElement {
     this.map.on('moveend', () => this._updateRadius());
   }
 
-  _updateRadius() {
+  async _updateRadius() {
     let ll = this.map.getCenter();
 
     // update radius
@@ -69,9 +74,18 @@ export default class AppLocationFilter extends LitElement {
     this.circle.setRadius(this.r);
     this.circle.setLatLng(ll);
 
-    this.latitude = ll.lat.toFixed(3);
-    this.longitude = ll.lng.toFixed(3);
+    this.latitude = ll.wrap().lat.toFixed(3);
+    this.longitude = ll.wrap().lng.toFixed(3);
     this.radius = Math.round(this.r * .000621371)+' miles';
+
+    let query = this.PackageModel.getCurrentSearchQuery();
+    query.filters = query.filters.filter(item => !item[APP_CONFIG.geoFilter]);
+    query.filters.push(this.PackageModel.utils.getGeoRadiusQuery(ll.wrap().lat, ll.wrap().lng, this.r));
+    
+    let resp = await this.PackageModel.count(query, this.queryName);
+    if( resp.state === 'loaded' ) {
+      this.matches = resp.payload.count+'';
+    }
   }
 
 

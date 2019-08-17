@@ -153,7 +153,7 @@ class PackageStore extends BaseStore {
   }
 
   _setCountState(state) {
-    this.state.search[state.metadata.name] = state;
+    this.data.count[state.metadata.name] = state;
     this.emit(this.events.PACKAGE_COUNT_UPDATE, state);
   }
 

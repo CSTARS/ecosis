@@ -23,6 +23,24 @@ class SearchUtils {
     }
   }
 
+  getGeoFilter() {
+    return APP_CONFIG.geoFilter;
+  }
+
+  getGeoRadiusQuery(lat, lng, radius) {
+    return {
+      [this.getGeoFilter()]: {
+        $near: {
+          $geometry:{
+            type : 'Point',
+            coordinates: [lng, lat]
+          },
+          $maxDistance : radius
+        }
+      }
+    };
+  }
+
   getRestParams(query) {
     return  {
       text : encodeURIComponent(query.text || ''),

@@ -40,6 +40,15 @@ class PackageSearchModel {
     return response;
   }
 
+  async count(appQuery) {
+    if( !appQuery.filters ) appQuery.filters = [];
+    let query = this.appQueryToMongoQuery(appQuery);
+
+    // get total for query
+    let collection = await mongo.packagesCollection();
+    return collection.count(query);
+  }
+
   // find a sorted range of responsed without returned the entire dataset
   async _rangedQuery(mongoQuery, appQuery) {
     var filters = {};
@@ -143,15 +152,14 @@ class PackageSearchModel {
     // set geo filter if it exits
     // if so, remove from $and array and set as top level filter option
     if( config.mongo.geoFilter ) {
-      config.mongo.geoFilter.forEach(function(geoFilter){
-        for( var i = 0; i < query.filters.length; i++ ) {
-          if( query.filters[i][geoFilter] ) {
-            options[(config.mongo.isMapReduce ? 'value.' : '') + geoFilter] = query.filters[i][geoFilter];
-            query.filters.splice(i, 1);
-            break;
-          }
+      let geoFilter = (config.mongo.isMapReduce ? 'value.' : '') + config.mongo.geoFilter;
+      for( var i = 0; i < query.filters.length; i++ ) {
+        if( query.filters[i][geoFilter] ) {
+          options[geoFilter] = query.filters[i][geoFilter];
+          query.filters.splice(i, 1);
+          break;
         }
-      });
+      }
     }
   
     for( var i = 0; i < query.filters.length; i++ ) {

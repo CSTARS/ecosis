@@ -4,11 +4,6 @@ const logger = require('../lib/logger');
 
 class PackageModel {
 
-  async count(query) {
-    let collection = await mongo.packagesCollection();
-    return collection.count(query);
-  }
-
   async get(pkgIdOrName) {
     var filters = {};
     if( config.mongo.blacklist ) {
