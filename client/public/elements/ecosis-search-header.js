@@ -144,6 +144,16 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
     this.filters = e.metadata.query.filters.map(filter => {
       let key = Object.keys(filter);
       if( key.length === 0 ) return filter; // badness
+
+      if( key[0] === APP_CONFIG.geoFilter ) {
+        return {
+          label: 'Location Filter', 
+          noValueLabel : true,
+          key: key[0], 
+          value: filter[key[0]]
+        }
+      }
+
       return {
         label: this.PackageModel.utils.getFilterLabel(key[0]), 
         key: key[0], 

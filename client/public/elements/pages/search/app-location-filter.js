@@ -11,7 +11,9 @@ export default class AppLocationFilter extends Mixin(LitElement)
       latitude : {type: String},
       longitude : {type: String},
       radius : {type: String},
-      matches : {type: String}
+      matches : {type: String},
+      locateText : {type: String},
+      locating : {type: Boolean}
     }
   }
 
@@ -23,13 +25,18 @@ export default class AppLocationFilter extends Mixin(LitElement)
     this.matches = '0';
 
     this.queryName = 'geoPreview';
+    this.locateText = 'Locate Me';
+    this.locating = false;
 
-    this._injectModel('PackageModel');
+    this._injectModel('AppStateModel','PackageModel');
   }
 
   _onOpen() {
     if( !this.map ) return;
-    this.map.setView([39.251, -97.850], 4);
+    //this.map.setView([39.251, -97.850], 4);
+
+    // TODO: if a filter is set, zoom to it here
+
     this._updateRadius();
 
     setTimeout(() => {
@@ -41,6 +48,10 @@ export default class AppLocationFilter extends Mixin(LitElement)
   }
 
   firstUpdated() {
+    if ( !navigator.geolocation ) {
+      this.shadowRoot.querySelector('paper-button[locate]').style.display = 'none';
+    }
+
     if( this.map ) return;
     this.map = L
       .map(this.shadowRoot.querySelector("#map"))
@@ -59,7 +70,8 @@ export default class AppLocationFilter extends Mixin(LitElement)
   }
 
   async _updateRadius() {
-    let ll = this.map.getCenter();
+    this.ll = this.map.getCenter();
+    let ll = this.ll;
 
     // update radius
     var b = this.map.getBounds();
@@ -88,13 +100,54 @@ export default class AppLocationFilter extends Mixin(LitElement)
     }
   }
 
+  _onLocateClicked() {
+    this.locateText = 'Locating...';
+    this.locating = true;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.locateText = 'Locate Me';
+        this.locating = false;
+        this.map.setView(L.latLng(position.coords.latitude, position.coords.longitude));
+      },
+      (error) => {
+        this.locateText = 'Locate Me';
+        this.locating = false;
+
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert("User denied the request for Geolocation.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            alert("The request to get user location timed out.");
+            break;
+          case error.UNKNOWN_ERROR:
+            alert("An unknown error occurred.");
+            break;
+        }
+      }
+    );
+  }
+
+  _onSetFilterClicked() {
+    let query = this.PackageModel.getCurrentSearchQuery();
+    query.filters = query.filters.filter(item => !item[APP_CONFIG.geoFilter]);
+    query.filters.push(this.PackageModel.utils.getGeoRadiusQuery(this.ll.wrap().lat, this.ll.wrap().lng, this.r));
+    this.AppStateModel.setLocation(
+      this.PackageModel.utils.getUrlPathFromQuery(query)
+    );
+    this.close();
+  }
 
   open() {
     this.dispatchEvent(new CustomEvent('open'));
   }
 
   close() {
-    this.dispatchEvent(new CustomEvent('open'));
+    this.dispatchEvent(new CustomEvent('close'));
   }
 
 }

@@ -112,7 +112,7 @@ return html`
     <paper-button cancel @click="${this.close}">Cancel</paper-button>
   </div>
   <div>
-    <paper-button locate @click="${this._onLocateClicked}">Locate Me</paper-button>
+    <paper-button locate @click="${this._onLocateClicked}" ?disabled="${this.locating}">${this.locateText}</paper-button>
     <paper-button set @click="${this._onSetFilterClicked}">Set Filter</paper-button>
   </div>
 </div>
