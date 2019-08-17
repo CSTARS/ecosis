@@ -91,6 +91,7 @@ export default class AppLocationFilter extends Mixin(LitElement)
     this.radius = Math.round(this.r * .000621371)+' miles';
 
     let query = this.PackageModel.getCurrentSearchQuery();
+    query.page = 0;
     query.filters = query.filters.filter(item => !item[APP_CONFIG.geoFilter]);
     query.filters.push(this.PackageModel.utils.getGeoRadiusQuery(ll.wrap().lat, ll.wrap().lng, this.r));
     
@@ -134,6 +135,7 @@ export default class AppLocationFilter extends Mixin(LitElement)
 
   _onSetFilterClicked() {
     let query = this.PackageModel.getCurrentSearchQuery();
+    query.page = 0;
     query.filters = query.filters.filter(item => !item[APP_CONFIG.geoFilter]);
     query.filters.push(this.PackageModel.utils.getGeoRadiusQuery(this.ll.wrap().lat, this.ll.wrap().lng, this.r));
     this.AppStateModel.setLocation(

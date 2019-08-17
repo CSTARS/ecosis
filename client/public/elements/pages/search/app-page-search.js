@@ -110,6 +110,7 @@ export default class AppPageSearch extends Mixin(LitElement)
     e = e.detail;
     let query = this.PackageModel.getCurrentSearchQuery();
     query.filters.push({[e.filter]: e.value.label});
+    query.page = 0;
     this.AppStateModel.setLocation(this.PackageModel.utils.getUrlPathFromQuery(query));
   }
 

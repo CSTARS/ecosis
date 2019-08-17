@@ -81,6 +81,7 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
   _onTextSearch(e) {
     let query = this.PackageModel.getCurrentSearchQuery();
     query.text = e.detail;
+    query.page = 0;
     this._search(query);
   }
 
@@ -96,7 +97,8 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
 
     let query = this.PackageModel.getCurrentSearchQuery();
     let filterStr = JSON.stringify({[e.detail.key]: e.detail.value});
-    
+    query.page = 0;
+
     let index = query.filters.findIndex(filter => (JSON.stringify(filter) === filterStr));
     if( index !== -1 ) return console.warn('Filter already in search', e.detail);
     
@@ -112,6 +114,7 @@ export default class EcosisSearchHeader extends Mixin(LitElement)
   _onRemoveFilter(e) {
     let query = this.PackageModel.getCurrentSearchQuery();
     let filterStr = JSON.stringify({[e.detail.key]: e.detail.value});
+    query.page = 0;
 
     let index = query.filters.findIndex(filter => (JSON.stringify(filter) === filterStr));
     if( index === -1 ) return console.warn('Unable to find filter to remove: ', e.detail);
