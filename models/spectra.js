@@ -29,7 +29,8 @@ class SpectraModel {
     return results.map(result => result.ecosis.geojson);
   }
 
-  async query(package_id, filters, start, stop) {
+  async query(pkgNameOrId, filters, start, stop) {
+    let pkgId = await mongo.getPackageId(pkgNameOrId);
     var messages = [];
   
     if( isNaN(start) ) {
@@ -45,7 +46,7 @@ class SpectraModel {
       'attributes to get entire set');
     }
   
-    filters = this._applyPackageId(package_id, filters);
+    filters = this._applyPackageId(pkgId, filters);
   
     var query = {};
     if( filters ) {
@@ -58,7 +59,7 @@ class SpectraModel {
         'datasets.  To limit to a single dataset, include \'ecosis.package_id\' in your filters parameter.  Ex: '+
         '/spectra/query?filters=[{"ecosis.package_id":"dataset-package-id"}]');
     }
-    
+
     let collection = await mongo.spectraCollection();
     let count = await collection.count(query);
   

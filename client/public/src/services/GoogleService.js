@@ -15,13 +15,14 @@ class GoogleService extends BaseService {
     }
 
     let p = new Promise((resolve, reject) => {
-      this.store.chartsLoading(p);
       google.charts.load('current', {packages: ['corechart']});
       google.charts.setOnLoadCallback(() => {
-        this.store.ChartsLoaded();
+        this.store.chartsLoaded();
         resolve();
       });
     });
+    this.store.chartsLoading(p);
+
     return p;
   }
 

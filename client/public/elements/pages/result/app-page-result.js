@@ -5,6 +5,7 @@ import "@polymer/iron-pages"
 
 import './app-package-metadata'
 import './app-package-download'
+import './spectra-viewer/app-spectra-viewer'
 
 export default class AppPageResult extends Mixin(LitElement)
   .with(LitCorkUtils) {
@@ -18,14 +19,14 @@ export default class AppPageResult extends Mixin(LitElement)
   constructor() {
     super();
     this.render = render.bind(this);
-    this.view = 'metadata';
+    // this.view = 'viewer';
 
     this._injectModel('AppStateModel');
   }
 
   _onAppStateUpdate(e) {
     if( e.page === this.page ) return;
-    this.view = 'metadata';
+    this.view = 'viewer';
     this.page = e.page;
   }
 

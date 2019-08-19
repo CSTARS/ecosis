@@ -1,5 +1,7 @@
 const {BaseService} = require('@ucd-lib/cork-app-utils');
 const SpectraStore = require('../stores/SpectraStore');
+const utils = require('../lib/search-utils');
+
 
 class SpectraService extends BaseService {
 
@@ -9,9 +11,9 @@ class SpectraService extends BaseService {
   }
 
   search(query, packageId, name) {
-    let searchId = this.store.data.currentSearchId;
-    this.store.data.currentSearchId++;
-    let params = this.model.getRestParamsStr(query);
+    let searchId = this.store.data.searchId.spectra;
+    this.store.data.searchId.spectra++;
+    let params = utils.getRestParamsStr(query);
 
 
     let path = `/api/spectra/search${packageId ? '/'+packageId : ''}?${params}`;
@@ -24,15 +26,21 @@ class SpectraService extends BaseService {
       url : path,
       json : true,
       onLoading : request => this.store.setSearchLoading(request, metadata),
-      onLoad : response => this.store.setSearchLoaded(response.body, metadata),
-      onError : error => this.store.setSearchError(error, metadata)
+      onLoad : response => {
+        if( searchId !== this.store.data.searchId.spectra-1 ) return;
+        this.store.setSearchLoaded(response.body, metadata);
+      },
+      onError : error => {
+        if( searchId !== this.store.data.searchId.spectra-1 ) return;
+        this.store.setSearchError(error, metadata);
+      }
     });
   }
 
   count(query, packageId, name) {
-    let searchId = this.store.data.currentSearchId;
-    this.store.data.currentSearchId++;
-    let params = this.model.getRestParamsStr(query);
+    let searchId = this.store.data.searchId.spectraCount;
+    this.store.data.searchId.spectraCount++;
+    let params = utils.getRestParamsStr(query);
     let path = `/api/spectra/count${packageId ? '/'+packageId : ''}?${params}`;
 
     let metadata = {
@@ -43,8 +51,14 @@ class SpectraService extends BaseService {
       url : path,
       json : true,
       onLoading : request => this.store.setCountLoading(request, metadata),
-      onLoad : response => this.store.setCountLoaded(response.body, metadata),
-      onError : error => this.store.setCountError(error, metadata)
+      onLoad : response => {
+        if( searchId !== this.store.data.searchId.spectraCount-1 ) return;
+        this.store.setCountLoaded(response.body, metadata)
+      },
+      onError : error => {
+        if( searchId !== this.store.data.searchId.spectraCount-1 ) return;
+        this.store.setCountError(error, metadata)
+      }
     });
   }
 

@@ -32,8 +32,8 @@ class PackageService extends BaseService {
   }
 
   search(query, name) {
-    let searchId = this.store.data.currentSearchId;
-    this.store.data.currentSearchId++;
+    let searchId = this.store.data.searchId.package;
+    this.store.data.searchId.package++;
     let params = utils.getRestParamsStr(query);
     let path = `/api/package/search?${params}`;
 
@@ -46,6 +46,8 @@ class PackageService extends BaseService {
       json : true,
       onLoading : request => this.store.setSearchLoading(request, metadata),
       onLoad : response => {
+        if( searchId !== this.store.data.searchId.package-1 ) return;
+
         // remove filters we queried for
         response = response.body;
         for( let key in response.filters ) {
@@ -55,13 +57,16 @@ class PackageService extends BaseService {
         }
         this.store.setSearchLoaded(response, metadata);
       },
-      onError : error => this.store.setSearchError(error, metadata)
+      onError : error => {
+        if( searchId !== this.store.data.searchId.package-1 ) return;
+        this.store.setSearchError(error, metadata)
+      }
     });
   }
 
   count(query, name) {
-    let searchId = this.store.data.currentSearchId;
-    this.store.data.currentSearchId++;
+    let searchId = this.store.data.searchId.packageCount;
+    this.store.data.searchId.packageCount++;
     let params = utils.getRestParamsStr(query);
     let path = `/api/package/count?${params}`;
 
@@ -73,14 +78,20 @@ class PackageService extends BaseService {
       url : path,
       json : true,
       onLoading : request => this.store.setCountLoading(request, metadata),
-      onLoad : response => this.store.setCountLoaded(response.body, metadata),
-      onError : error => this.store.setCountError(error, metadata)
+      onLoad : response => {
+        if( searchId !== this.store.data.searchId.packageCount-1 ) return;
+        this.store.setCountLoaded(response.body, metadata);
+      },
+      onError : error => {
+        if( searchId !== this.store.data.searchId.packageCount-1 ) return;
+        this.store.setCountError(error, metadata);
+      }
     });
   }
 
   suggest(text, name) {
-    let searchId = this.store.data.currentSearchId;
-    this.store.data.currentSearchId++;
+    let searchId = this.store.data.searchId.suggest;
+    this.store.data.searchId.suggest++;
 
     let path = `/api/suggest/${text}`;
 
@@ -92,8 +103,14 @@ class PackageService extends BaseService {
       url : path,
       json : true,
       onLoading : request => this.store.setSuggestLoading(request, metadata),
-      onLoad : response => this.store.setSuggestLoaded(response.body, metadata),
-      onError : error => this.store.setSuggestError(error, metadata)
+      onLoad : response => {
+        if( searchId !== this.store.data.searchId.suggest-1 ) return;
+        this.store.setSuggestLoaded(response.body, metadata);
+      },
+      onError : error => {
+        if( searchId !== this.store.data.searchId.suggest-1 ) return;
+        this.store.setSuggestError(error, metadata);
+      }
     });
   }
 

@@ -22,9 +22,9 @@ class GoogleModel extends BaseModel {
   async loadCharts() {
     let state = this.store.data.charts;
 
-    if( state === 'loading' ) {
+    if( state.state === 'loading' ) {
       await state.request;
-    } else if( state === 'init' ) {
+    } else if( state.state === 'init' ) {
       await this.service.loadCharts();
     }
     

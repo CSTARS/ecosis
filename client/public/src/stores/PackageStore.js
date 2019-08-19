@@ -6,7 +6,11 @@ class PackageStore extends BaseStore {
     super();
 
     this.data = {
-      currentSearchId : 0,
+      searchId : {
+        package : 0,
+        packageCount : 0,
+        suggest : 0
+      },
       package : {},
       stats : {},
       search : {},

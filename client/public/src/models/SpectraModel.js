@@ -19,7 +19,9 @@ class SpectraModel extends BaseModel {
   async count(query={}, name='main') {
     try {
       await this.service.count(query, name);
-    } catch(e) {}
+    } catch(e) {
+      console.error(e);
+    }
 
     return this.store.data.count[name];
   }
@@ -30,10 +32,12 @@ class SpectraModel extends BaseModel {
    * @param {*} query 
    * @param {*} name 
    */
-  async search(query={}, name='main') {
+  async search(query={}, packageId, name='main') {
     try {
-      await this.service.search(query, name);
-    } catch(e) {}
+      await this.service.search(query, packageId, name);
+    } catch(e) {
+      console.error(e);
+    }
 
     return this.store.data.search[name];
   }
@@ -46,7 +50,9 @@ class SpectraModel extends BaseModel {
   async stats(packageId) {
     try {
       await this.service.stats(packageId);
-    } catch(e) {}
+    } catch(e) {
+      console.error(e);
+    }
 
     return this.store.data.count[name];
   }

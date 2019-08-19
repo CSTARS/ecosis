@@ -15,10 +15,6 @@ ${litCss(sharedStylesHtml)}
     position: relative;
   }
 
-  .filters {
-
-  }
-
   .filters-border {
     border-radius: 0 3px 3px 0;
     border-top: 1px solid #ddd;

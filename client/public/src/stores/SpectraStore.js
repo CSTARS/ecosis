@@ -6,7 +6,10 @@ class SpectraStore extends BaseStore {
     super();
 
     this.data = {
-      currentSearchId : 0,
+      searchId : {
+        spectra: 0,
+        spectraCount: 0
+      },
       stats : {},
       search : {},
       count : {}
@@ -68,7 +71,7 @@ class SpectraStore extends BaseStore {
   }
 
   _setSearchState(state) {
-    this.state.search[state.metadata.name] = state;
+    this.data.search[state.metadata.name] = state;
     this.emit(this.events.SPECTRA_SEARCH_UPDATE, state);
   }
 
@@ -95,7 +98,7 @@ class SpectraStore extends BaseStore {
   }
 
   _setCountState(state) {
-    this.state.search[state.metadata.name] = state;
+    this.data.search[state.metadata.name] = state;
     this.emit(this.events.SPECTRA_COUNT_UPDATE, state);
   }
 

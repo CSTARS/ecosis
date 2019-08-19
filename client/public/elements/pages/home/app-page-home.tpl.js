@@ -120,9 +120,12 @@ ${litCss(sharedStylesHtml)}
     display: flex;
   }
 
-  @media(max-width: 678px) {
+  @media(max-width: 768px) {
     .stats-container-inner {
       display: block;
+    }
+    .top-margin-sm {
+      margin-top: 25px !important;
     }
   }
 
@@ -186,7 +189,7 @@ ${litCss(sharedStylesHtml)}
         </div>
       </div>
       <div>
-        <h2 class="uheader green">Top Keywords</h2>
+        <h2 class="uheader green top-margin-sm">Top Keywords</h2>
         <div id="Keywords">
           ${this.keywords.map(item => html`
             <div class="stat-row">
@@ -197,7 +200,7 @@ ${litCss(sharedStylesHtml)}
         </div>
       </div>
       <div>
-        <h2 class="uheader lightblue">Top Themes</h2>
+        <h2 class="uheader lightblue top-margin-sm">Top Themes</h2>
         <div id="Theme">
           ${this.themes.map(item => html`
             <div class="stat-row">
@@ -244,7 +247,7 @@ ${litCss(sharedStylesHtml)}
         </div>
       </div>
       <div style="flex: 1">
-        <h3 class="uheader green">Need Help?</h3>
+        <h3 class="uheader green top-margin-sm">Need Help?</h3>
         <div style="margin-bottom: 15px;">Visit the <a href="http://tutorial.ecosis.org/" highlight>EcoSIS Tutorials</a>. Or Contact:</div>
         <div style="margin-bottom: 10px; line-height: 22px;">
           <div><a href="mailto:info@ecosis.org" highlight>info@ecosis.org</a></div>
@@ -267,8 +270,8 @@ ${litCss(sharedStylesHtml)}
 
         <h3>Sponsor</h3>
 
-        <div style="display:flex">
-          <div>
+        <div style="display:flex; align-items: center">
+          <div style="padding-right: 10px;">
             <a href="https://www.nasa.gov/">
               <img class="media-object" src="/assets/NASA_logo.png" style="max-width: 96px" alt="NASA Logo">
             </a>
@@ -283,7 +286,7 @@ ${litCss(sharedStylesHtml)}
       <div style="width:25px; flex: 0"></div>
       <div style="flex: 1">
 
-        <h3>Executive Team</h3>
+        <h3 class="top-margin-sm">Executive Team</h3>
         <div>
           <a href="http://labs.russell.wisc.edu/townsend/" target="_blanl">University of Wisconsin - Madison, EnSpec</a><br />
           <a href="http://www.cstars.ucdavis.edu/" target="_blanl">University of California - Davis, CSTARS</a><br />

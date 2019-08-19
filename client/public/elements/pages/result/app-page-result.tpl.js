@@ -62,9 +62,7 @@ return html`
   selected="${this.view}">
   <app-package-metadata view="metadata"></app-package-metadata>
   <app-package-download view="download"></app-package-download>
-  <div view="viewer">
-    Viewer
-  </div>
+  <app-spectra-viewer view="viewer"></app-spectra-viewer>
 </iron-pages>
 
 <div class="root">
