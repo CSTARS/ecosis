@@ -24,6 +24,13 @@ export default class AppSpectraViewer extends Mixin(LitElement)
       absMinWavelength : {type: Number},
       absMaxWavelength : {type: Number},
 
+      // reflectance filter
+      minReflectance : {type: Number},
+      maxReflectance : {type: Number},
+      absMinReflectance : {type: Number},
+      absMaxReflectance : {type: Number},
+      freezeYAxis : {type: Boolean},
+
       // species filters
       speciesFilters : {type: Array},
       filterCommonName : {type: Array},
@@ -56,6 +63,12 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.filterCommonName = [];
     this.filterSpecies = [];
     this.filterGenus = [];
+
+    this.freezeYAxis = false;
+    this.minReflectance = 0;
+    this.maxReflectance = 0;
+    this.absMinReflectance = 0;
+    this.absMaxReflectance = 0;
 
     window.addEventListener('resize', () => {
       this.windowInnerWidth = window.innerWidth;
@@ -106,17 +119,25 @@ export default class AppSpectraViewer extends Mixin(LitElement)
 
     this.speciesFilters = [];
     this.filterCommonName = this.pkg['Common Name'] || [];
+    this.filterCommonName.sort();
     if( this.filterCommonName.length ) this.speciesFilters.push('Common Name');
     this.filterSpecies = this.pkg['Latin Species'] || [];
+    this.filterSpecies.sort();
     if( this.filterSpecies.length ) this.speciesFilters.push('Latin Species');
     this.filterGenus = this.pkg['Latin Genus'] || [];
+    this.filterGenus.sort();
     if( this.filterGenus.length ) this.speciesFilters.push('Latin Genus');
     if( this.speciesFilters.length ) this.speciesFilters.unshift('');
     this.selectedSpeciesFilter = '';
 
+    this.freezeYAxis = false;
     this.currentIndex = 0;
     this.totalSpectraCount = this.pkg.ecosis.spectra_count || 0;
     this.filters = [];
+
+    // we need to know if we should reset filters or now when spectra search completes
+    this.firstSpectraRender = true;
+
     this.querySpectra();
   }
 
@@ -169,6 +190,9 @@ export default class AppSpectraViewer extends Mixin(LitElement)
    * @param {Object} spectra 
    */
   async renderSpectra(spectra) {
+    let firstSpectraRender = this.firstSpectraRender;
+    this.firstSpectraRender = false;
+
     await this.GoogleModel.loadCharts();
     if( !this.chart ) {
       this.chart = new google.visualization.LineChart(this.chartEle);
@@ -181,15 +205,22 @@ export default class AppSpectraViewer extends Mixin(LitElement)
 
     let absMinW = Number.MAX_VALUE;
     let absMaxW = Number.MIN_VALUE;
+    let absMinR = Number.MAX_VALUE;
+    let absMaxR = Number.MIN_VALUE;
 
     for( let key in spectra ) {
       if( key === 'datapoints' ) {
         for( let w in spectra.datapoints ) {
           let fw = parseFloat(w);
+          let fv = parseFloat(spectra.datapoints[w]);
+
           if( fw < absMinW ) absMinW = fw;
           if( fw > absMaxW ) absMaxW = fw;
 
-          this.allWavelengths.push([parseFloat(w), parseFloat(spectra.datapoints[w])]);
+          if( fv < absMinR ) absMinR = fv;
+          if( fv > absMaxR ) absMaxR = fv;
+
+          this.allWavelengths.push([fw, fv]);
           // this.wavelengths.push([w, parseFloat(spectra.datapoints[w])]);
         }
       } else if( key === 'ecosis' ) {
@@ -211,10 +242,20 @@ export default class AppSpectraViewer extends Mixin(LitElement)
       return 0;
     });
 
+    if( firstSpectraRender ) {
+      this.minReflectance = absMinR;
+      this.maxReflectance = absMaxR;
+    }
+    this.absMinReflectance = absMinR;
+    this.absMaxReflectance = absMaxR;
+    this.updateChartOptions();
+
     this.absMaxWavelength = absMaxW;
     this.absMinWavelength = absMinW;
-    this.maxWavelength = absMaxW;
-    this.minWavelength = absMinW;
+    if( firstSpectraRender ) {
+      this.maxWavelength = absMaxW;
+      this.minWavelength = absMinW;
+    }
     this.filterWavelenths();
 
     let mc1 = [];
@@ -225,13 +266,6 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     });
     this.mc1 = mc1;
     this.mc2 = mc2;
-
-    this.chartOptions = {
-      legend: { position: 'none' },
-      series: {
-        0: { color: '#4db6ac' }
-      }
-    };
     
     this.redraw();
   }
@@ -264,6 +298,48 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.chartEle.style.width = chartSize+'px';
 
     this.chart.draw(this.chartData, this.chartOptions);
+  }
+
+  /**
+   * @method updateChartOptions
+   * @description update the chart options object.  Mostly used to change 
+   * froozen y-axis values;
+   */
+  updateChartOptions() {
+    let opts = {
+      legend: { position: 'none' },
+      series: {
+        0: { color: '#4db6ac' }
+      },
+      vAxis : {},
+      hAxis : {},
+      tooltip: {isHtml: true}
+    };
+    if( this.freezeYAxis ) {
+      opts.vAxis.viewWindow = {
+        min : this.minReflectance,
+        max : this.maxReflectance
+      }
+    }
+
+    let label = '';
+    if( this.pkg['Measurement Quantity'] && this.pkg['Measurement Quantity'].length === 1  ) {
+      label = this.pkg['Measurement Quantity'][0];
+    }
+    if( this.pkg['Measurement Units'] && this.pkg['Measurement Units'].length === 1 ) {
+      label += ' ('+this.pkg['Measurement Units'][0]+')';
+    }
+    opts.vAxis.title = label;
+    if( this.pkg['Wavelength Units'] && this.pkg['Wavelength Units'].length === 1  ) {
+      label = this.pkg['Wavelength Units'][0];
+      if( label !== 'other' ) {
+        opts.hAxis.title = 'Wavelength ('+label+')';
+      } else if( this.pkg['Wavelength Units Other'] && this.pkg['Wavelength Units Other'].length === 1  ) {
+        opts.hAxis.title = 'Wavelength ('+this.pkg['Wavelength Units Other'][0]+')';
+      }
+    }
+
+    this.chartOptions = opts;
   }
 
   /**
@@ -340,6 +416,44 @@ export default class AppSpectraViewer extends Mixin(LitElement)
    */
   _onSelectSpeciesFilterChange(e) {
     this.selectedSpeciesFilter = e.currentTarget.value;
+    if( this.selectedSpeciesFilter ) {
+      let value = '/^'+this.pkg[this.selectedSpeciesFilter][0]+'$/';
+      this.filters = [{[this.selectedSpeciesFilter]: value}];
+    } else {
+      this.filters = [];
+    }
+    this.currentIndex = 0;
+    this.querySpectra();
+  }
+
+  /**
+   * @method _onSelectSpeciesValueChange
+   * @description bound to specific species filter value input
+   */
+  _onSelectSpeciesValueChange(e) {
+    let value = e.currentTarget.value;
+    this.filters = [{[this.selectedSpeciesFilter]: '/^'+value+'$/'}];
+    this.currentIndex = 0;
+    this.querySpectra();
+  }
+
+  /**
+   * @method _onFreezeRadioChange
+   * @description bound to radio button the selects if y-axis is to be frozen
+   */
+  _onFreezeRadioChange(e) {
+    this.freezeYAxis = e.currentTarget.checked ? true : false;
+  }
+
+  /**
+   * @method _onReflectanceFilterChange
+   * @description bound to wavelengths min-max filter element change event
+   */
+  _onReflectanceFilterChange(e) {
+    this.minReflectance = e.detail.min;
+    this.maxReflectance = e.detail.max;
+    this.updateChartOptions();
+    this.redraw();
   }
 
 }

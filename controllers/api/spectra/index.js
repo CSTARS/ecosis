@@ -11,6 +11,8 @@ router.get('/search', async (req, res) => {
   search(null, req, res);
 });
 
+const REGEX_MATCH = /^\/.*\/$/;
+
 async function search(package_id, req, res) {
   res.set('Content-Type', 'application/json');
   
@@ -21,6 +23,13 @@ async function search(package_id, req, res) {
   try {
     if( filters ) {
       filters = JSON.parse(filters);
+      for( let filter of filters ) {
+        for( let key in filter ) {
+          if( typeof filter[key] === 'string' && filter[key].match(REGEX_MATCH) ) {
+            filter[key] = new RegExp(filter[key].replace(/\//g, ''), 'i');
+          }
+        }
+      }
     }
   } catch(e) {
     return handleError(res, new Error('Failed to parse filters parameter as JSON'));

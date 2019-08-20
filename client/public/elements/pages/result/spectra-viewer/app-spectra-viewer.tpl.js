@@ -175,21 +175,31 @@ ${litCss(sharedStylesHtml)}
             attr-for-selected="filter" 
             selected="${this.selectedSpeciesFilter}">
             <div filter="Common Name">
-              <select>
+              <select @change="${this._onSelectSpeciesValueChange}">
                 ${this.filterCommonName.map(opt => html`<option value="${opt}">${opt}</option>`)}
               </select>
             </div>
             <div filter="Latin Species">
-              <select>
+              <select @change="${this._onSelectSpeciesValueChange}">
                 ${this.filterSpecies.map(opt => html`<option value="${opt}">${opt}</option>`)}
               </select>
             </div>
             <div filter="Latin Genus">
-              <select>
+              <select @change="${this._onSelectSpeciesValueChange}">
                 ${this.filterGenus.map(opt => html`<option value="${opt}">${opt}</option>`)}
               </select>
             </div>
           </iron-pages>
+        </div>
+
+        <div>
+          <div><input type="radio" name="freeze" @change="${this._onFreezeRadioChange}}"/> <label for="freeze">Freeze Y-Axis</label></div>
+          <app-min-max-input 
+            ?hidden="${!this.freezeYAxis}"
+            @range-value-change="${this._onReflectanceFilterChange}"
+            abs-max="${this.absMaxReflectance}"
+            abs-min="${this.absMinReflectance}">
+          </app-min-max-input>
         </div>
       </div>
     </div>
@@ -240,7 +250,7 @@ ${litCss(sharedStylesHtml)}
 
     <div class="root">
       <div class="main-panel">
-        <h2 class="uheader lightgreen">Metadata</h2>
+        <h2 class="uheader lightblue">Metadata</h2>
         <div class="metadata-layout row">
           <div>
             ${this.mc1.map(item => html`
