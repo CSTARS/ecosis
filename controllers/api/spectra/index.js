@@ -39,25 +39,28 @@ async function search(package_id, req, res) {
    * Response will contain a stream, count, start, end and messages array
    */
   try {
-    let result = await model.query(package_id, filters, start, stop);
-    res.write('{"total":' + result.count +
-      ',"start":' + result.start +
-      ',"stop":' + result.stop +
-      ', "messages": '+JSON.stringify(result.messages) +
-      ', "items":[');
 
-    // map reduce for this was super slow :(
-    var first = true;
-    result.stream.on('data', item => {
-      mongo.cleanDatapoints(item);
-      utils.addDatasetLinks(item);
+    let first = true;
 
-      res.write((first ? '' : ',') + JSON.stringify(item));
-      first = false;
+    await model.query(package_id, filters, start, stop, {
+      start : result => {
+        res.write('{"total":' + result.count +
+          ',"start":' + result.start +
+          ',"stop":' + result.stop +
+          ', "messages": '+JSON.stringify(result.messages) +
+          ', "items":[');
+      },
+      data : item => {
+        mongo.cleanDatapoints(item);
+        utils.addDatasetLinks(item);
+        res.write((first ? '' : ',') + JSON.stringify(item));
+        first = false;
+      },
+      end : () => {
+        res.end(']}');
+      }
     });
-    result.stream.on('end', () => {
-      res.end(']}');
-    });
+
   } catch(e) {
     handleError(res, e);
   }

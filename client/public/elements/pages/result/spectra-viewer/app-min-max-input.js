@@ -24,20 +24,17 @@ export default class AppMinMaxInput extends LitElement {
     this.render = render.bind(this);
   }
 
-  updated(props) {
-    if( props.has('absMin') ) {
-      this.min = this.absMin;
-    }
-    if( props.has('absMax') ) {
-      this.max = this.absMax;
-    }
+  reset() {
+    this.min = this.absMin;
+    this.max = this.absMax;
   }
 
   _onMinChange(e) {
     let val = parseFloat(e.currentTarget.value);
-    if( val < this.absMin ) {
-      this.min = this.absMin;
-    } else if( val > this.max ) {
+    // if( val < this.absMin ) {
+    //   this.min = this.absMin;
+    // } else 
+    if( val > this.max ) {
       this.min = this.max;
     } else {
       this.min = val;
@@ -47,9 +44,10 @@ export default class AppMinMaxInput extends LitElement {
 
   _onMaxChange(e) {
     let val = parseFloat(e.currentTarget.value);
-    if( val > this.absMax ) {
-      this.max = this.absMax;
-    } else if( val < this.min ) {
+    // if( val > this.absMax ) {
+    //   this.max = this.absMax;
+    // } else 
+    if( val < this.min ) {
       this.max = this.min;
     } else {
       this.max = val;

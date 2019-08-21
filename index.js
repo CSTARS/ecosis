@@ -41,7 +41,6 @@ app.use('/api', require('./controllers/api'));
 /**
  * setup sitemap
  */
-// require('./models/sitemap').middleware(app);
 app.use(require('./controllers/seo'));
 
 /**

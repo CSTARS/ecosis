@@ -29,7 +29,7 @@ class SpectraModel {
     return results.map(result => result.ecosis.geojson);
   }
 
-  async query(pkgNameOrId, filters, start, stop) {
+  async query(pkgNameOrId, filters, start, stop, callbacks) {
     let pkgId = await mongo.getPackageId(pkgNameOrId);
     var messages = [];
   
@@ -62,15 +62,28 @@ class SpectraModel {
 
     let collection = await mongo.spectraCollection();
     let count = await collection.count(query);
-  
-    let cursor = collection.find(query);
-    let stream = cursor.stream();
-    stream
-      .skip(start)
-      .sort({'ecosis.sort': 1 })
-      .limit(stop-start);
 
-    return {count, stream, messages, start, stop};
+    if( callbacks.start ) {
+      callbacks.start({count, messages, start, stop});
+    }
+
+    return new Promise((resolve, reject) => {
+      let cursor = collection.find(query)
+        .skip(start)
+        .sort({'ecosis.sort': 1 })
+        .limit(stop-start);
+
+      cursor.each((err, item) => {
+        if( err ) return reject(err);
+        if( !item ) {
+          if( callbacks.end ) callbacks.end(item)
+          return resolve(); 
+        }
+        callbacks.data(item);
+      });
+
+    });
+
   }
 
   async _stats(pkgid, filters, resolve, reject) {

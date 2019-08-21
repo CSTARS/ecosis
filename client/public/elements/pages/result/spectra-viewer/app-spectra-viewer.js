@@ -18,6 +18,8 @@ export default class AppSpectraViewer extends Mixin(LitElement)
       mobileFiltersOpen : {type: Boolean},
       packageTitle : {type: String},
 
+      freezeAxis : {type: Boolean},
+
       // wavelength filter
       minWavelength : {type: Number},
       maxWavelength : {type: Number},
@@ -29,7 +31,7 @@ export default class AppSpectraViewer extends Mixin(LitElement)
       maxReflectance : {type: Number},
       absMinReflectance : {type: Number},
       absMaxReflectance : {type: Number},
-      freezeYAxis : {type: Boolean},
+      yAxisLabel : {type: Boolean},
 
       // species filters
       speciesFilters : {type: Array},
@@ -64,11 +66,12 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.filterSpecies = [];
     this.filterGenus = [];
 
-    this.freezeYAxis = false;
+    this.yAxisLabel = 'Y Axis';
     this.minReflectance = 0;
     this.maxReflectance = 0;
     this.absMinReflectance = 0;
     this.absMaxReflectance = 0;
+    this.freezeAxis = false;
 
     window.addEventListener('resize', () => {
       this.windowInnerWidth = window.innerWidth;
@@ -130,15 +133,12 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     if( this.speciesFilters.length ) this.speciesFilters.unshift('');
     this.selectedSpeciesFilter = '';
 
-    this.freezeYAxis = false;
+    this.freezeAxis = false;
     this.currentIndex = 0;
     this.totalSpectraCount = this.pkg.ecosis.spectra_count || 0;
     this.filters = [];
 
-    // we need to know if we should reset filters or now when spectra search completes
-    this.firstSpectraRender = true;
-
-    this.querySpectra();
+    await this.querySpectra();
   }
 
   /**
@@ -154,23 +154,16 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     };
 
     let qstr = JSON.stringify(query);
-    if( this.qstr === qstr ) return;
+    if( this.qstr === qstr ) {
+      this.redraw();
+      return;
+    }
     this.qstr = qstr;
 
-    this.SpectraModel.search(query, this.packageId);
-  }
-
-  /**
-   * @method _onSpectraSearchUpdate
-   * @description bound to SpectraModel spectra-search-update event
-   * 
-   * @param {Object} e 
-   */
-  _onSpectraSearchUpdate(e) {
-    if( e.state === 'loading' ) {
-      return this.loading = true;
-    }
+    this.loading = true;
+    let e = await this.SpectraModel.search(query, this.packageId);
     this.loading = false;
+
     if( e.state === 'error' ) {
       return alert(e.error.message);
     }
@@ -183,6 +176,29 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.renderSpectra(e.payload.items[0]);
   }
 
+  // /**
+  //  * @method _onSpectraSearchUpdate
+  //  * @description bound to SpectraModel spectra-search-update event
+  //  * 
+  //  * @param {Object} e 
+  //  */
+  // _onSpectraSearchUpdate(e) {
+  //   if( e.state === 'loading' ) {
+  //     return this.loading = true;
+  //   }
+  //   this.loading = false;
+  //   if( e.state === 'error' ) {
+  //     return alert(e.error.message);
+  //   }
+  //   if( e.payload.items.length === 0 ) {
+  //     console.error(e);
+  //     return alert('Failed to load spectra');
+  //   }
+
+  //   this.currentSearchCount = e.payload.total;
+  //   this.renderSpectra(e.payload.items[0]);
+  // }
+
   /**
    * @method renderSpectra
    * @description render a spectra object from the ecosis spectra api
@@ -190,9 +206,6 @@ export default class AppSpectraViewer extends Mixin(LitElement)
    * @param {Object} spectra 
    */
   async renderSpectra(spectra) {
-    let firstSpectraRender = this.firstSpectraRender;
-    this.firstSpectraRender = false;
-
     await this.GoogleModel.loadCharts();
     if( !this.chart ) {
       this.chart = new google.visualization.LineChart(this.chartEle);
@@ -242,7 +255,7 @@ export default class AppSpectraViewer extends Mixin(LitElement)
       return 0;
     });
 
-    if( firstSpectraRender ) {
+    if( !this.freezeAxis ) {
       this.minReflectance = absMinR;
       this.maxReflectance = absMaxR;
     }
@@ -250,12 +263,12 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.absMaxReflectance = absMaxR;
     this.updateChartOptions();
 
-    this.absMaxWavelength = absMaxW;
-    this.absMinWavelength = absMinW;
-    if( firstSpectraRender ) {
+    if( !this.freezeAxis ) {
       this.maxWavelength = absMaxW;
       this.minWavelength = absMinW;
     }
+    this.absMaxWavelength = absMaxW;
+    this.absMinWavelength = absMinW;
     this.filterWavelenths();
 
     let mc1 = [];
@@ -315,7 +328,8 @@ export default class AppSpectraViewer extends Mixin(LitElement)
       hAxis : {},
       tooltip: {isHtml: true}
     };
-    if( this.freezeYAxis ) {
+
+    if( this.freezeAxis ) {
       opts.vAxis.viewWindow = {
         min : this.minReflectance,
         max : this.maxReflectance
@@ -330,6 +344,8 @@ export default class AppSpectraViewer extends Mixin(LitElement)
       label += ' ('+this.pkg['Measurement Units'][0]+')';
     }
     opts.vAxis.title = label;
+    this.yAxisLabel = label || 'Y Axis';
+
     if( this.pkg['Wavelength Units'] && this.pkg['Wavelength Units'].length === 1  ) {
       label = this.pkg['Wavelength Units'][0];
       if( label !== 'other' ) {
@@ -438,14 +454,6 @@ export default class AppSpectraViewer extends Mixin(LitElement)
   }
 
   /**
-   * @method _onFreezeRadioChange
-   * @description bound to radio button the selects if y-axis is to be frozen
-   */
-  _onFreezeRadioChange(e) {
-    this.freezeYAxis = e.currentTarget.checked ? true : false;
-  }
-
-  /**
    * @method _onReflectanceFilterChange
    * @description bound to wavelengths min-max filter element change event
    */
@@ -454,6 +462,35 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.maxReflectance = e.detail.max;
     this.updateChartOptions();
     this.redraw();
+  }
+
+  /**
+   * @method _toggleFreezeAxis
+   * @description bound to checkbox click event.  toggle the freezing of the axis
+   */
+  _toggleFreezeAxis() {
+    this.freezeAxis = !this.freezeAxis;
+    if( !this.freezeAxis ) {
+      this.minReflectance = this.absMinReflectance;
+      this.maxReflectance = this.absMaxReflectance;
+      this.minWavelength = this.absMinWavelength;
+      this.maxWavelength = this.absMaxWavelength;
+    }
+    this.filterWavelenths();
+    this.updateChartOptions();
+    this.redraw();
+  }
+
+  _onResetClicked() {
+    this.freezeAxis = false;
+    this.minReflectance = this.absMinReflectance;
+    this.maxReflectance = this.absMaxReflectance;
+    this.minWavelength = this.absMinWavelength;
+    this.maxWavelength = this.absMaxWavelength;
+    this.currentIndex = 0;
+    this.selectedSpeciesFilter = '';
+    this.filters = [];
+    this.querySpectra();
   }
 
 }

@@ -10,7 +10,6 @@ import {jsonldTransform} from "../src"
 import "@polymer/iron-pages"
 
 import "@ucd-lib/cork-app-state"
-import "./styles/custom-properties"
 import "./pages/home/app-page-home"
 import "./pages/search/app-page-search"
 import "./pages/result/app-page-result"

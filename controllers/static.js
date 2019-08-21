@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
 const spaMiddleware = require('@ucd-lib/spa-router-middleware');
 const config = require('../lib/config');
 const jsonldTransform = require('../lib/ldjson');
@@ -8,6 +7,7 @@ const gitInfo = require('../lib/git-info');
 const package = require('../models/package');
 const organization = require('../models/organization');
 const schema = require('../lib/schema');
+const logger = require('../lib/logger');
 
 // const authUtils = require('./auth');
 // const records = require('../models/records');
@@ -26,6 +26,7 @@ const bundle = `
 
 module.exports = (app) => {
   let assetsDir = path.join(__dirname, '..', 'client', config.server.assets);
+  logger.info('Service static dir', assetsDir);
 
   /**
    * Setup SPA app routes

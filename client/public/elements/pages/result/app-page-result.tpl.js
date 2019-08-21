@@ -27,6 +27,12 @@ return html`
     font-weight: bold;
   }
 
+  @media(max-width: 500px) {
+    .hidden-sm {
+      display: none;
+    }
+  }
+
 </style>  
 
 <div class="tabs">
@@ -52,7 +58,7 @@ return html`
     @keyup="${this._onTabKeyup}" 
     view="viewer"
     tabindex="1">
-    Spectra Viewer
+    <span class="hidden-sm">Spectra </span>Viewer
   </div>
 </div>
 

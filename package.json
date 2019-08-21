@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "watch": "cd client && webpack --config webpack-watch.config.js --watch",
-    "dist": "cd client && webpack --config webpack-dist.config.js"
+    "dist": "cd client && ./build.sh"
   },
   "dependencies": {
     "@ucd-lib/spa-router-middleware": "^0.1.0",
