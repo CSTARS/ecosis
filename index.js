@@ -48,6 +48,6 @@ app.use(require('./controllers/seo'));
  */
 require('./controllers/static')(app);
  
-app.listen(8000, () => {
-  logger.info('server ready on port 8000, using: '+config.server.assets);
+app.listen(config.server.port, () => {
+  logger.info(`server ready on port ${config.server.port}, using: `+config.server.assets);
 });
