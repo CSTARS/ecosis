@@ -15,13 +15,20 @@ export default class AppMinMaxInput extends LitElement {
       absMax : {
         type: Number,
         attribute: 'abs-max'
-      }
+      },
+      step : {type: Number}
     }
   }
 
   constructor() {
     super();
     this.render = render.bind(this);
+  }
+
+  updated(props) {
+    if( (props.has('absMin') || props.has('absMax')) && this.absMin && this.absMax ) {
+      this.step = (this.absMax - this.absMin) / 10;
+    }
   }
 
   reset() {

@@ -32,11 +32,11 @@ ${litCss(sharedStylesHtml)}
 
 <div class="layout">
   <div>
-    <div><input type="number" .value="${this.min}" @change="${this._onMinChange}" /></div>
+    <div><input type="number" step="${this.step}" .value="${this.min}" @change="${this._onMinChange}" /></div>
     <div class="label">Min</div>
   </div>
   <div>
-    <div><input type="number" .value="${this.max}" @change="${this._onMaxChange}" /></div>
+    <div><input type="number" step="${this.step}" .value="${this.max}" @change="${this._onMaxChange}" /></div>
     <div class="label">Max</div>
   </div>
 </div>

@@ -34,6 +34,17 @@ ${litCss(sharedStylesHtml)}
     color: white;
     text-decoration: none;
   }
+
+  paper-progress {
+    --paper-progress-active-color : var(--light-secondary-color);
+    --paper-progress-secondary-color : var(--light-secondary-color);
+    --paper-progress-container-color : transparent;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+  }
 </style>
 
 <div class="header" sandbox$="[[sandbox]]">
@@ -47,4 +58,7 @@ ${litCss(sharedStylesHtml)}
   </div>
 </div>
 
+<div style="position: relative">
+  <paper-progress indeterminate class="slow" ?hidden="${!this.loading}" ></paper-progress>
+</div>
 `;}

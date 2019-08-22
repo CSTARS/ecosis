@@ -167,6 +167,8 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     if( e.state === 'error' ) {
       return alert(e.error.message);
     }
+    if( e.state !== 'loaded' ) return;
+
     if( e.payload.items.length === 0 ) {
       console.error(e);
       return alert('Failed to load spectra');
@@ -329,7 +331,7 @@ export default class AppSpectraViewer extends Mixin(LitElement)
       tooltip: {isHtml: true}
     };
 
-    if( this.freezeAxis ) {
+    if( this.minReflectance !== this.absMinReflectance || this.maxReflectance !== this.absMaxReflectance ) {
       opts.vAxis.viewWindow = {
         min : this.minReflectance,
         max : this.maxReflectance

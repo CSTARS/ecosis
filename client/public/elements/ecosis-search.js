@@ -53,7 +53,10 @@ export default class EcosisSearch extends Mixin(LitElement)
     this.menuEle = this.shadowRoot.querySelector('.menu');
     this.appHeaderEle = this.shadowRoot.querySelector('app-header');
     this.mainEle = this.shadowRoot.querySelector('.main-content');
-    this.seo = document.querySelector('#seo-jsonld');
+    this.seoEle = document.querySelector('#seo-jsonld');
+    this.titleEle = document.querySelector('title');
+    this.keywordsEle = document.querySelector('meta[name="keywords"]');
+    this.descriptionEle = document.querySelector('meta[name="description"]');
   }
 
   async _onAppStateUpdate(e) {
@@ -64,13 +67,21 @@ export default class EcosisSearch extends Mixin(LitElement)
 
     try {
       if( this.page !== 'package' ) {
-        this.seo.innerHTML = '';
+        this.seoEle.innerHTML = '';
+        this.titleEle.innerHTML = APP_CONFIG.seo.title;
+        this.keywordsEle.setAttribute('content', APP_CONFIG.seo.keywords);
+        this.descriptionEle.setAttribute('content', APP_CONFIG.seo.description);
       } else {
         let pkg = await this.PackageModel.get(e.location.path[1]);
         pkg = pkg.payload;
         let org = await this.OrganizationModel.get(pkg.ecosis.organization_id);
         pkg.organization_info = org.payload;
-        this.seo.innerHTML = JSON.stringify(jsonldTransform(pkg), '  ', '  ');
+
+        let seo = jsonldTransform(pkg);
+        this.seoEle.innerHTML = JSON.stringify(seo.ldjson, '  ', '  ');
+        this.titleEle.innerHTML = seo.title;
+        this.keywordsEle.setAttribute('content', seo.keywords);
+        this.descriptionEle.setAttribute('content', seo.description);
       }
     } catch(e) {
       console.error('Failed to set jsonld seo tag', e);

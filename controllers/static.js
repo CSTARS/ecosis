@@ -45,6 +45,7 @@ module.exports = (app) => {
         filterLabelMap : config.mongo.filterLabelMap,
         geoFilter : config.mongo.geoFilter,
         git : await gitInfo(),
+        seo : config.client.seo,
         schema
       });
     },
@@ -58,16 +59,26 @@ module.exports = (app) => {
       }
 
       if( !isPackage ) {
-        return next({jsonld, bundle});
+        return next({
+          title : config.client.seo.title,
+          keywords : config.client.seo.keywords,
+          description : config.client.seo.description,
+          jsonld, 
+          bundle
+        });
       }
 
       try {
         let pkg = await package.get(parts[1]);
         pkg.ecosis.organization_info = await organization.get(pkg.ecosis.organization_id);
 
-        let jsonld = JSON.stringify(jsonldTransform(pkg, config.server.url), '  ', '  ');
+        let seo = jsonldTransform(pkg, config.server.url);
+        let jsonld = JSON.stringify(seo.ldjson, '  ', '  ');
     
         return next({
+          title : seo.title || '',
+          keywords : seo.keywords || '',
+          description : seo.description || '',
           jsonld, bundle
         });
       } catch(e) {
