@@ -62,14 +62,16 @@ class SpectraService extends BaseService {
     });
   }
 
-  stats(packageId) {
+  stats(filter, packageId) {
+    let qs = '';
+    if( filter ) qs = '?filter='+encodeURIComponent(JSON.stringify(filter));
     return this.request({
-      url : `/api/spectra/stats/${packageId}`,
+      url : `/api/spectra/stats/${packageId}${qs}`,
       json : true,
-      checkCached : () => this.store.data.stats[packageId],
-      onLoading : request => this.store.setStatsLoading(packageId, request),
-      onLoad : response => this.store.setStatsLoaded(packageId, response.body),
-      onError : error => this.store.setStatsError(packageId, error)
+      // checkCached : () => this.store.data.stats[packageId],
+      onLoading : request => this.store.setStatsLoading(request),
+      onLoad : response => this.store.setStatsLoaded(response.body),
+      onError : error => this.store.setStatsError(error)
     });
   }
 

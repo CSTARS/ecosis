@@ -32,8 +32,8 @@ export default class AppLocationFilter extends Mixin(LitElement)
   }
 
   _onOpen() {
-    if( !this.map ) return;
-    //this.map.setView([39.251, -97.850], 4);
+    // if( !this.map ) return;
+    this._initMap();
 
     // TODO: if a filter is set, zoom to it here
 
@@ -51,8 +51,11 @@ export default class AppLocationFilter extends Mixin(LitElement)
     if ( !navigator.geolocation ) {
       this.shadowRoot.querySelector('paper-button[locate]').style.display = 'none';
     }
+  }
 
+  _initMap() {
     if( this.map ) return;
+    console.log('here');
     this.map = L
       .map(this.shadowRoot.querySelector("#map"))
       .setView([39.251, -97.850], 4);

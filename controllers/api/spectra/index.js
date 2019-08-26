@@ -66,9 +66,9 @@ async function search(package_id, req, res) {
   }
 }
 
-router.get('/stats', async (req, res) => {
-  let pkgid = req.query.package_id;
-  let filters = req.query.filters;
+router.get('/stats/:package_id', async (req, res) => {
+  let pkgid = req.params.package_id;
+  let filters = req.query.filters || [];
 
   try {
     res.json(await model.stats(pkgid, filters));

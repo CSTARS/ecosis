@@ -9,7 +9,8 @@ ${litCss(sharedStylesHtml)}
   :host {
     display: block;
   }
-  #chart {
+  
+  .chart {
     width: 100%;
     height: 400px;
   }
@@ -190,7 +191,9 @@ ${litCss(sharedStylesHtml)}
       display: flex;
     }
   }
-</style>  
+</style>
+
+${this.googleChartStyles.map(href => html`<link rel="stylesheet" href="${href}" />`)}
 
 <div class="layout">
   <div class="filters-background" ?open="${this.mobileFiltersOpen}"></div>
@@ -265,6 +268,16 @@ ${litCss(sharedStylesHtml)}
             </div>
           </iron-pages>
         </div>
+
+        <div class="filter-panel">
+          <div class="filter-header">
+            <input id="stats" type="checkbox" @click="${this._toggleStatsMode}" .checked="${this.statsMode}" />
+            <label for="stats">Stats</label>
+          </div>
+          <div class="help" style="padding-left: 5px">
+            Show stats for collection rather than individual spectra.
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -279,7 +292,7 @@ ${litCss(sharedStylesHtml)}
     <div class="root">
       <div class="main-panel chart-main-panel">
 
-        <div style="display: flex; align-items: center">
+        <div style="display: flex; align-items: center" ?hidden="${this.statsMode}">
           <paper-icon-button chart-nav
             icon="arrow-back"
             style="left: 10px;"
@@ -295,8 +308,9 @@ ${litCss(sharedStylesHtml)}
           </paper-icon-button>
         </div>
 
-        <div id="chart"></div>
-        <div style="margin: 15px">
+        <div id="chart" class="chart" ?hidden="${this.loading}"></div>
+        <div class="chart" ?hidden="${!this.loading}"></div>
+        <div style="margin: 15px" ?hidden="${this.statsMode}">
           <paper-slider 
             pin 
             min="1" 
@@ -309,7 +323,7 @@ ${litCss(sharedStylesHtml)}
       </div>
     </div>
 
-    <div class="root">
+    <div class="root" ?hidden="${this.statsMode}">
       <div class="main-panel">
         <h2 class="uheader lightblue">Metadata</h2>
         <div class="metadata-layout row">

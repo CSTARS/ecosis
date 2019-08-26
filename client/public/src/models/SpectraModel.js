@@ -47,14 +47,14 @@ class SpectraModel extends BaseModel {
    * 
    * @param {*} packageId 
    */
-  async stats(packageId) {
+  async stats(filters, packageId) {
     try {
-      await this.service.stats(packageId);
+      await this.service.stats(filters, packageId);
     } catch(e) {
       console.error(e);
     }
 
-    return this.store.data.count[name];
+    return this.store.data.stats;
   }
 
 }

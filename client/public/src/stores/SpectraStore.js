@@ -22,29 +22,29 @@ class SpectraStore extends BaseStore {
   }
 
   // STATS
-  setStatsLoading(id, request) {
+  setStatsLoading(request) {
     this._setStatsState({
       state: this.STATE.LOADING,
-      id, request
+      request
     });
   }
 
   setStatsLoaded(payload) {
     this._setStatsState({
       state: this.STATE.LOADED,
-      id, payload
+      payload
     });
   }
 
   setStatsError(error) {
     this._setStatsState({
       state: this.STATE.ERROR,
-      id, error
+      error
     });
   }
 
   _setStatsState(state) {
-    this.data.stats[state.id] = state;
+    this.data.stats = state;
     this.emit(this.events.SPECTRA_STATS_UPDATE, state);
   }
 

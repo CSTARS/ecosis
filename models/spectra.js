@@ -86,21 +86,24 @@ class SpectraModel {
 
   }
 
-  async _stats(pkgid, filters, resolve, reject) {
-    if( pkgid === null ) {
+  async _stats(pkgNameOrId, filters, resolve, reject) {
+    if( !pkgNameOrId ) {
       return reject(new Error('package_id is required'));
     }
   
     try {
-      if( filters ) {
+      if( filters && typeof filters === 'string' ) {
         filters = JSON.parse(filters);
+      } else {
+        filters = [];
       }
     } catch(e) {
       filters = [];
     }
-  
+
+    let pkgid = await mongo.getPackageId(pkgNameOrId);
     let query = {'ecosis.package_id': pkgid};
-    if( filters ) {
+    if( filters.length) {
       query.$and = filters;
     }
   
@@ -108,6 +111,7 @@ class SpectraModel {
     let cursor = collection.find(query, {'datapoints' : 1});
     cursor.stream();
   
+    
     let resp = {}, key, value, delta, weight;
   
     // map reduce for this was super slow :(
@@ -157,7 +161,7 @@ class SpectraModel {
   
         delete resp[key].diff;
       }
-  
+
       resolve(resp);
     });
 

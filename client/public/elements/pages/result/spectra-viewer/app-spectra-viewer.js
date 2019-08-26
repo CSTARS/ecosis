@@ -16,7 +16,9 @@ export default class AppSpectraViewer extends Mixin(LitElement)
       mc1 : {type: Array},
       mc2 : {type: Array},
       mobileFiltersOpen : {type: Boolean},
+      googleChartStyles : {type: Array},
       packageTitle : {type: String},
+      loading : {type: Boolean},
 
       freezeAxis : {type: Boolean},
 
@@ -38,7 +40,10 @@ export default class AppSpectraViewer extends Mixin(LitElement)
       filterCommonName : {type: Array},
       filterSpecies : {type: Array},
       filterGenus : {type: Array},
-      selectedSpeciesFilter : {type: Array}
+      selectedSpeciesFilter : {type: Array},
+
+      // stats
+      statsMode : {type: Boolean}
     }
   }
 
@@ -55,6 +60,7 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.mc1 = [];
     this.mc2 = [];
     this.mobileFiltersOpen = false;
+    this.googleChartStyles = [];
     
     this.minWavelength = 0;
     this.maxWavelength = 0;
@@ -72,6 +78,8 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.absMinReflectance = 0;
     this.absMaxReflectance = 0;
     this.freezeAxis = false;
+
+    this.statsMode = false;
 
     window.addEventListener('resize', () => {
       this.windowInnerWidth = window.innerWidth;
@@ -92,6 +100,7 @@ export default class AppSpectraViewer extends Mixin(LitElement)
 
   firstUpdated() {
     this.chartEle = this.shadowRoot.getElementById('chart');
+    this.chartEles = Array.from(this.shadowRoot.querySelectorAll('.chart'));
   }
 
   /**
@@ -137,16 +146,63 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.currentIndex = 0;
     this.totalSpectraCount = this.pkg.ecosis.spectra_count || 0;
     this.filters = [];
+    this.statsMode = false;
 
     await this.querySpectra();
   }
 
+  querySpectra() {
+    if( this.statsMode ) return this._queryStats();
+    else this._querySpectra()
+  }
+
   /**
-   * @method querySpectra
+   * @method queryStats
    * @description set the filters and current index, then call
    * this function to load spectra from server of cache
    */
-  async querySpectra() {
+  async _queryStats() {
+    let query = {
+      filters: this.filters
+    };
+
+    let qstr = JSON.stringify(query);
+    if( this.smqstr === qstr ) {
+      this.redraw();
+      return;
+    }
+    this.smqstr = qstr;
+
+    this.loading = true;
+    let e = await this.SpectraModel.stats(query, this.packageId);
+    console.log(e);
+    this.loading = false;
+    console.log(this.loading);
+
+    if( e.state === 'error' ) {
+      return alert(e.error.message);
+    }
+    if( e.state !== 'loaded' ) return;
+
+    let stats = [], v, tooltip, type;
+    for( let ref in e.payload ) {
+      v = e.payload[ref];
+      tooltip = '<div style="padding:5px">';
+      for( let type in v ) tooltip += '<b>'+type+'</b>: '+v[type].toFixed(5)+'<br />';
+      tooltip += '</div>';
+
+      stats.push([parseFloat(ref), v.avg, tooltip, v.min, v.max]);
+    } 
+
+    this.renderStats(stats);
+  }
+
+  /**
+   * @method _querySpectra
+   * @description set the filters and current index, then call
+   * this function to load spectra from server of cache
+   */
+  async _querySpectra() {
     let query = {
       filters: this.filters,
       page: this.currentIndex,
@@ -178,29 +234,6 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.renderSpectra(e.payload.items[0]);
   }
 
-  // /**
-  //  * @method _onSpectraSearchUpdate
-  //  * @description bound to SpectraModel spectra-search-update event
-  //  * 
-  //  * @param {Object} e 
-  //  */
-  // _onSpectraSearchUpdate(e) {
-  //   if( e.state === 'loading' ) {
-  //     return this.loading = true;
-  //   }
-  //   this.loading = false;
-  //   if( e.state === 'error' ) {
-  //     return alert(e.error.message);
-  //   }
-  //   if( e.payload.items.length === 0 ) {
-  //     console.error(e);
-  //     return alert('Failed to load spectra');
-  //   }
-
-  //   this.currentSearchCount = e.payload.total;
-  //   this.renderSpectra(e.payload.items[0]);
-  // }
-
   /**
    * @method renderSpectra
    * @description render a spectra object from the ecosis spectra api
@@ -209,6 +242,14 @@ export default class AppSpectraViewer extends Mixin(LitElement)
    */
   async renderSpectra(spectra) {
     await this.GoogleModel.loadCharts();
+
+    if( !this._googleCssInjected ) {
+      this.googleChartStyles = Array.from(document.querySelectorAll('head link[rel="stylesheet"]'))
+        .filter(ele => ele.href.match(/www.gstatic.com\/charts/))
+        .map(ele => ele.href);
+      this._googleCssInjected = true;
+    }
+
     if( !this.chart ) {
       this.chart = new google.visualization.LineChart(this.chartEle);
     }
@@ -285,6 +326,46 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.redraw();
   }
 
+  renderStats(data) {
+    console.log(data);
+    this.allWavelengths = data;
+    this.allWavelengths.sort((a, b) => {
+      if( a[0] > b[0] ) return 1;
+      if( a[0] < b[0] ) return -1;
+      return 0;
+    });
+
+    let absMinW = Number.MAX_VALUE;
+    let absMaxW = Number.MIN_VALUE;
+    let absMinR = Number.MAX_VALUE;
+    let absMaxR = Number.MIN_VALUE;
+
+    for( let row of data ) {
+      if( row[0] < absMinW ) absMinW = row[0];
+      if( row[0] > absMaxW ) absMaxW = row[0];
+
+      if( row[3] < absMinR ) absMinR = row[3];
+      if( row[4] > absMaxR ) absMaxR = row[4];
+    }
+
+    if( !this.freezeAxis ) {
+      this.minReflectance = absMinR;
+      this.maxReflectance = absMaxR;
+    }
+    this.absMinReflectance = absMinR;
+    this.absMaxReflectance = absMaxR;
+    this.updateChartOptions();
+
+    if( !this.freezeAxis ) {
+      this.maxWavelength = absMaxW;
+      this.minWavelength = absMinW;
+    }
+    this.absMaxWavelength = absMaxW;
+    this.absMinWavelength = absMinW;
+    this.filterWavelenths();
+    this.redraw();
+  }
+
   redrawBuffered() {
     if( this.redrawTimer !== -1 ) clearTimeout(this.redrawTimer);
     
@@ -310,9 +391,9 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     chartSize = chartSize-24;
     if( this.windowInnerWidth > 768 ) chartSize -= 250;
     else chartSize -= 12; // why?
-    this.chartEle.style.width = chartSize+'px';
+    this.chartEles.forEach(ele => ele.style.width = chartSize+'px');
 
-    this.chart.draw(this.chartData, this.chartOptions);
+    requestAnimationFrame(() => this.chart.draw(this.chartData, this.chartOptions));
   }
 
   /**
@@ -324,7 +405,9 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     let opts = {
       legend: { position: 'none' },
       series: {
-        0: { color: '#4db6ac' }
+        0: { color: '#4db6ac' },
+        1: { color: '#64b5f6' },
+        2: { color: '#2286c3' }
       },
       vAxis : {},
       hAxis : {},
@@ -372,10 +455,26 @@ export default class AppSpectraViewer extends Mixin(LitElement)
         if( row[0] > this.maxWavelength ) return false;
         return true;
       })
-      .map(row => [row[0]+'', row[1]]);
-
-    this.wavelengths.unshift(['Wavelength', 'Reflectance']);
-    this.chartData = google.visualization.arrayToDataTable(this.wavelengths);
+      .map(row => {
+        row = row.slice(0);
+        row[0] = row[0]+'';
+        return row;
+      });
+    
+    if( this.statsMode ) {
+      // this.wavelengths.unshift(['Wavelength', 'Reflectance']);
+      this.chartData = new google.visualization.DataTable();
+      this.chartData.addColumn('string', 'Wavelength');
+      this.chartData.addColumn('number', 'Average');
+      // A column for custom tooltip content
+      this.chartData.addColumn({id: 'tooltip', type: 'string', role: 'tooltip','p': {'html': true}});
+      this.chartData.addColumn('number', 'Min');
+      this.chartData.addColumn('number', 'Max');
+      this.chartData.addRows(this.wavelengths);
+    } else {
+      this.wavelengths.unshift(['Wavelength', 'Reflectance']);
+      this.chartData = google.visualization.arrayToDataTable(this.wavelengths);
+    }
   }
 
   /**
@@ -483,6 +582,13 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.redraw();
   }
 
+  _toggleStatsMode() {
+    this.statsMode = !this.statsMode;
+    this.qstr = '';
+    this.smqstr = '';
+    this.querySpectra();
+  }
+
   _onResetClicked() {
     this.freezeAxis = false;
     this.minReflectance = this.absMinReflectance;
@@ -492,6 +598,7 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.currentIndex = 0;
     this.selectedSpeciesFilter = '';
     this.filters = [];
+    this.statsMode = [];
     this.querySpectra();
   }
 
