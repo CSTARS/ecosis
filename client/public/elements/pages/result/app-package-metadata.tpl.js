@@ -13,7 +13,7 @@ ${litCss(sharedStylesHtml)}
   }
 
   h1 {
-    margin: 35px 15px 0 15px;
+    margin: 30px 15px 0 15px;
     font-size: 28px;
   }
 
@@ -123,6 +123,13 @@ ${litCss(sharedStylesHtml)}
     }
   }
 </style>
+
+<div ?hidden="${!this.lastSearchUrl}" style="padding: 20px 0 0 15px;">
+  <a href="${this.lastSearchUrl}">
+    <iron-icon icon="arrow-back" style="vertical-align: bottom"></iron-icon>
+    Back to Search
+  </a>
+</div>
 
 <div class="root">
   <h1>${this.title}</h1>

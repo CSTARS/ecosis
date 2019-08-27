@@ -9,12 +9,6 @@ const organization = require('../models/organization');
 const schema = require('../lib/schema');
 const logger = require('../lib/logger');
 
-// const authUtils = require('./auth');
-// const records = require('../models/records');
-// const collections = require('../models/collections');
-// const transform = require('./seo-transform');
-// const collectionTransform = require('./seo-collection-transform');
-
 const bundle = `
   <script>
     var CORK_LOADER_VERSIONS = {
@@ -46,6 +40,7 @@ module.exports = (app) => {
         geoFilter : config.mongo.geoFilter,
         git : await gitInfo(),
         seo : config.client.seo,
+        gaCode : config.client.googleAnalytics || '',
         schema
       });
     },

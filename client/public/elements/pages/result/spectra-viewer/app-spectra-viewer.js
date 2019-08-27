@@ -175,9 +175,7 @@ export default class AppSpectraViewer extends Mixin(LitElement)
 
     this.loading = true;
     let e = await this.SpectraModel.stats(query, this.packageId);
-    console.log(e);
     this.loading = false;
-    console.log(this.loading);
 
     if( e.state === 'error' ) {
       return alert(e.error.message);
@@ -226,7 +224,6 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     if( e.state !== 'loaded' ) return;
 
     if( e.payload.items.length === 0 ) {
-      console.error(e);
       return alert('Failed to load spectra');
     }
 
@@ -327,7 +324,6 @@ export default class AppSpectraViewer extends Mixin(LitElement)
   }
 
   renderStats(data) {
-    console.log(data);
     this.allWavelengths = data;
     this.allWavelengths.sort((a, b) => {
       if( a[0] > b[0] ) return 1;
@@ -598,7 +594,7 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     this.currentIndex = 0;
     this.selectedSpeciesFilter = '';
     this.filters = [];
-    this.statsMode = [];
+    this.statsMode = false;
     this.querySpectra();
   }
 

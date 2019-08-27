@@ -24,7 +24,8 @@ export default class EcosisSearch extends Mixin(LitElement)
       page : {type: String},
       openMenu : {type: Boolean},
       anchorTabIndex : {type: Number},
-      appRoutes : {type: Array}
+      appRoutes : {type: Array},
+      lastSearchUrl : {type: String}
     }
   }
 
@@ -35,6 +36,7 @@ export default class EcosisSearch extends Mixin(LitElement)
     this.appRoutes = APP_CONFIG.appRoutes;
     this.openMenu = false;
     this.page = '';
+    this.lastSearchUrl = '/search';
 
     window.addEventListener('click', e => {
       if( !this.openMenu ) return;
@@ -62,6 +64,9 @@ export default class EcosisSearch extends Mixin(LitElement)
   async _onAppStateUpdate(e) {
     this.page = e.page;
     this.openMenu = false;
+    if( e.page === 'search')  {
+      this.lastSearchUrl = e.location.fullpath;
+    }
 
     this.mainEle.scrollTo(0, 0);
 

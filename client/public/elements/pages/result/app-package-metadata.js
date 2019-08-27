@@ -11,6 +11,7 @@ export default class AppPackageMetadata extends Mixin(LitElement)
   static get properties() {
     return {
       active : {type: Boolean},
+      lastSearchUrl : {type: String},
       title : {type: String},
       keywords : {type: Array},
       description : {type: String},
@@ -63,11 +64,15 @@ export default class AppPackageMetadata extends Mixin(LitElement)
     this.render = render.bind(this);
 
     this.reset();
+    this.lastSearchUrl = '';
 
     this._injectModel('AppStateModel', 'PackageModel', 'OrganizationModel');
   }
 
   _onAppStateUpdate(e) {
+    if( e.page === 'search' ) {
+      this.lastSearchUrl = e.location.fullpath;
+    }
     if( e.page !== 'package' ) return;
     if( e.location.path.length <= 1 ) return;
     this.loadPackage(e.location.path[1]);

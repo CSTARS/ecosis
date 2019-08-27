@@ -81,7 +81,7 @@ ${litCss(sharedStylesHtml)}
       </div>
       <span>Home</span>
     </a>
-    <a href="/search" tabindex="${this.anchorTabIndex}">
+    <a href="${this.lastSearchUrl}" tabindex="${this.anchorTabIndex}">
       <iron-icon icon="search"></iron-icon> 
       <span>Search</span>
     </a>

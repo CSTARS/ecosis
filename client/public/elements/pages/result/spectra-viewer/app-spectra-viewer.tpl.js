@@ -15,6 +15,27 @@ ${litCss(sharedStylesHtml)}
     height: 400px;
   }
 
+  @keyframes chartfadein {
+    0% {
+      opacity: 0;
+    }
+    25% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .chart.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: chartfadein 400ms linear;
+    font-size: 36px;
+    color: var(--secondary-text-color);
+  }
+
   paper-icon-button[chart-nav] {
     background-color: var(--light-primary-color);
     border-radius: 25px;
@@ -42,6 +63,11 @@ ${litCss(sharedStylesHtml)}
     padding: 15px 0 0 5px;
     color: var(--default-primary-color);
     font-weight: bold;
+  }
+
+  .filter-header label[disabled] {
+    color: var(--secondary-text-color);
+    cursor: not-allowed;
   }
 
   .filter-panel {
@@ -211,8 +237,8 @@ ${this.googleChartStyles.map(href => html`<link rel="stylesheet" href="${href}" 
         
         <div class="filter-panel">
           <div class="filter-header">
-            <input id="freeze" type="checkbox" @click="${this._toggleFreezeAxis}" .checked="${this.freezeAxis}" />
-            <label for="freeze">Freeze Axis</label>
+            <input id="freeze" type="checkbox" ?disabled="${this.statsMode}" @click="${this._toggleFreezeAxis}" .checked="${this.freezeAxis}" />
+            <label for="freeze" ?disabled="${this.statsMode}">Freeze Axis</label>
           </div>
           <div class="help" style="padding-left: 5px">
             Keep X/Y axis filters as you navigate spectra.
@@ -309,7 +335,9 @@ ${this.googleChartStyles.map(href => html`<link rel="stylesheet" href="${href}" 
         </div>
 
         <div id="chart" class="chart" ?hidden="${this.loading}"></div>
-        <div class="chart" ?hidden="${!this.loading}"></div>
+        <div class="chart loading" ?hidden="${!this.loading}">
+          <div>Loading...</div>
+        </div>
         <div style="margin: 15px" ?hidden="${this.statsMode}">
           <paper-slider 
             pin 
