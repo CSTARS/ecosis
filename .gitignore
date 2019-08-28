@@ -1,12 +1,8 @@
-.build
 node_modules
-public/.tmp
-.tmp
 .DS_Store
-bower_components
 npm-debug.log
-mqe-local.json
 .vscode
 *.tgz
 
+client/public/js/ie-bundle.js
 start-db.sh

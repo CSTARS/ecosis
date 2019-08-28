@@ -34,9 +34,9 @@ app.use('/api', require('./controllers/api'));
 // app.use('/_version', require('./controllers/version'));
 
 /**
- * setup ark/doi proxy
+ * setup doi proxy
  */
-// require('./lib/identifier')(app);
+require('./controllers/doi')(app);
 
 /**
  * setup sitemap

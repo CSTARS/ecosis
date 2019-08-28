@@ -59,7 +59,6 @@ class StatsModel {
       .sort({'value.ecosis.created': -1})
       .limit(3)
       .toArray();
-    console.log(result);
 
     return result.map(r => {
       return r.value;
