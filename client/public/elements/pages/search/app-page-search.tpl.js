@@ -61,6 +61,16 @@ ${litCss(sharedStylesHtml)}
     text-align: center;
   }
 
+  .api-link {
+    text-align: center;
+    color: var(--secondary-text-color);
+    padding: 10px;
+    font-size: 12px;
+  }
+  .api-link a {
+    color: var(--secondary-text-color);
+  }
+
   @keyframes slidein {
     from {
       left: -260px;
@@ -191,6 +201,10 @@ ${litCss(sharedStylesHtml)}
         total-results="${this.total}"
         @nav="${this._onPaginationNav}">
       </app-search-pagination>
+    </div>
+
+    <div class="api-link">
+      API Link:<br /><a href="${this.apiLink}" target="_blank">${this.apiLinkLabel}</a>
     </div>
   </div>
 </div>

@@ -301,7 +301,7 @@ export default class AppPackageMetadata extends Mixin(LitElement)
     this.mapEle = this.shadowRoot.querySelector('#map');
     this.map = L.map(this.mapEle, {scrollWheelZoom : false}).setView([42.065, -111.821], 13);
     // add an OpenStreetMap tile layer
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(this.map);
   }

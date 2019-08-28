@@ -55,12 +55,11 @@ export default class AppLocationFilter extends Mixin(LitElement)
 
   _initMap() {
     if( this.map ) return;
-    console.log('here');
     this.map = L
       .map(this.shadowRoot.querySelector("#map"))
       .setView([39.251, -97.850], 4);
 
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(this.map);
 

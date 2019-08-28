@@ -15,7 +15,9 @@ export default class AppPageSearch extends Mixin(LitElement)
       itemsPerPage : {type: Number},
       currentIndex : {type: Number},
       total : {type: Number},
-      mobileFiltersOpen : {type: Boolean}
+      mobileFiltersOpen : {type: Boolean},
+      apiLink : {type: String},
+      apiLinkLabel : {type: String}
     }
   }
 
@@ -29,6 +31,9 @@ export default class AppPageSearch extends Mixin(LitElement)
     this.filters = [];
     this.showNoResults = false;
     this.mobileFiltersOpen = false;
+    this.itemsPerPage = 0;
+    this.currentIndex = 0;
+    this.total = 0;
 
     window.addEventListener('resize', () => {
       let w = window.innerWidth;
@@ -73,6 +78,9 @@ export default class AppPageSearch extends Mixin(LitElement)
         })
       })
     }
+
+    this.apiLink = window.location.protocol+'//'+window.location.host+e.metadata.path;
+    this.apiLinkLabel = window.location.protocol+'//'+window.location.host+decodeURIComponent(e.metadata.path);
 
     this.filters = filters;
   }
