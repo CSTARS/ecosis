@@ -56,7 +56,9 @@ export default class AppLocationFilter extends Mixin(LitElement)
   _initMap() {
     if( this.map ) return;
     this.map = L
-      .map(this.shadowRoot.querySelector("#map"))
+      .map(this.shadowRoot.querySelector("#map"), {
+        dragging: !L.Browser.mobile 
+      })
       .setView([39.251, -97.850], 4);
 
     L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {

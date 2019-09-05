@@ -82,6 +82,9 @@ return html`
 
 <div class="warn">*Datasets without geographic location information will not be included in your search results when the geographic filter is applied.</div>
 <div id="map"></div>
+<div ?hidden="${!L.Browser.mobile}" class="warn" style="padding: 5px">
+  *Use two fingers to pan
+</div>
 
 <div class="info">
   <div>

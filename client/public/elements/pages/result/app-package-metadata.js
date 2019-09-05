@@ -298,8 +298,13 @@ export default class AppPackageMetadata extends Mixin(LitElement)
   _initMap() {
     this.layers = [];
     // L.Icon.Default.imagePath = '/images';
+
+    
     this.mapEle = this.shadowRoot.querySelector('#map');
-    this.map = L.map(this.mapEle, {scrollWheelZoom : false}).setView([42.065, -111.821], 13);
+    this.map = L.map(this.mapEle, {
+      scrollWheelZoom : false,
+      dragging: !L.Browser.mobile
+    }).setView([42.065, -111.821], 13);
     // add an OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'

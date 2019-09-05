@@ -141,7 +141,6 @@ ${litCss(sharedStylesHtml)}
   }
 
   paper-button[reset] {
-    margin: 8px;
     display: block;
     color: var(--light-primary-color);
     text-align: center;
@@ -231,7 +230,7 @@ ${this.googleChartStyles.map(href => html`<link rel="stylesheet" href="${href}" 
 
     <div class="filters-border">
       <div>
-        <div>
+        <div style="padding: 8px">
           <paper-button reset @click="${this._onResetClicked}">Reset</paper-button>
         </div>
         

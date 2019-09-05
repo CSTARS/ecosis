@@ -420,6 +420,9 @@ ${litCss(sharedStylesHtml)}
       ${this._createNotProvidedLabel()}
     </div>
     <div ?hidden="${!this.hasGeometry}" id="map"></div>
+    <div ?hidden="${!L.Browser.mobile}" class="help">
+      *Use two fingers to pan
+    </div>
   </div>
 </div>
 
