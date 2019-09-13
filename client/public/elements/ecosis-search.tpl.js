@@ -8,10 +8,11 @@ ${litCss(sharedStylesHtml)}
 <style>
   :host {
     display: block;
+    height: 100vh;
   }
 
   .menu-root {
-    height: 100vh;
+    height: 100%;
     box-sizing: border-box;
     position: relative;
   }
