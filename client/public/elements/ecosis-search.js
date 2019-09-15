@@ -68,7 +68,11 @@ export default class EcosisSearch extends Mixin(LitElement)
       this.lastSearchUrl = e.location.fullpath;
     }
 
-    this.mainEle.scrollTo(0, 0);
+    if( this.mainEle.scrollTo ) {
+      this.mainEle.scrollTo(0, 0);
+    } else {
+      this.mainEle.scrollTop = 0;
+    }
 
     try {
       if( this.page !== 'package' ) {

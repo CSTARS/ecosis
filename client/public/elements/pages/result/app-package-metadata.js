@@ -198,7 +198,6 @@ export default class AppPackageMetadata extends Mixin(LitElement)
     }
 
     this.package = pkg;
-    console.log(this.package);
 
     // org info
     this.organizationId = pkg.ecosis.organization_id;

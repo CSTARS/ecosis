@@ -6,12 +6,13 @@ import "leaflet"
 export default class AppLocationFilter extends Mixin(LitElement)
   .with(LitCorkUtils) {
 
+
   static get properties() {
     return {
       latitude : {type: String},
       longitude : {type: String},
       radius : {type: String},
-      matches : {type: String},
+      llmatches : {type: String},
       locateText : {type: String},
       locating : {type: Boolean}
     }
@@ -22,8 +23,9 @@ export default class AppLocationFilter extends Mixin(LitElement)
     this.render = render.bind(this);
 
     this.r = 844906; // 525 miles
-    this.matches = '0';
-
+    this.llmatches = '0';
+    this.latitude = '0';
+    this.longitude = '0';
     this.queryName = 'geoPreview';
     this.locateText = 'Locate Me';
     this.locating = false;
@@ -101,7 +103,7 @@ export default class AppLocationFilter extends Mixin(LitElement)
     
     let resp = await this.PackageModel.count(query, this.queryName);
     if( resp.state === 'loaded' ) {
-      this.matches = resp.payload.count+'';
+      this.llmatches = resp.payload.count+'';
     }
   }
 

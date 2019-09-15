@@ -104,7 +104,7 @@ return html`
   </div>
   <div class="matches">
     <div class="title">Packages</div>
-    <div><span class="count">${this.matches}</span></div>
+    <div><span class="count">${this.llmatches}</span></div>
   </div>
 </div>
 

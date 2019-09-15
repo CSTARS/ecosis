@@ -4,8 +4,8 @@ let config = require('@ucd-lib/cork-app-build').watch({
   preview : 'public/js',
   clientModules : 'public/node_modules',
   ie: 'ie-bundle.js'
-});
+// });
 // enable ie build in dev
-// }, true);
+}, true);
 
 module.exports = config;
