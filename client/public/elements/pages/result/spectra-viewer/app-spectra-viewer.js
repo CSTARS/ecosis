@@ -126,6 +126,8 @@ export default class AppSpectraViewer extends Mixin(LitElement)
     if( !this.packageId ) return;
     let state = await this.PackageModel.get(this.packageId);
     if( state.state !== 'loaded' ) return;
+
+    this.qstr = ''; // reset cache string
     this.pkg = state.payload;
     this.packageTitle = this.pkg.ecosis.package_title;
 
