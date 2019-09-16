@@ -272,10 +272,17 @@ export default class AppPackageMetadata extends Mixin(LitElement)
     this.fundingSourceGrantNumber = pkg['Funding Source Grant Number'];
 
     // Linked Resources
-    pkg.ecosis.linked_data.forEach(item => {
+    pkg.ecosis.linked_data = pkg.ecosis.linked_data.map(item => {
       if( item.url.match(/^10\./) ) item.url = 'https://doi.org/'+item.url;
+      return item;
     });
-    this.linkedResources = pkg.ecosis.linked_data;
+
+    this.linkedResources = pkg.ecosis.linked_data.map(item => {
+      if( !item.url.match(/^(http|ftp)/) ) {
+        item.url = 'http://'+item.url;
+      }
+      return item;
+    });
 
     this.hasGeometry = pkg.ecosis.geojson || pkg.ecosis.spectra_bbox_geojson ? true : false;
 
