@@ -18,6 +18,8 @@ class AppStateModelImpl extends AppStateModel {
       return this.setLocation('/'+hashParts.join('/'));
     }
 
+    this._sendGA();
+
     if( state.location &&
         state.location.path &&
         state.location.path.length ) {
