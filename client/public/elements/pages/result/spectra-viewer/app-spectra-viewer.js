@@ -506,7 +506,7 @@ export default class AppSpectraViewer extends Mixin(LitElement)
    */
   _onNextClicked() {
     this.currentIndex++;
-    if( this.currentIndex === this.currentSearchCount-1 ) {
+    if( this.currentIndex === this.currentSearchCount ) {
       this.currentIndex = 0;
     }
     this.querySpectra();
