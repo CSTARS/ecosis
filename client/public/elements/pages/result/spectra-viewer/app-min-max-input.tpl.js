@@ -7,7 +7,7 @@ return html`
 ${litCss(sharedStylesHtml)}
 <style>
   :host {
-    display: inline-block;
+    display: block;
   }
 
   .layout {
