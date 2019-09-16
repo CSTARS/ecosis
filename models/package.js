@@ -41,6 +41,7 @@ class PackageModel {
     if( pkgid === null ) {
         return ('package_id or package_name parameter is required');
     }
+    pkgid = await mongo.getPackageId(pkgid);
 
     if( typeof filters === 'string') {
       filters = JSON.parse(filters);
@@ -48,10 +49,7 @@ class PackageModel {
 
     let collection = await mongo.packagesCollection();
     let result = await collection.findOne(
-        { '$or': [
-          {'value.ecosis.package_id': pkgid}, 
-          {'value.ecosis.package_name': pkgid}
-        ]},
+        {'value.ecosis.package_id': pkgid},
         {'value.ecosis': 1}
     );
 
