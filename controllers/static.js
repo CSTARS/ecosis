@@ -8,6 +8,7 @@ const package = require('../models/package');
 const organization = require('../models/organization');
 const schema = require('../lib/schema');
 const logger = require('../lib/logger');
+const mongo = require('../lib/mongo');
 
 const bundle = `
   <script>
@@ -46,8 +47,15 @@ module.exports = (app) => {
     },
     template : async (req, res, next) => {
       // handle old redirect
+      // this /?result=[id] url was used for SEO handling when # was still used
+      // for JS routes client side.
       if( req.query.result ) {
-        return res.redirect('/package/'+req.query.result);
+        try {
+        let pkg = await package.get(req.query.result);
+        return res.redirect('/package/'+pkg.ecosis.package_name);
+        } catch(e) {
+          logger.error('Failed to lookup package for redirect: '+req.query.result, e)
+        }
       }
 
 
