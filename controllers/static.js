@@ -45,6 +45,12 @@ module.exports = (app) => {
       });
     },
     template : async (req, res, next) => {
+      // handle old redirect
+      if( req.query.result ) {
+        return res.redirect('/package/'+req.query.result);
+      }
+
+
       let jsonld = '';
       let isPackage = false;
 
