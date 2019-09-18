@@ -14,7 +14,8 @@ export default class AppPageHome extends Mixin(LitElement)
       lastAdded : {type: Array},
       organizations : {type: Array},
       keywords : {type: Array},
-      themes : {type : Array}
+      themes : {type : Array},
+      sandbox : {type: Boolean}
     }
   }
 
@@ -27,6 +28,7 @@ export default class AppPageHome extends Mixin(LitElement)
     this.keywords = [];
     this.themes = [];
     this.lastAdded = [];
+    this.sandbox = (APP_CONFIG.serverEnv != 'prod');
 
     this._injectModel('PackageModel');
   }

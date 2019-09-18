@@ -165,7 +165,7 @@ ${litCss(sharedStylesHtml)}
     <h1 style="margin-bottom: 0; line-height: 36px">Ecological Spectral Information System</h1>
 
     <div>
-      Welcome to the EcoSIS<span class="sandbox" style="font-weight:bold">&nbsp;Sandbox</span>, a useful tool for finding spectral data. <br />
+      Welcome to the EcoSIS<span class="sandbox" ?hidden="${!this.sandbox}" style="font-weight:bold">&nbsp;Sandbox</span>, a useful tool for finding spectral data. <br />
       <p id="count" class="tlt" data-in-effect="fadeInDown" data-in-shuffle="true"></p>
     </div>
 
