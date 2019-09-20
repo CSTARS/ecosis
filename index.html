@@ -24,16 +24,16 @@
 
     <div class="wrapper">
       <header>
-        <h1>EcoSIS API <small style="color:#888">(Alpha)</small></h1>
+        <h1>EcoSIS API <small style="color:#888"></small></h1>
         <p>Ecological Spectral Information System (EcoSIS)</p>
 
-        <p class="view"><a href="https://github.com/CSTARS/esis">View the Project on GitHub <small>CSTARS/esis</small></a></p>
+        <p class="view"><a href="https://github.com/CSTARS/ecosis">View the Project on GitHub <small>CSTARS/ecosis</small></a></p>
 
 
         <ul>
           <li><a href="https://ecosis.org">EcoSIS <strong>Search</strong></a></li>
           <li><a href="http://dev-search.ecospectra.org">EcoSIS <strong>Dev Search</strong></a></li>
-          <li><a href="https://github.com/CSTARS/esis">View On <strong>GitHub</strong></a></li>
+          <li><a href="https://github.com/CSTARS/ecosis">View On <strong>GitHub</strong></a></li>
         </ul>
 
 
@@ -44,7 +44,7 @@
             <div><a href="#find-dataset-examples">Examples</a></div>
             <div><a href="#find-dataset-response">Response</a></div>
           </div>
-          <div><a href="#get-dataset">Get Dataset</a></div>
+          <div><a href="#get-dataset">Get Datasets</a></div>
           <div><a href="#get-spectra">Get Spectra</a></div>
           <div class="sub">
             <div><a href="#get-spectra-parameters">Parameters</a></div>
@@ -55,11 +55,6 @@
             <div><a href="#get-spectra-stats-parameters">Parameters</a></div>
             <div><a href="#get-spectra-stats-response">Response</a></div>
           </div>
-          <div><a href="#get-data-in-series">Get Data in Series</a></div>
-          <div class="sub">
-            <div><a href="#get-data-in-series-parameters">Parameters</a></div>
-            <div><a href="#get-data-in-series-response">Response</a></div>
-          </div>
           <div><a href="#download-spectra">Download Spectra</a></div>
           <div class="sub">
             <div><a href="#download-spectra-parameters">Parameters</a></div>
@@ -69,11 +64,9 @@
       </header>
       <section>
 
-<h2>
-  Alpha (v0.5.0)
-</h2>
+<h2>v1.0.0</h2>
 
-<p><i>Please note</i>.  This API is currently in early alpha.  All API's are subject to change.  And bugs.  Please create issues for any bugs you find <a href="https://github.com/CSTARS/esis/issues" target="_blank">here</a>.</p>
+<p>Please create issues for any bugs you find <a href="https://github.com/CSTARS/ecosis/issues" target="_blank">here</a>.</p>
 
 <h2>
   <a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview
@@ -84,7 +77,7 @@
 <p>The EcoSIS API is broken into four parts:</p>
   <ul>
     <li><a href="#find-datasets">Find Datasets</a></li>
-    <li><a href="#get-dataset">Get Dataset</a></li>
+    <li><a href="#get-dataset">Get Datasets</a></li>
     <li><a href="#get-spectra">Get Spectra</a></li>
     <li><a href="#download-spectra">Download Spectra</a></li>
   </ul>
@@ -92,7 +85,7 @@
 
 <p>A Sample API call would look like this:</p>
 
-<pre><code>curl https://ecosis.org/package/query?text=&filters=[]&start=0&end=6</code></pre>
+<pre><code>curl https://ecosis.org/api/package/search?text=&filters=[]&start=0&end=6</code></pre>
 
 <p>This would return return the first six datasets in ecosis.</p>
 
@@ -111,11 +104,11 @@
 
 <h4>Dataset Search: Path</h4>
 
-<p>The path for the dataset search is <b>/package/query</b>.</p>
+<p>The path for the dataset search is <b>/api/package/search</b>.</p>
 
 <h4>Dataset Search: Request Parameters</h4>
 
-<p>HTTP requests can provide query parameters, similar to passing inputs to a function.  HTTP query paramters start at '?' in the url and are followed by '&' after.  Ex: /package/query<b>?</b><i>arg1</i><b>=</b><i>value1</i><b>&</b><i>arg2</i><b>=</b><i>value2</i>.  The EcoSIS Dataset Search has the following parameters:</p>
+<p>HTTP requests can provide query parameters, similar to passing inputs to a function.  HTTP query paramters start at '?' in the url and are followed by '&' after.  Ex: /api/package/search<b>?</b><i>arg1</i><b>=</b><i>value1</i><b>&</b><i>arg2</i><b>=</b><i>value2</i>.  The EcoSIS Dataset Search has the following parameters:</p>
 
 <ul>
   <li><b>text</b> - the free text query (String)</li>
@@ -162,7 +155,7 @@ query = JSON.stringify(query);
 // escape for url component
 query = encodeURIComponent(query);
 
-var restUrl = 'https://ecosis.org?text=&filter='+query+'&start=0&stop=6';</code></pre>
+var restUrl = 'https://ecosis.org/api/package/search?text=&filter='+query+'&start=0&stop=6';</code></pre>
 
 <h5>start</h5>
 
@@ -224,11 +217,11 @@ var restUrl = 'https://ecosis.org?text=&filter='+query+'&start=0&stop=6';</code>
 
 <h4>Get Dataset: Path</h4>
 
-<p>The Rest path to get a <a href="#find-dataset-search-object">dataset search object</a> is: <b>/package/get</b></p>
+<p>The Rest path to get a <a href="#find-dataset-search-object">dataset search object</a> is: <b>/api/package/[dataset name or ID here]</b></p>
 
 <h4>Get Dataset: Example</h4>
 
-<pre><code>curl https://ecosis.org/package/get?id=[dataset ID here]</code></pre>
+<pre><code>curl https://ecosis.org/api/package/[dataset name or ID here]</code></pre>
 
 <h4>Get Dataset: Response</h4>
 
@@ -241,30 +234,25 @@ var restUrl = 'https://ecosis.org?text=&filter='+query+'&start=0&stop=6';</code>
   Get Spectra
 </h2>
 
-<p>You can find and get spectra filtering by metadata attributes including package_id</p>
+<p>You can find and get spectra filtering by metadata attributes including package_id or packege_name</p>
 
 <h4>Get Spectra: Path</h4>
 
-<p>The Rest path for the Get Spectra call is: <b>/package/getSpectra</b></p>
+<p>The Rest path for the Get Spectra call is: <b>https://ecosis.org/api/spectra/search/</b></p>
 
 <h4>Get Spectra: Example</h4>
 
-<pre><code>curl https://ecosis.org/package/getSpectra?package_id=[dataset ID here]&start=0&stop=2&filters=[Array of filters]</code></pre>
+<pre><code>curl https://ecosis.org/api/spectra/search/[dataset name or ID here]?start=0&stop=2&filters=[Array of filters]</code></pre>
 
 <h4 id="get-spectra-parameters">Get Spectra: Parameters</h4>
 
 <p>The Get Spectra call takes the following paramters</p>
 
 <ul>
-  <li><b>package_id</b> - The unique package ID (string) (optional)</li>
   <li><b>start</b> - the start index of the spectra you wish to access (int) (optional)</li>
   <li><b>stop</b> - the stop index of the spectra you wish to access (int) (optional)</li>
   <li><b>filters</b> - the array of filters (JSON) (optional)</li>
 </ul>
-
-<h5>package_id</h5>
-
-<p>The unique dataset ID for the dataset you are accessing</p>
 
 <h5>start</h5>
 
@@ -278,9 +266,7 @@ var restUrl = 'https://ecosis.org?text=&filter='+query+'&start=0&stop=6';</code>
 
 <p>The <b>filters</b> parameter lets you filter down the result set of spectra you are accessing.  The filters parameter
   is formatted the same and works the same as the <a href="#find-dataset-filters">Find Dataset Filter Parameter</a>.
-  Only instead of filtering key/value pairs based on attributes in a dataset, you are filtering on individual spectra metadata.
-  It is recommended that you provide a filter {"ecosis.package_id":[Dataset ID]} or the ?package_id=Dataset Id parameter or
-  your query may contain spectra from multiple datasets</p>
+  Only instead of filtering key/value pairs based on attributes in a dataset, you are filtering on individual spectra metadata.</p>
 
 <h4 id="get-spectra-response">Get Spectra: Response</h4>
 
@@ -315,24 +301,20 @@ var restUrl = 'https://ecosis.org?text=&filter='+query+'&start=0&stop=6';</code>
 
 <h4>Get Spectra Stats: Path</h4>
 
-<p>The Rest path for the Get Spectra Stats call is: <b>/package/getSpectraStats</b></p>
+<p>The Rest path for the Get Spectra Stats call is: <b>/api/spectra/stats/[dataset name or ID here]</b></p>
 
 <h4>Get Spectra Stats: Example</h4>
 
-<pre><code>curl https://ecosis.org/package/getSpectraStats?package_id=[dataset ID here]</code></pre>
+<pre><code>curl https://ecosis.org/api/spectra/stats/[dataset name or ID here]</code></pre>
 
 <h4 id="get-spectra-stats-parameters">Get Spectra Stats: Parameters</h4>
 
 <p>The Get Spectra Stats call takes the following paramters</p>
 
 <ul>
-  <li><b>package_id</b> - The unique package ID (string)</li>
   <li><b>filters</b> - the array of filters (JSON) (optional)</li>
 </ul>
 
-<h5>package_id</h5>
-
-<p>The unique dataset ID for the dataset you are accessing</p>
 
 <h5>filters</h5>
 
@@ -354,59 +336,7 @@ var restUrl = 'https://ecosis.org?text=&filter='+query+'&start=0&stop=6';</code>
 </ul>
 
 
-
-<h2>
-  <a id="get-data-in-series" class="anchor" href="#get-data-in-series" aria-hidden="true"><span class="octicon octicon-link"></span></a>
-  Get Data In Series
-</h2>
-
-<p>Use this query to get one datapoint for each spectra in a dataset.  If provided by the dataset maintainer, the data will be sorted on a provided value.</p>
-
-<h4>Get Data In Series: Path</h4>
-
-<p>The Rest path for the Get Data In Series call is: <b>/package/getDataInSeries</b></p>
-
-<h4>Get Data In Series: Example</h4>
-
-<pre><code>curl https://ecosis.org/package/getDataInSeries?package_id=[dataset ID here]&attribute=NDVI</code></pre>
-
-<h4 id="get-data-in-series-parameters">Get Data In Series: Parameters</h4>
-
-<p>The Get Data In Series call takes the following paramters</p>
-
-<ul>
-  <li><b>package_id</b> - The unique package ID (string)</li>
-  <li><b>attribute</b> - attribute you wish to return</li>
-</ul>
-
-<h5>package_id</h5>
-
-<p>The unique dataset ID for the dataset you are accessing</p>
-
-<h5>index</h5>
-
-<p>The spectra's attribute you wish to return.  You will get one value back for each spectra in the dataset.</p>
-
-
-<h4 id="get-data-in-series-response">Get Data In Series: Response</h4>
-
-<p>The response object for the Get Data In Series query has the following attributes:</p>
-
-<ul>
-  <li><b>attribute</b> - the current attribute you are accessing</li>
-  <li><b>sort</b> - the attribute that is being used to sort on.  If the dataset maintainer did not provide a sort for this dataset, 'index'
-      will be the value of 'sort' and the results will be in default order form the database.
-  </li>
-  <li>
-      <b>values</b> - array of objects each containign:<br />
-
-      <ul>
-        <li><b>key</b> - the sort value for this spectra</li>
-        <li><b>value</b> - the attribute value for this spectra</li>
-      </ul>
-  </li>
-</ul>
-
+<p>The spectra will be returned sorted if the dataset maintainer provided a sort parameter.</p>
 
 <h2>
   <a id="download-spectra" class="anchor" href="#download-spectra" aria-hidden="true"><span class="octicon octicon-link"></span></a>
@@ -417,21 +347,17 @@ var restUrl = 'https://ecosis.org?text=&filter='+query+'&start=0&stop=6';</code>
 
 <h4>Download Spectra: Path</h4>
 
-<p>The Rest path to download spectra is: <b>/rest/download</b></p>
+<p>The Rest path to download spectra is: <b>/api/package/[dataset name or id]/export</b></p>
 
 <h4 id="download-spectra-parameters">Download Spectra: Parameters</h4>
 
 <p>The Download Spectra call takes the following parameters</p>
 
 <ul>
-  <li><b>package_id</b> - The unique package ID (string)</li>
   <li><b>metadata</b> - Should the metadata be included in the csv file (boolean)</li>
   <li><b>filters</b> - the array of filters (JSON) (optional)</li>
 </ul>
 
-<h5>package_id</h5>
-
-<p>The unique dataset ID for the dataset you are accessing</p>
 
 <h5>metadata</h5>
 
@@ -443,7 +369,7 @@ var restUrl = 'https://ecosis.org?text=&filter='+query+'&start=0&stop=6';</code>
 
 <h4>Download Spectra: Example</h4>
 
-<pre><code>curl https://ecosis.org/rest/download?package_id=[dataset ID here]&metadata=false</code></pre>
+<pre><code>curl https://ecosis.org/api/package/[dataset name or ID here]/export&metadata=false</code></pre>
 
 
 

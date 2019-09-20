@@ -2,3 +2,7 @@
 import
 search
 spectra-converter
+node_modules
+client
+start-db.sh
+.vscode
