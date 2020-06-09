@@ -5,7 +5,10 @@ module.exports = app => {
     let doi = req.url.replace(/^\//, '');
     let collection = await mongo.packagesCollection();
     let result = await collection.findOne(
-      {'value.ecosis.doi': doi}, 
+      {$or: [
+        {'value.ecosis.doi': doi},
+        {'value.ecosis.doi': doi.replace(/^doi:/, '')}
+      ]}, 
       {projection: {'value.ecosis.package_name': 1}}
     );
 

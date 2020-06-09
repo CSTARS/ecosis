@@ -14,6 +14,7 @@ ${litCss(sharedStylesHtml)}
     z-index: 10;
   }
 
+  /* https://cssgradient.io/ */
   .header {
     background: rgb(0,134,125);
     background: linear-gradient(90deg, rgba(0,134,125,1) 15%, rgba(77,182,179,1) 100%);
@@ -30,10 +31,11 @@ ${litCss(sharedStylesHtml)}
     color: white;
   }
 
-  .btns a, .btns a:visited  {
+  .btns a, .btns a:visited, a[title], a[title]:visited  {
     color: white;
     text-decoration: none;
   }
+
 
   paper-progress {
     --paper-progress-active-color : var(--light-secondary-color);
@@ -49,7 +51,7 @@ ${litCss(sharedStylesHtml)}
 
 <div class="header" sandbox$="[[sandbox]]">
   <div main-title>
-    EcoSIS 
+    <a href="/" title>EcoSIS</a> 
     <span id="titleExtra"></span> 
     <small>Ecological Spectral Information System</small>
   </div>
