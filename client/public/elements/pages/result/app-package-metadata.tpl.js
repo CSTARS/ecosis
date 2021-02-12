@@ -141,7 +141,7 @@ ${litCss(sharedStylesHtml)}
     <div class="keywords">${this._createHtmlLinks('Keywords', this.keywords, v => '#'+v)}</div>
     <div class="description">${this.description}</div>
 
-    <div ?hidden="${!this.openData}"><a href="https://opendefinition.org/od/2.1/en/"><img src="/assets/od_blue.png" /></a></div>
+    <div ?hidden="${!this.openData}"><a href="https://opendefinition.org/od/2.1/en/" target="_blank"><img src="/assets/od_blue.png" /></a></div>
     <div>
       License: <span class="spectra-count" ?hidden="${this.licenseUrl}">${this.license}</span>
       <a class="spectra-count" ?hidden="${!this.licenseUrl}" href="${this.licenseUrl}">
