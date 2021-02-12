@@ -216,10 +216,9 @@ export default class AppPackageMetadata extends Mixin(LitElement)
     this.description = pkg.ecosis.description;
 
     // license
-    this.license = pkg.ecosis.license;
+    this.license = pkg.ecosis.license || 'Not Provided';
     this.openData = false;
     this.licenseUrl = '';
-    debugger;
     let def = openDataDef.find(item => item.label === this.license);
     if( def ) {
       this.openData = (def.open !== false);
