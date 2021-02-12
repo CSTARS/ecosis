@@ -4,6 +4,7 @@ import clone from 'clone'
 import 'leaflet'
 
 import './app-attr-info-popup'
+import openDataDef from '../../../src/lib/open-data'
 
 export default class AppPackageMetadata extends Mixin(LitElement)
   .with(LitCorkUtils) {
@@ -13,6 +14,9 @@ export default class AppPackageMetadata extends Mixin(LitElement)
       active : {type: Boolean},
       lastSearchUrl : {type: String},
       title : {type: String},
+      license : {type: String},
+      licenseUrl : {type: String},
+      openData : {type: Boolean},
       keywords : {type: Array},
       description : {type: String},
       spectraCount : {type: Number},
@@ -210,6 +214,18 @@ export default class AppPackageMetadata extends Mixin(LitElement)
     this.title = pkg.ecosis.package_title || '';
     this.keywords = pkg.Keywords || [];
     this.description = pkg.ecosis.description;
+
+    // license
+    this.license = pkg.ecosis.license;
+    this.openData = false;
+    this.licenseUrl = '';
+    debugger;
+    let def = openDataDef.find(item => item.label === this.license);
+    if( def ) {
+      this.openData = (def.open !== false);
+      this.licenseUrl = def.url;
+    }
+    
 
     // spectra info
     this.spectraCount = pkg.ecosis.spectra_count || 0;
