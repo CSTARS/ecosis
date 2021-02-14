@@ -4,7 +4,7 @@ import clone from 'clone'
 import 'leaflet'
 
 import './app-attr-info-popup'
-import openDataDef from '../../../src/lib/open-data'
+import {licenses} from '../../../src'
 
 export default class AppPackageMetadata extends Mixin(LitElement)
   .with(LitCorkUtils) {
@@ -219,7 +219,7 @@ export default class AppPackageMetadata extends Mixin(LitElement)
     this.license = pkg.ecosis.license || 'Not Provided';
     this.openData = false;
     this.licenseUrl = '';
-    let def = openDataDef.find(item => item.label === this.license);
+    let def = licenses.find(item => item.label === this.license);
     if( def ) {
       this.openData = (def.open !== false);
       this.licenseUrl = def.url;
