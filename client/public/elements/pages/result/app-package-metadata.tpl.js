@@ -423,9 +423,9 @@ ${litCss(sharedStylesHtml)}
 
 <div class="root">
   <div class="main-panel">
-    <h2 class="uheader lightblue">Location</h2>
+    <h2 class="uheader lightblue">Location<span ?hidden=${!this.location}>: ${this.location}</span></h2>
     <div ?hidden="${this.hasGeometry}">
-      ${this._createNotProvidedLabel()}
+      <span ?hidden=${!this.location}>Geometry </span>${this._createNotProvidedLabel()}
     </div>
     <div ?hidden="${!this.hasGeometry}" id="map"></div>
     <div ?hidden="${!L.Browser.mobile}" class="help">

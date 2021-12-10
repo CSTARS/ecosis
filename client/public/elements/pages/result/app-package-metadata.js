@@ -59,6 +59,7 @@ export default class AppPackageMetadata extends Mixin(LitElement)
       fundingSourceGrantNumber : {type: Array},
       linkedResources : {type: Array},
       hasGeometry : {type: Boolean},
+      location : {type: String},
       apiLink : {type: String}
     }
   }
@@ -299,7 +300,9 @@ export default class AppPackageMetadata extends Mixin(LitElement)
       return item;
     });
 
+    // Location
     this.hasGeometry = pkg.ecosis.geojson || pkg.ecosis.spectra_bbox_geojson ? true : false;
+    this.location = pkg['Location Name'];
 
     this.apiLink = window.location.protocol+'//'+window.location.host+'/api/package/'+encodeURI(pkg.ecosis.package_name);
   }
