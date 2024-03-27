@@ -79,9 +79,8 @@ return html`
       <div>
         <a href="https://ecosis.org" itemprop="url" highlight>https://ecosis.org</a> |
         <a href="http://cstars.github.io/ecosis/" target="_blank" highlight>EcoSIS API Documentation</a> |
-        <a href="mailto:info@ecosis.org" itemprop="email" highlight>info@ecosis.org</a> |
-        <a href="mailto:help@ecosis.org" highlight>help@ecosis.org</a>
-
+        <a href="mailto:ecosis-admins@googlegroups.com" itemprop="email" highlight>ecosis-admins@googlegroups.com</a>
+        <!-- <a href="mailto:help" highlight>help</a> -->
       </div>
     </div>
   </div>

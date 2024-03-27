@@ -20,8 +20,8 @@
     "request": "^2.88.0"
   },
   "devDependencies": {
-    "@ucd-lib/cork-app-build": "^0.1.5",
-    "webpack": "^4.33.0",
-    "webpack-cli": "^3.3.3"
+    "@ucd-lib/cork-app-build": "^0.4.2",
+    "webpack": "^5.76.1",
+    "webpack-cli": "^5.0.1"
   }
 }

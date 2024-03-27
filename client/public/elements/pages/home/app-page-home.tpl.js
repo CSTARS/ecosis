@@ -250,13 +250,13 @@ ${litCss(sharedStylesHtml)}
         <h3 class="uheader green top-margin-sm">Need Help?</h3>
         <div style="margin-bottom: 15px;">Visit the <a href="http://tutorial.ecosis.org/" highlight>EcoSIS Tutorials</a>. Or Contact:</div>
         <div style="margin-bottom: 10px; line-height: 22px;">
-          <div><a href="mailto:info@ecosis.org" highlight>info@ecosis.org</a></div>
-          <div>General EcoSIS questions and program information.</div>
+          <div><a href="mailto:ecosis-admins@googlegroups.com" highlight>ecosis-admins@googlegroups.com</a></div>
+          <div>General EcoSIS questions and program information or Technical help questions for EcoSIS applications and tools.</div>
         </div>
-        <div style="line-height: 22px">
-          <div><a href="mailto:help@ecosis.org" highlight>help@ecosis.org</a></div>
-          <div>Technical help questions for EcoSIS applications and tools.</div>
-        </div>
+        <!-- <div style="line-height: 22px">
+          <div><a href="" highlight>help</a></div>
+          <div>.</div>
+        </div> -->
 
       </div>
     </div>
