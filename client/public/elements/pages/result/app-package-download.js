@@ -50,6 +50,14 @@ export default class AppPackageDownload extends Mixin(LitElement)
     this.packageName = pkg.ecosis.package_name;
     this.packageTitle = pkg.ecosis.package_title;
     this.resources = pkg.ecosis.resources;
+
+    // ensure https on urls
+    this.resources.forEach(r => {
+      if( r.url ) {
+        r.url = r.url.replace(/^http:\/\//, /^https:\/\//);
+      }
+    });
+
     this.updateDownloadLink();
   }
 

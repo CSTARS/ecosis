@@ -14,8 +14,6 @@ module.exports = async function(model, req, res) {
   /**
    * result contains packageName and stream
    */
-  console.log(pkgid, filters, includeMetadata);
-
   let result, output;
 
 
