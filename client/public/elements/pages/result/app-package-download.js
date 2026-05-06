@@ -54,7 +54,7 @@ export default class AppPackageDownload extends Mixin(LitElement)
     // ensure https on urls
     this.resources.forEach(r => {
       if( r.url ) {
-        r.url = r.url.replace(/^http:\/\//, /^https:\/\//);
+        r.url = r.url.replace(/^http:\/\//, 'https://');
       }
     });
 
