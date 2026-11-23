@@ -8,20 +8,22 @@
     "watch": "cd client && webpack --config webpack-watch.config.js --watch",
     "dist": "cd client && ./build.sh"
   },
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "@ucd-lib/spa-router-middleware": "^0.1.0",
     "body-parser": "^1.19.0",
-    "bunyan": "^1.8.12",
+    "bunyan": "^1.8.15",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.4",
     "csv-stringify": "^5.3.0",
     "express": "^4.17.1",
-    "mongodb": "^3.2.7",
-    "request": "^2.88.0"
+    "mongodb": "^3.7.4"
   },
   "devDependencies": {
     "@ucd-lib/cork-app-build": "^0.4.2",
-    "webpack": "^5.76.1",
-    "webpack-cli": "^5.0.1"
+    "webpack": "^5.113.0",
+    "webpack-cli": "^7.3.1"
   }
 }

@@ -1,42 +1,29 @@
 const logger = require('../lib/logger');
 const config = require('../lib/config');
-const request = require('request');
 
 class OrganizationModel {
 
-  get(id, includeUsers=false) {
-    logger.info('Requesting org info: '+config.ckan.url+'/api/3/action/organization_show');
+  async get(id, includeUsers=false) {
+    logger.info('Requesting org info: '+config.ckan.internalUrl+'/api/3/action/organization_show');
 
-    return new Promise((resolve, reject) => {
-      request(
-        config.ckan.url+'/api/3/action/organization_show', 
-        {
-          qs : {id}
-        },
-        (error, resp) => {
-          if( error ) return reject(error);
-          if( resp.statusCode !== 200 ) {
-            return reject({
-              statusCode : resp.statusCode,
-              body: resp.body
-            });
-          }
-          
-          try {
-            let org = JSON.parse(resp.body);
-            if( org.error ) return reject(org);
-            org = org.result;
+    let url = config.ckan.internalUrl+'/api/3/action/organization_show?'+new URLSearchParams({id});
+    let resp = await fetch(url);
+    let body = await resp.text();
 
-            if( !includeUsers ) delete org.users;
-            else org.users = org.users.map(u => ({name: u.display_name, role: u.capacity}));
-            resolve(org);
+    if( resp.status !== 200 ) {
+      throw {
+        statusCode : resp.status,
+        body
+      };
+    }
 
-          } catch(e) {
-            reject(e);
-          }
-        }
-      )
-    });
+    let org = JSON.parse(body);
+    if( org.error ) throw org;
+    org = org.result;
+
+    if( !includeUsers ) delete org.users;
+    else org.users = org.users.map(u => ({name: u.display_name, role: u.capacity}));
+    return org;
   }
 }
 

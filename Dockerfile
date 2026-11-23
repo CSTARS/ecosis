@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:24-bookworm
 
 ARG ECOSIS_VERSION
 
@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY package.json .
 COPY package-lock.json .
-RUN npm install --production
+RUN npm ci --omit=dev
 
 COPY client/public/package.json client/public/package.json
 COPY client/dist client/dist
