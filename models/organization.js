@@ -4,9 +4,9 @@ const config = require('../lib/config');
 class OrganizationModel {
 
   async get(id, includeUsers=false) {
-    logger.info('Requesting org info: '+config.ckan.url+'/api/3/action/organization_show');
+    logger.info('Requesting org info: '+config.ckan.internalUrl+'/api/3/action/organization_show');
 
-    let url = config.ckan.url+'/api/3/action/organization_show?'+new URLSearchParams({id});
+    let url = config.ckan.internalUrl+'/api/3/action/organization_show?'+new URLSearchParams({id});
     let resp = await fetch(url);
     let body = await resp.text();
 
